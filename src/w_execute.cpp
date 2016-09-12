@@ -137,81 +137,11 @@ void W_Execute::displayExecute(struct execute_s *ex)
 
     ui->disp_strain_d->setText(QString::number(((double)(ex->strain-32768)/32768)*100, 'i', 0));
 
-    status_byte_disp(ex->status1, ex->status2);
+    QString myStr;
+    myFlexSEA_Generic.execStatusBytes(ex->status1, ex->status2, &myStr);
+    ui->label_status1->setText(myStr);
 
     //==========
-}
-
-void W_Execute::status_byte_disp(uint8_t stat1, uint8_t stat2)
-{
-    QString str1;
-    uint8_t mod = 0;
-
-    //WDCLK:
-    if(GET_WDCLK_FLAG(stat1))
-    {
-        str1 += QString("Co-Processor Error");
-        mod++;
-    }
-
-    //Disconnected battery:
-    if(GET_DISCON_FLAG(stat1) == BATT_DISCONNECTED)
-    {
-        if(mod){str1 += QString(" | ");};
-        str1 += QString("Disconnected battery");
-        mod++;
-    }
-
-    //Temperature:
-    if(GET_OVERTEMP_FLAG(stat1) == T_WARNING)
-    {
-        if(mod){str1 += QString(" | ");};
-        str1 += QString("Temp. Near Limit");
-        mod++;
-    }
-    else if(GET_OVERTEMP_FLAG(stat1) == T_ERROR)
-    {
-        if(mod){str1 += QString(" | ");};
-        str1 += QString("Temp. Error");
-        mod++;
-    }
-
-    //Voltage - VB:
-    if(GET_VB_FLAG(stat1) == V_LOW)
-    {
-        if(mod){str1 += QString(" | ");};
-        str1 += QString("VB Low");
-        mod++;
-    }
-    else if(GET_VB_FLAG(stat1) == V_HIGH)
-    {
-        if(mod){str1 += QString(" | ");};
-        str1 += QString("VB High");
-        mod++;
-    }
-
-    //Voltage - VG:
-    if(GET_VG_FLAG(stat1) == V_LOW)
-    {
-        if(mod){str1 += QString(" | ");};
-        str1 += QString("VG Low");
-        mod++;
-    }
-    else if(GET_VG_FLAG(stat1) == V_HIGH)
-    {
-        if(mod){str1 += QString(" | ");};
-        str1 += QString("VG High");
-        mod++;
-    }
-
-    //If nothing is wrong:
-    if(mod == 0)
-    {
-        str1 = QString("Status: OK");
-    }
-
-    //Display string:
-    ui->label_status1->setText(str1);
 }
 
 //****************************************************************************

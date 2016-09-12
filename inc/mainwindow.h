@@ -56,7 +56,7 @@ class MainWindow;
 #define ANYCOMMAND_WINDOWS_MAX      1
 #define CONVERTER_WINDOWS_MAX       1
 #define CONTROL_WINDOWS_MAX         1
-#define PLOT2D_WINDOWS_MAX          1
+#define PLOT2D_WINDOWS_MAX          2
 
 class MainWindow : public QMainWindow
 {

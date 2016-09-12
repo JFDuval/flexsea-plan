@@ -45,6 +45,35 @@
 
 #define MAX_SLAVES                  10
 
+#define GET_WDCLK_FLAG(status1)     ((status1 >> 7) & 0x01)
+#define GET_DISCON_FLAG(status1)    ((status1 >> 6) & 0x01)
+#define GET_OVERTEMP_FLAG(status1)  ((status1 >> 4) & 0x03)
+#define GET_VB_FLAG(status1)        ((status1 >> 2) & 0x03)
+#define GET_VG_FLAG(status1)        ((status1 >> 0) & 0x03)
+#define GET_3V3_FLAG(status2)       ((status2 >> 0) & 0x03)
+#define GET_FSM_FLAG(status2)       ((status2 >> 7) & 0x01)
+
+//Qualitative:
+#define V_LOW                       1
+#define V_NORMAL                    0
+#define V_HIGH                      2
+#define T_NORMAL                    0
+#define T_WARNING                   1
+#define T_ERROR                     2
+#define BATT_CONNECTED              0
+#define BATT_DISCONNECTED           1
+//If everything is normal STATUS1 == 0
+
+//PSoC 4 ADC conversions:
+#define P4_ADC_SUPPLY               5.0
+#define P4_ADC_MAX                  2048
+#define P4_T0                       0.5
+#define P4_TC                       0.01
+
+//PSoC 5 ADC conversions:
+#define P5_ADC_SUPPLY               5.0
+#define P5_ADC_MAX                  4096
+
 //****************************************************************************
 // Namespace & Class
 //****************************************************************************
@@ -73,6 +102,8 @@ public:
 	
     void populateComboBoxEx(QComboBox *cbox);
     void populateComboBoxAll(QComboBox *cbox);
+
+    void execStatusBytes(uint8_t stat1, uint8_t stat2, QString *str1);
 
     void packetVisualizer(uint numb, uint8_t *packet);
 	

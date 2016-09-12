@@ -332,6 +332,10 @@ void W_2DPlot::initUserInput(void)
         ui->comboBoxMargin->addItem(var_list_margin.at(i));
     }
 
+    //Plot Freeze:
+    ui->pushButtonFreeze->setText("Freeze!");
+    plotFreezed = false;
+
     //Data fields and variables:
     //==========================
 
@@ -738,4 +742,21 @@ void W_2DPlot::on_lineEditYMin_returnPressed()
 void W_2DPlot::on_lineEditYMax_returnPressed()
 {
     setChartAxis();
+}
+
+void W_2DPlot::on_pushButtonFreeze_clicked()
+{
+    //Toggle between Freeze and Release
+    if(plotFreezed == true)
+    {
+        //We Release (normal operation)
+        plotFreezed = false;
+        ui->pushButtonFreeze->setText("Freeze!");
+    }
+    else
+    {
+        //We Freeze
+        plotFreezed = true;
+        ui->pushButtonFreeze->setText("Release");
+    }
 }

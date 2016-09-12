@@ -91,6 +91,8 @@ private slots:
     void on_lineEditYMin_returnPressed();
     void on_lineEditYMax_returnPressed();
 
+    void on_pushButtonFreeze_clicked();
+
 private:
 	//Variables & Objects:
     Ui::W_2DPlot *ui;
@@ -108,6 +110,7 @@ private:
     bool allChannelUnused(void);
     int plotting_len;
     QStringList var_list_margin;
+    bool plotFreezed;
 
 	//Function(s):
     void initChart(void);
