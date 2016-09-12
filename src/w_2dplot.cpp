@@ -646,33 +646,36 @@ void W_2DPlot::array_minmax(int *arr, int len, int *min, int *max)
 
 void W_2DPlot::refreshData2DPlot(int *x, int *y, int len, uint8_t plot_index)
 {
-    //From array to QLineSeries, + auto-scale limits:
-    graph_ylim[2*plot_index] = y[0];
-    graph_ylim[2*plot_index+1] = y[0];
-    qlsData[plot_index]->clear();
-    for(int i = 0; i < len; i++)
+    if(plotFreezed == false)
     {
-        //Add datapoint to series:
-        qlsData[plot_index]->append(x[i], y[i]);
+        //From array to QLineSeries, + auto-scale limits:
+        graph_ylim[2*plot_index] = y[0];
+        graph_ylim[2*plot_index+1] = y[0];
+        qlsData[plot_index]->clear();
+        for(int i = 0; i < len; i++)
+        {
+            //Add datapoint to series:
+            qlsData[plot_index]->append(x[i], y[i]);
 
-        //Min & Max:
-        if(y[i] < graph_ylim[2*plot_index])
-        {
-            graph_ylim[2*plot_index] = y[i];
+            //Min & Max:
+            if(y[i] < graph_ylim[2*plot_index])
+            {
+                graph_ylim[2*plot_index] = y[i];
+            }
+            if(y[i] > graph_ylim[(2*plot_index) + 1])
+            {
+                graph_ylim[(2*plot_index) + 1] = y[i];
+            }
         }
-        if(y[i] > graph_ylim[(2*plot_index) + 1])
-        {
-            graph_ylim[(2*plot_index) + 1] = y[i];
-        }
+
+        plotting_len = len;
+
+        //qDebug() << "refreshData2DPlot ylim:" << graph_ylim[0] << graph_ylim[1] << \
+        //              graph_ylim[2] << graph_ylim[3];
+
+        //Update axis:
+        setChartAxis();
     }
-
-    plotting_len = len;
-
-    //qDebug() << "refreshData2DPlot ylim:" << graph_ylim[0] << graph_ylim[1] << \
-    //              graph_ylim[2] << graph_ylim[3];
-
-    //Update axis:
-    setChartAxis();
 }
 
 //Generates a sine wave. More channels = faster frequency
