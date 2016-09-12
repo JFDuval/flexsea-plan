@@ -26,7 +26,7 @@
 *****************************************************************************
 	[Change log] (Convention: YYYY-MM-DD | author | comment)
 	* 2016-09-09 | jfduval | Initial GPL-3.0 release
-	*
+    * 2016-09-12 | jfduval | create() RIC/NU view
 ****************************************************************************/
 
 #ifndef MAINWINDOW_H
@@ -40,6 +40,7 @@
 #include "WinConverter.h"
 #include "WinView2DPlot.h"
 #include "WinControlControl.h"
+#include "WinViewRicnu.h"
 #include "flexsea_generic.h"
 #include "serialdriver.h"
 #include "datalogger.h"
@@ -57,6 +58,7 @@ class MainWindow;
 #define CONVERTER_WINDOWS_MAX       1
 #define CONTROL_WINDOWS_MAX         1
 #define PLOT2D_WINDOWS_MAX          2
+#define RICNU_VIEW_WINDOWS_MAX      1
 
 class MainWindow : public QMainWindow
 {
@@ -100,6 +102,10 @@ private:
     int plot2DObjectCount;
     WinView2DPlot *my2DPlot[PLOT2D_WINDOWS_MAX];
 
+    //RIC/NU View:
+    int ricnuViewObjectCount;
+    WinViewRicnu *myViewRicnu[RICNU_VIEW_WINDOWS_MAX];
+
     //FlexSEA Generic:
     FlexSEA_Generic myFlexSEA_Generic;
 
@@ -118,6 +124,7 @@ public slots:
     void createConfig(void);
     void createSlaveComm(void);
     void createAnyCommand(void);
+    void createViewRicnu(void);
     void createConverter(void);
 
     //MDI Windows (closed):
@@ -127,6 +134,7 @@ public slots:
     void closeConfig(void);
     void closeSlaveComm(void);
     void closeAnyCommand(void);
+    void closeViewRicnu(void);
     void closeConverter(void);
 
     //Message boxes:

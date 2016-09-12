@@ -89,6 +89,7 @@
     </property>
     <addaction name="actionExecute_Barebone"/>
     <addaction name="actionManage_Barebone"/>
+    <addaction name="actionRIC_NU_Knee"/>
     <addaction name="separator"/>
     <addaction name="action2D_Plot"/>
    </widget>
@@ -204,6 +205,11 @@
   <action name="actionLicense">
    <property name="text">
     <string>License</string>
+   </property>
+  </action>
+  <action name="actionRIC_NU_Knee">
+   <property name="text">
+    <string>RIC/NU Knee</string>
    </property>
   </action>
  </widget>
@@ -361,8 +367,24 @@
    <slot>displayLicense()</slot>
    <hints>
     <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
      <x>594</x>
      <y>433</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionRIC_NU_Knee</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>createViewRicnu()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
     </hint>
     <hint type="destinationlabel">
      <x>594</x>
@@ -383,5 +405,6 @@
   <slot>createConfig()</slot>
   <slot>createSlaveComm()</slot>
   <slot>displayLicense()</slot>
+  <slot>createViewRicnu()</slot>
  </slots>
 </ui>

@@ -26,7 +26,7 @@
 *****************************************************************************
 	[Change log] (Convention: YYYY-MM-DD | author | comment)
 	* 2016-09-09 | jfduval | Initial GPL-3.0 release
-	*
+    * 2016-09-12 | jfduval | create() RIC/NU view
 ****************************************************************************/
 
 //****************************************************************************
@@ -40,6 +40,7 @@
 #include "WinView2DPlot.h"
 #include "WinConfig.h"
 #include "WinSlaveComm.h"
+#include "WinViewRicnu.h"
 #include "WinConverter.h"
 #include <QMessageBox>
 #include <QDebug>
@@ -73,6 +74,7 @@ MainWindow::MainWindow(QWidget *parent) :
     converterObjectCount = 0;
     controlObjectCount = 0;
     plot2DObjectCount = 0;
+    ricnuViewObjectCount = 0;
 
     //Create default objects:
     createConfig();
@@ -407,6 +409,55 @@ void MainWindow::closeAnyCommand(void)
     if(anyCommandObjectCount > 0)
     {
         anyCommandObjectCount--;
+    }
+    qDebug() << msg;
+    ui->statusBar->showMessage(msg);
+}
+
+//Creates a new View RIC/NU window
+void MainWindow::createViewRicnu(void)
+{
+    QString msg = "";
+
+    //Limited number of windows:
+    if(ricnuViewObjectCount < (RICNU_VIEW_WINDOWS_MAX))
+    {
+        //WinViewExecute *myViewEx = new WinViewExecute(ui->mdiArea);
+        myViewRicnu[ricnuViewObjectCount] = new WinViewRicnu(ui->mdiArea);
+        myViewRicnu[ricnuViewObjectCount]->setAttribute(Qt::WA_DeleteOnClose);
+        myViewRicnu[ricnuViewObjectCount]->show();
+
+        msg = "Created 'RIC/NU View' object index " + \
+                QString::number(ricnuViewObjectCount) + " (max index = " \
+                + QString::number(RICNU_VIEW_WINDOWS_MAX-1) + ").";
+        ui->statusBar->showMessage(msg);
+
+        //Link SerialDriver and RIC/NU:
+        connect(mySerialDriver, SIGNAL(newDataReady()), \
+                myViewRicnu[ricnuViewObjectCount], SLOT(refreshDisplayExecute()));
+
+        //Link to MainWindow for the close signal:
+        connect(myViewRicnu[ricnuViewObjectCount], SIGNAL(windowClosed()), \
+                this, SLOT(closeViewExecute()));
+
+        ricnuViewObjectCount++;
+    }
+    else
+    {
+        msg = "Maximum number of RIC/NU View objects reached (" \
+                + QString::number(RICNU_VIEW_WINDOWS_MAX) + ")";
+        qDebug() << msg;
+        ui->statusBar->showMessage(msg);
+    }
+}
+
+void MainWindow::closeViewRicnu(void)
+{
+    QString msg = "View RIC/NU window closed.";
+
+    if(ricnuViewObjectCount > 0)
+    {
+        ricnuViewObjectCount--;
     }
     qDebug() << msg;
     ui->statusBar->showMessage(msg);

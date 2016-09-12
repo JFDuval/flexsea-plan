@@ -25,7 +25,7 @@
 *****************************************************************************
 	[Change log] (Convention: YYYY-MM-DD | author | comment)
 	* 2016-09-09 | jfduval | Initial GPL-3.0 release
-	*
+    * 2016-09-12 | jfduval | Added Freeze/Release
 ****************************************************************************/
 
 #ifndef W_2DPLOT_H
