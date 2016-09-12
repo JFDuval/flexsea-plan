@@ -102,17 +102,19 @@ void W_Ricnu::displayExecute(struct execute_s *ex)
     ui->disp_gyroy->setText(QString::number(ex->gyro.y));
     ui->disp_gyroz->setText(QString::number(ex->gyro.z));
 
-    ui->disp_enc->setText(QString::number(ex->enc_display));
+    //ui->disp_enc->setText(QString::number(ex->enc_display));
+    //ui->disp_enc->setText(QString::number(ex->enc_display));
 
-    ui->disp_strain->setText(QString::number(ex->strain));
-    ui->disp_ana->setText(QString::number(ex->analog[0]));
-    ui->disp_ana1->setText(QString::number(ex->analog[1]));
+    //ui->strain1->setText(QString::number(ex->strain));
+    //ui->strain1->setText(QString::number(ex->strain));
+    //ui->strain1->setText(QString::number(ex->strain));
+    //ui->strain1->setText(QString::number(ex->strain));
+    //ui->strain1->setText(QString::number(ex->strain));
+    //ui->strain1->setText(QString::number(ex->strain));
 
     ui->disp_current->setText(QString::number(ex->current));
 
     ui->disp_vb->setText(QString::number(ex->volt_batt));
-    ui->disp_vg->setText(QString::number(ex->volt_int));
-    ui->disp_temp->setText(QString::number(ex->temp));
 
     combined_status = (ex->status2 << 8) & ex->status1;
     ui->disp_stat1->setText(QString::number(combined_status));
@@ -122,11 +124,6 @@ void W_Ricnu::displayExecute(struct execute_s *ex)
 
     ui->disp_current_d->setText(QString::number((float)ex->current*18.5, 'i',0));
     ui->disp_vb_d->setText(QString::number(P4_ADC_SUPPLY*((16*(float)ex->volt_batt/3 + 302 )/P4_ADC_MAX) / 0.0738, 'f',2));
-    ui->disp_vg_d->setText(QString::number(P4_ADC_SUPPLY*((26*(float)ex->volt_int/3 + 440 )/P4_ADC_MAX) / 0.43, 'f',2));
-    ui->disp_temp_d->setText(QString::number(((((2.625*(float)ex->temp + 41)/P4_ADC_MAX)*P4_ADC_SUPPLY) - P4_T0) / P4_TC,'f',1));
-
-    ui->disp_ana_d->setText(QString::number(((float)ex->analog[0]/P5_ADC_MAX)*P5_ADC_SUPPLY,'f',2));
-    ui->disp_ana1_d->setText(QString::number(((float)ex->analog[1]/P5_ADC_MAX)*P5_ADC_SUPPLY,'f',2));
 
     ui->disp_accx_d->setText(QString::number((double)ex->accel.x/8192, 'f', 2));
     ui->disp_accy_d->setText(QString::number((double)ex->accel.y/8192, 'f', 2));
@@ -135,7 +132,12 @@ void W_Ricnu::displayExecute(struct execute_s *ex)
     ui->disp_gyroy_d->setText(QString::number((double)ex->gyro.y/16.4, 'i', 0));
     ui->disp_gyroz_d->setText(QString::number((double)ex->gyro.z/16.4, 'i', 0));
 
-    ui->disp_strain_d->setText(QString::number(((double)(ex->strain-32768)/32768)*100, 'i', 0));
+    //ui->strain1d->setText(QString::number(((double)(ex->strain-32768)/32768)*100, 'i', 0));
+    //ui->strain1d->setText(QString::number(((double)(ex->strain-32768)/32768)*100, 'i', 0));
+    //ui->strain1d->setText(QString::number(((double)(ex->strain-32768)/32768)*100, 'i', 0));
+    //ui->strain1d->setText(QString::number(((double)(ex->strain-32768)/32768)*100, 'i', 0));
+    //ui->strain1d->setText(QString::number(((double)(ex->strain-32768)/32768)*100, 'i', 0));
+    //ui->strain1d->setText(QString::number(((double)(ex->strain-32768)/32768)*100, 'i', 0));
 
     QString myStr;
     myFlexSEA_Generic.execStatusBytes(ex->status1, ex->status2, &myStr);

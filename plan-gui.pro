@@ -45,7 +45,9 @@ SOURCES += src/main.cpp \
     src/WinAnyCommand.cpp \
     src/w_converter.cpp \
     src/WinConverter.cpp \
-    src/datalogger.cpp
+    src/datalogger.cpp \
+    src/WinViewRicnu.cpp \
+    src/w_ricnu.cpp
 
 HEADERS  += inc/main.h \
     inc/mainwindow.h \
@@ -77,7 +79,9 @@ HEADERS  += inc/main.h \
     inc/WinAnyCommand.h \
     inc/w_converter.h \
     inc/WinConverter.h \
-    inc/datalogger.h
+    inc/datalogger.h \
+    inc/WinViewRicnu.h \
+    inc/w_ricnu.h
 
 FORMS    += ui/mainwindow.ui \
     ui/w_execute.ui \
@@ -86,7 +90,8 @@ FORMS    += ui/mainwindow.ui \
     ui/w_planconfig.ui \
     ui/w_slavecomm.ui \
     ui/w_anycommand.ui \
-    ui/w_converter.ui
+    ui/w_converter.ui \
+    ui/w_ricnu.ui
 
 RESOURCES += \
     misc/icons.qrc
