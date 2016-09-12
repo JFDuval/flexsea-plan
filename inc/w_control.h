@@ -1,0 +1,104 @@
+/****************************************************************************
+	[Project] FlexSEA: Flexible & Scalable Electronics Architecture
+	[Sub-project] 'plan-gui' Graphical User Interface
+	Copyright (C) 2016 Dephy, Inc. <http://dephy.com/>
+
+	This program is free software: you can redistribute it and/or modify
+	it under the terms of the GNU General Public License as published by
+	the Free Software Foundation, either version 3 of the License, or
+	(at your option) any later version.
+
+	This program is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	GNU General Public License for more details.
+
+	You should have received a copy of the GNU General Public License
+	along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*****************************************************************************
+	[Lead developper] Jean-Francois (JF) Duval, jfduval at dephy dot com.
+	[Origin] Based on Jean-Francois Duval's work at the MIT Media Lab 
+	Biomechatronics research group <http://biomech.media.mit.edu/>
+	[Contributors] 
+*****************************************************************************
+	[This file] w_control.cpp: Control Window
+*****************************************************************************
+	[Change log] (Convention: YYYY-MM-DD | author | comment)
+	* 2016-09-09 | jfduval | Initial GPL-3.0 release
+	*
+****************************************************************************/
+
+#ifndef W_CONTROL_H
+#define W_CONTROL_H
+
+//****************************************************************************
+// Include(s)
+//****************************************************************************
+
+#include <QWidget>
+#include "flexsea_generic.h"
+
+//****************************************************************************
+// Namespace & Class Definition:
+//****************************************************************************
+
+namespace Ui {
+class W_Control;
+}
+
+class W_Control : public QWidget
+{
+    Q_OBJECT
+
+public:
+	//Constructor & Destructor:
+    explicit W_Control(QWidget *parent = 0);
+    ~W_Control();
+
+public slots:
+
+signals:
+    void writeCommand(char numb, unsigned char *tx_data);
+
+private slots:
+    void timerCtrlEvent(void);
+    void on_pushButton_SetController_clicked();
+    void on_pushButton_setp_a_go_clicked();
+    void on_pushButton_setp_b_go_clicked();
+    void on_pushButton_toggle_clicked();
+    void on_pushButton_CtrlMinMax_clicked();
+    void on_hSlider_Ctrl_valueChanged(int value);
+    void on_pushButton_SetGains_clicked();
+    void on_comboBox_ctrl_list_currentIndexChanged(int index);
+    void on_comboBox_slave_currentIndexChanged(int index);
+
+private:
+	//Variables & Objects:
+    Ui::W_Control *ui;
+	FlexSEA_Generic myFlexSEA_Generic;
+    int active_slave, active_slave_index;
+    int wanted_controller = 0, selected_controller = 0, active_controller = 0;
+    int trap_pos = 0, trap_posi = 0, trap_posf = 0, trap_spd = 0, trap_acc = 0;
+    int ctrl_setpoint = 0, ctrl_setpoint_trap = 0;
+    int ctrl_toggle_state = 0;
+    int ctrl_gains[6][6];
+    int trapez_steps = 0;
+    uint8_t toggle_output_state = 0;
+    QStringList var_list_controllers;
+    QTimer *timerCtrl;
+	
+	//Function(s):
+	void initControl(void);
+    void init_ctrl_gains(void);
+    void save_ctrl_gains(int controller, int16_t *gains);
+	void controller_setpoint(int val);
+    void initTimers(void);	
+	void stream_ctrl(void);
+	void control_trapeze(void);
+	void refreshStatusGain(void);
+};
+
+#define CONTROLLERS         6
+#define GAIN_FIELDS         6
+
+#endif // W_CONTROL_H
