@@ -114,6 +114,7 @@ void W_Control::initControl(void)
     ui->control_g4->setText("0");
     ui->control_g5->setText("0");
 	refreshStatusGain();
+    ui->statusGains->setTextFormat(Qt::RichText);
 
     //Toggle:
     ctrl_toggle_state = 0;
@@ -598,27 +599,27 @@ void W_Control::on_comboBox_slave_currentIndexChanged(int index)
 
 void W_Control::refreshStatusGain(void)
 {
-	QString str;
+    QString str;
 	
-    str = "Gains: I = [" + \
-            QString::number(ctrl_gains[4][0]) + ',' + \
-            QString::number(ctrl_gains[4][1]) + ',' + \
-            QString::number(ctrl_gains[4][2]) + ',' + \
-            QString::number(ctrl_gains[4][3]) + ',' + \
-            QString::number(ctrl_gains[4][4]) + ',' + \
-            QString::number(ctrl_gains[4][5]) + "] P = [" + \
-            QString::number(ctrl_gains[2][0]) + ',' + \
-            QString::number(ctrl_gains[2][1]) + ',' + \
-            QString::number(ctrl_gains[2][2]) + ',' + \
-            QString::number(ctrl_gains[2][3]) + ',' + \
-            QString::number(ctrl_gains[2][4]) + ',' + \
-            QString::number(ctrl_gains[2][5]) + "] Z = [" + \
-            QString::number(ctrl_gains[5][0]) + ',' + \
-            QString::number(ctrl_gains[5][1]) + ',' + \
-            QString::number(ctrl_gains[5][2]) + ',' + \
-            QString::number(ctrl_gains[5][3]) + ',' + \
-            QString::number(ctrl_gains[5][4]) + ',' + \
-            QString::number(ctrl_gains[5][5]) + "].";
+    str = "<i>Gains: I = [" + \
+            QString::number(ctrl_gains[3][0]) + ", " + \
+            QString::number(ctrl_gains[3][1]) + ", " + \
+            QString::number(ctrl_gains[3][2]) + ", " + \
+            QString::number(ctrl_gains[3][3]) + ", " + \
+            QString::number(ctrl_gains[3][4]) + ", " + \
+            QString::number(ctrl_gains[3][5]) + "]  P = [" + \
+            QString::number(ctrl_gains[2][0]) + ", " + \
+            QString::number(ctrl_gains[2][1]) + ", " + \
+            QString::number(ctrl_gains[2][2]) + ", " + \
+            QString::number(ctrl_gains[2][3]) + ", " + \
+            QString::number(ctrl_gains[2][4]) + ", " + \
+            QString::number(ctrl_gains[2][5]) + "]  Z = [" + \
+            QString::number(ctrl_gains[5][0]) + ", " + \
+            QString::number(ctrl_gains[5][1]) + ", " + \
+            QString::number(ctrl_gains[5][2]) + ", " + \
+            QString::number(ctrl_gains[5][3]) + ", " + \
+            QString::number(ctrl_gains[5][4]) + ", " + \
+            QString::number(ctrl_gains[5][5]) + "].</i>";
 			
     ui->statusGains->setText(str);
     qDebug() << str;

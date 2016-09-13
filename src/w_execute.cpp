@@ -36,6 +36,8 @@
 #include "flexsea_generic.h"
 #include "ui_w_execute.h"
 #include "main.h"
+#include <QString>
+#include <QTextStream>
 
 //****************************************************************************
 // Constructor & Destructor:
@@ -68,6 +70,33 @@ void W_Execute::refresh(void)
     struct execute_s *exPtr;
     myFlexSEA_Generic.assignExecutePtr(&exPtr, ui->comboBox_slave->currentIndex());
     displayExecute(exPtr);
+}
+
+void W_Execute::log(QTextStream *filePtr, uint8_t slaveIndex, \
+                                char term, qint64 t_ms, QString t_text)
+{
+    struct execute_s *exPtr;
+    myFlexSEA_Generic.assignExecutePtr(&exPtr, slaveIndex);
+
+    (*filePtr) << t_text << ',' << \
+                        t_ms << ',' << \
+                        exPtr->accel.x << ',' << \
+                        exPtr->accel.y << ',' << \
+                        exPtr->accel.z << ',' << \
+                        exPtr->gyro.x << ',' << \
+                        exPtr->gyro.y << ',' << \
+                        exPtr->gyro.z << ',' << \
+                        exPtr->strain << ',' << \
+                        exPtr->analog[0] << ',' << \
+                        exPtr->analog[1] << ',' << \
+                        exPtr->current << ',' << \
+                        exPtr->enc_display << ',' << \
+                        exPtr->volt_batt << ',' << \
+                        exPtr->volt_int << ',' << \
+                        exPtr->temp << ',' << \
+                        exPtr->status1 << ',' << \
+                        exPtr->status2 << \
+                        term;
 }
 
 //****************************************************************************

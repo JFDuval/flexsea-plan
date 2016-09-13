@@ -86,10 +86,18 @@ private:
 	//Function(s):
 	void init(void);
 	void logTimestamp(qint64 *t_ms, QString *t_text);
-    void writeHeader(uint8_t item, uint8_t slaveIndex, uint8_t expIndex);
+    void writeIdentifier(uint8_t item, uint8_t slaveIndex, uint8_t expIndex);
     void writeExecuteReadAllHeader(uint8_t item);
     void writeReadAllRicnuHeader(uint8_t item);
 	void logDirectory(void);
+    void logReadAllExec(QTextStream *filePtr, uint8_t slaveIndex, \
+                            char term, qint64 t_ms, QString t_text);
+    void logReadAllRicnu(QTextStream *filePtr, uint8_t slaveIndex, \
+                            char term, qint64 t_ms, QString t_text);
+    void getFctPtrs(uint8_t slaveIndex, uint8_t expIndex, \
+                    void (DataLogger::**myHeaderFctPtr) (uint8_t item), \
+                    void (DataLogger::**myLogFctPtr) (QTextStream *filePtr, uint8_t slaveIndex, \
+                    char term, qint64 t_ms, QString t_text));
 
 signals:
     void setLogFileStatus(QString msg);

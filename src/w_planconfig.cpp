@@ -81,7 +81,7 @@ void W_PlanConfig::setComProgress(int val, int rst)
 
 void W_PlanConfig::setLogFileStatus(QString status)
 {
-    ui->logFileStatus->setText(status);
+    ui->logFileStatus1->setText(status);
 }
 
 //****************************************************************************
@@ -111,7 +111,18 @@ void W_PlanConfig::initCom(void)
 
 void W_PlanConfig::initLog(void)
 {
-    ui->logFileStatus->setText("No log file selected.");
+    ui->logFileStatus1->setText("No log file selected.");
+
+    //Items 2-4 are disabled for now:
+    ui->logFileStatus2->setText("No log file selected.");
+    ui->logFileStatus3->setText("No log file selected.");
+    ui->logFileStatus4->setText("No log file selected.");
+    ui->logFileStatus2->setDisabled(true);
+    ui->logFileStatus3->setDisabled(true);
+    ui->logFileStatus4->setDisabled(true);
+    ui->pbOpenLog2->setDisabled(true);
+    ui->pbOpenLog3->setDisabled(true);
+    ui->pbOpenLog4->setDisabled(true);
 }
 
 void W_PlanConfig::getComList(void)
@@ -228,8 +239,7 @@ void W_PlanConfig::on_pushButtonRefresh_clicked()
     getComList();
 }
 
-void W_PlanConfig::on_pbOpenLog_clicked()
+void W_PlanConfig::on_pbOpenLog1_clicked()
 {
     emit openLogFile(0);
-    //ToDo future work: support multiple files
 }

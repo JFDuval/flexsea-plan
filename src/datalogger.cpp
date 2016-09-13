@@ -74,11 +74,18 @@ void DataLogger::openFile(uint8_t item)
                 QDir::currentPath(),
                 tr("Log files (*.txt *.csv);;All files (*.*)"));
 
+    //Extract filename to simplify UI:
+    QString path = QDir::currentPath();
+    int pathLen = path.length();
+    //qDebug() << "Current path: " << path << ", len = " << pathLen;
+    QString shortFileName = filename.mid(pathLen+1);
+    //qDebug() << "File name: " << shortFileName;
+
     //Now we open it:
     logFile.setFileName(filename);
     if(logFile.open(QIODevice::ReadWrite))
     {
-        msg = "Successfully opened:\n" + filename;
+        msg = "Successfully opened: '" + shortFileName + "'.";
         emit setLogFileStatus(msg);
         qDebug() << msg;
     }
@@ -98,14 +105,19 @@ void DataLogger::openFile(uint8_t item)
 
 void DataLogger::writeToFile(uint8_t item, uint8_t slaveIndex, uint8_t expIndex)
 {
-    struct execute_s *exPtr;
-    myFlexSEA_Generic.assignExecutePtr(&exPtr, slaveIndex);
-
     qint64 t_ms = 0;
     static qint64 t_ms_initial[4] = {0,0,0,0};
     static bool isFirstTime[4] = {true,true,true,true};
 
+    void (DataLogger::*headerFctPtr) (uint8_t item);
+    void (DataLogger::*logFctPtr) (QTextStream *filePtr, uint8_t slaveIndex, \
+                       char term, qint64 t_ms, QString t_text);
+
     QString t_text = "";
+
+    getFctPtrs(slaveIndex, expIndex, &headerFctPtr, &logFctPtr);
+    //headerFctPtr = &
+    //logFctPtr = &DataLogger::logReadAllExec;
 
     //Writting for the first time?
     if(isFirstTime[item] == true)
@@ -116,7 +128,8 @@ void DataLogger::writeToFile(uint8_t item, uint8_t slaveIndex, uint8_t expIndex)
         t_ms_initial[item] = t_ms;
 
         //Header:
-        writeHeader(item, slaveIndex, expIndex);
+        writeIdentifier(item, slaveIndex, expIndex);
+        (this->*headerFctPtr)(item);
     }
 
     //Timestamps:
@@ -125,31 +138,68 @@ void DataLogger::writeToFile(uint8_t item, uint8_t slaveIndex, uint8_t expIndex)
 
     if(fileOpened[item] == true)
     {
-        //And we add to he text file:
-        logFileStream << t_text << ',' << \
-                            t_ms << ',' << \
-                            exPtr->accel.x << ',' << \
-                            exPtr->accel.y << ',' << \
-                            exPtr->accel.z << ',' << \
-                            exPtr->gyro.x << ',' << \
-                            exPtr->gyro.y << ',' << \
-                            exPtr->gyro.z << ',' << \
-                            exPtr->strain << ',' << \
-                            exPtr->analog[0] << ',' << \
-                            exPtr->analog[1] << ',' << \
-                            exPtr->current << ',' << \
-                            exPtr->enc_display << ',' << \
-                            exPtr->volt_batt << ',' << \
-                            exPtr->volt_int << ',' << \
-                            exPtr->temp << ',' << \
-                            exPtr->status1 << ',' << \
-                            exPtr->status2 << \
-                            endl;
-        //***ToDo*** this is only for Execute!
+        //And we add to the text file:
+        (this->*logFctPtr)(&logFileStream, slaveIndex, '\n', t_ms, t_text);
     }
     else
     {
         emit setStatusBarMessage("Datalogger: no file selected.");
+    }
+}
+
+//What Header and Log format should we use? Based on slaveIndex and expIndex
+//this function picks the right functions and returns pointers
+void DataLogger::getFctPtrs(uint8_t slaveIndex, uint8_t expIndex, \
+                            void (DataLogger::**myHeaderFctPtr) (uint8_t item), \
+                            void (DataLogger::**myLogFctPtr) (QTextStream *filePtr, uint8_t slaveIndex, \
+                                               char term, qint64 t_ms, QString t_text))
+{
+    //Board type? Extract base via address&integer trick
+    uint8_t tmp = 0, bType = 0;
+    tmp = myFlexSEA_Generic.getSlaveCodeAll(slaveIndex) / 10;
+    bType = tmp * 10;
+
+    //And now, experiment per experiment:
+    switch(expIndex)
+    {
+        case 0: //Read All (barebone)
+            switch(bType)
+            {
+                case FLEXSEA_PLAN_BASE:
+                    break;
+                case FLEXSEA_MANAGE_BASE:
+                    break;
+                case FLEXSEA_EXECUTE_BASE:
+                    (*myHeaderFctPtr) = &writeExecuteReadAllHeader;
+                    (*myLogFctPtr) = &logReadAllExec;
+                    break;
+                case FLEXSEA_BATTERY_BASE:
+                    break;
+                case FLEXSEA_STRAIN_BASE:
+                    break;
+                case FLEXSEA_GOSSIP_BASE:
+                    break;
+            }
+            break;
+        case 1: //In Control
+            qDebug() << "Not programmed!";
+            break;
+        case 2: //Strain Amp
+            qDebug() << "Not programmed!";
+            break;
+        case 3: //RIC/NU Knee
+            (*myHeaderFctPtr) = &writeReadAllRicnuHeader;
+            (*myLogFctPtr) = &logReadAllRicnu;
+            break;
+        case 4: //CSEA Knee
+            qDebug() << "Not programmed!";
+            break;
+        case 5: //2DOF Ankle
+            qDebug() << "Not programmed!";
+            break;
+        default:
+            qDebug() << "Invalid Experiment - can't write Log Header";
+            break;
     }
 }
 
@@ -161,6 +211,60 @@ void DataLogger::closeFile(uint8_t item)
         logFile.close();
         fileOpened[item] = false;
     }
+}
+
+void DataLogger::logReadAllExec(QTextStream *filePtr, uint8_t slaveIndex, \
+                                char term, qint64 t_ms, QString t_text)
+{
+    struct execute_s *exPtr;
+    myFlexSEA_Generic.assignExecutePtr(&exPtr, slaveIndex);
+
+    (*filePtr) << t_text << ',' << \
+                        t_ms << ',' << \
+                        exPtr->accel.x << ',' << \
+                        exPtr->accel.y << ',' << \
+                        exPtr->accel.z << ',' << \
+                        exPtr->gyro.x << ',' << \
+                        exPtr->gyro.y << ',' << \
+                        exPtr->gyro.z << ',' << \
+                        exPtr->strain << ',' << \
+                        exPtr->analog[0] << ',' << \
+                        exPtr->analog[1] << ',' << \
+                        exPtr->current << ',' << \
+                        exPtr->enc_display << ',' << \
+                        exPtr->volt_batt << ',' << \
+                        exPtr->volt_int << ',' << \
+                        exPtr->temp << ',' << \
+                        exPtr->status1 << ',' << \
+                        exPtr->status2 << \
+                        term;
+}
+
+void DataLogger::logReadAllRicnu(QTextStream *filePtr, uint8_t slaveIndex, \
+                                 char term, qint64 t_ms, QString t_text)
+{
+    struct ricnu_s *myPtr;
+    myFlexSEA_Generic.assignRicnuPtr(&myPtr, slaveIndex);
+
+    logFileStream << t_text << ',' << \
+                        t_ms << ',' << \
+                        myPtr->ex.accel.x << ',' << \
+                        myPtr->ex.accel.y << ',' << \
+                        myPtr->ex.accel.z << ',' << \
+                        myPtr->ex.gyro.x << ',' << \
+                        myPtr->ex.gyro.y << ',' << \
+                        myPtr->ex.gyro.z << ',' << \
+                        myPtr->ex.current << ',' << \
+                        myPtr->ex.enc_commut << ',' << \
+                        myPtr->ex.enc_control << ',' << \
+                        myPtr->ex.volt_batt << ',' << \
+                        myPtr->ext_strain[0] << ',' << \
+                        myPtr->ext_strain[1] << ',' << \
+                        myPtr->ext_strain[2] << ',' << \
+                        myPtr->ext_strain[3] << ',' << \
+                        myPtr->ext_strain[4] << ',' << \
+                        myPtr->ext_strain[5] << ',' << \
+                        term;
 }
 
 //****************************************************************************
@@ -196,7 +300,7 @@ void DataLogger::logTimestamp(qint64 *t_ms, QString *t_text)
     *t_text = myTime->currentDateTime().toString();
 }
 
-void DataLogger::writeHeader(uint8_t item, uint8_t slaveIndex, uint8_t expIndex)
+void DataLogger::writeIdentifier(uint8_t item, uint8_t slaveIndex, uint8_t expIndex)
 {
     QString msg, slaveName, expName;
     myFlexSEA_Generic.getSlaveNameAll(slaveIndex, &slaveName);
@@ -211,58 +315,6 @@ void DataLogger::writeHeader(uint8_t item, uint8_t slaveIndex, uint8_t expIndex)
     if(fileOpened[item] == true)
     {
         logFileStream << msg;
-    }
-
-    //Board type? Extract base via integer trick
-    uint8_t tmp = 0, bType = 0;
-    tmp = myFlexSEA_Generic.getSlaveCodeAll(slaveIndex) / 10;
-    bType = tmp * 10;
-
-    //And now, experiment per experiment:
-    switch(expIndex)
-    {
-        case 0: //Read All (barebone)
-            switch(bType)
-            {
-                case FLEXSEA_PLAN_BASE:
-                    qDebug() << "FLEXSEA_PLAN_BASE";
-                    break;
-                case FLEXSEA_MANAGE_BASE:
-                    qDebug() << "FLEXSEA_MANAGE_BASE";
-                    break;
-                case FLEXSEA_EXECUTE_BASE:
-                    qDebug() << "FLEXSEA_EXECUTE_BASE";
-                    writeExecuteReadAllHeader(item);
-                    break;
-                case FLEXSEA_BATTERY_BASE:
-                    qDebug() << "FLEXSEA_BATTERY_BASE";
-                    break;
-                case FLEXSEA_STRAIN_BASE:
-                    qDebug() << "FLEXSEA_STRAIN_BASE";
-                    break;
-                case FLEXSEA_GOSSIP_BASE:
-                    qDebug() << "FLEXSEA_GOSSIP_BASE";
-                    break;
-            }
-            break;
-        case 1: //In Control
-            qDebug() << "Not programmed!";
-            break;
-        case 2: //Strain Amp
-            qDebug() << "Not programmed!";
-            break;
-        case 3: //RIC/NU Knee
-            writeReadAllRicnuHeader(item);
-            break;
-        case 4: //CSEA Knee
-            qDebug() << "Not programmed!";
-            break;
-        case 5: //2DOF Ankle
-            qDebug() << "Not programmed!";
-            break;
-        default:
-            qDebug() << "Invalid Experiment - can't write Log Header";
-            break;
     }
 }
 

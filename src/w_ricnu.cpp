@@ -102,8 +102,8 @@ void W_Ricnu::displayRicnu(struct ricnu_s *ricnu)
     ui->disp_gyroy->setText(QString::number(ricnu->ex.gyro.y));
     ui->disp_gyroz->setText(QString::number(ricnu->ex.gyro.z));
 
-    ui->enc_mot->setText(QString::number(ricnu->ex.enc_display));
-    ui->enc_joint->setText(QString::number(ricnu->ex.enc_display));
+    ui->enc_mot->setText(QString::number(ricnu->ex.enc_commut));
+    ui->enc_joint->setText(QString::number(ricnu->ex.enc_control));
 
     ui->strain1->setText(QString::number(ricnu->ext_strain[0]));
     ui->strain2->setText(QString::number(ricnu->ext_strain[1]));

@@ -367,13 +367,21 @@ void W_2DPlot::initUserInput(void)
     ui->label_t5->setStyleSheet("QLabel { background-color: black; color: white;}");
     ui->label_t6->setStyleSheet("QLabel { background-color: black; color: white;}");
 
-    myFlexSEA_Generic.init();
+    //myFlexSEA_Generic.init();
     myFlexSEA_Generic.populateComboBoxAll(ui->cBoxvar1slave);
     myFlexSEA_Generic.populateComboBoxAll(ui->cBoxvar2slave);
     myFlexSEA_Generic.populateComboBoxAll(ui->cBoxvar3slave);
     myFlexSEA_Generic.populateComboBoxAll(ui->cBoxvar4slave);
     myFlexSEA_Generic.populateComboBoxAll(ui->cBoxvar5slave);
     myFlexSEA_Generic.populateComboBoxAll(ui->cBoxvar6slave);
+
+    //Decoded checkboxes:
+    ui->checkBoxD1->setDisabled(true);
+    ui->checkBoxD2->setDisabled(true);
+    ui->checkBoxD3->setDisabled(true);
+    ui->checkBoxD4->setDisabled(true);
+    ui->checkBoxD5->setDisabled(true);
+    ui->checkBoxD6->setDisabled(true);
 }
 
 void W_2DPlot::addMargins(int *ymin, int *ymax)

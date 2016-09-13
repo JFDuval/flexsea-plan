@@ -59,7 +59,7 @@ private slots:
     void on_openComButton_clicked();
     void on_closeComButton_clicked();
     void on_pushButtonRefresh_clicked();
-    void on_pbOpenLog_clicked();
+    void on_pbOpenLog1_clicked();
 
 public slots:
     void setComProgress(int val, int rst);
