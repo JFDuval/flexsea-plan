@@ -69,13 +69,13 @@ private:
 private slots:
     void receiveOpenCom(QString name, int tries, int delay);
     void receiveCloseCom(void);
-    void receiveOpenLogFile(void);
+    void receiveOpenLogFile(uint8_t item);
 
 signals:
     void transmitOpenCom(QString name, int tries, int delay);
     void transmitCloseCom(void);
     void windowClosed(void);
-    void transmitOpenLogFile(void);
+    void transmitOpenLogFile(uint8_t item);
 };
 
 #endif // WINCONFIG_H

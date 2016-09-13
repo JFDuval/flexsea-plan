@@ -52,9 +52,10 @@ FlexSEA_Generic::FlexSEA_Generic(QWidget *parent) : QWidget(parent)
 
 void FlexSEA_Generic::init(void)
 {
-    //Execute only:
-    //=============
+    //Slaves - Execute only:
+    //======================
 
+    var_list_slave_ex.clear();
     var_list_slave_ex << "Execute 1" << "Execute 2" << "Execute 3" << \
                        "Execute 4";
 
@@ -64,9 +65,10 @@ void FlexSEA_Generic::init(void)
     list_to_slave_ex[2] = FLEXSEA_EXECUTE_3;
     list_to_slave_ex[3] = FLEXSEA_EXECUTE_4;
 
-    //All slaves:
-    //===========
+    //Slaves - All:
+    //=============
 
+    var_list_slave_all.clear();
     var_list_slave_all << "Execute 1" << "Execute 2" << "Execute 3" << \
                        "Execute 4" << "Manage 1" << "Strain Amp 1" << \
                        "Gossip 1" << "Plan 1";
@@ -80,6 +82,14 @@ void FlexSEA_Generic::init(void)
     list_to_slave_all[5] = FLEXSEA_STRAIN_1;
     list_to_slave_all[6] = FLEXSEA_GOSSIP_1;
     list_to_slave_all[7] = FLEXSEA_PLAN_1;
+
+    //Experiments:
+    //============
+
+    var_list_exp.clear();
+    var_list_exp << "Read All (Barebone)" << "In Control" \
+                    << "Strain Amp" << "RIC/NU Knee" << "CSEA Knee" \
+                    << "2DOF Ankle" << "[Your project]";
 }
 
 void FlexSEA_Generic::assignExecutePtr(struct execute_s **ex_ptr, uint8_t slave)
@@ -105,6 +115,31 @@ void FlexSEA_Generic::assignExecutePtr(struct execute_s **ex_ptr, uint8_t slave)
     }
 }
 
+void FlexSEA_Generic::assignRicnuPtr(struct ricnu_s **ricnu_ptr, uint8_t slave)
+{
+    //Based on selected slave, what structure do we use?
+    switch(slave)
+    {
+        case 0:
+            *ricnu_ptr = &ricnu_1;
+            break;
+        /*
+        case 1:
+            *ricnu_ptr = &ricnu_2;
+            break;
+        case 2:
+            *ricnu_ptr = &ricnu_3;
+            break;
+        case 3:
+            *ricnu_ptr = &ricnu_4;
+            break;
+        */
+        default:
+            *ricnu_ptr = &ricnu_1;
+            break;
+    }
+}
+
 //Prints a FlexSEA packet on the debug terminal
 void FlexSEA_Generic::packetVisualizer(uint numb, uint8_t *packet)
 {
@@ -126,7 +161,7 @@ void FlexSEA_Generic::packetVisualizer(uint numb, uint8_t *packet)
     qDebug() << "-------------------------";
 
     QString msg2 = "Raw: ";
-    for(int i = 0; i < numb; i++)
+    for(uint i = 0; i < numb; i++)
     {
         msg2 += (QString::number(packet[i]) + ',');
     }
@@ -146,6 +181,29 @@ void FlexSEA_Generic::packetVisualizer(uint numb, uint8_t *packet)
     qDebug() << "FOOTER: " << packet[packet[1]+3];
 
     qDebug() << "-------------------------";
+}
+
+uint8_t FlexSEA_Generic::getLenExp(void)
+{
+    return var_list_exp.count();
+}
+
+void FlexSEA_Generic::getNameExp(uint8_t index, QString *name)
+{
+    (*name) = var_list_exp.at(index);
+}
+
+void FlexSEA_Generic::populateComboBoxExp(QComboBox *cbox)
+{
+    QString exp;
+
+    init();
+
+    for(int index = 0; index < getLenExp(); index++)
+    {
+        getNameExp(index, &exp);
+        cbox->addItem(exp);
+    }
 }
 
 //Execute only:
@@ -271,7 +329,7 @@ void FlexSEA_Generic::populateComboBoxAll(QComboBox *cbox)
 {
     QString slave_name;
 
-    //init();
+    init();
 
     for(int index = 0; index < getSlaveLenAll(); index++)
     {

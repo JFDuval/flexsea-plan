@@ -230,5 +230,6 @@ void W_PlanConfig::on_pushButtonRefresh_clicked()
 
 void W_PlanConfig::on_pbOpenLog_clicked()
 {
-    emit openLogFile();
+    emit openLogFile(0);
+    //ToDo future work: support multiple files
 }

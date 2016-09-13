@@ -67,9 +67,9 @@ public:
     explicit DataLogger(QWidget *parent = 0);
 	
 public slots:
-    void openFile(void);
-	void closeFile(void);
-    void writeToFile(int slaveIndex);
+    void openFile(uint8_t item);
+    void closeFile(uint8_t item);
+    void writeToFile(uint8_t item, uint8_t slaveIndex, uint8_t expIndex);
 
 private slots:	
 
@@ -81,12 +81,14 @@ private:
     QTextStream logFileStream;
 	QDateTime *myTime;
     FlexSEA_Generic myFlexSEA_Generic;
-    bool fileOpened;
+    bool fileOpened[4];
 		
 	//Function(s):
 	void init(void);
 	void logTimestamp(qint64 *t_ms, QString *t_text);
-	void writeExecuteReadAllHeader(void);
+    void writeHeader(uint8_t item, uint8_t slaveIndex, uint8_t expIndex);
+    void writeExecuteReadAllHeader(uint8_t item);
+    void writeReadAllRicnuHeader(uint8_t item);
 	void logDirectory(void);
 
 signals:

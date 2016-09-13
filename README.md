@@ -12,6 +12,8 @@
 **Note 1:** This repository is part of the FlexSEA project. All the directories that were under JFDuval/FlexSEA now have separate repositories.
 
 **Note 2:** Most (or all) projects will require /flexsea-comm and /flexsea-system to compile.
+
+**Compilation:** I'm using Qt 5.7. Make sure to enable the QChart module during installation (not included by default)
   
 Documentation available at <http://flexsea.media.mit.edu>. It is recommended to start learning about the system by reading the two IEEE BioRob papers.
   

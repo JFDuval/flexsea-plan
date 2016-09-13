@@ -106,8 +106,8 @@ signals:
 	
     //Other:
     void refresh2DPlot(void);
-    void writeToLogFile(int slaveId);
-    void closeLogFile(void);
+    void writeToLogFile(uint8_t item, uint8_t slaveIndex, uint8_t expIndex);
+    void closeLogFile(uint8_t item);
     void slaveReadWrite(uint numb, uint8_t *dataPacket, uint8_t r_w);
 
 private:
@@ -120,7 +120,7 @@ private:
     int active_slave[MAX_SC_ITEMS], active_slave_index[MAX_SC_ITEMS];
     int selected_exp_index[MAX_SC_ITEMS];
     int selected_refresh_index[MAX_SC_ITEMS], previous_refresh_index[MAX_SC_ITEMS];
-    QStringList var_list_exp, var_list_refresh;
+    QStringList var_list_refresh;
     uint8_t pb_state[MAX_SC_ITEMS];
     bool logThisItem[MAX_SC_ITEMS];
     QTimer *master_timer;
@@ -130,9 +130,10 @@ private:
     void initSlaveCom(void);
 	void initTimers(void);
 	void initDisplayDataReceived(void);
-    void managePushButton(int idx, bool forceOff);   
-    void sc_read_all(uint8_t slaveId);
-    void sc_log_all(uint8_t slaveId);
+    void managePushButton(int idx, bool forceOff);
+
+    void sc_read_all(uint8_t item);
+    void sc_read_all_ricnu(uint8_t item);
 
     void configSlaveComm(int item);
     void updateStatusBar(QString txt);

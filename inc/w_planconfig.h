@@ -80,7 +80,7 @@ private:
  signals:
     void openCom(QString name, int tries, int delay);
     void closeCom(void);
-    void openLogFile(void);
+    void openLogFile(uint8_t);
 };
 
 #endif // W_PLANCONFIG_H

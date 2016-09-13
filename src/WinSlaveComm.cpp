@@ -52,10 +52,10 @@ WinSlaveComm::WinSlaveComm(QWidget *parent) :
             this, SLOT(receiveRefresh2DPlot()));
 
     //Logging:
-    connect(my_w_slavecomm, SIGNAL(writeToLogFile(int)), \
-            this, SLOT(receiveWriteToLogFile(int)));
-    connect(my_w_slavecomm, SIGNAL(closeLogFile()), \
-            this, SLOT(receiveCloseLogFile()));
+    connect(my_w_slavecomm, SIGNAL(writeToLogFile(uint8_t,uint8_t,uint8_t)), \
+            this, SLOT(receiveWriteToLogFile(uint8_t,uint8_t,uint8_t)));
+    connect(my_w_slavecomm, SIGNAL(closeLogFile(uint8_t)), \
+            this, SLOT(receiveCloseLogFile(uint8_t)));
 
     //SerialPort:
     connect(my_w_slavecomm, SIGNAL(slaveReadWrite(uint, uint8_t*, uint8_t)), \
@@ -96,14 +96,14 @@ void WinSlaveComm::receiveNewDataTimeout(bool rst)
     my_w_slavecomm->indicatorTimeout(rst);
 }
 
-void WinSlaveComm::receiveWriteToLogFile(int slaveId)
+void WinSlaveComm::receiveWriteToLogFile(uint8_t item, uint8_t slaveIndex, uint8_t expIndex)
 {
-    emit writeToLogFile(slaveId);
+    emit writeToLogFile(item, slaveIndex, expIndex);
 }
 
-void WinSlaveComm::receiveCloseLogFile(void)
+void WinSlaveComm::receiveCloseLogFile(uint8_t item)
 {
-    emit closeLogFile();
+    emit closeLogFile(item);
 }
 
 void WinSlaveComm::receiveComOpenStatus(bool status)

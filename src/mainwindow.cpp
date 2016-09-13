@@ -109,12 +109,12 @@ MainWindow::MainWindow(QWidget *parent) :
             mySlaveComm[0], SLOT(receiveNewDataTimeout(bool)));
 
     //Log:
-    connect(myConfig[0], SIGNAL(transmitOpenLogFile()), \
-            myDataLogger, SLOT(openFile()));
-    connect(mySlaveComm[0], SIGNAL(writeToLogFile(int)), \
-            myDataLogger, SLOT(writeToFile(int)));
-    connect(mySlaveComm[0], SIGNAL(closeLogFile()), \
-            myDataLogger, SLOT(closeFile()));
+    connect(myConfig[0], SIGNAL(transmitOpenLogFile(uint8_t)), \
+            myDataLogger, SLOT(openFile(uint8_t)));
+    connect(mySlaveComm[0], SIGNAL(writeToLogFile(uint8_t,uint8_t,uint8_t)), \
+            myDataLogger, SLOT(writeToFile(uint8_t,uint8_t,uint8_t)));
+    connect(mySlaveComm[0], SIGNAL(closeLogFile(uint8_t)), \
+            myDataLogger, SLOT(closeFile(uint8_t)));
     connect(myDataLogger, SIGNAL(setLogFileStatus(QString)), \
             myConfig[0], SLOT(setLogFileStatus(QString)));
     connect(myDataLogger, SIGNAL(setStatusBarMessage(QString)), \

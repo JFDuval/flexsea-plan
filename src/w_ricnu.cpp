@@ -25,7 +25,7 @@
 *****************************************************************************
 	[Change log] (Convention: YYYY-MM-DD | author | comment)
 	* 2016-09-12 | jfduval | New file
-	*
+    * 2016-09-12 | jfduval | Enabling stream
 ****************************************************************************/
 
 //****************************************************************************
@@ -65,9 +65,9 @@ W_Ricnu::~W_Ricnu()
 //Call this function to refresh the display
 void W_Ricnu::refresh(void)
 {
-    struct execute_s *exPtr;
-    myFlexSEA_Generic.assignExecutePtr(&exPtr, ui->comboBox_slave->currentIndex());
-    displayExecute(exPtr);
+    struct ricnu_s *ricnuPtr;
+    myFlexSEA_Generic.assignRicnuPtr(&ricnuPtr, ui->comboBox_slave->currentIndex());
+    displayRicnu(ricnuPtr);
 }
 
 //****************************************************************************
@@ -88,62 +88,84 @@ void W_Ricnu::init(void)
     active_slave = myFlexSEA_Generic.getSlaveCodeEx(active_slave_index);
 }
 
-void W_Ricnu::displayExecute(struct execute_s *ex)
+void W_Ricnu::displayRicnu(struct ricnu_s *ricnu)
 {
-    int combined_status = 0;
+    //int combined_status = 0;
 
     //Raw values:
     //===========
 
-    ui->disp_accx->setText(QString::number(ex->accel.x));
-    ui->disp_accy->setText(QString::number(ex->accel.y));
-    ui->disp_accz->setText(QString::number(ex->accel.z));
-    ui->disp_gyrox->setText(QString::number(ex->gyro.x));
-    ui->disp_gyroy->setText(QString::number(ex->gyro.y));
-    ui->disp_gyroz->setText(QString::number(ex->gyro.z));
+    ui->disp_accx->setText(QString::number(ricnu->ex.accel.x));
+    ui->disp_accy->setText(QString::number(ricnu->ex.accel.y));
+    ui->disp_accz->setText(QString::number(ricnu->ex.accel.z));
+    ui->disp_gyrox->setText(QString::number(ricnu->ex.gyro.x));
+    ui->disp_gyroy->setText(QString::number(ricnu->ex.gyro.y));
+    ui->disp_gyroz->setText(QString::number(ricnu->ex.gyro.z));
 
-    //ui->disp_enc->setText(QString::number(ex->enc_display));
-    //ui->disp_enc->setText(QString::number(ex->enc_display));
+    ui->enc_mot->setText(QString::number(ricnu->ex.enc_display));
+    ui->enc_joint->setText(QString::number(ricnu->ex.enc_display));
 
-    //ui->strain1->setText(QString::number(ex->strain));
-    //ui->strain1->setText(QString::number(ex->strain));
-    //ui->strain1->setText(QString::number(ex->strain));
-    //ui->strain1->setText(QString::number(ex->strain));
-    //ui->strain1->setText(QString::number(ex->strain));
-    //ui->strain1->setText(QString::number(ex->strain));
+    ui->strain1->setText(QString::number(ricnu->ext_strain[0]));
+    ui->strain2->setText(QString::number(ricnu->ext_strain[1]));
+    ui->strain3->setText(QString::number(ricnu->ext_strain[2]));
+    ui->strain4->setText(QString::number(ricnu->ext_strain[3]));
+    ui->strain5->setText(QString::number(ricnu->ext_strain[4]));
+    ui->strain6->setText(QString::number(ricnu->ext_strain[5]));
 
-    ui->disp_current->setText(QString::number(ex->current));
+    ui->disp_current->setText(QString::number(ricnu->ex.current));
 
-    ui->disp_vb->setText(QString::number(ex->volt_batt));
+    ui->disp_vb->setText(QString::number(ricnu->ex.volt_batt));
 
-    combined_status = (ex->status2 << 8) & ex->status1;
-    ui->disp_stat1->setText(QString::number(combined_status));
+    //combined_status = (ex->status2 << 8) & ex->status1;
+    //ui->disp_stat1->setText(QString::number(combined_status));
 
     //Decode some of them:
     //===================
 
-    ui->disp_current_d->setText(QString::number((float)ex->current*18.5, 'i',0));
-    ui->disp_vb_d->setText(QString::number(P4_ADC_SUPPLY*((16*(float)ex->volt_batt/3 + 302 )/P4_ADC_MAX) / 0.0738, 'f',2));
+    ui->disp_current_d->setText(QString::number((float)ricnu->ex.current*18.5, 'i',0));
+    ui->disp_vb_d->setText(QString::number(P4_ADC_SUPPLY*((16*(float)ricnu->ex.volt_batt/3 + 302 )/P4_ADC_MAX) / 0.0738, 'f',2));
 
-    ui->disp_accx_d->setText(QString::number((double)ex->accel.x/8192, 'f', 2));
-    ui->disp_accy_d->setText(QString::number((double)ex->accel.y/8192, 'f', 2));
-    ui->disp_accz_d->setText(QString::number((double)ex->accel.z/8192, 'f', 2));
-    ui->disp_gyrox_d->setText(QString::number((double)ex->gyro.x/16.4, 'i', 0));
-    ui->disp_gyroy_d->setText(QString::number((double)ex->gyro.y/16.4, 'i', 0));
-    ui->disp_gyroz_d->setText(QString::number((double)ex->gyro.z/16.4, 'i', 0));
+    ui->disp_accx_d->setText(QString::number((double)ricnu->ex.accel.x/8192, 'f', 2));
+    ui->disp_accy_d->setText(QString::number((double)ricnu->ex.accel.y/8192, 'f', 2));
+    ui->disp_accz_d->setText(QString::number((double)ricnu->ex.accel.z/8192, 'f', 2));
+    ui->disp_gyrox_d->setText(QString::number((double)ricnu->ex.gyro.x/16.4, 'i', 0));
+    ui->disp_gyroy_d->setText(QString::number((double)ricnu->ex.gyro.y/16.4, 'i', 0));
+    ui->disp_gyroz_d->setText(QString::number((double)ricnu->ex.gyro.z/16.4, 'i', 0));
 
-    //ui->strain1d->setText(QString::number(((double)(ex->strain-32768)/32768)*100, 'i', 0));
-    //ui->strain1d->setText(QString::number(((double)(ex->strain-32768)/32768)*100, 'i', 0));
-    //ui->strain1d->setText(QString::number(((double)(ex->strain-32768)/32768)*100, 'i', 0));
-    //ui->strain1d->setText(QString::number(((double)(ex->strain-32768)/32768)*100, 'i', 0));
-    //ui->strain1d->setText(QString::number(((double)(ex->strain-32768)/32768)*100, 'i', 0));
-    //ui->strain1d->setText(QString::number(((double)(ex->strain-32768)/32768)*100, 'i', 0));
+    ui->strain1d->setText(QString::number(((double)(ricnu->ext_strain[0]-32768)/32768)*100, 'i', 0));
+    ui->strain2d->setText(QString::number(((double)(ricnu->ext_strain[1]-32768)/32768)*100, 'i', 0));
+    ui->strain3d->setText(QString::number(((double)(ricnu->ext_strain[2]-32768)/32768)*100, 'i', 0));
+    ui->strain4d->setText(QString::number(((double)(ricnu->ext_strain[3]-32768)/32768)*100, 'i', 0));
+    ui->strain5d->setText(QString::number(((double)(ricnu->ext_strain[4]-32768)/32768)*100, 'i', 0));
+    ui->strain6d->setText(QString::number(((double)(ricnu->ext_strain[5]-32768)/32768)*100, 'i', 0));
 
+
+    /*
     QString myStr;
     myFlexSEA_Generic.execStatusBytes(ex->status1, ex->status2, &myStr);
     ui->label_status1->setText(myStr);
-
+    */
     //==========
+
+    //***ToDo: this is an ugly hack***
+    //To be able to plot RIC/NU values we copy them in the exec & strain structures
+    exec1.accel.x = ricnu->ex.accel.x;
+    exec1.accel.y = ricnu->ex.accel.y;
+    exec1.accel.z = ricnu->ex.accel.z;
+
+    exec1.gyro.x = ricnu->ex.gyro.x;
+    exec1.gyro.y = ricnu->ex.gyro.y;
+    exec1.gyro.z = ricnu->ex.gyro.z;
+
+    exec1.current = ricnu->ex.current;
+    exec1.volt_batt = ricnu->ex.volt_batt;
+
+    strain[0].strain_filtered = ricnu->ext_strain[0];
+    strain[1].strain_filtered = ricnu->ext_strain[1];
+    strain[2].strain_filtered = ricnu->ext_strain[2];
+    strain[3].strain_filtered = ricnu->ext_strain[3];
+    strain[4].strain_filtered = ricnu->ext_strain[4];
+    strain[5].strain_filtered = ricnu->ext_strain[5];
 }
 
 //****************************************************************************

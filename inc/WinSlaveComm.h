@@ -64,16 +64,16 @@ public slots:
     void receiveDataStatus(int idx, int status);
     void receiveNewDataTimeout(bool rst);
     void receiveRefresh2DPlot(void);
-    void receiveWriteToLogFile(int slaveId);
-    void receiveCloseLogFile(void);
+    void receiveWriteToLogFile(uint8_t item, uint8_t slaveIndex, uint8_t expIndex);
+    void receiveCloseLogFile(uint8_t item);
     void receiveSlaveReadWrite(uint numb, uint8_t *dataPacket, uint8_t r_w);
     void receiveExternalSlaveWrite(char numb, unsigned char *tx_data);
 
 signals:
     void refresh2DPlot(void);
     void windowClosed(void);
-    void writeToLogFile(int slaveId);
-    void closeLogFile(void);
+    void writeToLogFile(uint8_t item, uint8_t slaveIndex, uint8_t expIndex);
+    void closeLogFile(uint8_t item);
     void slaveReadWrite(uint numb, uint8_t *dataPacket, uint8_t r_w);
 
 private:

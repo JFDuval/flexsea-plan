@@ -46,7 +46,10 @@
 
 DataLogger::DataLogger(QWidget *parent) : QWidget(parent)
 {
-    fileOpened = false;
+    fileOpened[0] = false;
+    fileOpened[1] = false;
+    fileOpened[2] = false;
+    fileOpened[3] = false;
 	logDirectory();
 	init();
 }
@@ -59,7 +62,7 @@ DataLogger::DataLogger(QWidget *parent) : QWidget(parent)
 // Public slot(s):
 //****************************************************************************
 
-void DataLogger::openFile(void)
+void DataLogger::openFile(uint8_t item)
 {
     QString msg = "";
 
@@ -90,32 +93,37 @@ void DataLogger::openFile(void)
 
     msg = "Opened '" + filename + "'.";
     emit setStatusBarMessage(msg);
-    fileOpened = true;
-
-    //***ToDo*** what if it's not Execute???
-    writeExecuteReadAllHeader();
+    fileOpened[0] = true;
 }
 
-void DataLogger::writeToFile(int slaveIndex)
+void DataLogger::writeToFile(uint8_t item, uint8_t slaveIndex, uint8_t expIndex)
 {
     struct execute_s *exPtr;
     myFlexSEA_Generic.assignExecutePtr(&exPtr, slaveIndex);
+
     qint64 t_ms = 0;
-    static qint64 t_ms_initial = 0;
-    static bool isFirstTime = true;
+    static qint64 t_ms_initial[4] = {0,0,0,0};
+    static bool isFirstTime[4] = {true,true,true,true};
+
     QString t_text = "";
 
-    //Timestamps:
-    if(isFirstTime == true)
+    //Writting for the first time?
+    if(isFirstTime[item] == true)
     {
-        isFirstTime = false;
+        //Init timestamp ms:
+        isFirstTime[item] = false;
         logTimestamp(&t_ms, &t_text);
-        t_ms_initial = t_ms;
-    }
-    logTimestamp(&t_ms, &t_text);
-    t_ms -= t_ms_initial;
+        t_ms_initial[item] = t_ms;
 
-    if(fileOpened == true)
+        //Header:
+        writeHeader(item, slaveIndex, expIndex);
+    }
+
+    //Timestamps:
+    logTimestamp(&t_ms, &t_text);
+    t_ms -= t_ms_initial[item];
+
+    if(fileOpened[item] == true)
     {
         //And we add to he text file:
         logFileStream << t_text << ',' << \
@@ -145,13 +153,13 @@ void DataLogger::writeToFile(int slaveIndex)
     }
 }
 
-void DataLogger::closeFile(void)
+void DataLogger::closeFile(uint8_t item)
 {
-    if(fileOpened == true)
+    if(fileOpened[item] == true)
     {
         logFileStream << endl;
         logFile.close();
-        fileOpened = false;
+        fileOpened[item] = false;
     }
 }
 
@@ -162,6 +170,7 @@ void DataLogger::closeFile(void)
 void DataLogger::init(void)
 {
     myTime = new QDateTime;
+    myFlexSEA_Generic.init();
 }
 
 void DataLogger::logDirectory(void)
@@ -187,28 +196,128 @@ void DataLogger::logTimestamp(qint64 *t_ms, QString *t_text)
     *t_text = myTime->currentDateTime().toString();
 }
 
-void DataLogger::writeExecuteReadAllHeader(void)
+void DataLogger::writeHeader(uint8_t item, uint8_t slaveIndex, uint8_t expIndex)
 {
-    //Print header:
-    logFileStream << "Timestamp," << \
-                    "Timestamp (ms)," << \
-                    "accel.x," << \
-                    "accel.y," << \
-                    "accel.z," << \
-                    "gyro.x," << \
-                    "gyro.y," << \
-                    "gyro.z," << \
-                    "strain," << \
-                    "analog_0," << \
-                    "analog_1," << \
-                    "current," << \
-                    "encoder," << \
-                    "VB," << \
-                    "VG," << \
-                    "Temp," << \
-                    "Status1," << \
-                    "Status2" << \
-                    endl;
+    QString msg, slaveName, expName;
+    myFlexSEA_Generic.getSlaveNameAll(slaveIndex, &slaveName);
+    myFlexSEA_Generic.getNameExp(expIndex, &expName);
+
+    //Top of the file description:
+    msg = "[Datalogging: Item = " + QString::number(item) + " | Slave index = " + \
+                        QString::number(slaveIndex) + " (" + slaveName + ") | " + \
+                        "Experiment index = " + QString::number(expIndex) + " (" + \
+                        expName + ")]\n";
+    qDebug() << msg;
+    if(fileOpened[item] == true)
+    {
+        logFileStream << msg;
+    }
+
+    //Board type? Extract base via integer trick
+    uint8_t tmp = 0, bType = 0;
+    tmp = myFlexSEA_Generic.getSlaveCodeAll(slaveIndex) / 10;
+    bType = tmp * 10;
+
+    //And now, experiment per experiment:
+    switch(expIndex)
+    {
+        case 0: //Read All (barebone)
+            switch(bType)
+            {
+                case FLEXSEA_PLAN_BASE:
+                    qDebug() << "FLEXSEA_PLAN_BASE";
+                    break;
+                case FLEXSEA_MANAGE_BASE:
+                    qDebug() << "FLEXSEA_MANAGE_BASE";
+                    break;
+                case FLEXSEA_EXECUTE_BASE:
+                    qDebug() << "FLEXSEA_EXECUTE_BASE";
+                    writeExecuteReadAllHeader(item);
+                    break;
+                case FLEXSEA_BATTERY_BASE:
+                    qDebug() << "FLEXSEA_BATTERY_BASE";
+                    break;
+                case FLEXSEA_STRAIN_BASE:
+                    qDebug() << "FLEXSEA_STRAIN_BASE";
+                    break;
+                case FLEXSEA_GOSSIP_BASE:
+                    qDebug() << "FLEXSEA_GOSSIP_BASE";
+                    break;
+            }
+            break;
+        case 1: //In Control
+            qDebug() << "Not programmed!";
+            break;
+        case 2: //Strain Amp
+            qDebug() << "Not programmed!";
+            break;
+        case 3: //RIC/NU Knee
+            writeReadAllRicnuHeader(item);
+            break;
+        case 4: //CSEA Knee
+            qDebug() << "Not programmed!";
+            break;
+        case 5: //2DOF Ankle
+            qDebug() << "Not programmed!";
+            break;
+        default:
+            qDebug() << "Invalid Experiment - can't write Log Header";
+            break;
+    }
+}
+
+void DataLogger::writeExecuteReadAllHeader(uint8_t item)
+{
+    if(fileOpened[item] == true)
+    {
+        //Print header:
+        logFileStream << "Timestamp," << \
+                        "Timestamp (ms)," << \
+                        "accel.x," << \
+                        "accel.y," << \
+                        "accel.z," << \
+                        "gyro.x," << \
+                        "gyro.y," << \
+                        "gyro.z," << \
+                        "strain," << \
+                        "analog_0," << \
+                        "analog_1," << \
+                        "current," << \
+                        "encoder," << \
+                        "VB," << \
+                        "VG," << \
+                        "Temp," << \
+                        "Status1," << \
+                        "Status2" << \
+                        endl;
+    }
+}
+
+void DataLogger::writeReadAllRicnuHeader(uint8_t item)
+{
+    if(fileOpened[item] == true)
+    {
+        //Print header:
+        logFileStream << "Timestamp," << \
+                        "Timestamp (ms)," << \
+                        "accel.x," << \
+                        "accel.y," << \
+                        "accel.z," << \
+                        "gyro.x," << \
+                        "gyro.y," << \
+                        "gyro.z," << \
+                        "current," << \
+                        "enc-mot," << \
+                        "enc-joint," << \
+                        "VB," << \
+                        "strain1," << \
+                        "strain2," << \
+                        "strain3," << \
+                        "strain4," << \
+                        "strain5," << \
+                        "strain6," << \
+                        endl;
+    }
 }
 
 //****************************************************************************

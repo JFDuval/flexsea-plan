@@ -91,6 +91,10 @@ public:
 
 	void init(void);
     void assignExecutePtr(struct execute_s **ex_ptr, uint8_t slave);
+    void assignRicnuPtr(struct ricnu_s **ricnu_ptr, uint8_t slave);
+
+    void getNameExp(uint8_t index, QString *name);
+    uint8_t getLenExp(void);
 
 	uint8_t getSlaveCodeEx(uint8_t index);
 	void getSlaveNameEx(uint8_t index, QString *name);
@@ -102,6 +106,7 @@ public:
 	
     void populateComboBoxEx(QComboBox *cbox);
     void populateComboBoxAll(QComboBox *cbox);
+    void populateComboBoxExp(QComboBox *cbox);
 
     void execStatusBytes(uint8_t stat1, uint8_t stat2, QString *str1);
 
@@ -114,7 +119,7 @@ private slots:
 private:
     //Lookup from list to actual slave number (FlexSEA convention):
     uint8_t list_to_slave_ex[MAX_SLAVES], list_to_slave_all[MAX_SLAVES];
-    QStringList var_list_slave_ex, var_list_slave_all;
+    QStringList var_list_slave_ex, var_list_slave_all, var_list_exp;
 };
 
 #endif // FLEXSEA_GENERIC_H

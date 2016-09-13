@@ -89,7 +89,7 @@ void W_SlaveComm::receiveComPortStatus(bool status)
         if(logThisItem[0] == true)
         {
             logThisItem[0] = false;
-            emit closeLogFile();
+            emit closeLogFile(0);   //ToDo support multiple files
         }
     }
     else
@@ -192,7 +192,6 @@ void W_SlaveComm::initSlaveCom(void)
 
     //Populates Slave list:
     //=====================
-    myFlexSEA_Generic.init();
     myFlexSEA_Generic.populateComboBoxAll(ui->comboBoxSlave1);
     myFlexSEA_Generic.populateComboBoxAll(ui->comboBoxSlave2);
     myFlexSEA_Generic.populateComboBoxAll(ui->comboBoxSlave3);
@@ -211,16 +210,10 @@ void W_SlaveComm::initSlaveCom(void)
     //Populates Experiment/Command list:
     //==================================
 
-    var_list_exp << "Read All (Barebone)" << "In Control" \
-                    << "Strain Amp" << "RIC/NU Knee" << "CSEA Knee" \
-                    << "2DOF Ankle" << "[Your project]";
-    for(int index = 0; index < var_list_exp.count(); index++)
-    {
-        ui->comboBoxExp1->addItem(var_list_exp.at(index));
-        ui->comboBoxExp2->addItem(var_list_exp.at(index));
-        ui->comboBoxExp3->addItem(var_list_exp.at(index));
-        ui->comboBoxExp4->addItem(var_list_exp.at(index));
-    }
+    myFlexSEA_Generic.populateComboBoxExp(ui->comboBoxExp1);
+    myFlexSEA_Generic.populateComboBoxExp(ui->comboBoxExp2);
+    myFlexSEA_Generic.populateComboBoxExp(ui->comboBoxExp3);
+    myFlexSEA_Generic.populateComboBoxExp(ui->comboBoxExp4);
 
     //Refresh Rate:
     //==================================
@@ -370,7 +363,7 @@ void W_SlaveComm::managePushButton(int idx, bool forceOff)
              if(logThisItem[0] == true)
              {
                  logThisItem[0] = false;
-                 emit closeLogFile();
+                 emit closeLogFile(0);   //ToDo support multiple files
              }
         }
     }
@@ -385,6 +378,7 @@ void W_SlaveComm::updateStatusBar(QString txt)
     ui->statusbar->setText(finalTxt);
 }
 
+//Connect a SlaveComm item with a timer
 void W_SlaveComm::connectSCItem(int item, int sig_idx, int breakB4make)
 {
     if(item == 0)
@@ -531,22 +525,50 @@ void W_SlaveComm::configSlaveComm(int item)
     }
 }
 
-void W_SlaveComm::sc_read_all(uint8_t slaveId)
+//Argument is the item line (0-3)
+//Read All should be programmed for all boards - it returns all the onboard
+//sensor values
+void W_SlaveComm::sc_read_all(uint8_t item)
 {
     int numb = 0;
+    uint8_t slaveId = active_slave[item];
+    uint8_t slaveIndex = active_slave_index[item];
+    uint8_t expIndex = selected_exp_index[item];
 
-    numb = tx_cmd_data_read_all(slaveId, CMD_READ, payload_str, PAYLOAD_BUF_LEN); //New Read All function
+    //1) Stream
+    numb = tx_cmd_data_read_all(slaveId, CMD_READ, payload_str, PAYLOAD_BUF_LEN);
     numb = comm_gen_str(payload_str, comm_str_usb, PAYLOAD_BUF_LEN);
     numb = COMM_STR_BUF_LEN;
-
     emit slaveReadWrite(numb, comm_str_usb, READ);
+
+    //2) Log
+    if(logThisItem[item] == true)
+    {
+        emit writeToLogFile(item, slaveIndex, expIndex);
+    }
 }
 
-//This function is called after sc_read_all(). We assume that we have all our
-//sensor data, and that all we need is to save it to a file.
-void W_SlaveComm::sc_log_all(uint8_t slaveId)
+//Argument is the item line (0-3)
+//Read All should be programmed for all boards - it returns all the onboard
+//sensor values
+void W_SlaveComm::sc_read_all_ricnu(uint8_t item)
 {
-    emit writeToLogFile(slaveId);
+    int numb = 0;
+    uint8_t slaveId = active_slave[item];
+    uint8_t slaveIndex = active_slave_index[item];
+    uint8_t expIndex = selected_exp_index[item];
+
+    //1) Stream
+    numb = tx_cmd_data_read_all_ricnu(slaveId, CMD_READ, payload_str, PAYLOAD_BUF_LEN);
+    numb = comm_gen_str(payload_str, comm_str_usb, PAYLOAD_BUF_LEN);
+    numb = COMM_STR_BUF_LEN;
+    emit slaveReadWrite(numb, comm_str_usb, READ);
+
+    //2) Log
+    if(logThisItem[item] == true)
+    {
+        emit writeToLogFile(item, slaveIndex, expIndex);
+    }
 }
 
 //
@@ -578,11 +600,22 @@ void W_SlaveComm::sc_item1_slot(void)
         switch(selected_exp_index[0])
         {
             case 0: //Read All (Barebone)
-                sc_read_all((uint8_t)active_slave[0]);
-                if(logThisItem[0] == true)
-                {
-                    sc_log_all((uint8_t)active_slave_index[0]);
-                }
+                sc_read_all(0);
+                break;
+            case 1: //In Control
+                qDebug() << "Not programmed!";
+                break;
+            case 2: //Strain Amp
+                qDebug() << "Not programmed!";
+                break;
+            case 3: //RIC/NU Knee
+                sc_read_all_ricnu(0);
+                break;
+            case 4: //CSEA Knee
+                qDebug() << "Not programmed!";
+                break;
+            case 5: //2DOF Ankle
+                qDebug() << "Not programmed!";
                 break;
             default:
                 break;

@@ -25,7 +25,7 @@
 *****************************************************************************
 	[Change log] (Convention: YYYY-MM-DD | author | comment)
 	* 2016-09-12 | jfduval | New file
-	*
+    * 2016-09-12 | jfduval | Enabling stream
 ****************************************************************************/
 
 #ifndef W_RICNU_H
@@ -69,7 +69,7 @@ private:
 	
 	//Function(s):
 	void init(void);
-    void displayExecute(struct execute_s *ex);
+    void displayRicnu(struct ricnu_s *ricnu);
 };
 
 //****************************************************************************
