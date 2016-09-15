@@ -83,7 +83,7 @@ void FlexSEA_Generic::init(void)
     var_list_slave_all.clear();
     var_list_slave_all << "Execute 1" << "Execute 2" << "Execute 3" << \
                        "Execute 4" << "Manage 1" << "Strain Amp 1" << \
-                       "Gossip 1" << "Plan 1";
+                       "Gossip 1" << "Battery 1" << "Plan 1";
 
     //Lookup from list to actual slave number (FlexSEA convention):
     list_to_slave_all[0] = FLEXSEA_EXECUTE_1;
@@ -93,7 +93,8 @@ void FlexSEA_Generic::init(void)
     list_to_slave_all[4] = FLEXSEA_MANAGE_1;
     list_to_slave_all[5] = FLEXSEA_STRAIN_1;
     list_to_slave_all[6] = FLEXSEA_GOSSIP_1;
-    list_to_slave_all[7] = FLEXSEA_PLAN_1;
+    list_to_slave_all[7] = FLEXSEA_BATTERY_1;
+    list_to_slave_all[8] = FLEXSEA_PLAN_1;
 
     //Experiments:
     //============
@@ -173,6 +174,48 @@ void FlexSEA_Generic::assignRicnuPtr(struct ricnu_s **ricnu_ptr, uint8_t slave)
         */
         default:
             *ricnu_ptr = &ricnu_1;
+            break;
+    }
+}
+
+void FlexSEA_Generic::assignGossipPtr(struct gossip_s **myPtr, uint8_t slave)
+{
+    //Based on selected slave, what structure do we use?
+    switch(slave)
+    {
+        case 0:
+            *myPtr = &gossip1;
+            break;
+        default:
+            *myPtr = &gossip1;
+            break;
+    }
+}
+
+void FlexSEA_Generic::assignStrainPtr(struct strain_s **myPtr, uint8_t slave)
+{
+    //Based on selected slave, what structure do we use?
+    switch(slave)
+    {
+        case 0:
+            *myPtr = &strain[0];    //***ToDo 99% sure this is wrong!
+            break;
+        default:
+            *myPtr = &strain[0];
+            break;
+    }
+}
+
+void FlexSEA_Generic::assignBatteryPtr(struct battery_s **myPtr, uint8_t slave)
+{
+    //Based on selected slave, what structure do we use?
+    switch(slave)
+    {
+        case 0:
+            *myPtr = &batt1;
+            break;
+        default:
+            *myPtr = &batt1;
             break;
     }
 }

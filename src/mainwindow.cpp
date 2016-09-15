@@ -77,6 +77,9 @@ MainWindow::MainWindow(QWidget *parent) :
     ricnuViewObjectCount = 0;
     mnViewObjectCount = 0;
     calibObjectCount = 0;
+    gossipObjectCount = 0;
+    battObjectCount = 0;
+    strainObjectCount = 0;
 
     //Create default objects:
     createConfig();
@@ -148,7 +151,6 @@ void MainWindow::createViewExecute(void)
     //Limited number of windows:
     if(exViewObjectCount < (EX_VIEW_WINDOWS_MAX))
     {
-        //WinViewExecute *myViewEx = new WinViewExecute(ui->mdiArea);
         myViewEx[exViewObjectCount] = new WinViewExecute(ui->mdiArea);
         myViewEx[exViewObjectCount]->setAttribute(Qt::WA_DeleteOnClose);
         myViewEx[exViewObjectCount]->show();
@@ -595,6 +597,150 @@ void MainWindow::closeCalib(void)
     if(calibObjectCount > 0)
     {
         calibObjectCount--;
+    }
+    qDebug() << msg;
+    ui->statusBar->showMessage(msg);
+}
+
+//Creates a new View Gossip window
+void MainWindow::createViewGossip(void)
+{
+    QString msg = "";
+
+    //Limited number of windows:
+    if(gossipObjectCount < (GOSSIP_WINDOWS_MAX))
+    {
+        myGossip[gossipObjectCount] = new WinViewGossip(ui->mdiArea);
+        myGossip[gossipObjectCount]->setAttribute(Qt::WA_DeleteOnClose);
+        myGossip[gossipObjectCount]->show();
+
+        msg = "Created 'Gossip View' object index " + \
+                QString::number(gossipObjectCount) + " (max index = " \
+                + QString::number(GOSSIP_WINDOWS_MAX-1) + ").";
+        ui->statusBar->showMessage(msg);
+
+        //Link SerialDriver and Gossip:
+        connect(mySerialDriver, SIGNAL(newDataReady()), \
+                myGossip[gossipObjectCount], SLOT(refreshDisplayGossip()));
+
+        //Link to MainWindow for the close signal:
+        connect(myGossip[gossipObjectCount], SIGNAL(windowClosed()), \
+                this, SLOT(closeViewGossip()));
+
+        gossipObjectCount++;
+    }
+    else
+    {
+        msg = "Maximum number of Gossip View objects reached (" \
+                + QString::number(GOSSIP_WINDOWS_MAX) + ")";
+        qDebug() << msg;
+        ui->statusBar->showMessage(msg);
+    }
+}
+
+void MainWindow::closeViewGossip(void)
+{
+    QString msg = "View Gossip window closed.";
+
+    if(gossipObjectCount > 0)
+    {
+        gossipObjectCount--;
+    }
+    qDebug() << msg;
+    ui->statusBar->showMessage(msg);
+}
+
+//Creates a new View Strain window
+void MainWindow::createViewStrain(void)
+{
+    QString msg = "";
+
+    //Limited number of windows:
+    if(strainObjectCount < (STRAIN_WINDOWS_MAX))
+    {
+        myStrain[strainObjectCount] = new WinViewStrain(ui->mdiArea);
+        myStrain[strainObjectCount]->setAttribute(Qt::WA_DeleteOnClose);
+        myStrain[strainObjectCount]->show();
+
+        msg = "Created 'Strain View' object index " + \
+                QString::number(strainObjectCount) + " (max index = " \
+                + QString::number(STRAIN_WINDOWS_MAX-1) + ").";
+        ui->statusBar->showMessage(msg);
+
+        //Link SerialDriver and Strain:
+        connect(mySerialDriver, SIGNAL(newDataReady()), \
+                myStrain[strainObjectCount], SLOT(refreshDisplayStrain()));
+
+        //Link to MainWindow for the close signal:
+        connect(myStrain[strainObjectCount], SIGNAL(windowClosed()), \
+                this, SLOT(closeViewStrain()));
+
+        strainObjectCount++;
+    }
+    else
+    {
+        msg = "Maximum number of Strain View objects reached (" \
+                + QString::number(STRAIN_WINDOWS_MAX) + ")";
+        qDebug() << msg;
+        ui->statusBar->showMessage(msg);
+    }
+}
+
+void MainWindow::closeViewStrain(void)
+{
+    QString msg = "View Strain window closed.";
+
+    if(strainObjectCount > 0)
+    {
+        strainObjectCount--;
+    }
+    qDebug() << msg;
+    ui->statusBar->showMessage(msg);
+}
+
+//Creates a new View Battery window
+void MainWindow::createViewBattery(void)
+{
+    QString msg = "";
+
+    //Limited number of windows:
+    if(battObjectCount < (BATT_WINDOWS_MAX))
+    {
+        myBatt[battObjectCount] = new WinViewBattery(ui->mdiArea);
+        myBatt[battObjectCount]->setAttribute(Qt::WA_DeleteOnClose);
+        myBatt[battObjectCount]->show();
+
+        msg = "Created 'Battery View' object index " + \
+                QString::number(battObjectCount) + " (max index = " \
+                + QString::number(BATT_WINDOWS_MAX-1) + ").";
+        ui->statusBar->showMessage(msg);
+
+        //Link SerialDriver and Battery:
+        connect(mySerialDriver, SIGNAL(newDataReady()), \
+                myBatt[battObjectCount], SLOT(refreshDisplayBattery()));
+
+        //Link to MainWindow for the close signal:
+        connect(myBatt[battObjectCount], SIGNAL(windowClosed()), \
+                this, SLOT(closeViewBattery()));
+
+        battObjectCount++;
+    }
+    else
+    {
+        msg = "Maximum number of Battery View objects reached (" \
+                + QString::number(BATT_WINDOWS_MAX) + ")";
+        qDebug() << msg;
+        ui->statusBar->showMessage(msg);
+    }
+}
+
+void MainWindow::closeViewBattery(void)
+{
+    QString msg = "View Battery window closed.";
+
+    if(battObjectCount > 0)
+    {
+        battObjectCount--;
     }
     qDebug() << msg;
     ui->statusBar->showMessage(msg);

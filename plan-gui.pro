@@ -51,7 +51,13 @@ SOURCES += src/main.cpp \
     src/WinCalibration.cpp \
     src/w_calibration.cpp \
     src/WinViewManage.cpp \
-    src/w_manage.cpp
+    src/w_manage.cpp \
+    src/w_battery.cpp \
+    src/WinViewGossip.cpp \
+    src/WinViewBattery.cpp \
+    src/w_gossip.cpp \
+    src/w_strain.cpp \
+    src/WinViewStrain.cpp
 
 HEADERS  += inc/main.h \
     inc/mainwindow.h \
@@ -89,7 +95,13 @@ HEADERS  += inc/main.h \
     inc/WinCalibration.h \
     inc/w_calibration.h \
     inc/WinViewManage.h \
-    inc/w_manage.h
+    inc/w_manage.h \
+    inc/w_strain.h \
+    inc/w_gossip.h \
+    inc/WinViewGossip.h \
+    inc/WinViewBattery.h \
+    inc/w_battery.h \
+    inc/WinViewStrain.h
 
 FORMS    += ui/mainwindow.ui \
     ui/w_execute.ui \
@@ -101,7 +113,10 @@ FORMS    += ui/mainwindow.ui \
     ui/w_converter.ui \
     ui/w_ricnu.ui \
     ui/w_manage.ui \
-    ui/w_calibration.ui
+    ui/w_calibration.ui \
+    ui/w_battery.ui \
+    ui/w_gossip.ui \
+    ui/w_strain.ui
 
 RESOURCES += \
     misc/icons.qrc

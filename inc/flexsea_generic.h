@@ -93,6 +93,9 @@ public:
     void assignExecutePtr(struct execute_s **ex_ptr, uint8_t slave);
     void assignManagePtr(struct manage_s **mn_ptr, uint8_t slave);
     void assignRicnuPtr(struct ricnu_s **ricnu_ptr, uint8_t slave);
+    void assignStrainPtr(struct strain_s **myPtr, uint8_t slave);
+    void assignGossipPtr(struct gossip_s **myPtr, uint8_t slave);
+    void assignBatteryPtr(struct battery_s **myPtr, uint8_t slave);
 
     void getNameExp(uint8_t index, QString *name);
     uint8_t getLenExp(void);

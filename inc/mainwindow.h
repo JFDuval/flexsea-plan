@@ -43,6 +43,9 @@
 #include "WinViewRicnu.h"
 #include "WinViewManage.h"
 #include "WinCalibration.h"
+#include "WinViewBattery.h"
+#include "WinViewStrain.h"
+#include "WinViewGossip.h"
 #include "flexsea_generic.h"
 #include "serialdriver.h"
 #include "datalogger.h"
@@ -63,6 +66,9 @@ class MainWindow;
 #define PLOT2D_WINDOWS_MAX          2
 #define RICNU_VIEW_WINDOWS_MAX      1
 #define CALIB_WINDOWS_MAX           1
+#define BATT_WINDOWS_MAX            2
+#define GOSSIP_WINDOWS_MAX          2
+#define STRAIN_WINDOWS_MAX          2
 
 class MainWindow : public QMainWindow
 {
@@ -118,6 +124,18 @@ private:
     int ricnuViewObjectCount;
     WinViewRicnu *myViewRicnu[RICNU_VIEW_WINDOWS_MAX];
 
+    //Battery:
+    int battObjectCount;
+    WinViewBattery *myBatt[BATT_WINDOWS_MAX];
+
+    //Gossip:
+    int gossipObjectCount;
+    WinViewGossip *myGossip[GOSSIP_WINDOWS_MAX];
+
+    //Strain:
+    int strainObjectCount;
+    WinViewStrain *myStrain[STRAIN_WINDOWS_MAX];
+
     //FlexSEA Generic:
     FlexSEA_Generic myFlexSEA_Generic;
 
@@ -139,7 +157,10 @@ public slots:
     void createSlaveComm(void);
     void createAnyCommand(void);
     void createViewRicnu(void);
-    void createConverter(void);
+    void createConverter(void);    
+    void createViewStrain(void);
+    void createViewGossip(void);
+    void createViewBattery(void);
 
     //MDI Windows (closed):
     void closeViewExecute(void);
@@ -152,6 +173,9 @@ public slots:
     void closeAnyCommand(void);
     void closeViewRicnu(void);
     void closeConverter(void);
+    void closeViewStrain(void);
+    void closeViewGossip(void);
+    void closeViewBattery(void);
 
     //Message boxes:
     void displayAbout();
