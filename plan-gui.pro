@@ -12,20 +12,13 @@ TARGET = plan-gui
 TEMPLATE = app
 
 INCLUDEPATH += inc \
+    inc/MDIWinObjects \
+    inc/Wrappers \
     ../flexsea-comm/inc \
     ../flexsea-system/inc
 
 SOURCES += src/main.cpp \
     src/mainwindow.cpp \
-    src/w_2dplot.cpp \
-    src/w_control.cpp \
-    src/w_execute.cpp \
-    src/w_planconfig.cpp \
-    src/WinConfig.cpp \
-    src/WinControlControl.cpp \
-    src/WinView2DPlot.cpp \
-    src/WinViewExecute.cpp \
-    src/flexsea_board.c \
     ../flexsea-comm/src/flexsea.c \
     ../flexsea-comm/src/flexsea_buffers.c \
     ../flexsea-comm/src/flexsea_comm.c \
@@ -36,32 +29,41 @@ SOURCES += src/main.cpp \
     ../flexsea-system/src/flexsea_cmd_sensors.c \
     ../flexsea-system/src/flexsea_system.c \
     ../flexsea-system/src/flexsea_cmd_data.c \
-    src/w_slavecomm.cpp \
-    src/WinSlaveComm.cpp \
-    src/serialdriver.cpp \
-    src/flexsea_generic.cpp \
-    src/trapez.c \
-    src/w_anycommand.cpp \
-    src/WinAnyCommand.cpp \
-    src/w_converter.cpp \
-    src/WinConverter.cpp \
+    src/MDIWinObjects/w_2dplot.cpp \
+    src/MDIWinObjects/w_anycommand.cpp \
+    src/MDIWinObjects/w_battery.cpp \
+    src/MDIWinObjects/w_calibration.cpp \
+    src/MDIWinObjects/w_control.cpp \
+    src/MDIWinObjects/w_converter.cpp \
+    src/MDIWinObjects/w_execute.cpp \
+    src/MDIWinObjects/w_gossip.cpp \
+    src/MDIWinObjects/w_manage.cpp \
+    src/MDIWinObjects/w_planconfig.cpp \
+    src/MDIWinObjects/w_ricnu.cpp \
+    src/MDIWinObjects/w_slavecomm.cpp \
+    src/MDIWinObjects/w_strain.cpp \
+    src/Wrappers/WinAnyCommand.cpp \
+    src/Wrappers/WinCalibration.cpp \
+    src/Wrappers/WinConfig.cpp \
+    src/Wrappers/WinControlControl.cpp \
+    src/Wrappers/WinConverter.cpp \
+    src/Wrappers/WinSlaveComm.cpp \
+    src/Wrappers/WinView2DPlot.cpp \
+    src/Wrappers/WinViewBattery.cpp \
+    src/Wrappers/WinViewExecute.cpp \
+    src/Wrappers/WinViewGossip.cpp \
+    src/Wrappers/WinViewManage.cpp \
+    src/Wrappers/WinViewRicnu.cpp \
+    src/Wrappers/WinViewStrain.cpp \
     src/datalogger.cpp \
-    src/WinViewRicnu.cpp \
-    src/w_ricnu.cpp \
-    src/WinCalibration.cpp \
-    src/w_calibration.cpp \
-    src/WinViewManage.cpp \
-    src/w_manage.cpp \
-    src/w_battery.cpp \
-    src/WinViewGossip.cpp \
-    src/WinViewBattery.cpp \
-    src/w_gossip.cpp \
-    src/w_strain.cpp \
-    src/WinViewStrain.cpp
+    src/flexsea_generic.cpp \
+    src/serialdriver.cpp \
+    src/flexsea_board.c \
+    src/trapez.c
+
 
 HEADERS  += inc/main.h \
     inc/mainwindow.h \
-    inc/flexsea_board.h \
     ../flexsea-comm/inc/flexsea.h \
     ../flexsea-comm/inc/flexsea_buffers.h \
     ../flexsea-comm/inc/flexsea_comm.h \
@@ -72,36 +74,37 @@ HEADERS  += inc/main.h \
     ../flexsea-system/inc/flexsea_cmd_sensors.h \
     ../flexsea-system/inc/flexsea_system.h \
     ../flexsea-system/inc/flexsea_cmd_data.h \
-    inc/WinViewExecute.h \
-    inc/w_execute.h \
-    inc/w_control.h \
-    inc/WinControlControl.h \
-    inc/w_2dplot.h \
-    inc/WinView2DPlot.h \
-    inc/w_planconfig.h \
-    inc/WinConfig.h \
-    inc/w_slavecomm.h \
-    inc/WinSlaveComm.h \
-    inc/serialdriver.h \
     inc/flexsea_generic.h \
-    inc/trapez.h \
-    inc/w_anycommand.h \
-    inc/WinAnyCommand.h \
-    inc/w_converter.h \
-    inc/WinConverter.h \
     inc/datalogger.h \
-    inc/WinViewRicnu.h \
-    inc/w_ricnu.h \
-    inc/WinCalibration.h \
-    inc/w_calibration.h \
-    inc/WinViewManage.h \
-    inc/w_manage.h \
-    inc/w_strain.h \
-    inc/w_gossip.h \
-    inc/WinViewGossip.h \
-    inc/WinViewBattery.h \
-    inc/w_battery.h \
-    inc/WinViewStrain.h
+    inc/trapez.h \
+    inc/serialdriver.h \
+    inc/flexsea_board.h \
+    inc/MDIWinObjects/w_2dplot.h \
+    inc/MDIWinObjects/w_anycommand.h \
+    inc/MDIWinObjects/w_battery.h \
+    inc/MDIWinObjects/w_calibration.h \
+    inc/MDIWinObjects/w_control.h \
+    inc/MDIWinObjects/w_converter.h \
+    inc/MDIWinObjects/w_execute.h \
+    inc/MDIWinObjects/w_gossip.h \
+    inc/MDIWinObjects/w_manage.h \
+    inc/MDIWinObjects/w_planconfig.h \
+    inc/MDIWinObjects/w_ricnu.h \
+    inc/MDIWinObjects/w_slavecomm.h \
+    inc/MDIWinObjects/w_strain.h \
+    inc/Wrappers/WinAnyCommand.h \
+    inc/Wrappers/WinCalibration.h \
+    inc/Wrappers/WinConfig.h \
+    inc/Wrappers/WinControlControl.h \
+    inc/Wrappers/WinConverter.h \
+    inc/Wrappers/WinSlaveComm.h \
+    inc/Wrappers/WinView2DPlot.h \
+    inc/Wrappers/WinViewBattery.h \
+    inc/Wrappers/WinViewExecute.h \
+    inc/Wrappers/WinViewGossip.h \
+    inc/Wrappers/WinViewManage.h \
+    inc/Wrappers/WinViewRicnu.h \
+    inc/Wrappers/WinViewStrain.h
 
 FORMS    += ui/mainwindow.ui \
     ui/w_execute.ui \
