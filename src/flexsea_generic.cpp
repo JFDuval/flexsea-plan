@@ -28,6 +28,8 @@
     * 2016-09-12 | jfduval | Moved the status display here, from w_execute
 ****************************************************************************/
 
+//ToDo: this code is getting ugly: combine functions!
+
 //****************************************************************************
 // Include(s)
 //****************************************************************************
@@ -64,6 +66,16 @@ void FlexSEA_Generic::init(void)
     list_to_slave_ex[1] = FLEXSEA_EXECUTE_2;
     list_to_slave_ex[2] = FLEXSEA_EXECUTE_3;
     list_to_slave_ex[3] = FLEXSEA_EXECUTE_4;
+
+    //Slaves - Manage only:
+    //======================
+
+    var_list_slave_mn.clear();
+    var_list_slave_mn << "Manage 1" << "Manage 2";
+
+    //Lookup from list to actual slave number (FlexSEA convention):
+    list_to_slave_mn[0] = FLEXSEA_MANAGE_1;
+    list_to_slave_mn[1] = FLEXSEA_MANAGE_2;
 
     //Slaves - All:
     //=============
@@ -111,6 +123,31 @@ void FlexSEA_Generic::assignExecutePtr(struct execute_s **ex_ptr, uint8_t slave)
             break;
         default:
             *ex_ptr = &exec1;
+            break;
+    }
+}
+
+void FlexSEA_Generic::assignManagePtr(struct manage_s **mn_ptr, uint8_t slave)
+{
+    //Based on selected slave, what structure do we use?
+    switch(slave)
+    {
+        case 0:
+            *mn_ptr = &manag1;
+            break;
+        case 1:
+            *mn_ptr = &manag2;
+            break;
+        /*
+        case 2:
+            *mn_ptr = &manag3;
+            break;
+        case 3:
+            *mn_ptr = &manag4;
+            break;
+            */
+        default:
+            *mn_ptr = &manag1;
             break;
     }
 }
@@ -304,6 +341,37 @@ void FlexSEA_Generic::execStatusBytes(uint8_t stat1, uint8_t stat2, QString *str
     if(mod == 0)
     {
         (*str1) = QString("Status: OK");
+    }
+}
+
+//Manage:
+//===========
+
+uint8_t FlexSEA_Generic::getSlaveCodeMn(uint8_t index)
+{
+    return list_to_slave_mn[index];
+}
+
+void FlexSEA_Generic::getSlaveNameMn(uint8_t index, QString *name)
+{
+    (*name) = var_list_slave_mn.at(index);
+}
+
+uint8_t FlexSEA_Generic::getSlaveLenMn(void)
+{
+    return var_list_slave_mn.count();
+}
+
+void FlexSEA_Generic::populateComboBoxMn(QComboBox *cbox)
+{
+    QString slave_name;
+
+    init();
+
+    for(int index = 0; index < getSlaveLenMn(); index++)
+    {
+        getSlaveNameMn(index, &slave_name);
+        cbox->addItem(slave_name);
     }
 }
 

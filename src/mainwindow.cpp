@@ -75,6 +75,8 @@ MainWindow::MainWindow(QWidget *parent) :
     controlObjectCount = 0;
     plot2DObjectCount = 0;
     ricnuViewObjectCount = 0;
+    mnViewObjectCount = 0;
+    calibObjectCount = 0;
 
     //Create default objects:
     createConfig();
@@ -182,6 +184,55 @@ void MainWindow::closeViewExecute(void)
     if(exViewObjectCount > 0)
     {
         exViewObjectCount--;
+    }
+    qDebug() << msg;
+    ui->statusBar->showMessage(msg);
+}
+
+//Creates a new View Manage window
+void MainWindow::createViewManage(void)
+{
+    QString msg = "";
+
+    //Limited number of windows:
+    if(mnViewObjectCount < (MN_VIEW_WINDOWS_MAX))
+    {
+        //WinViewExecute *myViewEx = new WinViewExecute(ui->mdiArea);
+        myViewMn[mnViewObjectCount] = new WinViewManage(ui->mdiArea);
+        myViewMn[mnViewObjectCount]->setAttribute(Qt::WA_DeleteOnClose);
+        myViewMn[mnViewObjectCount]->show();
+
+        msg = "Created 'Manage View' object index " + \
+                QString::number(mnViewObjectCount) + " (max index = " \
+                + QString::number(MN_VIEW_WINDOWS_MAX-1) + ").";
+        ui->statusBar->showMessage(msg);
+
+        //Link SerialDriver and Manage:
+        connect(mySerialDriver, SIGNAL(newDataReady()), \
+                myViewMn[mnViewObjectCount], SLOT(refreshDisplayManage()));
+
+        //Link to MainWindow for the close signal:
+        connect(myViewMn[mnViewObjectCount], SIGNAL(windowClosed()), \
+                this, SLOT(closeViewManage()));
+
+        mnViewObjectCount++;
+    }
+    else
+    {
+        msg = "Maximum number of Execute View objects reached (" \
+                + QString::number(EX_VIEW_WINDOWS_MAX) + ")";
+        qDebug() << msg;
+        ui->statusBar->showMessage(msg);
+    }
+}
+
+void MainWindow::closeViewManage(void)
+{
+    QString msg = "View Manage window closed.";
+
+    if(mnViewObjectCount > 0)
+    {
+        mnViewObjectCount--;
     }
     qDebug() << msg;
     ui->statusBar->showMessage(msg);
@@ -487,7 +538,6 @@ void MainWindow::createConverter(void)
     }
     else
     {
-        //qDebug() << "Maximum number of Converter objects reached.";
         msg = "Maximum number of Converter objects reached (" \
                 + QString::number(CONVERTER_WINDOWS_MAX) + ")";
         qDebug() << msg;
@@ -502,6 +552,49 @@ void MainWindow::closeConverter(void)
     if(converterObjectCount > 0)
     {
         converterObjectCount--;
+    }
+    qDebug() << msg;
+    ui->statusBar->showMessage(msg);
+}
+
+//Creates a new Calibration window
+void MainWindow::createCalib(void)
+{
+    QString msg = "";
+
+    //Limited number of windows:
+    if(calibObjectCount < (CALIB_WINDOWS_MAX))
+    {
+        myCalib[calibObjectCount] = new WinCalibration(ui->mdiArea);
+        myCalib[calibObjectCount]->setAttribute(Qt::WA_DeleteOnClose);
+        myCalib[calibObjectCount]->show();
+
+        msg = "Created 'Calibration' object index " + QString::number(calibObjectCount) \
+                + " (max index = " + QString::number(CALIB_WINDOWS_MAX-1) + ").";
+        ui->statusBar->showMessage(msg);
+
+        //Link to MainWindow for the close signal:
+        connect(myCalib[calibObjectCount], SIGNAL(windowClosed()), \
+                this, SLOT(closeCalib()));
+
+        calibObjectCount++;
+    }
+    else
+    {
+        msg = "Maximum number of Calibration objects reached (" \
+                + QString::number(CALIB_WINDOWS_MAX) + ")";
+        qDebug() << msg;
+        ui->statusBar->showMessage(msg);
+    }
+}
+
+void MainWindow::closeCalib(void)
+{
+    QString msg = "Calibration window closed.";
+
+    if(calibObjectCount > 0)
+    {
+        calibObjectCount--;
     }
     qDebug() << msg;
     ui->statusBar->showMessage(msg);

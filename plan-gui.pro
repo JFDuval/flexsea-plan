@@ -47,7 +47,11 @@ SOURCES += src/main.cpp \
     src/WinConverter.cpp \
     src/datalogger.cpp \
     src/WinViewRicnu.cpp \
-    src/w_ricnu.cpp
+    src/w_ricnu.cpp \
+    src/WinCalibration.cpp \
+    src/w_calibration.cpp \
+    src/WinViewManage.cpp \
+    src/w_manage.cpp
 
 HEADERS  += inc/main.h \
     inc/mainwindow.h \
@@ -81,7 +85,11 @@ HEADERS  += inc/main.h \
     inc/WinConverter.h \
     inc/datalogger.h \
     inc/WinViewRicnu.h \
-    inc/w_ricnu.h
+    inc/w_ricnu.h \
+    inc/WinCalibration.h \
+    inc/w_calibration.h \
+    inc/WinViewManage.h \
+    inc/w_manage.h
 
 FORMS    += ui/mainwindow.ui \
     ui/w_execute.ui \
@@ -91,7 +99,9 @@ FORMS    += ui/mainwindow.ui \
     ui/w_slavecomm.ui \
     ui/w_anycommand.ui \
     ui/w_converter.ui \
-    ui/w_ricnu.ui
+    ui/w_ricnu.ui \
+    ui/w_manage.ui \
+    ui/w_calibration.ui
 
 RESOURCES += \
     misc/icons.qrc

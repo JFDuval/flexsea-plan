@@ -41,6 +41,8 @@
 #include "WinView2DPlot.h"
 #include "WinControlControl.h"
 #include "WinViewRicnu.h"
+#include "WinViewManage.h"
+#include "WinCalibration.h"
 #include "flexsea_generic.h"
 #include "serialdriver.h"
 #include "datalogger.h"
@@ -52,6 +54,7 @@ class MainWindow;
 
 //MDI Objects: set maximums # of child
 #define EX_VIEW_WINDOWS_MAX         5
+#define MN_VIEW_WINDOWS_MAX         2
 #define CONFIG_WINDOWS_MAX          1
 #define SLAVECOMM_WINDOWS_MAX       1
 #define ANYCOMMAND_WINDOWS_MAX      1
@@ -59,6 +62,7 @@ class MainWindow;
 #define CONTROL_WINDOWS_MAX         1
 #define PLOT2D_WINDOWS_MAX          2
 #define RICNU_VIEW_WINDOWS_MAX      1
+#define CALIB_WINDOWS_MAX           1
 
 class MainWindow : public QMainWindow
 {
@@ -78,6 +82,10 @@ private:
     int exViewObjectCount;
     WinViewExecute *myViewEx[EX_VIEW_WINDOWS_MAX];
 
+    //Manage View:
+    int mnViewObjectCount;
+    WinViewManage *myViewMn[MN_VIEW_WINDOWS_MAX];
+
     //Config objects:
     int configObjectCount;
     WinConfig *myConfig[CONFIG_WINDOWS_MAX];
@@ -93,6 +101,10 @@ private:
     //Converter:
     int converterObjectCount;
     WinConverter *myConverter[CONVERTER_WINDOWS_MAX];
+
+    //Calibration:
+    int calibObjectCount;
+    WinCalibration *myCalib[CALIB_WINDOWS_MAX];
 
     //Control:
     int controlObjectCount;
@@ -119,9 +131,11 @@ public slots:
 
     //MDI Windows (create):
     void createViewExecute(void);
+    void createViewManage(void);
     void createView2DPlot(void);
     void createControlControl(void);
     void createConfig(void);
+    void createCalib(void);
     void createSlaveComm(void);
     void createAnyCommand(void);
     void createViewRicnu(void);
@@ -129,9 +143,11 @@ public slots:
 
     //MDI Windows (closed):
     void closeViewExecute(void);
+    void closeViewManage(void);
     void closeView2DPlot(void);
     void closeControlControl(void);
     void closeConfig(void);
+    void closeCalib(void);
     void closeSlaveComm(void);
     void closeAnyCommand(void);
     void closeViewRicnu(void);

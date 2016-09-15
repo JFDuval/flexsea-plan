@@ -113,6 +113,7 @@
     <property name="title">
      <string>Tools</string>
     </property>
+    <addaction name="actionCalibration"/>
     <addaction name="actionConverter"/>
    </widget>
    <addaction name="menuTest"/>
@@ -210,6 +211,11 @@
   <action name="actionRIC_NU_Knee">
    <property name="text">
     <string>RIC/NU Knee</string>
+   </property>
+  </action>
+  <action name="actionCalibration">
+   <property name="text">
+    <string>Calibration</string>
    </property>
   </action>
  </widget>
@@ -392,6 +398,38 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>actionCalibration</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>createCalib()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>594</x>
+     <y>433</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionManage_Barebone</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>createViewManage()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>594</x>
+     <y>433</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>createViewExecute()</slot>
@@ -406,5 +444,7 @@
   <slot>createSlaveComm()</slot>
   <slot>displayLicense()</slot>
   <slot>createViewRicnu()</slot>
+  <slot>createViewManage()</slot>
+  <slot>createCalib()</slot>
  </slots>
 </ui>

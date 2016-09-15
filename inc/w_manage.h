@@ -21,93 +21,61 @@
 	Biomechatronics research group <http://biomech.media.mit.edu/>
 	[Contributors] 
 *****************************************************************************
-    [This file] Datalogger
+	[This file] w_manage.h: Manage View Window
 *****************************************************************************
 	[Change log] (Convention: YYYY-MM-DD | author | comment)
-	* 2016-09-09 | jfduval | Initial GPL-3.0 release
+	* 2016-09-15 | jfduval | New code
 	*
 ****************************************************************************/
 
-//****************************************************************************
-// Dephy, Inc.
-// Jean-Francois (JF) Duval
-// jfduval@dephy.com
-// 09/2016
-//****************************************************************************
-// datalogger: Datalogger
-//****************************************************************************
-
-#ifndef DATALOGGER_H
-#define DATALOGGER_H
+#ifndef W_MANAGE_H
+#define W_MANAGE_H
 
 //****************************************************************************
 // Include(s)
 //****************************************************************************
 
 #include <QWidget>
-#include <QString>
-#include <QFileDialog>
-#include <QTextStream>
-#include <QDateTime>
 #include "flexsea_generic.h"
 
 //****************************************************************************
-// Namespace & Class
+// Namespace & Class Definition:
 //****************************************************************************
 
 namespace Ui {
-class DataLogger;
+class W_Manage;
 }
 
-class DataLogger : public QWidget
+class W_Manage : public QWidget
 {
-	Q_OBJECT
-	
-public:
-    explicit DataLogger(QWidget *parent = 0);
-	
-public slots:
-    void openFile(uint8_t item);
-    void closeFile(uint8_t item);
-    void writeToFile(uint8_t item, uint8_t slaveIndex, uint8_t expIndex);
+    Q_OBJECT
 
-private slots:	
+public:
+	//Constructor & Destructor:
+    explicit W_Manage(QWidget *parent = 0);
+    ~W_Manage();
+	
+	//Function(s):
+    void refresh(void);
+    void log(QTextStream *filePtr, uint8_t slaveIndex, \
+                char term, qint64 t_ms, QString t_text);
+
+public slots:
+
 
 private:
 	//Variables & Objects:
-    QString filename;
-    QString logdir_path;
-    QFile logFile;
-    QTextStream logFileStream;
-	QDateTime *myTime;
-    FlexSEA_Generic myFlexSEA_Generic;
-    bool fileOpened[4];
-		
+    Ui::W_Manage *ui;
+	FlexSEA_Generic myFlexSEA_Generic;
+    int active_slave, active_slave_index;
+	
 	//Function(s):
 	void init(void);
-	void logTimestamp(qint64 *t_ms, QString *t_text);
-    void writeIdentifier(uint8_t item, uint8_t slaveIndex, uint8_t expIndex);
-    void writeExecuteReadAllHeader(uint8_t item);
-    void writeReadAllRicnuHeader(uint8_t item);
-	void logDirectory(void);
-    void logReadAllExec(QTextStream *filePtr, uint8_t slaveIndex, \
-                            char term, qint64 t_ms, QString t_text);
-    void logReadAllRicnu(QTextStream *filePtr, uint8_t slaveIndex, \
-                            char term, qint64 t_ms, QString t_text);
-    void getFctPtrs(uint8_t slaveIndex, uint8_t expIndex, \
-                    void (DataLogger::**myHeaderFctPtr) (uint8_t item), \
-                    void (DataLogger::**myLogFctPtr) (QTextStream *filePtr, uint8_t slaveIndex, \
-                    char term, qint64 t_ms, QString t_text));
-
-signals:
-    void setLogFileStatus(QString msg);
-    void setStatusBarMessage(QString msg);
-
+    void displayManage(struct manage_s *mn);
 };
 
 //****************************************************************************
 // Definition(s)
 //****************************************************************************
 
-
-#endif // DATALOGGER_H
+#endif // W_MANAGE_H
