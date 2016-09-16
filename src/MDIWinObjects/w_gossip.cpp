@@ -38,6 +38,7 @@
 #include "main.h"
 #include <QString>
 #include <QTextStream>
+#include <QDebug>
 
 //****************************************************************************
 // Constructor & Destructor:
@@ -68,7 +69,8 @@ W_Gossip::~W_Gossip()
 void W_Gossip::refresh(void)
 {
     struct gossip_s *goPtr;
-    //myFlexSEA_Generic.assignGossipPtr(&goPtr, ui->comboBox_slave->currentIndex());
+    myFlexSEA_Generic.assignGossipPtr(&goPtr, SL_BASE_GOSSIP, \
+                                      ui->comboBox_slave->currentIndex());
     displayGossip(goPtr);
 }
 
@@ -112,38 +114,25 @@ void W_Gossip::log(QTextStream *filePtr, uint8_t slaveIndex, \
 void W_Gossip::init(void)
 {
     //Populates Slave list:
-    //myFlexSEA_Generic.populateComboBoxGo(ui->comboBox_slave);
-
-    //Variables:
-    //active_slave_index = ui->comboBox_slave->currentIndex();
-    //active_slave = myFlexSEA_Generic.getSlaveCodeGo(active_slave_index);
+    myFlexSEA_Generic.populateSlaveComboBox(ui->comboBox_slave, \
+                                            SL_BASE_GOSSIP, SL_LEN_GOSSIP);
 }
 
 void W_Gossip::displayGossip(struct gossip_s *go)
 {
     int combined_status = 0;
-/*
+
     //Raw values:
     //===========
 
-    ui->disp_accx->setText(QString::number(ex->accel.x));
-    ui->disp_accy->setText(QString::number(ex->accel.y));
-    ui->disp_accz->setText(QString::number(ex->accel.z));
-    ui->disp_gyrox->setText(QString::number(ex->gyro.x));
-    ui->disp_gyroy->setText(QString::number(ex->gyro.y));
-    ui->disp_gyroz->setText(QString::number(ex->gyro.z));
+    ui->disp_accx->setText(QString::number(go->accel.x));
+    ui->disp_accy->setText(QString::number(go->accel.y));
+    ui->disp_accz->setText(QString::number(go->accel.z));
+    ui->disp_gyrox->setText(QString::number(go->gyro.x));
+    ui->disp_gyroy->setText(QString::number(go->gyro.y));
+    ui->disp_gyroz->setText(QString::number(go->gyro.z));
 
-    ui->disp_enc->setText(QString::number(ex->enc_display));
-
-    ui->disp_strain->setText(QString::number(ex->strain));
-    ui->disp_ana->setText(QString::number(ex->analog[0]));
-    ui->disp_ana1->setText(QString::number(ex->analog[1]));
-
-    ui->disp_current->setText(QString::number(ex->current));
-
-    ui->disp_vb->setText(QString::number(ex->volt_batt));
-    ui->disp_vg->setText(QString::number(ex->volt_int));
-    ui->disp_temp->setText(QString::number(ex->temp));
+/*
 
     combined_status = (ex->status2 << 8) & ex->status1;
     ui->disp_stat1->setText(QString::number(combined_status));
