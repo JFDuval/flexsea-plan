@@ -68,7 +68,8 @@ W_Manage::~W_Manage()
 void W_Manage::refresh(void)
 {
     struct manage_s *mnPtr;
-    myFlexSEA_Generic.assignManagePtr(&mnPtr, ui->comboBox_slave->currentIndex());
+    myFlexSEA_Generic.assignManagePtr(&mnPtr, SL_BASE_MN, \
+                                      ui->comboBox_slave->currentIndex());
     displayManage(mnPtr);
 }
 
@@ -76,7 +77,7 @@ void W_Manage::log(QTextStream *filePtr, uint8_t slaveIndex, \
                                 char term, qint64 t_ms, QString t_text)
 {
     struct manage_s *mnPtr;
-    myFlexSEA_Generic.assignManagePtr(&mnPtr, slaveIndex);
+    myFlexSEA_Generic.assignManagePtr(&mnPtr, SL_BASE_MN, slaveIndex);
 
     (*filePtr) << t_text << ',' << \
                         t_ms << ',' << \
@@ -111,11 +112,8 @@ void W_Manage::log(QTextStream *filePtr, uint8_t slaveIndex, \
 void W_Manage::init(void)
 {
     //Populates Slave list:
-    myFlexSEA_Generic.populateComboBoxMn(ui->comboBox_slave);
-
-    //Variables:
-    active_slave_index = ui->comboBox_slave->currentIndex();
-    active_slave = myFlexSEA_Generic.getSlaveCodeMn(active_slave_index);
+    myFlexSEA_Generic.populateSlaveComboBox(ui->comboBox_slave, SL_BASE_MN, \
+                                            SL_LEN_MN);
 }
 
 void W_Manage::displayManage(struct manage_s *mn)

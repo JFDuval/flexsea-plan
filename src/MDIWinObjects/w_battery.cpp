@@ -76,7 +76,7 @@ void W_Battery::log(QTextStream *filePtr, uint8_t slaveIndex, \
                                 char term, qint64 t_ms, QString t_text)
 {
     struct battery_s *baPtr;
-    myFlexSEA_Generic.assignBatteryPtr(&baPtr, slaveIndex);
+    myFlexSEA_Generic.assignBatteryPtr(&baPtr, SL_BASE_BATT, slaveIndex);
 /*
     (*filePtr) << t_text << ',' << \
                         t_ms << ',' << \

@@ -23,10 +23,6 @@
 *****************************************************************************
 	[This file] flexsea_generic.h: Generic functions used by many classes
 *****************************************************************************
-	[Change log] (Convention: YYYY-MM-DD | author | comment)
-	* 2016-09-09 | jfduval | Initial GPL-3.0 release
-    * 2016-09-12 | jfduval | Moved the status display here, from w_execute
-****************************************************************************/
 
 #ifndef FLEXSEA_GENERIC_H
 #define FLEXSEA_GENERIC_H
@@ -43,7 +39,28 @@
 // Definition(s)
 //****************************************************************************
 
-#define MAX_SLAVES                  10
+//Slaves & Slave lists:
+//=====================
+
+//Slave list: base index:
+#define SL_BASE_ALL             0
+#define SL_BASE_EX              0
+#define SL_BASE_MN              4
+#define SL_BASE_PLAN            6
+#define SL_BASE_GOSSIP          7
+#define SL_BASE_BATT            9
+#define SL_BASE_STRAIN          10
+//Slave list: length/number of fields
+#define SL_LEN_ALL              11
+#define SL_LEN_EX               4
+#define SL_LEN_MN               2
+#define SL_LEN_PLAN             1
+#define SL_LEN_GOSSIP           2
+#define SL_LEN_BATT             1
+#define SL_LEN_STRAIN           1
+
+//Display and conversions:
+//========================
 
 #define GET_WDCLK_FLAG(status1)     ((status1 >> 7) & 0x01)
 #define GET_DISCON_FLAG(status1)    ((status1 >> 6) & 0x01)
@@ -90,33 +107,23 @@ public:
     explicit FlexSEA_Generic(QWidget *parent = 0);
 
 	void init(void);
-    void assignExecutePtr(struct execute_s **ex_ptr, uint8_t slave);
-    void assignManagePtr(struct manage_s **mn_ptr, uint8_t slave);
-    void assignRicnuPtr(struct ricnu_s **ricnu_ptr, uint8_t slave);
-    void assignStrainPtr(struct strain_s **myPtr, uint8_t slave);
-    void assignGossipPtr(struct gossip_s **myPtr, uint8_t slave);
-    void assignBatteryPtr(struct battery_s **myPtr, uint8_t slave);
 
-    void getNameExp(uint8_t index, QString *name);
-    uint8_t getLenExp(void);
+    //Pointer assignements:
+    void assignExecutePtr(struct execute_s **myPtr, uint8_t base, uint8_t slave);
+    void assignManagePtr(struct manage_s **myPtr, uint8_t base, uint8_t slave);
+    void assignRicnuPtr(struct ricnu_s **myPtr, uint8_t base, uint8_t slave);
+    void assignStrainPtr(struct strain_s **myPtr, uint8_t base, uint8_t slave);
+    void assignGossipPtr(struct gossip_s **myPtr, uint8_t base, uint8_t slave);
+    void assignBatteryPtr(struct battery_s **myPtr, uint8_t base, uint8_t slave);
 
-	uint8_t getSlaveCodeEx(uint8_t index);
-	void getSlaveNameEx(uint8_t index, QString *name);
-	uint8_t getSlaveLenEx(void);
+    void populateSlaveComboBox(QComboBox *cbox, uint8_t base, uint8_t len);
+    void populateExpComboBox(QComboBox *cbox);
+    uint8_t getSlaveBoardType(uint8_t base, uint8_t index);
+    void getSlaveName(uint8_t base, uint8_t index, QString *slaveName);
+    void getExpName(uint8_t index, QString *expName);
+    uint8_t getSlaveID(uint8_t base, uint8_t index);
 
-    uint8_t getSlaveCodeMn(uint8_t index);
-    void getSlaveNameMn(uint8_t index, QString *name);
-    uint8_t getSlaveLenMn(void);
-	
-	uint8_t getSlaveCodeAll(uint8_t index);
-	void getSlaveNameAll(uint8_t index, QString *name);
-	uint8_t getSlaveLenAll(void);
-	
-    void populateComboBoxEx(QComboBox *cbox);
-    void populateComboBoxMn(QComboBox *cbox);
-    void populateComboBoxAll(QComboBox *cbox);
-    void populateComboBoxExp(QComboBox *cbox);
-
+    //ToDo rework:
     void execStatusBytes(uint8_t stat1, uint8_t stat2, QString *str1);
 
     void packetVisualizer(uint numb, uint8_t *packet);
@@ -127,10 +134,8 @@ private slots:
 
 private:
     //Lookup from list to actual slave number (FlexSEA convention):
-    uint8_t list_to_slave_ex[MAX_SLAVES], list_to_slave_all[MAX_SLAVES];
-    uint8_t list_to_slave_mn[MAX_SLAVES];
-    QStringList var_list_slave_ex, var_list_slave_all, var_list_exp;
-    QStringList var_list_slave_mn;
+    uint8_t list_to_slave[SL_LEN_ALL];
+    QStringList var_list_slave, var_list_exp;
 };
 
 #endif // FLEXSEA_GENERIC_H

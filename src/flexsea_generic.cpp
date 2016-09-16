@@ -26,6 +26,7 @@
 	[Change log] (Convention: YYYY-MM-DD | author | comment)
 	* 2016-09-09 | jfduval | Initial GPL-3.0 release
     * 2016-09-12 | jfduval | Moved the status display here, from w_execute
+    * 2016-09-16 | jfduval | Major code rework tu support multiple boards
 ****************************************************************************/
 
 //ToDo: this code is getting ugly: combine functions!
@@ -54,47 +55,26 @@ FlexSEA_Generic::FlexSEA_Generic(QWidget *parent) : QWidget(parent)
 
 void FlexSEA_Generic::init(void)
 {
-    //Slaves - Execute only:
-    //======================
+    //Slaves:
+    //=======
 
-    var_list_slave_ex.clear();
-    var_list_slave_ex << "Execute 1" << "Execute 2" << "Execute 3" << \
-                       "Execute 4";
-
-    //Lookup from list to actual slave number (FlexSEA convention):
-    list_to_slave_ex[0] = FLEXSEA_EXECUTE_1;
-    list_to_slave_ex[1] = FLEXSEA_EXECUTE_2;
-    list_to_slave_ex[2] = FLEXSEA_EXECUTE_3;
-    list_to_slave_ex[3] = FLEXSEA_EXECUTE_4;
-
-    //Slaves - Manage only:
-    //======================
-
-    var_list_slave_mn.clear();
-    var_list_slave_mn << "Manage 1" << "Manage 2";
+    var_list_slave.clear();
+    var_list_slave << "Execute 1" << "Execute 2" << "Execute 3" << \
+                      "Execute 4" << "Manage 1" << "Manage 2" << "Plan 1" << \
+                      "Gossip 1" << "Gossip 2" <<"Battery 1" << "Strain 1";
 
     //Lookup from list to actual slave number (FlexSEA convention):
-    list_to_slave_mn[0] = FLEXSEA_MANAGE_1;
-    list_to_slave_mn[1] = FLEXSEA_MANAGE_2;
-
-    //Slaves - All:
-    //=============
-
-    var_list_slave_all.clear();
-    var_list_slave_all << "Execute 1" << "Execute 2" << "Execute 3" << \
-                       "Execute 4" << "Manage 1" << "Strain Amp 1" << \
-                       "Gossip 1" << "Battery 1" << "Plan 1";
-
-    //Lookup from list to actual slave number (FlexSEA convention):
-    list_to_slave_all[0] = FLEXSEA_EXECUTE_1;
-    list_to_slave_all[1] = FLEXSEA_EXECUTE_2;
-    list_to_slave_all[2] = FLEXSEA_EXECUTE_3;
-    list_to_slave_all[3] = FLEXSEA_EXECUTE_4;
-    list_to_slave_all[4] = FLEXSEA_MANAGE_1;
-    list_to_slave_all[5] = FLEXSEA_STRAIN_1;
-    list_to_slave_all[6] = FLEXSEA_GOSSIP_1;
-    list_to_slave_all[7] = FLEXSEA_BATTERY_1;
-    list_to_slave_all[8] = FLEXSEA_PLAN_1;
+    list_to_slave[0] = FLEXSEA_EXECUTE_1;
+    list_to_slave[1] = FLEXSEA_EXECUTE_2;
+    list_to_slave[2] = FLEXSEA_EXECUTE_3;
+    list_to_slave[3] = FLEXSEA_EXECUTE_4;
+    list_to_slave[4] = FLEXSEA_MANAGE_1;
+    list_to_slave[5] = FLEXSEA_MANAGE_2;
+    list_to_slave[6] = FLEXSEA_PLAN_1;
+    list_to_slave[7] = FLEXSEA_GOSSIP_1;
+    list_to_slave[8] = FLEXSEA_GOSSIP_2;
+    list_to_slave[9] = FLEXSEA_BATTERY_1;
+    list_to_slave[10] = FLEXSEA_STRAIN_1;
 
     //Experiments:
     //============
@@ -105,119 +85,64 @@ void FlexSEA_Generic::init(void)
                     << "2DOF Ankle" << "[Your project]";
 }
 
-void FlexSEA_Generic::assignExecutePtr(struct execute_s **ex_ptr, uint8_t slave)
+//Populates a Slave List ComboBox
+void FlexSEA_Generic::populateSlaveComboBox(QComboBox *cbox, uint8_t base, \
+                                            uint8_t len)
 {
-    //Based on selected slave, what structure do we use?
-    switch(slave)
+    QString slave_name;
+
+    init();
+
+    for(int index = base; index < (base+len); index++)
     {
-        case 0:
-            *ex_ptr = &exec1;
-            break;
-        case 1:
-            *ex_ptr = &exec2;
-            break;
-        case 2:
-            *ex_ptr = &exec3;
-            break;
-        case 3:
-            *ex_ptr = &exec4;
-            break;
-        default:
-            *ex_ptr = &exec1;
-            break;
+        slave_name = var_list_slave.at(index);
+        cbox->addItem(slave_name);
     }
 }
 
-void FlexSEA_Generic::assignManagePtr(struct manage_s **mn_ptr, uint8_t slave)
+//Populates an Experiment List Combo Box - no parameters
+void FlexSEA_Generic::populateExpComboBox(QComboBox *cbox)
 {
-    //Based on selected slave, what structure do we use?
-    switch(slave)
+    QString exp_name;
+
+    init();
+
+    for(int index = 0; index < var_list_exp.length(); index++)
     {
-        case 0:
-            *mn_ptr = &manag1;
-            break;
-        case 1:
-            *mn_ptr = &manag2;
-            break;
-        /*
-        case 2:
-            *mn_ptr = &manag3;
-            break;
-        case 3:
-            *mn_ptr = &manag4;
-            break;
-            */
-        default:
-            *mn_ptr = &manag1;
-            break;
+        exp_name = var_list_exp.at(index);
+        cbox->addItem(exp_name);
     }
 }
 
-void FlexSEA_Generic::assignRicnuPtr(struct ricnu_s **ricnu_ptr, uint8_t slave)
+//Sometimes we need to know if a board is an Execute, without caring about
+//if it's Execute 1, 2 or N. This function returns the base code.
+uint8_t FlexSEA_Generic::getSlaveBoardType(uint8_t base, uint8_t index)
 {
-    //Based on selected slave, what structure do we use?
-    switch(slave)
-    {
-        case 0:
-            *ricnu_ptr = &ricnu_1;
-            break;
-        /*
-        case 1:
-            *ricnu_ptr = &ricnu_2;
-            break;
-        case 2:
-            *ricnu_ptr = &ricnu_3;
-            break;
-        case 3:
-            *ricnu_ptr = &ricnu_4;
-            break;
-        */
-        default:
-            *ricnu_ptr = &ricnu_1;
-            break;
-    }
+    //Board type? Extract base via address&integer trick
+    uint8_t tmp = 0, bType = 0;
+    tmp = list_to_slave[base + index] / 10;
+    bType = tmp * 10;
+
+    return bType;
 }
 
-void FlexSEA_Generic::assignGossipPtr(struct gossip_s **myPtr, uint8_t slave)
+//Returns the slave name, as a QString
+void FlexSEA_Generic::getSlaveName(uint8_t base, uint8_t index, \
+                                   QString *slaveName)
 {
-    //Based on selected slave, what structure do we use?
-    switch(slave)
-    {
-        case 0:
-            *myPtr = &gossip1;
-            break;
-        default:
-            *myPtr = &gossip1;
-            break;
-    }
+    *slaveName = var_list_slave.at(base+index);
 }
 
-void FlexSEA_Generic::assignStrainPtr(struct strain_s **myPtr, uint8_t slave)
+//Returns the experiment name, as a QString
+void FlexSEA_Generic::getExpName(uint8_t index, QString *expName)
 {
-    //Based on selected slave, what structure do we use?
-    switch(slave)
-    {
-        case 0:
-            *myPtr = &strain[0];    //***ToDo 99% sure this is wrong!
-            break;
-        default:
-            *myPtr = &strain[0];
-            break;
-    }
+    *expName = var_list_exp.at(index);
 }
 
-void FlexSEA_Generic::assignBatteryPtr(struct battery_s **myPtr, uint8_t slave)
+//Returns the FlexSEA Slave ID as a uint8
+uint8_t FlexSEA_Generic::getSlaveID(uint8_t base, uint8_t index)
 {
-    //Based on selected slave, what structure do we use?
-    switch(slave)
-    {
-        case 0:
-            *myPtr = &batt1;
-            break;
-        default:
-            *myPtr = &batt1;
-            break;
-    }
+    return list_to_slave[base + index];
 }
 
 //Prints a FlexSEA packet on the debug terminal
@@ -263,60 +188,7 @@ void FlexSEA_Generic::packetVisualizer(uint numb, uint8_t *packet)
     qDebug() << "-------------------------";
 }
 
-uint8_t FlexSEA_Generic::getLenExp(void)
-{
-    return var_list_exp.count();
-}
-
-void FlexSEA_Generic::getNameExp(uint8_t index, QString *name)
-{
-    (*name) = var_list_exp.at(index);
-}
-
-void FlexSEA_Generic::populateComboBoxExp(QComboBox *cbox)
-{
-    QString exp;
-
-    init();
-
-    for(int index = 0; index < getLenExp(); index++)
-    {
-        getNameExp(index, &exp);
-        cbox->addItem(exp);
-    }
-}
-
-//Execute only:
-//==============
-
-uint8_t FlexSEA_Generic::getSlaveCodeEx(uint8_t index)
-{
-	return list_to_slave_ex[index];
-}
-
-void FlexSEA_Generic::getSlaveNameEx(uint8_t index, QString *name)
-{
-    (*name) = var_list_slave_ex.at(index);
-}
-
-uint8_t FlexSEA_Generic::getSlaveLenEx(void)
-{
-    return var_list_slave_ex.count();
-}
-
-void FlexSEA_Generic::populateComboBoxEx(QComboBox *cbox)
-{
-	QString slave_name;
-	
-	init();
-	
-    for(int index = 0; index < getSlaveLenEx(); index++)
-    {
-        getSlaveNameEx(index, &slave_name);
-        cbox->addItem(slave_name);
-    }	
-}
-
+//Decode status byte(s), return a user-friendly QString
 void FlexSEA_Generic::execStatusBytes(uint8_t stat1, uint8_t stat2, QString *str1)
 {
     //QString str1;
@@ -387,66 +259,107 @@ void FlexSEA_Generic::execStatusBytes(uint8_t stat1, uint8_t stat2, QString *str
     }
 }
 
-//Manage:
-//===========
-
-uint8_t FlexSEA_Generic::getSlaveCodeMn(uint8_t index)
+void FlexSEA_Generic::assignExecutePtr(struct execute_s **myPtr, uint8_t base, \
+                                       uint8_t slave)
 {
-    return list_to_slave_mn[index];
-}
-
-void FlexSEA_Generic::getSlaveNameMn(uint8_t index, QString *name)
-{
-    (*name) = var_list_slave_mn.at(index);
-}
-
-uint8_t FlexSEA_Generic::getSlaveLenMn(void)
-{
-    return var_list_slave_mn.count();
-}
-
-void FlexSEA_Generic::populateComboBoxMn(QComboBox *cbox)
-{
-    QString slave_name;
-
-    init();
-
-    for(int index = 0; index < getSlaveLenMn(); index++)
+    //Based on selected slave, what structure do we use?
+    switch(list_to_slave[base+slave])
     {
-        getSlaveNameMn(index, &slave_name);
-        cbox->addItem(slave_name);
+        case FLEXSEA_EXECUTE_1:
+            *myPtr = &exec1;
+            break;
+        case FLEXSEA_EXECUTE_2:
+            *myPtr = &exec2;
+            break;
+        case FLEXSEA_EXECUTE_3:
+            *myPtr = &exec3;
+            break;
+        case FLEXSEA_EXECUTE_4:
+            *myPtr = &exec4;
+            break;
+        default:
+            *myPtr = &exec1;
+            break;
     }
 }
 
-//All slaves:
-//===========
-
-uint8_t FlexSEA_Generic::getSlaveCodeAll(uint8_t index)
+void FlexSEA_Generic::assignManagePtr(struct manage_s **myPtr, uint8_t base, \
+                                      uint8_t slave)
 {
-	return list_to_slave_all[index];
-}
-
-void FlexSEA_Generic::getSlaveNameAll(uint8_t index, QString *name)
-{
-    (*name) = var_list_slave_all.at(index);
-}
-
-uint8_t FlexSEA_Generic::getSlaveLenAll(void)
-{
-    return var_list_slave_all.count();
-}
-
-void FlexSEA_Generic::populateComboBoxAll(QComboBox *cbox)
-{
-    QString slave_name;
-
-    init();
-
-    for(int index = 0; index < getSlaveLenAll(); index++)
+    //Based on selected slave, what structure do we use?
+    switch(list_to_slave[base+slave])
     {
-        getSlaveNameAll(index, &slave_name);
-        cbox->addItem(slave_name);
+        case FLEXSEA_MANAGE_1:
+            *myPtr = &manag1;
+            break;
+        case FLEXSEA_MANAGE_2:
+            *myPtr = &manag2;
+            break;
+        default:
+            *myPtr = &manag1;
+            break;
     }
 }
 
+void FlexSEA_Generic::assignRicnuPtr(struct ricnu_s **myPtr, uint8_t base, \
+                                     uint8_t slave)
+{
+    //Based on selected slave, what structure do we use?
+    switch(list_to_slave[base+slave])
+    {
+        case FLEXSEA_EXECUTE_1: //RIC/NU is the same as Execute
+            *myPtr = &ricnu_1;
+            break;
+        default:
+            *myPtr = &ricnu_1;
+            break;
+    }
+}
 
+void FlexSEA_Generic::assignGossipPtr(struct gossip_s **myPtr, uint8_t base, \
+                                      uint8_t slave)
+{
+    //Based on selected slave, what structure do we use?
+    switch(list_to_slave[base+slave])
+    {
+        case FLEXSEA_GOSSIP_1:
+            *myPtr = &gossip1;
+            break;
+        case FLEXSEA_GOSSIP_2:
+            *myPtr = &gossip2;
+            break;
+        default:
+            *myPtr = &gossip1;
+            break;
+    }
+}
+
+void FlexSEA_Generic::assignStrainPtr(struct strain_s **myPtr, uint8_t base, \
+                                      uint8_t slave)
+{
+    //Based on selected slave, what structure do we use?
+    switch(list_to_slave[base+slave])
+    {
+        case FLEXSEA_STRAIN_1:
+            *myPtr = &strain[0];    //***ToDo 99% sure this is wrong!
+            break;
+        default:
+            *myPtr = &strain[0];
+            break;
+    }
+}
+
+void FlexSEA_Generic::assignBatteryPtr(struct battery_s **myPtr, uint8_t base, \
+                                       uint8_t slave)
+{
+    //Based on selected slave, what structure do we use?
+    switch(list_to_slave[base+slave])
+    {
+        case FLEXSEA_BATTERY_1:
+            *myPtr = &batt1;
+            break;
+        default:
+            *myPtr = &batt1;
+            break;
+    }
+}

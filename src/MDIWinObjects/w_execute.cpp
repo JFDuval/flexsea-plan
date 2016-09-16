@@ -68,7 +68,8 @@ W_Execute::~W_Execute()
 void W_Execute::refresh(void)
 {
     struct execute_s *exPtr;
-    myFlexSEA_Generic.assignExecutePtr(&exPtr, ui->comboBox_slave->currentIndex());
+    myFlexSEA_Generic.assignExecutePtr(&exPtr, SL_BASE_ALL, \
+                                       ui->comboBox_slave->currentIndex());
     displayExecute(exPtr);
 }
 
@@ -76,7 +77,7 @@ void W_Execute::log(QTextStream *filePtr, uint8_t slaveIndex, \
                                 char term, qint64 t_ms, QString t_text)
 {
     struct execute_s *exPtr;
-    myFlexSEA_Generic.assignExecutePtr(&exPtr, slaveIndex);
+    myFlexSEA_Generic.assignExecutePtr(&exPtr, SL_BASE_ALL, slaveIndex);
 
     (*filePtr) << t_text << ',' << \
                         t_ms << ',' << \
@@ -110,11 +111,8 @@ void W_Execute::log(QTextStream *filePtr, uint8_t slaveIndex, \
 void W_Execute::init(void)
 {
     //Populates Slave list:
-    myFlexSEA_Generic.populateComboBoxEx(ui->comboBox_slave);
-
-    //Variables:
-    active_slave_index = ui->comboBox_slave->currentIndex();
-    active_slave = myFlexSEA_Generic.getSlaveCodeEx(active_slave_index);
+    myFlexSEA_Generic.populateSlaveComboBox(ui->comboBox_slave, \
+                                            SL_BASE_EX, SL_LEN_EX);
 }
 
 void W_Execute::displayExecute(struct execute_s *ex)

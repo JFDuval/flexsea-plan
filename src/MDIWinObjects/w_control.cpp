@@ -91,10 +91,11 @@ void W_Control::initControl(void)
     ui->control_trapeze_acc->setText("10000");
 
     //Populates Slave list:
-    myFlexSEA_Generic.populateComboBoxEx(ui->comboBox_slave);
+    myFlexSEA_Generic.populateSlaveComboBox(ui->comboBox_slave, SL_BASE_EX, \
+                                            SL_LEN_EX);
     //Variables:
     active_slave_index = ui->comboBox_slave->currentIndex();
-    active_slave = myFlexSEA_Generic.getSlaveCodeEx(active_slave_index);
+    active_slave = myFlexSEA_Generic.getSlaveID(SL_BASE_EX, active_slave_index);
 
 
     //Variable option lists:
@@ -201,7 +202,7 @@ void W_Control::controller_setpoint(int val)
 void W_Control::stream_ctrl(void)
 {
     struct execute_s *ex_ptr;
-    myFlexSEA_Generic.assignExecutePtr(&ex_ptr, active_slave_index);
+    myFlexSEA_Generic.assignExecutePtr(&ex_ptr, SL_BASE_EX, active_slave_index);
 
     //***ToDo this isn't clean, fix this
     qDebug() << "Ugly code in void W_Control::stream_ctrl(void) - deactivated";
@@ -594,7 +595,7 @@ void W_Control::on_comboBox_slave_currentIndexChanged(int index)
 {
     qDebug() << "Changed active slave";
     active_slave_index = ui->comboBox_slave->currentIndex();
-    active_slave = myFlexSEA_Generic.getSlaveCodeEx(active_slave_index);
+    active_slave = myFlexSEA_Generic.getSlaveID(SL_BASE_EX, active_slave_index);
 }
 
 void W_Control::refreshStatusGain(void)

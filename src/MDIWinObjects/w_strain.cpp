@@ -76,7 +76,7 @@ void W_Strain::log(QTextStream *filePtr, uint8_t slaveIndex, \
                                 char term, qint64 t_ms, QString t_text)
 {
     struct strain_s *stPtr;
-    myFlexSEA_Generic.assignStrainPtr(&stPtr, slaveIndex);
+    myFlexSEA_Generic.assignStrainPtr(&stPtr, SL_BASE_STRAIN, slaveIndex);
 
 	/*
     (*filePtr) << t_text << ',' << \
@@ -117,7 +117,7 @@ void W_Strain::init(void)
 
     //Variables:
     //active_slave_index = ui->comboBox_slave->currentIndex();
-    active_slave = myFlexSEA_Generic.getSlaveCodeMn(active_slave_index);
+    //active_slave = myFlexSEA_Generic.getSlaveCodeMn(active_slave_index);
 }
 
 void W_Strain::displayStrain(struct strain_s *st)

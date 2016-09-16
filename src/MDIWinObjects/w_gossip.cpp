@@ -76,7 +76,7 @@ void W_Gossip::log(QTextStream *filePtr, uint8_t slaveIndex, \
                                 char term, qint64 t_ms, QString t_text)
 {
     struct gossip_s *goPtr;
-    myFlexSEA_Generic.assignGossipPtr(&goPtr, slaveIndex);
+    myFlexSEA_Generic.assignGossipPtr(&goPtr, SL_BASE_GOSSIP, slaveIndex);
 /*
     (*filePtr) << t_text << ',' << \
                         t_ms << ',' << \

@@ -72,10 +72,11 @@ W_AnyCommand::~W_AnyCommand()
 void W_AnyCommand::init(void)
 {
     //Slave lists:
-    myFlexSEA_Generic.init();
-    myFlexSEA_Generic.populateComboBoxAll(ui->comboBoxSlaveR);
-    myFlexSEA_Generic.populateComboBoxAll(ui->comboBoxSlaveX);
-    ui->comboBoxSlaveX->setCurrentIndex(myFlexSEA_Generic.getSlaveLenAll()-1);
+    myFlexSEA_Generic.populateSlaveComboBox(ui->comboBoxSlaveR, SL_BASE_ALL, \
+                                            SL_LEN_ALL);
+    myFlexSEA_Generic.populateSlaveComboBox(ui->comboBoxSlaveX, SL_BASE_ALL, \
+                                          SL_LEN_ALL);
+    ui->comboBoxSlaveX->setCurrentIndex((ui->comboBoxSlaveX->count()) - 1);
 
     //Commands:
     ui->spinBoxCMDS->setValue(1);   //Default = 1 command

@@ -155,9 +155,7 @@ void DataLogger::getFctPtrs(uint8_t slaveIndex, uint8_t expIndex, \
                                                char term, qint64 t_ms, QString t_text))
 {
     //Board type? Extract base via address&integer trick
-    uint8_t tmp = 0, bType = 0;
-    tmp = myFlexSEA_Generic.getSlaveCodeAll(slaveIndex) / 10;
-    bType = tmp * 10;
+    uint8_t bType = myFlexSEA_Generic.getSlaveBoardType(SL_BASE_ALL, slaveIndex);
 
     //And now, experiment per experiment:
     switch(expIndex)
@@ -217,7 +215,7 @@ void DataLogger::logReadAllExec(QTextStream *filePtr, uint8_t slaveIndex, \
                                 char term, qint64 t_ms, QString t_text)
 {
     struct execute_s *exPtr;
-    myFlexSEA_Generic.assignExecutePtr(&exPtr, slaveIndex);
+    myFlexSEA_Generic.assignExecutePtr(&exPtr, SL_BASE_ALL, slaveIndex);
 
     (*filePtr) << t_text << ',' << \
                         t_ms << ',' << \
@@ -244,7 +242,7 @@ void DataLogger::logReadAllRicnu(QTextStream *filePtr, uint8_t slaveIndex, \
                                  char term, qint64 t_ms, QString t_text)
 {
     struct ricnu_s *myPtr;
-    myFlexSEA_Generic.assignRicnuPtr(&myPtr, slaveIndex);
+    myFlexSEA_Generic.assignRicnuPtr(&myPtr, SL_BASE_ALL, slaveIndex);
 
     logFileStream << t_text << ',' << \
                         t_ms << ',' << \
@@ -303,8 +301,8 @@ void DataLogger::logTimestamp(qint64 *t_ms, QString *t_text)
 void DataLogger::writeIdentifier(uint8_t item, uint8_t slaveIndex, uint8_t expIndex)
 {
     QString msg, slaveName, expName;
-    myFlexSEA_Generic.getSlaveNameAll(slaveIndex, &slaveName);
-    myFlexSEA_Generic.getNameExp(expIndex, &expName);
+    myFlexSEA_Generic.getSlaveName(SL_BASE_ALL, slaveIndex, &slaveName);
+    myFlexSEA_Generic.getExpName(expIndex, &expName);
 
     //Top of the file description:
     msg = "[Datalogging: Item = " + QString::number(item) + " | Slave index = " + \

@@ -192,28 +192,28 @@ void W_SlaveComm::initSlaveCom(void)
 
     //Populates Slave list:
     //=====================
-    myFlexSEA_Generic.populateComboBoxAll(ui->comboBoxSlave1);
-    myFlexSEA_Generic.populateComboBoxAll(ui->comboBoxSlave2);
-    myFlexSEA_Generic.populateComboBoxAll(ui->comboBoxSlave3);
-    myFlexSEA_Generic.populateComboBoxAll(ui->comboBoxSlave4);
+    myFlexSEA_Generic.populateSlaveComboBox(ui->comboBoxSlave1, SL_BASE_ALL, SL_LEN_ALL);
+    myFlexSEA_Generic.populateSlaveComboBox(ui->comboBoxSlave2, SL_BASE_ALL, SL_LEN_ALL);
+    myFlexSEA_Generic.populateSlaveComboBox(ui->comboBoxSlave3, SL_BASE_ALL, SL_LEN_ALL);
+    myFlexSEA_Generic.populateSlaveComboBox(ui->comboBoxSlave4, SL_BASE_ALL, SL_LEN_ALL);
 
     //Variables:
     active_slave_index[0] = ui->comboBoxSlave1->currentIndex();
     active_slave_index[1] = ui->comboBoxSlave2->currentIndex();
     active_slave_index[2] = ui->comboBoxSlave3->currentIndex();
     active_slave_index[3] = ui->comboBoxSlave4->currentIndex();
-    active_slave[0] = myFlexSEA_Generic.getSlaveCodeAll(active_slave_index[0]);
-    active_slave[1] = myFlexSEA_Generic.getSlaveCodeAll(active_slave_index[1]);
-    active_slave[2] = myFlexSEA_Generic.getSlaveCodeAll(active_slave_index[2]);
-    active_slave[3] = myFlexSEA_Generic.getSlaveCodeAll(active_slave_index[3]);
+    active_slave[0] = myFlexSEA_Generic.getSlaveID(SL_BASE_ALL, active_slave_index[0]);
+    active_slave[1] = myFlexSEA_Generic.getSlaveID(SL_BASE_ALL, active_slave_index[1]);
+    active_slave[2] = myFlexSEA_Generic.getSlaveID(SL_BASE_ALL, active_slave_index[2]);
+    active_slave[3] = myFlexSEA_Generic.getSlaveID(SL_BASE_ALL, active_slave_index[3]);
 
     //Populates Experiment/Command list:
     //==================================
 
-    myFlexSEA_Generic.populateComboBoxExp(ui->comboBoxExp1);
-    myFlexSEA_Generic.populateComboBoxExp(ui->comboBoxExp2);
-    myFlexSEA_Generic.populateComboBoxExp(ui->comboBoxExp3);
-    myFlexSEA_Generic.populateComboBoxExp(ui->comboBoxExp4);
+    myFlexSEA_Generic.populateExpComboBox(ui->comboBoxExp1);
+    myFlexSEA_Generic.populateExpComboBox(ui->comboBoxExp2);
+    myFlexSEA_Generic.populateExpComboBox(ui->comboBoxExp3);
+    myFlexSEA_Generic.populateExpComboBox(ui->comboBoxExp4);
 
     //Refresh Rate:
     //==================================
@@ -482,7 +482,8 @@ void W_SlaveComm::configSlaveComm(int item)
         {
             //Refresh all fields:
             active_slave_index[0] = ui->comboBoxSlave1->currentIndex();
-            active_slave[0] = myFlexSEA_Generic.getSlaveCodeAll(active_slave_index[0]);
+            active_slave[0] = myFlexSEA_Generic.getSlaveID(SL_BASE_ALL, \
+                                                           active_slave_index[0]);
             selected_exp_index[0] = ui->comboBoxExp1->currentIndex();
             selected_refresh_index[0] = ui->comboBoxRefresh1->currentIndex();
 

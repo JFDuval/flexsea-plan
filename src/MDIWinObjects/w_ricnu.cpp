@@ -66,7 +66,8 @@ W_Ricnu::~W_Ricnu()
 void W_Ricnu::refresh(void)
 {
     struct ricnu_s *ricnuPtr;
-    myFlexSEA_Generic.assignRicnuPtr(&ricnuPtr, ui->comboBox_slave->currentIndex());
+    myFlexSEA_Generic.assignRicnuPtr(&ricnuPtr, SL_BASE_EX, \
+                                     ui->comboBox_slave->currentIndex());
     displayRicnu(ricnuPtr);
 }
 
@@ -81,11 +82,12 @@ void W_Ricnu::refresh(void)
 void W_Ricnu::init(void)
 {
     //Populates Slave list:
-    myFlexSEA_Generic.populateComboBoxEx(ui->comboBox_slave);
+    myFlexSEA_Generic.populateSlaveComboBox(ui->comboBox_slave, SL_BASE_EX, \
+                                            SL_LEN_EX);
 
     //Variables:
     active_slave_index = ui->comboBox_slave->currentIndex();
-    active_slave = myFlexSEA_Generic.getSlaveCodeEx(active_slave_index);
+    active_slave = myFlexSEA_Generic.getSlaveID(SL_BASE_EX, active_slave_index);
 }
 
 void W_Ricnu::displayRicnu(struct ricnu_s *ricnu)

@@ -88,7 +88,7 @@ void W_2DPlot::refresh2DPlot(void)
     for(index = 0; index < VAR_NUM; index++)
     {
         //Point to the selected slave:
-        myFlexSEA_Generic.assignExecutePtr(&execute_ptr, select_plot_slave(index));
+        myFlexSEA_Generic.assignExecutePtr(&execute_ptr, SL_BASE_EX, select_plot_slave(index));
 
         //'Used' as default, 'false' when set at Unused
         isChannelUsed[index] = true;
@@ -367,13 +367,19 @@ void W_2DPlot::initUserInput(void)
     ui->label_t5->setStyleSheet("QLabel { background-color: black; color: white;}");
     ui->label_t6->setStyleSheet("QLabel { background-color: black; color: white;}");
 
-    //myFlexSEA_Generic.init();
-    myFlexSEA_Generic.populateComboBoxAll(ui->cBoxvar1slave);
-    myFlexSEA_Generic.populateComboBoxAll(ui->cBoxvar2slave);
-    myFlexSEA_Generic.populateComboBoxAll(ui->cBoxvar3slave);
-    myFlexSEA_Generic.populateComboBoxAll(ui->cBoxvar4slave);
-    myFlexSEA_Generic.populateComboBoxAll(ui->cBoxvar5slave);
-    myFlexSEA_Generic.populateComboBoxAll(ui->cBoxvar6slave);
+    //***ToDo*** should be ALL and not EX, but refresh2DPlot() has to be reworked first
+    myFlexSEA_Generic.populateSlaveComboBox(ui->cBoxvar1slave, SL_BASE_EX, \
+                                            SL_LEN_EX);
+    myFlexSEA_Generic.populateSlaveComboBox(ui->cBoxvar2slave, SL_BASE_EX, \
+                                          SL_LEN_EX);
+    myFlexSEA_Generic.populateSlaveComboBox(ui->cBoxvar3slave, SL_BASE_EX, \
+                                          SL_LEN_EX);
+    myFlexSEA_Generic.populateSlaveComboBox(ui->cBoxvar4slave, SL_BASE_EX, \
+                                          SL_LEN_EX);
+    myFlexSEA_Generic.populateSlaveComboBox(ui->cBoxvar5slave, SL_BASE_EX, \
+                                          SL_LEN_EX);
+    myFlexSEA_Generic.populateSlaveComboBox(ui->cBoxvar6slave, SL_BASE_EX, \
+                                          SL_LEN_EX);
 
     //Decoded checkboxes:
     ui->checkBoxD1->setDisabled(true);
