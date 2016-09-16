@@ -43,7 +43,26 @@
      <property name="horizontalSpacing">
       <number>6</number>
      </property>
-     <item row="9" column="2" colspan="2">
+     <item row="9" column="0">
+      <widget class="QLabel" name="label_19">
+       <property name="minimumSize">
+        <size>
+         <width>80</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="layoutDirection">
+        <enum>Qt::LeftToRight</enum>
+       </property>
+       <property name="text">
+        <string>User Button</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item row="10" column="2" colspan="2">
       <widget class="QLabel" name="dispDI">
        <property name="minimumSize">
         <size>
@@ -83,7 +102,7 @@
        </property>
       </widget>
      </item>
-     <item row="12" column="2">
+     <item row="13" column="2">
       <widget class="QLabel" name="dispAna2">
        <property name="minimumSize">
         <size>
@@ -123,14 +142,14 @@
        </property>
       </widget>
      </item>
-     <item row="12" column="4">
+     <item row="13" column="4">
       <widget class="QLabel" name="label_109">
        <property name="text">
         <string>V</string>
        </property>
       </widget>
      </item>
-     <item row="12" column="3">
+     <item row="13" column="3">
       <widget class="QLabel" name="dispAna2d">
        <property name="minimumSize">
         <size>
@@ -170,7 +189,7 @@
        </property>
       </widget>
      </item>
-     <item row="13" column="2">
+     <item row="14" column="2">
       <widget class="QLabel" name="dispAna3">
        <property name="minimumSize">
         <size>
@@ -210,14 +229,14 @@
        </property>
       </widget>
      </item>
-     <item row="13" column="4">
+     <item row="14" column="4">
       <widget class="QLabel" name="label_110">
        <property name="text">
         <string>V</string>
        </property>
       </widget>
      </item>
-     <item row="14" column="2">
+     <item row="15" column="2">
       <widget class="QLabel" name="dispAna4">
        <property name="minimumSize">
         <size>
@@ -257,7 +276,7 @@
        </property>
       </widget>
      </item>
-     <item row="13" column="3">
+     <item row="14" column="3">
       <widget class="QLabel" name="dispAna3d">
        <property name="minimumSize">
         <size>
@@ -297,14 +316,14 @@
        </property>
       </widget>
      </item>
-     <item row="14" column="4">
+     <item row="15" column="4">
       <widget class="QLabel" name="label_111">
        <property name="text">
         <string>V</string>
        </property>
       </widget>
      </item>
-     <item row="14" column="3">
+     <item row="15" column="3">
       <widget class="QLabel" name="dispAna4d">
        <property name="minimumSize">
         <size>
@@ -344,7 +363,7 @@
        </property>
       </widget>
      </item>
-     <item row="15" column="2">
+     <item row="16" column="2">
       <widget class="QLabel" name="dispAna5">
        <property name="minimumSize">
         <size>
@@ -384,14 +403,14 @@
        </property>
       </widget>
      </item>
-     <item row="15" column="4">
+     <item row="16" column="4">
       <widget class="QLabel" name="label_112">
        <property name="text">
         <string>V</string>
        </property>
       </widget>
      </item>
-     <item row="15" column="3">
+     <item row="16" column="3">
       <widget class="QLabel" name="dispAna5d">
        <property name="minimumSize">
         <size>
@@ -431,14 +450,14 @@
        </property>
       </widget>
      </item>
-     <item row="16" column="4">
+     <item row="17" column="4">
       <widget class="QLabel" name="label_113">
        <property name="text">
         <string>V</string>
        </property>
       </widget>
      </item>
-     <item row="16" column="3">
+     <item row="17" column="3">
       <widget class="QLabel" name="dispAna6d">
        <property name="minimumSize">
         <size>
@@ -478,7 +497,7 @@
        </property>
       </widget>
      </item>
-     <item row="16" column="2">
+     <item row="17" column="2">
       <widget class="QLabel" name="dispAna6">
        <property name="minimumSize">
         <size>
@@ -518,7 +537,7 @@
        </property>
       </widget>
      </item>
-     <item row="17" column="3">
+     <item row="18" column="3">
       <widget class="QLabel" name="dispAna7d">
        <property name="minimumSize">
         <size>
@@ -558,7 +577,7 @@
        </property>
       </widget>
      </item>
-     <item row="10" column="0" rowspan="8">
+     <item row="11" column="0" rowspan="8">
       <widget class="QLabel" name="label_12">
        <property name="minimumSize">
         <size>
@@ -577,7 +596,7 @@
        </property>
       </widget>
      </item>
-     <item row="17" column="2">
+     <item row="18" column="2">
       <widget class="QLabel" name="dispAna7">
        <property name="minimumSize">
         <size>
@@ -617,14 +636,14 @@
        </property>
       </widget>
      </item>
-     <item row="17" column="4">
+     <item row="18" column="4">
       <widget class="QLabel" name="label_114">
        <property name="text">
         <string>V</string>
        </property>
       </widget>
      </item>
-     <item row="9" column="0">
+     <item row="10" column="0">
       <widget class="QLabel" name="label_18">
        <property name="minimumSize">
         <size>
@@ -643,7 +662,7 @@
        </property>
       </widget>
      </item>
-     <item row="17" column="1">
+     <item row="18" column="1">
       <widget class="QLabel" name="label_17">
        <property name="minimumSize">
         <size>
@@ -659,7 +678,7 @@
        </property>
       </widget>
      </item>
-     <item row="18" column="2">
+     <item row="19" column="2">
       <widget class="QLabel" name="disp_stat1">
        <property name="minimumSize">
         <size>
@@ -699,7 +718,7 @@
        </property>
       </widget>
      </item>
-     <item row="18" column="0" rowspan="2">
+     <item row="19" column="0" rowspan="2">
       <widget class="QLabel" name="label_15">
        <property name="minimumSize">
         <size>
@@ -718,7 +737,7 @@
        </property>
       </widget>
      </item>
-     <item row="19" column="2" colspan="2">
+     <item row="20" column="2" colspan="2">
       <widget class="QLabel" name="label_status1">
        <property name="minimumSize">
         <size>
@@ -731,7 +750,7 @@
        </property>
       </widget>
      </item>
-     <item row="3" column="2">
+     <item row="4" column="2">
       <widget class="QLabel" name="disp_accy">
        <property name="minimumSize">
         <size>
@@ -771,7 +790,7 @@
        </property>
       </widget>
      </item>
-     <item row="4" column="2">
+     <item row="5" column="2">
       <widget class="QLabel" name="disp_accz">
        <property name="minimumSize">
         <size>
@@ -811,7 +830,7 @@
        </property>
       </widget>
      </item>
-     <item row="5" column="1">
+     <item row="6" column="1">
       <widget class="QLabel" name="label_8">
        <property name="minimumSize">
         <size>
@@ -827,7 +846,7 @@
        </property>
       </widget>
      </item>
-     <item row="4" column="3">
+     <item row="5" column="3">
       <widget class="QLabel" name="disp_accz_d">
        <property name="minimumSize">
         <size>
@@ -867,7 +886,7 @@
        </property>
       </widget>
      </item>
-     <item row="2" column="4">
+     <item row="3" column="4">
       <widget class="QLabel" name="label_imu_a_x">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
@@ -892,7 +911,7 @@
        </property>
       </widget>
      </item>
-     <item row="5" column="2">
+     <item row="6" column="2">
       <widget class="QLabel" name="disp_gyrox">
        <property name="minimumSize">
         <size>
@@ -932,7 +951,7 @@
        </property>
       </widget>
      </item>
-     <item row="2" column="1">
+     <item row="3" column="1">
       <widget class="QLabel" name="label_2">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
@@ -960,7 +979,7 @@
        </property>
       </widget>
      </item>
-     <item row="1" column="2">
+     <item row="2" column="2">
       <widget class="QLabel" name="label_21">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
@@ -975,7 +994,7 @@
         </size>
        </property>
        <property name="text">
-        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-style:italic; text-decoration: underline;&quot;&gt;Raw&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; text-decoration: underline;&quot;&gt;Raw:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
        </property>
        <property name="alignment">
         <set>Qt::AlignCenter</set>
@@ -992,7 +1011,7 @@
      <item row="0" column="1" colspan="2">
       <widget class="QComboBox" name="comboBox_slave"/>
      </item>
-     <item row="3" column="1">
+     <item row="4" column="1">
       <widget class="QLabel" name="label_5">
        <property name="minimumSize">
         <size>
@@ -1008,24 +1027,24 @@
        </property>
       </widget>
      </item>
-     <item row="3" column="4">
+     <item row="4" column="4">
       <widget class="QLabel" name="label_imu_a_y">
        <property name="text">
         <string>g</string>
        </property>
       </widget>
      </item>
-     <item row="1" column="3">
+     <item row="2" column="3">
       <widget class="QLabel" name="label_28">
        <property name="text">
-        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-style:italic; text-decoration: underline;&quot;&gt;Decoded&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; text-decoration: underline;&quot;&gt;Decoded:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
        </property>
        <property name="alignment">
         <set>Qt::AlignCenter</set>
        </property>
       </widget>
      </item>
-     <item row="2" column="3">
+     <item row="3" column="3">
       <widget class="QLabel" name="disp_accx_d">
        <property name="minimumSize">
         <size>
@@ -1065,14 +1084,14 @@
        </property>
       </widget>
      </item>
-     <item row="4" column="4">
+     <item row="5" column="4">
       <widget class="QLabel" name="label_imu_a_z">
        <property name="text">
         <string>g</string>
        </property>
       </widget>
      </item>
-     <item row="2" column="0" rowspan="3">
+     <item row="3" column="0" rowspan="3">
       <widget class="QLabel" name="label">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
@@ -1103,7 +1122,7 @@
        </property>
       </widget>
      </item>
-     <item row="5" column="0" rowspan="3">
+     <item row="6" column="0" rowspan="3">
       <widget class="QLabel" name="label_10">
        <property name="minimumSize">
         <size>
@@ -1122,7 +1141,7 @@
        </property>
       </widget>
      </item>
-     <item row="4" column="1">
+     <item row="5" column="1">
       <widget class="QLabel" name="label_6">
        <property name="minimumSize">
         <size>
@@ -1138,7 +1157,7 @@
        </property>
       </widget>
      </item>
-     <item row="2" column="2">
+     <item row="3" column="2">
       <widget class="QLabel" name="disp_accx">
        <property name="minimumSize">
         <size>
@@ -1178,14 +1197,14 @@
        </property>
       </widget>
      </item>
-     <item row="10" column="4">
+     <item row="11" column="4">
       <widget class="QLabel" name="label_37">
        <property name="text">
         <string>V</string>
        </property>
       </widget>
      </item>
-     <item row="3" column="3">
+     <item row="4" column="3">
       <widget class="QLabel" name="disp_accy_d">
        <property name="minimumSize">
         <size>
@@ -1225,7 +1244,7 @@
        </property>
       </widget>
      </item>
-     <item row="11" column="1">
+     <item row="12" column="1">
       <widget class="QLabel" name="label_107">
        <property name="minimumSize">
         <size>
@@ -1244,7 +1263,7 @@
        </property>
       </widget>
      </item>
-     <item row="7" column="3">
+     <item row="8" column="3">
       <widget class="QLabel" name="disp_gyroz_d">
        <property name="minimumSize">
         <size>
@@ -1284,7 +1303,7 @@
        </property>
       </widget>
      </item>
-     <item row="10" column="2">
+     <item row="11" column="2">
       <widget class="QLabel" name="dispAna0">
        <property name="minimumSize">
         <size>
@@ -1324,7 +1343,7 @@
        </property>
       </widget>
      </item>
-     <item row="7" column="2">
+     <item row="8" column="2">
       <widget class="QLabel" name="disp_gyroz">
        <property name="minimumSize">
         <size>
@@ -1364,7 +1383,7 @@
        </property>
       </widget>
      </item>
-     <item row="10" column="3">
+     <item row="11" column="3">
       <widget class="QLabel" name="dispAna0d">
        <property name="minimumSize">
         <size>
@@ -1404,7 +1423,7 @@
        </property>
       </widget>
      </item>
-     <item row="11" column="3">
+     <item row="12" column="3">
       <widget class="QLabel" name="dispAna1d">
        <property name="minimumSize">
         <size>
@@ -1444,7 +1463,7 @@
        </property>
       </widget>
      </item>
-     <item row="6" column="3">
+     <item row="7" column="3">
       <widget class="QLabel" name="disp_gyroy_d">
        <property name="minimumSize">
         <size>
@@ -1484,7 +1503,7 @@
        </property>
       </widget>
      </item>
-     <item row="5" column="3">
+     <item row="6" column="3">
       <widget class="QLabel" name="disp_gyrox_d">
        <property name="minimumSize">
         <size>
@@ -1524,7 +1543,7 @@
        </property>
       </widget>
      </item>
-     <item row="6" column="2">
+     <item row="7" column="2">
       <widget class="QLabel" name="disp_gyroy">
        <property name="minimumSize">
         <size>
@@ -1564,14 +1583,14 @@
        </property>
       </widget>
      </item>
-     <item row="6" column="4">
+     <item row="7" column="4">
       <widget class="QLabel" name="label_imu_g_y">
        <property name="text">
         <string>degree/s</string>
        </property>
       </widget>
      </item>
-     <item row="7" column="1">
+     <item row="8" column="1">
       <widget class="QLabel" name="label_7">
        <property name="minimumSize">
         <size>
@@ -1587,14 +1606,14 @@
        </property>
       </widget>
      </item>
-     <item row="5" column="4">
+     <item row="6" column="4">
       <widget class="QLabel" name="label_imu_g_x">
        <property name="text">
         <string>degree/s</string>
        </property>
       </widget>
      </item>
-     <item row="11" column="2">
+     <item row="12" column="2">
       <widget class="QLabel" name="dispAna1">
        <property name="minimumSize">
         <size>
@@ -1634,21 +1653,21 @@
        </property>
       </widget>
      </item>
-     <item row="11" column="4">
+     <item row="12" column="4">
       <widget class="QLabel" name="label_108">
        <property name="text">
         <string>V</string>
        </property>
       </widget>
      </item>
-     <item row="7" column="4">
+     <item row="8" column="4">
       <widget class="QLabel" name="label_imu_g_z">
        <property name="text">
         <string>degree/s</string>
        </property>
       </widget>
      </item>
-     <item row="6" column="1">
+     <item row="7" column="1">
       <widget class="QLabel" name="label_9">
        <property name="minimumSize">
         <size>
@@ -1664,7 +1683,7 @@
        </property>
       </widget>
      </item>
-     <item row="10" column="1">
+     <item row="11" column="1">
       <widget class="QLabel" name="label_29">
        <property name="minimumSize">
         <size>
@@ -1683,7 +1702,7 @@
        </property>
       </widget>
      </item>
-     <item row="16" column="1">
+     <item row="17" column="1">
       <widget class="QLabel" name="label_16">
        <property name="minimumSize">
         <size>
@@ -1699,7 +1718,7 @@
        </property>
       </widget>
      </item>
-     <item row="12" column="1">
+     <item row="13" column="1">
       <widget class="QLabel" name="label_4">
        <property name="minimumSize">
         <size>
@@ -1715,7 +1734,7 @@
        </property>
       </widget>
      </item>
-     <item row="14" column="1">
+     <item row="15" column="1">
       <widget class="QLabel" name="label_13">
        <property name="minimumSize">
         <size>
@@ -1731,7 +1750,7 @@
        </property>
       </widget>
      </item>
-     <item row="13" column="1">
+     <item row="14" column="1">
       <widget class="QLabel" name="label_11">
        <property name="minimumSize">
         <size>
@@ -1747,42 +1766,7 @@
        </property>
       </widget>
      </item>
-     <item row="15" column="1">
-      <widget class="QLabel" name="label_14">
-       <property name="minimumSize">
-        <size>
-         <width>20</width>
-         <height>0</height>
-        </size>
-       </property>
-       <property name="text">
-        <string>[5]</string>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignCenter</set>
-       </property>
-      </widget>
-     </item>
-     <item row="8" column="0">
-      <widget class="QLabel" name="label_19">
-       <property name="minimumSize">
-        <size>
-         <width>80</width>
-         <height>0</height>
-        </size>
-       </property>
-       <property name="layoutDirection">
-        <enum>Qt::LeftToRight</enum>
-       </property>
-       <property name="text">
-        <string>User Button</string>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignCenter</set>
-       </property>
-      </widget>
-     </item>
-     <item row="8" column="2">
+     <item row="9" column="2">
       <widget class="QLabel" name="dispUserButton">
        <property name="minimumSize">
         <size>
@@ -1819,6 +1803,36 @@
        </property>
        <property name="alignment">
         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item row="16" column="1">
+      <widget class="QLabel" name="label_14">
+       <property name="minimumSize">
+        <size>
+         <width>20</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="text">
+        <string>[5]</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="0" colspan="5">
+      <widget class="Line" name="line">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="0" colspan="2">
+      <widget class="QLabel" name="label_20">
+       <property name="text">
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; text-decoration: underline;&quot;&gt;Parameter:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
        </property>
       </widget>
      </item>
