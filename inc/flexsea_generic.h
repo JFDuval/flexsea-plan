@@ -22,7 +22,7 @@
 	[Contributors] 
 *****************************************************************************
 	[This file] flexsea_generic.h: Generic functions used by many classes
-*****************************************************************************
+*****************************************************************************/
 
 #ifndef FLEXSEA_GENERIC_H
 #define FLEXSEA_GENERIC_H
@@ -122,10 +122,8 @@ public:
     void getSlaveName(uint8_t base, uint8_t index, QString *slaveName);
     void getExpName(uint8_t index, QString *expName);
     uint8_t getSlaveID(uint8_t base, uint8_t index);
-
-    //ToDo rework:
-    void execStatusBytes(uint8_t stat1, uint8_t stat2, QString *str1);
-
+    void decodeStatus(uint8_t base, uint8_t index, uint8_t stat1, \
+                        uint8_t stat2, QString *str1);
     void packetVisualizer(uint numb, uint8_t *packet);
 	
 public slots:

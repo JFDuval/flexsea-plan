@@ -165,7 +165,8 @@ void W_Execute::displayExecute(struct execute_s *ex)
     ui->disp_strain_d->setText(QString::number(((double)(ex->strain-32768)/32768)*100, 'i', 0));
 
     QString myStr;
-    myFlexSEA_Generic.execStatusBytes(ex->status1, ex->status2, &myStr);
+    myFlexSEA_Generic.decodeStatus(SL_BASE_EX, ui->comboBox_slave->currentIndex(), \
+                                      ex->status1, ex->status2, &myStr);
     ui->label_status1->setText(myStr);
 
     //==========
