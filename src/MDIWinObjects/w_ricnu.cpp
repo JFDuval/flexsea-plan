@@ -65,10 +65,14 @@ W_Ricnu::~W_Ricnu()
 //Call this function to refresh the display
 void W_Ricnu::refresh(void)
 {
-    struct ricnu_s *ricnuPtr;
+    struct ricnu_s *ricnuPtr, *ricnuPtrD;
     myFlexSEA_Generic.assignRicnuPtr(&ricnuPtr, SL_BASE_EX, \
-                                     ui->comboBox_slave->currentIndex());
-    displayRicnu(ricnuPtr);
+                                     ui->comboBox_slave->currentIndex(),
+                                     false);
+    myFlexSEA_Generic.assignRicnuPtr(&ricnuPtr, SL_BASE_EX, \
+                                     ui->comboBox_slave->currentIndex(),
+                                     true);
+    displayRicnu(ricnuPtr, ricnuPtrD);
 }
 
 //****************************************************************************
@@ -90,7 +94,7 @@ void W_Ricnu::init(void)
     active_slave = myFlexSEA_Generic.getSlaveID(SL_BASE_EX, active_slave_index);
 }
 
-void W_Ricnu::displayRicnu(struct ricnu_s *ricnu)
+void W_Ricnu::displayRicnu(struct ricnu_s *ricnu, struct ricnu_s *ricnud)
 {
     //int combined_status = 0;
 

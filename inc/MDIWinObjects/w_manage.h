@@ -71,7 +71,7 @@ private:
 	
 	//Function(s):
 	void init(void);
-    void displayManage(struct manage_s *mn);
+    void displayManage(struct manage_s *mn, struct manage_s *mnd);
 };
 
 //****************************************************************************

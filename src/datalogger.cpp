@@ -215,7 +215,7 @@ void DataLogger::logReadAllExec(QTextStream *filePtr, uint8_t slaveIndex, \
                                 char term, qint64 t_ms, QString t_text)
 {
     struct execute_s *exPtr;
-    myFlexSEA_Generic.assignExecutePtr(&exPtr, SL_BASE_ALL, slaveIndex);
+    myFlexSEA_Generic.assignExecutePtr(&exPtr, SL_BASE_ALL, slaveIndex, false);
 
     (*filePtr) << t_text << ',' << \
                         t_ms << ',' << \
@@ -242,7 +242,7 @@ void DataLogger::logReadAllRicnu(QTextStream *filePtr, uint8_t slaveIndex, \
                                  char term, qint64 t_ms, QString t_text)
 {
     struct ricnu_s *myPtr;
-    myFlexSEA_Generic.assignRicnuPtr(&myPtr, SL_BASE_ALL, slaveIndex);
+    myFlexSEA_Generic.assignRicnuPtr(&myPtr, SL_BASE_ALL, slaveIndex, false);
 
     logFileStream << t_text << ',' << \
                         t_ms << ',' << \

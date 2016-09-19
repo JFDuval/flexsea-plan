@@ -71,7 +71,7 @@ private:
 	
 	//Function(s):
 	void init(void);
-    void displayExecute(struct execute_s *ex);
+    void displayExecute(struct execute_s *ex, struct execute_s *exd);
 };
 
 //****************************************************************************

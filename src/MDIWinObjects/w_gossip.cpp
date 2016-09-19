@@ -68,17 +68,21 @@ W_Gossip::~W_Gossip()
 //Call this function to refresh the display
 void W_Gossip::refresh(void)
 {
-    struct gossip_s *goPtr;
+    struct gossip_s *goPtr, *goPtrD;
     myFlexSEA_Generic.assignGossipPtr(&goPtr, SL_BASE_GOSSIP, \
-                                      ui->comboBox_slave->currentIndex());
-    displayGossip(goPtr);
+                                      ui->comboBox_slave->currentIndex(), \
+                                      false);
+    myFlexSEA_Generic.assignGossipPtr(&goPtrD, SL_BASE_GOSSIP, \
+                                      ui->comboBox_slave->currentIndex(), \
+                                      true);
+    displayGossip(goPtr, goPtrD);
 }
 
 void W_Gossip::log(QTextStream *filePtr, uint8_t slaveIndex, \
                                 char term, qint64 t_ms, QString t_text)
 {
     struct gossip_s *goPtr;
-    myFlexSEA_Generic.assignGossipPtr(&goPtr, SL_BASE_GOSSIP, slaveIndex);
+    myFlexSEA_Generic.assignGossipPtr(&goPtr, SL_BASE_GOSSIP, slaveIndex, false);
 /*
     (*filePtr) << t_text << ',' << \
                         t_ms << ',' << \
@@ -118,7 +122,7 @@ void W_Gossip::init(void)
                                             SL_BASE_GOSSIP, SL_LEN_GOSSIP);
 }
 
-void W_Gossip::displayGossip(struct gossip_s *go)
+void W_Gossip::displayGossip(struct gossip_s *go, struct gossip_s *god)
 {
     int combined_status = 0;
 

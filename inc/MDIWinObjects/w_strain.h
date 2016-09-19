@@ -71,7 +71,7 @@ private:
 	
 	//Function(s):
 	void init(void);
-    void displayStrain(struct strain_s *mn);
+    void displayStrain(struct strain_s *st, struct strain_s *std);
 };
 
 //****************************************************************************

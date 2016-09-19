@@ -69,7 +69,7 @@ private:
 	
 	//Function(s):
 	void init(void);
-    void displayRicnu(struct ricnu_s *ricnu);
+    void displayRicnu(struct ricnu_s *ricnu, struct ricnu_s *ricnud);
 };
 
 //****************************************************************************

@@ -202,7 +202,8 @@ void W_Control::controller_setpoint(int val)
 void W_Control::stream_ctrl(void)
 {
     struct execute_s *ex_ptr;
-    myFlexSEA_Generic.assignExecutePtr(&ex_ptr, SL_BASE_EX, active_slave_index);
+    myFlexSEA_Generic.assignExecutePtr(&ex_ptr, SL_BASE_EX, active_slave_index, \
+                                       false);
 
     //***ToDo this isn't clean, fix this
     qDebug() << "Ugly code in void W_Control::stream_ctrl(void) - deactivated";

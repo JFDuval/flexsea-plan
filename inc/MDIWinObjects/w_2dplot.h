@@ -57,6 +57,14 @@
 #define PHASE_INCREMENT             (TWO_PI/75)
 #define A_GAIN                      1000
 
+//Variable formats:
+#define FORMAT_32U                  0
+#define FORMAT_32S                  1
+#define FORMAT_16U                  2
+#define FORMAT_16S                  3
+#define FORMAT_8U                   4
+#define FORMAT_8S                   5
+
 //****************************************************************************
 // Namespace & Class Definition:
 //****************************************************************************
@@ -90,8 +98,25 @@ private slots:
     void on_lineEditXMax_returnPressed();
     void on_lineEditYMin_returnPressed();
     void on_lineEditYMax_returnPressed();
-
     void on_pushButtonFreeze_clicked();
+    void on_cBoxvar1slave_currentIndexChanged(int index);
+    void on_cBoxvar2slave_currentIndexChanged(int index);
+    void on_cBoxvar3slave_currentIndexChanged(int index);
+    void on_cBoxvar4slave_currentIndexChanged(int index);
+    void on_cBoxvar5slave_currentIndexChanged(int index);
+    void on_cBoxvar6slave_currentIndexChanged(int index);
+    void on_cBoxvar1_currentIndexChanged(int index);
+    void on_cBoxvar2_currentIndexChanged(int index);
+    void on_cBoxvar3_currentIndexChanged(int index);
+    void on_cBoxvar4_currentIndexChanged(int index);
+    void on_cBoxvar5_currentIndexChanged(int index);
+    void on_cBoxvar6_currentIndexChanged(int index);
+    void on_checkBoxD1_stateChanged(int arg1);
+    void on_checkBoxD2_stateChanged(int arg1);
+    void on_checkBoxD3_stateChanged(int arg1);
+    void on_checkBoxD4_stateChanged(int arg1);
+    void on_checkBoxD5_stateChanged(int arg1);
+    void on_checkBoxD6_stateChanged(int arg1);
 
 private:
 	//Variables & Objects:
@@ -106,11 +131,27 @@ private:
     int plot_xmin, plot_ymin, plot_xmax, plot_ymax, plot_len;
     uint8_t data_to_plot[VAR_NUM];
     int graph_ylim[2*VAR_NUM];
-    bool isChannelUsed[VAR_NUM];
     bool allChannelUnused(void);
     int plotting_len;
     QStringList var_list_margin;
     bool plotFreezed;
+
+    int32_t *varToPlotPtr32s[VAR_NUM];
+    int16_t *varToPlotPtr16s[VAR_NUM];
+    int8_t *varToPlotPtr8s[VAR_NUM];
+    uint32_t *varToPlotPtr32u[VAR_NUM];
+    uint16_t *varToPlotPtr16u[VAR_NUM];
+    uint8_t *varToPlotPtr8u[VAR_NUM];
+    uint8_t varToPlotFormat[3];
+    int32_t nullVar32s;
+    uint32_t nullVar32u;
+    int16_t nullVar16s;
+    uint16_t nullVar16u;
+    int8_t nullVar8s;
+    uint8_t nullVar8u;
+    uint8_t slaveIndex[VAR_NUM], slaveAddr[VAR_NUM], slaveBType[VAR_NUM];
+    uint8_t varIndex[VAR_NUM];
+    bool varDecode[VAR_NUM], varUsed[VAR_NUM];
 
 	//Function(s):
     void initChart(void);
@@ -125,6 +166,10 @@ private:
     int gen_test_data(int phaseShift);
     void array_minmax(int *arr, int len, int *min, int *max);
     void addMargins(int *ymin, int *ymax);
+    void updateVarList(uint8_t var, QComboBox *myCombo);
+    void saveCurrentSettings(void);
+    void assignVariable(uint8_t var);
+    void assignVariableEx(uint8_t var, struct execute_s *myPtr);
 };
 
 #endif // W_2DPLOT_H

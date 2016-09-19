@@ -71,7 +71,7 @@ private:
 	
 	//Function(s):
 	void init(void);
-    void displayGossip(struct gossip_s *mn);
+    void displayGossip(struct gossip_s *go, struct gossip_s *god);
 };
 
 //****************************************************************************

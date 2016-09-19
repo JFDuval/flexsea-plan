@@ -67,17 +67,21 @@ W_Execute::~W_Execute()
 //Call this function to refresh the display
 void W_Execute::refresh(void)
 {
-    struct execute_s *exPtr;
+    struct execute_s *exPtr, *exPtrD;
     myFlexSEA_Generic.assignExecutePtr(&exPtr, SL_BASE_ALL, \
-                                       ui->comboBox_slave->currentIndex());
-    displayExecute(exPtr);
+                                       ui->comboBox_slave->currentIndex(),
+                                       false);
+    myFlexSEA_Generic.assignExecutePtr(&exPtrD, SL_BASE_ALL, \
+                                       ui->comboBox_slave->currentIndex(),
+                                       true);
+    displayExecute(exPtr, exPtrD);
 }
 
 void W_Execute::log(QTextStream *filePtr, uint8_t slaveIndex, \
                                 char term, qint64 t_ms, QString t_text)
 {
     struct execute_s *exPtr;
-    myFlexSEA_Generic.assignExecutePtr(&exPtr, SL_BASE_ALL, slaveIndex);
+    myFlexSEA_Generic.assignExecutePtr(&exPtr, SL_BASE_ALL, slaveIndex, false);
 
     (*filePtr) << t_text << ',' << \
                         t_ms << ',' << \
@@ -115,7 +119,7 @@ void W_Execute::init(void)
                                             SL_BASE_EX, SL_LEN_EX);
 }
 
-void W_Execute::displayExecute(struct execute_s *ex)
+void W_Execute::displayExecute(struct execute_s *ex, struct execute_s *exd)
 {
     int combined_status = 0;
 

@@ -265,106 +265,159 @@ void FlexSEA_Generic::decodeStatus(uint8_t base, uint8_t index, uint8_t stat1, \
 }
 
 void FlexSEA_Generic::assignExecutePtr(struct execute_s **myPtr, uint8_t base, \
-                                       uint8_t slave)
+                                       uint8_t slave, bool decode)
 {
+    qDebug() << "Decode =" << decode;
+
     //Based on selected slave, what structure do we use?
     switch(list_to_slave[base+slave])
     {
         case FLEXSEA_EXECUTE_1:
-            *myPtr = &exec1;
+            if(decode == false)
+                *myPtr = &exec1;
+            else
+                *myPtr = &exec1d;
             break;
         case FLEXSEA_EXECUTE_2:
-            *myPtr = &exec2;
+            if(decode == false)
+                *myPtr = &exec2;
+            else
+                *myPtr = &exec2d;
             break;
         case FLEXSEA_EXECUTE_3:
-            *myPtr = &exec3;
+            if(decode == false)
+                *myPtr = &exec3;
+            else
+                *myPtr = &exec3d;
             break;
         case FLEXSEA_EXECUTE_4:
-            *myPtr = &exec4;
+            if(decode == false)
+                *myPtr = &exec4;
+            else
+                *myPtr = &exec4d;
             break;
         default:
-            *myPtr = &exec1;
+            if(decode == false)
+                *myPtr = &exec1;
+            else
+                *myPtr = &exec1d;
             break;
     }
 }
 
 void FlexSEA_Generic::assignManagePtr(struct manage_s **myPtr, uint8_t base, \
-                                      uint8_t slave)
+                                      uint8_t slave, bool decode)
 {
     //Based on selected slave, what structure do we use?
     switch(list_to_slave[base+slave])
     {
         case FLEXSEA_MANAGE_1:
-            *myPtr = &manag1;
+            if(decode == false)
+                *myPtr = &manag1;
+            else
+                *myPtr = &manag1d;
             break;
         case FLEXSEA_MANAGE_2:
-            *myPtr = &manag2;
+            if(decode == false)
+                *myPtr = &manag2;
+            else
+                *myPtr = &manag2d;
             break;
         default:
-            *myPtr = &manag1;
+            if(decode == false)
+                *myPtr = &manag1;
+            else
+                *myPtr = &manag1d;
             break;
     }
 }
 
 void FlexSEA_Generic::assignRicnuPtr(struct ricnu_s **myPtr, uint8_t base, \
-                                     uint8_t slave)
+                                     uint8_t slave, bool decode)
 {
     //Based on selected slave, what structure do we use?
     switch(list_to_slave[base+slave])
     {
         case FLEXSEA_EXECUTE_1: //RIC/NU is the same as Execute
-            *myPtr = &ricnu_1;
+            if(decode == false)
+                *myPtr = &ricnu_1;
+            else
+                *myPtr = &ricnu_1d;
             break;
         default:
-            *myPtr = &ricnu_1;
+            if(decode == false)
+                *myPtr = &ricnu_1;
+            else
+                *myPtr = &ricnu_1d;
             break;
     }
 }
 
 void FlexSEA_Generic::assignGossipPtr(struct gossip_s **myPtr, uint8_t base, \
-                                      uint8_t slave)
+                                      uint8_t slave, bool decode)
 {
     //Based on selected slave, what structure do we use?
     switch(list_to_slave[base+slave])
     {
         case FLEXSEA_GOSSIP_1:
-            *myPtr = &gossip1;
+            if(decode == false)
+                *myPtr = &gossip1;
+            else
+                *myPtr = &gossip1d;
             break;
         case FLEXSEA_GOSSIP_2:
-            *myPtr = &gossip2;
+            if(decode == false)
+                *myPtr = &gossip2;
+            else
+                *myPtr = &gossip2d;
             break;
         default:
-            *myPtr = &gossip1;
+            if(decode == false)
+                *myPtr = &gossip1;
+            else
+                *myPtr = &gossip1d;
             break;
     }
 }
 
 void FlexSEA_Generic::assignStrainPtr(struct strain_s **myPtr, uint8_t base, \
-                                      uint8_t slave)
+                                      uint8_t slave, bool decode)
 {
     //Based on selected slave, what structure do we use?
     switch(list_to_slave[base+slave])
     {
         case FLEXSEA_STRAIN_1:
-            *myPtr = &strain[0];    //***ToDo 99% sure this is wrong!
+            if(decode == false)
+                *myPtr = &strain[0];    //***ToDo 99% sure this is wrong!
+            else
+                *myPtr = &straind[0];
             break;
         default:
-            *myPtr = &strain[0];
+            if(decode == false)
+                *myPtr = &strain[0];
+            else
+                *myPtr = &straind[0];
             break;
     }
 }
 
 void FlexSEA_Generic::assignBatteryPtr(struct battery_s **myPtr, uint8_t base, \
-                                       uint8_t slave)
+                                       uint8_t slave, bool decode)
 {
     //Based on selected slave, what structure do we use?
     switch(list_to_slave[base+slave])
     {
         case FLEXSEA_BATTERY_1:
-            *myPtr = &batt1;
+            if(decode == false)
+                *myPtr = &batt1;
+            else
+                *myPtr = &batt1d;
             break;
         default:
-            *myPtr = &batt1;
+            if(decode == false)
+                *myPtr = &batt1;
+            else
+                *myPtr = &batt1d;
             break;
     }
 }

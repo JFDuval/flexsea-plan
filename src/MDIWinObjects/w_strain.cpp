@@ -67,16 +67,16 @@ W_Strain::~W_Strain()
 //Call this function to refresh the display
 void W_Strain::refresh(void)
 {
-    struct strain_s *stPtr;
+    struct strain_s *stPtr, *stPtrD;
     //myFlexSEA_Generic.assignStrainPtr(&stPtr, ui->comboBox_slave->currentIndex());
-    displayStrain(stPtr);
+    displayStrain(stPtr, stPtrD);
 }
 
 void W_Strain::log(QTextStream *filePtr, uint8_t slaveIndex, \
                                 char term, qint64 t_ms, QString t_text)
 {
     struct strain_s *stPtr;
-    myFlexSEA_Generic.assignStrainPtr(&stPtr, SL_BASE_STRAIN, slaveIndex);
+    myFlexSEA_Generic.assignStrainPtr(&stPtr, SL_BASE_STRAIN, slaveIndex, false);
 
 	/*
     (*filePtr) << t_text << ',' << \
@@ -120,7 +120,7 @@ void W_Strain::init(void)
     //active_slave = myFlexSEA_Generic.getSlaveCodeMn(active_slave_index);
 }
 
-void W_Strain::displayStrain(struct strain_s *st)
+void W_Strain::displayStrain(struct strain_s *st, struct strain_s *std)
 {
     int combined_status = 0;
 /*

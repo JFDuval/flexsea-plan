@@ -67,17 +67,21 @@ W_Manage::~W_Manage()
 //Call this function to refresh the display
 void W_Manage::refresh(void)
 {
-    struct manage_s *mnPtr;
+    struct manage_s *mnPtr, *mnPtrD;
     myFlexSEA_Generic.assignManagePtr(&mnPtr, SL_BASE_MN, \
-                                      ui->comboBox_slave->currentIndex());
-    displayManage(mnPtr);
+                                      ui->comboBox_slave->currentIndex(),
+                                      false);
+    myFlexSEA_Generic.assignManagePtr(&mnPtrD, SL_BASE_MN, \
+                                      ui->comboBox_slave->currentIndex(),
+                                      true);
+    displayManage(mnPtr, mnPtrD);
 }
 
 void W_Manage::log(QTextStream *filePtr, uint8_t slaveIndex, \
                                 char term, qint64 t_ms, QString t_text)
 {
     struct manage_s *mnPtr;
-    myFlexSEA_Generic.assignManagePtr(&mnPtr, SL_BASE_MN, slaveIndex);
+    myFlexSEA_Generic.assignManagePtr(&mnPtr, SL_BASE_MN, slaveIndex, false);
 
     (*filePtr) << t_text << ',' << \
                         t_ms << ',' << \
@@ -116,7 +120,7 @@ void W_Manage::init(void)
                                             SL_LEN_MN);
 }
 
-void W_Manage::displayManage(struct manage_s *mn)
+void W_Manage::displayManage(struct manage_s *mn, struct manage_s *mnd)
 {
     int combined_status = 0;
 /*

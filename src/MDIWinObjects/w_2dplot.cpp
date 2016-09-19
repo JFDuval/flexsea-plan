@@ -70,6 +70,7 @@ W_2DPlot::~W_2DPlot()
 //****************************************************************************
 
 //Gets called by the timer, updates the plot:
+/*
 void W_2DPlot::refresh2DPlot(void)
 {
     uint8_t index = 0;
@@ -88,16 +89,17 @@ void W_2DPlot::refresh2DPlot(void)
     for(index = 0; index < VAR_NUM; index++)
     {
         //Point to the selected slave:
-        myFlexSEA_Generic.assignExecutePtr(&execute_ptr, SL_BASE_EX, select_plot_slave(index));
+        myFlexSEA_Generic.assignExecutePtr(&execute_ptr, SL_BASE_EX, \
+                                           select_plot_slave(index), false);
 
         //'Used' as default, 'false' when set at Unused
-        isChannelUsed[index] = true;
+        varUsed[index] = true;
 
         //Update buffers with latest results:
         switch(data_to_plot[index])
         {
             case 0: //"**Unused**"
-                isChannelUsed[index] = false;
+                varUsed[index] = false;
                 update_graph_array(index, 0);
                 break;
             case 1: //"Accel X"
@@ -177,11 +179,11 @@ void W_2DPlot::refresh2DPlot(void)
                 update_graph_array(index, ricnu_1.ex.enc_control);
                 break;
             default:
-                isChannelUsed[index] = false;
+                varUsed[index] = false;
                 break;
         }
 
-        if(isChannelUsed[index] == false)
+        if(varUsed[index] == false)
         {
             //This channel isn't used, we make it invisible
             qlsData[index]->setVisible(false);
@@ -189,6 +191,54 @@ void W_2DPlot::refresh2DPlot(void)
         else
         {
             qlsData[index]->setVisible(true);
+        }
+
+        //Plot it:
+        refreshData2DPlot(graph_xarray, graph_yarray[index], plot_len, index);
+    }
+}
+*/
+
+void W_2DPlot::refresh2DPlot(void)
+{
+    uint8_t index = 0;
+
+    //For every variable:
+    for(index = 0; index < VAR_NUM; index++)
+    {
+        if(varUsed[index] == false)
+        {
+            //This channel isn't used, we make it invisible
+            qlsData[index]->setVisible(false);
+        }
+        else
+        {
+            qlsData[index]->setVisible(true);
+        }
+
+        switch(varToPlotFormat[index])
+        {
+            case FORMAT_32S:
+                update_graph_array(index, (*varToPlotPtr32s[index]));
+                break;
+            case FORMAT_32U:
+                update_graph_array(index, (int)(*varToPlotPtr32u[index]));
+                break;
+            case FORMAT_16S:
+                update_graph_array(index, (int)(*varToPlotPtr16s[index]));
+                break;
+            case FORMAT_16U:
+                update_graph_array(index, (int)(*varToPlotPtr16u[index]));
+                break;
+            case FORMAT_8S:
+                update_graph_array(index, (int)(*varToPlotPtr8s[index]));
+                break;
+            case FORMAT_8U:
+                update_graph_array(index, (int)(*varToPlotPtr8u[index]));
+                break;
+            default:
+                update_graph_array(index, 0);
+                break;
         }
 
         //Plot it:
@@ -206,32 +256,21 @@ void W_2DPlot::refresh2DPlot(void)
 
 void W_2DPlot::initChart(void)
 {
-    //QPen myPen(Qt::red);
-    //Fake data:
+    //Data series:
     qlsData[0] = new QLineSeries();
-   // qlsData[0]->setPen(myPen);
     qlsData[0]->append(0, 0);
-
-    //qlsData[0]->setPen(myPen);
-
     qlsData[1] = new QLineSeries();
     qlsData[1]->append(0, 0);
-
     mySeriesTest = new QLineSeries();
     mySeriesTest->append(0, 0);
-
     qlsData[2] = new QLineSeries();
     qlsData[2]->append(0, 0);
-
     qlsData[3] = new QLineSeries();
     qlsData[3]->append(0, 0);
-
     qlsData[4] = new QLineSeries();
     qlsData[4]->append(0, 0);
-
     qlsData[5] = new QLineSeries();
     qlsData[5]->append(0, 0);
-    //--
 
     //Chart:
     chart = new QChart();
@@ -287,6 +326,25 @@ void W_2DPlot::initChart(void)
 //Fills the fields and combo boxes:
 void W_2DPlot::initUserInput(void)
 {
+    nullVar32s = 0;
+    nullVar32u = 0;
+    nullVar16s = 0;
+    nullVar16u = 0;
+    nullVar8s = 0;
+    nullVar8u = 0;
+
+    for(int i = 0; i < VAR_NUM; i++)
+    {
+        varToPlotPtr32s[i] = &nullVar32s;
+        varToPlotPtr32u[i] = &nullVar32u;
+
+        varToPlotPtr16s[i] = &nullVar16s;
+        varToPlotPtr16u[i] = &nullVar16u;
+
+        varToPlotPtr8s[i] = &nullVar8s;
+        varToPlotPtr8u[i] = &nullVar8u;
+    }
+
     //Axis, limits, etc.:
     //=====================
 
@@ -313,7 +371,7 @@ void W_2DPlot::initUserInput(void)
     for(int h = 0; h < VAR_NUM; h++)
     {
         data_to_plot[h] = 0;
-        isChannelUsed[h] = false;
+        varUsed[h] = false;
     }
 
     //Limits:
@@ -342,23 +400,6 @@ void W_2DPlot::initUserInput(void)
     gen_graph_xarray();
     init_yarrays();
 
-    //Variable option lists:
-    QStringList var_list;
-    var_list << "**Unused**" << "Accel X" << "Accel Y" << "Accel Z" << "Gyro X" << "Gyro Y" << "Gyro Z" << "Encoder" \
-            << "Motor current" << "Analog[0]" << "Analog[1]" << "Strain" << "+VB" << "+VG" << "Temperature" << "Fake Data" << "Setpoint (square)" \
-            << "Setpoint (trapezoidal)" << "Strain ch1" << "Strain ch2" << "Strain ch3" << "Strain ch4" << "Strain ch5" << "Strain ch6" \
-            << "AS5047 (Mot.)" << "AS5048B (Joint)";
-    for(int index = 0; index < var_list.count(); index++)
-    {
-        //All boxes have the same list:
-        ui->cBoxvar1->addItem(var_list.at(index));
-        ui->cBoxvar2->addItem(var_list.at(index));
-        ui->cBoxvar3->addItem(var_list.at(index));
-        ui->cBoxvar4->addItem(var_list.at(index));
-        ui->cBoxvar5->addItem(var_list.at(index));
-        ui->cBoxvar6->addItem(var_list.at(index));
-    }
-
     //Color coded labels will be defined based on the chart. Default = B&W
     ui->label_t1->setStyleSheet("QLabel { background-color: black; color: white;}");
     ui->label_t2->setStyleSheet("QLabel { background-color: black; color: white;}");
@@ -367,29 +408,274 @@ void W_2DPlot::initUserInput(void)
     ui->label_t5->setStyleSheet("QLabel { background-color: black; color: white;}");
     ui->label_t6->setStyleSheet("QLabel { background-color: black; color: white;}");
 
-    //***ToDo*** should be ALL and not EX, but refresh2DPlot() has to be reworked first
-    myFlexSEA_Generic.populateSlaveComboBox(ui->cBoxvar1slave, SL_BASE_EX, \
-                                            SL_LEN_EX);
-    myFlexSEA_Generic.populateSlaveComboBox(ui->cBoxvar2slave, SL_BASE_EX, \
-                                          SL_LEN_EX);
-    myFlexSEA_Generic.populateSlaveComboBox(ui->cBoxvar3slave, SL_BASE_EX, \
-                                          SL_LEN_EX);
-    myFlexSEA_Generic.populateSlaveComboBox(ui->cBoxvar4slave, SL_BASE_EX, \
-                                          SL_LEN_EX);
-    myFlexSEA_Generic.populateSlaveComboBox(ui->cBoxvar5slave, SL_BASE_EX, \
-                                          SL_LEN_EX);
-    myFlexSEA_Generic.populateSlaveComboBox(ui->cBoxvar6slave, SL_BASE_EX, \
-                                          SL_LEN_EX);
+    //Slave combo box:
+    myFlexSEA_Generic.populateSlaveComboBox(ui->cBoxvar1slave, SL_BASE_ALL, \
+                                            SL_LEN_ALL);
+    myFlexSEA_Generic.populateSlaveComboBox(ui->cBoxvar2slave, SL_BASE_ALL, \
+                                          SL_LEN_ALL);
+    myFlexSEA_Generic.populateSlaveComboBox(ui->cBoxvar3slave, SL_BASE_ALL, \
+                                          SL_LEN_ALL);
+    myFlexSEA_Generic.populateSlaveComboBox(ui->cBoxvar4slave, SL_BASE_ALL, \
+                                          SL_LEN_ALL);
+    myFlexSEA_Generic.populateSlaveComboBox(ui->cBoxvar5slave, SL_BASE_ALL, \
+                                          SL_LEN_ALL);
+    myFlexSEA_Generic.populateSlaveComboBox(ui->cBoxvar6slave, SL_BASE_ALL, \
+                                          SL_LEN_ALL);
 
-    //Decoded checkboxes:
-    ui->checkBoxD1->setDisabled(true);
-    ui->checkBoxD2->setDisabled(true);
-    ui->checkBoxD3->setDisabled(true);
-    ui->checkBoxD4->setDisabled(true);
-    ui->checkBoxD5->setDisabled(true);
-    ui->checkBoxD6->setDisabled(true);
+    //Variable comboBoxes:
+    updateVarList(0, ui->cBoxvar1);
+    updateVarList(1, ui->cBoxvar2);
+    updateVarList(2, ui->cBoxvar3);
+    updateVarList(3, ui->cBoxvar4);
+    updateVarList(4, ui->cBoxvar5);
+    updateVarList(5, ui->cBoxvar6);
+    saveCurrentSettings();
 }
 
+//Each board type has a different variable list.
+void W_2DPlot::updateVarList(uint8_t var, QComboBox *myCombo)
+{
+    QStringList var_list;
+
+    uint8_t bType = slaveBType[var];
+
+    //qDebug() << "Updating Var List for index =" << index << "bType = " << bType;
+
+    //Build the string:
+    switch(bType)
+    {
+        case FLEXSEA_PLAN_BASE:
+            var_list << "**Unused**";
+            break;
+        case FLEXSEA_MANAGE_BASE:
+            var_list << "**Unused**" << "Accel X" << "Accel Y" << "Accel Z" \
+                    << "Gyro X" << "Gyro Y" << "Gyro Z" << "Pushbutton" \
+                    << "Digital Inputs" << "Analog[0]" << "Analog[1]" \
+                    << "Analog[2]" << "Analog[3]" << "Analog[4]" \
+                    << "Analog[5]" << "Analog[6]" << "Analog[7]" << "Status";
+            break;
+        case FLEXSEA_EXECUTE_BASE:
+            var_list << "**Unused**" << "Accel X" << "Accel Y" << "Accel Z" \
+                    << "Gyro X" << "Gyro Y" << "Gyro Z" << "Encoder Display" \
+                    << "Encoder Control" << "Encoder Commutation" \
+                    << "Motor current" << "Analog[0]" << "Analog[1]" \
+                    << "Strain" << "Battery Voltage" << "Int. voltage" \
+                    << "Temperature" << "Status 1" << "Status 2" \
+                    << "Setpoint (square)" << "Setpoint (trapezoidal)" \
+                    << "Fake Data";
+            break;
+        case FLEXSEA_BATTERY_BASE:
+            var_list << "**Unused**" << "Battery Voltage" << "Battery Current" \
+                    << "Power" << "Pushbutton" << "Status";
+            break;
+        case FLEXSEA_STRAIN_BASE:
+            var_list << "**Unused**" << "Strain ch[1]" << "Strain ch[2]" \
+                    << "Strain ch[3]" << "Strain ch[4]" << "Strain ch[5]" \
+                    << "Strain ch[6]";
+            break;
+        case FLEXSEA_GOSSIP_BASE:
+            var_list << "**Unused**" << "Accel X" << "Accel Y" << "Accel Z" \
+                    << "Gyro X" << "Gyro Y" << "Gyro Z" << "Magneto X" \
+                    << "Magneto X" << "Magneto X" << "IO[1]" << "IO[2]" \
+                    << "CapSense[1]" << "CapSense[2]" << "CapSense[3]" \
+                    << "CapSense[4]" << "Status";
+            break;
+        default:
+            var_list << "Invalid";
+    }
+
+    //Fill the comboBox:
+    myCombo->clear();
+    for(int index = 0; index < var_list.count(); index++)
+    {
+        myCombo->addItem(var_list.at(index));
+    }
+}
+
+//Assigns a pointer to the desired variable. This function is called whenever
+//we change Slave or Variable. The runtime plotting function will then use the
+//pointer.
+void W_2DPlot::assignVariable(uint8_t var)
+{
+    //qDebug() << "assignVariable: var =" << var << "decode =" << varDecode[var];
+
+    switch(slaveBType[var])
+    {
+        case FLEXSEA_PLAN_BASE:
+
+            break;
+        case FLEXSEA_MANAGE_BASE:
+
+            break;
+        case FLEXSEA_EXECUTE_BASE:
+
+            struct execute_s *myPtr;
+            myFlexSEA_Generic.assignExecutePtr(&myPtr, SL_BASE_ALL, \
+                                               slaveIndex[var], varDecode[var]);
+            assignVariableEx(var, myPtr);
+
+            break;
+        case FLEXSEA_BATTERY_BASE:
+
+            break;
+        case FLEXSEA_STRAIN_BASE:
+
+            break;
+        case FLEXSEA_GOSSIP_BASE:
+
+            break;
+        default:
+            break;
+    }
+}
+
+//Assigns a pointer to the desired variable - Execute boards
+void W_2DPlot::assignVariableEx(uint8_t var, struct execute_s *myPtr)
+{
+    //'Used' as default, 'false' when set at Unused
+    varUsed[var] = true;
+    varToPlotFormat[var] = FORMAT_32S;
+
+    //Assign pointer:
+    switch(varIndex[var])
+    {
+        case 0: //"**Unused**"
+            varUsed[var] = false;
+            varToPlotFormat[var] = FORMAT_32S;
+            varToPlotPtr32s[var] = &nullVar32s;
+            break;
+        case 1: //"Accel X"
+            varToPlotFormat[var] = FORMAT_16S;
+            varToPlotPtr16s[var] = &myPtr->accel.x;
+            break;
+        case 2: //"Accel Y"
+            varToPlotFormat[var] = FORMAT_16S;
+            varToPlotPtr16s[var] = &myPtr->accel.y;
+            break;
+        case 3: //"Accel Z"
+            varToPlotFormat[var] = FORMAT_16S;
+            varToPlotPtr16s[var] = &myPtr->accel.z;
+            break;
+        case 4: //"Gyro X"
+            varToPlotFormat[var] = FORMAT_16S;
+            varToPlotPtr16s[var] = &myPtr->gyro.x;
+            break;
+        case 5: //"Gyro Y"
+            varToPlotFormat[var] = FORMAT_16S;
+            varToPlotPtr16s[var] = &myPtr->gyro.y;
+            break;
+        case 6: //"Gyro Z"
+            varToPlotFormat[var] = FORMAT_16S;
+            varToPlotPtr16s[var] = &myPtr->gyro.z;
+            break;
+        case 7: //"Encoder Display"
+            varToPlotFormat[var] = FORMAT_32S;
+            varToPlotPtr32s[var] = &myPtr->enc_display;
+            break;
+        case 8: //"Encoder Control"
+            varToPlotFormat[var] = FORMAT_32S;
+            varToPlotPtr32s[var] = &myPtr->enc_control;
+            break;
+        case 9: //"Encoder Commutation"
+            varToPlotFormat[var] = FORMAT_32S;
+            varToPlotPtr32s[var] = &myPtr->enc_commut;
+            break;
+        case 10: //"Motor current"
+            varToPlotFormat[var] = FORMAT_16S;
+            varToPlotPtr16s[var] = &myPtr->current;
+            break;
+        case 11: //"Analog[0]"
+            varToPlotFormat[var] = FORMAT_16U;
+            varToPlotPtr16u[var] = &myPtr->analog[0];
+            break;
+        case 12: //Analog[1]
+            varToPlotFormat[var] = FORMAT_16U;
+            varToPlotPtr16u[var] = &myPtr->analog[1];
+            break;
+        case 13: //"Strain"
+            varToPlotFormat[var] = FORMAT_16U;
+            varToPlotPtr16u[var] = &myPtr->strain;
+            break;
+        case 14: //"+VB"
+            varToPlotFormat[var] = FORMAT_8U;
+            varToPlotPtr8u[var] = &myPtr->volt_batt;
+            break;
+        case 15: //"+VG"
+            varToPlotFormat[var] = FORMAT_8U;
+            varToPlotPtr8u[var] = &myPtr->volt_int;
+            break;
+        case 16: //"Temp"
+            varToPlotFormat[var] = FORMAT_8U;
+            varToPlotPtr8u[var] = &myPtr->temp;
+            break;
+        case 17: //"Status 1"
+            varToPlotFormat[var] = FORMAT_8U;
+            varToPlotPtr8u[var] = &myPtr->status1;
+            break;
+        case 18: //"Status 2"
+            varToPlotFormat[var] = FORMAT_8U;
+            varToPlotPtr8u[var] = &myPtr->status2;
+            break;
+        case 19: //"Setpoint (square)"
+            varToPlotFormat[var] = FORMAT_32S;
+            varToPlotPtr32s[var] = &nullVar32s;//ctrl_setpoint);   //ToDo Fix
+            break;
+        case 20: //"Setpoint (trap)"
+            varToPlotFormat[var] = FORMAT_32S;
+            varToPlotPtr32s[var] = &nullVar32s;//ctrl_setpoint_trap);  //ToDo Fix
+            break;
+        case 21: //"Fake Data"
+        /*
+            phaseShift = (TWO_PI/VAR_NUM)*index;
+            update_graph_array(index, gen_test_data((phaseShift)));
+            */
+            varToPlotFormat[var] = FORMAT_32S;
+            varToPlotPtr32s[var] = &nullVar32s;   //***ToDo***
+            break;
+        default:
+            varToPlotFormat[var] = FORMAT_32S;
+            varToPlotPtr32s[var] = &nullVar32s;
+            varUsed[var] = false;
+            break;
+    }
+}
+
+//Based on the current state of comboBoxes, saves the info in variables
+void W_2DPlot::saveCurrentSettings(void)
+{
+    //Slave:
+    slaveIndex[0] = ui->cBoxvar1slave->currentIndex();
+    slaveIndex[1] = ui->cBoxvar2slave->currentIndex();
+    slaveIndex[2] = ui->cBoxvar3slave->currentIndex();
+    slaveIndex[3] = ui->cBoxvar4slave->currentIndex();
+    slaveIndex[4] = ui->cBoxvar5slave->currentIndex();
+    slaveIndex[5] = ui->cBoxvar6slave->currentIndex();
+
+    for(int i = 0; i < VAR_NUM; i++)
+    {
+        slaveAddr[i] = myFlexSEA_Generic.getSlaveID(SL_BASE_ALL, slaveIndex[i]);
+        slaveBType[i] = myFlexSEA_Generic.getSlaveBoardType(SL_BASE_ALL, \
+                                                           slaveIndex[i]);
+    }
+
+    //Variable:
+    varIndex[0] = ui->cBoxvar1->currentIndex();
+    varIndex[1] = ui->cBoxvar2->currentIndex();
+    varIndex[2] = ui->cBoxvar3->currentIndex();
+    varIndex[3] = ui->cBoxvar4->currentIndex();
+    varIndex[4] = ui->cBoxvar5->currentIndex();
+    varIndex[5] = ui->cBoxvar6->currentIndex();
+
+    //Decode:
+    varDecode[0] = ui->checkBoxD1->isChecked();
+    varDecode[1] = ui->checkBoxD2->isChecked();
+    varDecode[2] = ui->checkBoxD3->isChecked();
+    varDecode[3] = ui->checkBoxD4->isChecked();
+    varDecode[4] = ui->checkBoxD5->isChecked();
+    varDecode[5] = ui->checkBoxD6->isChecked();
+}
+
+//We use a bigger Y scale than the minimum span to make it clearer
 void W_2DPlot::addMargins(int *ymin, int *ymax)
 {
     switch(ui->comboBoxMargin->currentIndex())
@@ -424,7 +710,6 @@ void W_2DPlot::addMargins(int *ymin, int *ymax)
             break;
     }
 }
-
 
 //Buffer management for the N variables that we can plot.
 void W_2DPlot::update_graph_array(int graph, int new_data)
@@ -601,7 +886,7 @@ void W_2DPlot::setChartAxis(void)
             int yValMin = 0, yValMax = 0;
             for(int k = 0; k < VAR_NUM; k++)
             {
-                if(isChannelUsed[k] == true)
+                if(varUsed[k] == true)
                 {
                     //We found one, copy its values:
                     yValMin = graph_ylim[2*k];
@@ -614,7 +899,7 @@ void W_2DPlot::setChartAxis(void)
             //Now we use this for all unused channels:
             for(int k = 0; k < VAR_NUM; k++)
             {
-                if(isChannelUsed[k] == false)
+                if(varUsed[k] == false)
                 {
                     //Unused, replace its min/max:
                     graph_ylim[2*k] = yValMin;
@@ -709,7 +994,7 @@ bool W_2DPlot::allChannelUnused(void)
 {
     for(int i = 0; i < VAR_NUM; i++)
     {
-        if(isChannelUsed[i] == true)
+        if(varUsed[i] == true)
         {
             return false;
         }
@@ -776,4 +1061,124 @@ void W_2DPlot::on_pushButtonFreeze_clicked()
         plotFreezed = true;
         ui->pushButtonFreeze->setText("Release");
     }
+}
+
+//Slave comboBoxes:
+
+void W_2DPlot::on_cBoxvar1slave_currentIndexChanged(int index)
+{
+    saveCurrentSettings();
+    updateVarList(0, ui->cBoxvar1);
+    assignVariable(0);
+}
+
+void W_2DPlot::on_cBoxvar2slave_currentIndexChanged(int index)
+{
+    saveCurrentSettings();
+    updateVarList(1, ui->cBoxvar2);
+    assignVariable(1);
+}
+
+void W_2DPlot::on_cBoxvar3slave_currentIndexChanged(int index)
+{
+    saveCurrentSettings();
+    updateVarList(2, ui->cBoxvar3);
+    assignVariable(2);
+}
+
+void W_2DPlot::on_cBoxvar4slave_currentIndexChanged(int index)
+{
+    saveCurrentSettings();
+    updateVarList(3, ui->cBoxvar4);
+    assignVariable(3);
+}
+
+void W_2DPlot::on_cBoxvar5slave_currentIndexChanged(int index)
+{
+    saveCurrentSettings();
+    updateVarList(4, ui->cBoxvar5);
+    assignVariable(4);
+}
+
+void W_2DPlot::on_cBoxvar6slave_currentIndexChanged(int index)
+{
+    saveCurrentSettings();
+    updateVarList(5, ui->cBoxvar6);
+    assignVariable(5);
+}
+
+//Variable comboBoxes:
+
+void W_2DPlot::on_cBoxvar1_currentIndexChanged(int index)
+{
+    saveCurrentSettings();
+    assignVariable(0);
+}
+
+void W_2DPlot::on_cBoxvar2_currentIndexChanged(int index)
+{
+    saveCurrentSettings();
+    assignVariable(1);
+}
+
+void W_2DPlot::on_cBoxvar3_currentIndexChanged(int index)
+{
+    saveCurrentSettings();
+    assignVariable(2);
+}
+
+void W_2DPlot::on_cBoxvar4_currentIndexChanged(int index)
+{
+    saveCurrentSettings();
+    assignVariable(3);
+}
+
+void W_2DPlot::on_cBoxvar5_currentIndexChanged(int index)
+{
+    saveCurrentSettings();
+    assignVariable(4);
+}
+
+void W_2DPlot::on_cBoxvar6_currentIndexChanged(int index)
+{
+    saveCurrentSettings();
+    assignVariable(5);
+}
+
+//Decode checkboxes:
+
+void W_2DPlot::on_checkBoxD1_stateChanged(int arg1)
+{
+    saveCurrentSettings();
+    assignVariable(0);
+}
+
+void W_2DPlot::on_checkBoxD2_stateChanged(int arg1)
+{
+    saveCurrentSettings();
+    assignVariable(1);
+}
+
+void W_2DPlot::on_checkBoxD3_stateChanged(int arg1)
+{
+    saveCurrentSettings();
+    assignVariable(2);
+}
+
+void W_2DPlot::on_checkBoxD4_stateChanged(int arg1)
+{
+    saveCurrentSettings();
+    assignVariable(3);
+}
+
+void W_2DPlot::on_checkBoxD5_stateChanged(int arg1)
+{
+    saveCurrentSettings();
+    assignVariable(4);
+}
+
+void W_2DPlot::on_checkBoxD6_stateChanged(int arg1)
+{
+    saveCurrentSettings();
+    assignVariable(5);
 }

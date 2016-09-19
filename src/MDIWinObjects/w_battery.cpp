@@ -67,16 +67,16 @@ W_Battery::~W_Battery()
 //Call this function to refresh the display
 void W_Battery::refresh(void)
 {
-    struct battery_s *baPtr;
+    struct battery_s *baPtr, *baPtrD;
     //myFlexSEA_Generic.assignBatteryPtr(&baPtr, ui->comboBox_slave->currentIndex());
-    displayBattery(baPtr);
+    displayBattery(baPtr, baPtrD);
 }
 
 void W_Battery::log(QTextStream *filePtr, uint8_t slaveIndex, \
                                 char term, qint64 t_ms, QString t_text)
 {
     struct battery_s *baPtr;
-    myFlexSEA_Generic.assignBatteryPtr(&baPtr, SL_BASE_BATT, slaveIndex);
+    myFlexSEA_Generic.assignBatteryPtr(&baPtr, SL_BASE_BATT, slaveIndex, false);
 /*
     (*filePtr) << t_text << ',' << \
                         t_ms << ',' << \
@@ -119,7 +119,7 @@ void W_Battery::init(void)
 //    active_slave = myFlexSEA_Generic.getSlaveCodeBa(active_slave_index);
 }
 
-void W_Battery::displayBattery(struct battery_s *mn)
+void W_Battery::displayBattery(struct battery_s *ba, struct battery_s *bad)
 {
     int combined_status = 0;
 /*
