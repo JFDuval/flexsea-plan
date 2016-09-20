@@ -104,8 +104,6 @@ void W_Execute::displayExecute(struct executeD_s *ex)
     ui->disp_gyroz->setText(QString::number(ex->exRaw.gyro.z));
 
     ui->disp_encDisplay->setText(QString::number(ex->exRaw.enc_display));
-    ui->disp_encControl->setText(QString::number(ex->exRaw.enc_control));
-    ui->disp_encCommut->setText(QString::number(ex->exRaw.enc_commut));
 
     ui->disp_strain->setText(QString::number(ex->exRaw.strain));
     ui->disp_ana->setText(QString::number(ex->exRaw.analog[0]));
