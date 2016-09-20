@@ -125,7 +125,8 @@ public:
     void decodeStatus(uint8_t base, uint8_t index, uint8_t stat1, \
                         uint8_t stat2, QString *str1);
     void packetVisualizer(uint numb, uint8_t *packet);
-    void decodeExecute(struct executeD_s *myPtr);
+    void decodeSlave(uint8_t base, uint8_t index);
+    void decodeExecute(uint8_t base, uint8_t index);
 	
 public slots:
 

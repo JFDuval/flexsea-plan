@@ -265,8 +265,73 @@ void FlexSEA_Generic::decodeStatus(uint8_t base, uint8_t index, uint8_t stat1, \
 }
 
 //Decodes some of Execute's fields
-void FlexSEA_Generic::decodeExecute(struct executeD_s *myPtr)
+void FlexSEA_Generic::decodeExecute(uint8_t base, uint8_t index)
 {
+    struct executeD_s *exDPtr = &execD1;
+
+    //Accel in mG
+    exDPtr->accel.x = (1000*exDPtr->exRaw.accel.x)/8192;
+    exDPtr->accel.y = (1000*exDPtr->exRaw.accel.y)/8192;
+    exDPtr->accel.z = (1000*exDPtr->exRaw.accel.z)/8192;
+
+    //Gyro in degrees/s
+    exDPtr->gyro.x = (100*exDPtr->exRaw.gyro.x)/164;
+    exDPtr->gyro.y = (100*exDPtr->exRaw.gyro.y)/164;
+    exDPtr->gyro.z = (100*exDPtr->exRaw.gyro.z)/164;
+
+    exDPtr->current = (185*exDPtr->exRaw.current)/10;   //mA
+
+    exDPtr->volt_batt = (int32_t)1000*P4_ADC_SUPPLY*((16*\
+                        (float)exDPtr->exRaw.volt_batt/3 + 302 ) \
+                        /P4_ADC_MAX) / 0.0738;          //mV
+
+    exDPtr->volt_int = (int32_t)1000*P4_ADC_SUPPLY*((26*\
+                        (float)exDPtr->exRaw.volt_int/3 + 440 ) \
+                        /P4_ADC_MAX) / 0.43;            //mV
+
+    exDPtr->temp = (int32_t)10*((((2.625*(float)exDPtr->exRaw.temp + 41) \
+                      /P4_ADC_MAX)*P4_ADC_SUPPLY) - P4_T0) / P4_TC; //C*10
+
+    exDPtr->analog[0] = (int32_t)1000*((float)exDPtr->exRaw.analog[0]/ \
+                        P5_ADC_MAX)*P5_ADC_SUPPLY;
+}
+
+//Decodes some of the slave's fields
+void FlexSEA_Generic::decodeSlave(uint8_t base, uint8_t index)
+{
+    uint8_t bType = getSlaveBoardType(base, index);
+
+    switch(bType)
+    {
+        case FLEXSEA_PLAN_BASE:
+
+            break;
+        case FLEXSEA_MANAGE_BASE:
+/*
+            struct manage_s *mnPtr;
+            myFlexSEA_Generic.assignManagePtr(&mnPtr, SL_BASE_ALL, \
+                                           slaveIndex[var]);
+            //assignVariableMn(var, myPtr);
+            */
+
+            break;
+        case FLEXSEA_EXECUTE_BASE:
+
+            decodeExecute(base, index);
+
+            break;
+        case FLEXSEA_BATTERY_BASE:
+
+            break;
+        case FLEXSEA_STRAIN_BASE:
+
+            break;
+        case FLEXSEA_GOSSIP_BASE:
+
+            break;
+        default:
+            break;
+    }
     /*
     myPtrD->current =
     ui->disp_current_d->setText(QString::number((float)ex->current*18.5, 'i',0));

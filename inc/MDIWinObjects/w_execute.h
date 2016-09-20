@@ -69,7 +69,7 @@ private:
 	
 	//Function(s):
 	void init(void);
-    void displayExecute(struct execute_s *ex);
+    void displayExecute(struct executeD_s *ex);
 };
 
 //****************************************************************************

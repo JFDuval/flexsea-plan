@@ -68,8 +68,8 @@ W_Execute::~W_Execute()
 //Call this function to refresh the display
 void W_Execute::refresh(void)
 {
-    struct execute_s *exPtr;
-    myFlexSEA_Generic.assignExecutePtr(&exPtr, SL_BASE_ALL, \
+    struct executeD_s *exPtr = &execD1; //Test - fix
+ //   myFlexSEA_Generic.assignExecutePtr(&exPtr, SL_BASE_ALL, \
                                        ui->comboBox_slave->currentIndex());
     displayExecute(exPtr);
 }
@@ -89,60 +89,61 @@ void W_Execute::init(void)
                                             SL_BASE_EX, SL_LEN_EX);
 }
 
-void W_Execute::displayExecute(struct execute_s *ex)
+void W_Execute::displayExecute(struct executeD_s *ex)
 {
     int combined_status = 0;
 
     //Raw values:
     //===========
 
-    ui->disp_accx->setText(QString::number(ex->accel.x));
-    ui->disp_accy->setText(QString::number(ex->accel.y));
-    ui->disp_accz->setText(QString::number(ex->accel.z));
-    ui->disp_gyrox->setText(QString::number(ex->gyro.x));
-    ui->disp_gyroy->setText(QString::number(ex->gyro.y));
-    ui->disp_gyroz->setText(QString::number(ex->gyro.z));
+    ui->disp_accx->setText(QString::number(ex->exRaw.accel.x));
+    ui->disp_accy->setText(QString::number(ex->exRaw.accel.y));
+    ui->disp_accz->setText(QString::number(ex->exRaw.accel.z));
+    ui->disp_gyrox->setText(QString::number(ex->exRaw.gyro.x));
+    ui->disp_gyroy->setText(QString::number(ex->exRaw.gyro.y));
+    ui->disp_gyroz->setText(QString::number(ex->exRaw.gyro.z));
 
-    ui->disp_encDisplay->setText(QString::number(ex->enc_display));
-    ui->disp_encControl->setText(QString::number(ex->enc_control));
-    ui->disp_encCommut->setText(QString::number(ex->enc_commut));
+    ui->disp_encDisplay->setText(QString::number(ex->exRaw.enc_display));
+    ui->disp_encControl->setText(QString::number(ex->exRaw.enc_control));
+    ui->disp_encCommut->setText(QString::number(ex->exRaw.enc_commut));
 
-    ui->disp_strain->setText(QString::number(ex->strain));
-    ui->disp_ana->setText(QString::number(ex->analog[0]));
-    ui->disp_ana1->setText(QString::number(ex->analog[1]));
+    ui->disp_strain->setText(QString::number(ex->exRaw.strain));
+    ui->disp_ana->setText(QString::number(ex->exRaw.analog[0]));
+    ui->disp_ana1->setText(QString::number(ex->exRaw.analog[1]));
 
-    ui->disp_current->setText(QString::number(ex->current));
+    ui->disp_current->setText(QString::number(ex->exRaw.current));
 
-    ui->disp_vb->setText(QString::number(ex->volt_batt));
-    ui->disp_vg->setText(QString::number(ex->volt_int));
-    ui->disp_temp->setText(QString::number(ex->temp));
+    ui->disp_vb->setText(QString::number(ex->exRaw.volt_batt));
+    ui->disp_vg->setText(QString::number(ex->exRaw.volt_int));
+    ui->disp_temp->setText(QString::number(ex->exRaw.temp));
 
-    combined_status = (ex->status2 << 8) & ex->status1;
+    combined_status = (ex->exRaw.status2 << 8) & ex->exRaw.status1;
     ui->disp_stat1->setText(QString::number(combined_status));
 
     //Decode some of them:
     //===================
 
-    ui->disp_current_d->setText(QString::number((float)ex->current*18.5, 'i',0));
-    ui->disp_vb_d->setText(QString::number(P4_ADC_SUPPLY*((16*(float)ex->volt_batt/3 + 302 )/P4_ADC_MAX) / 0.0738, 'f',2));
-    ui->disp_vg_d->setText(QString::number(P4_ADC_SUPPLY*((26*(float)ex->volt_int/3 + 440 )/P4_ADC_MAX) / 0.43, 'f',2));
-    ui->disp_temp_d->setText(QString::number(((((2.625*(float)ex->temp + 41)/P4_ADC_MAX)*P4_ADC_SUPPLY) - P4_T0) / P4_TC,'f',1));
+    ui->disp_accx_d->setText(QString::number((float)ex->accel.x/1000,'f',2));
+    ui->disp_accy_d->setText(QString::number((float)ex->accel.y/1000,'f',2));
+    ui->disp_accz_d->setText(QString::number((float)ex->accel.z/1000,'f',2));
 
-    ui->disp_ana_d->setText(QString::number(((float)ex->analog[0]/P5_ADC_MAX)*P5_ADC_SUPPLY,'f',2));
-    ui->disp_ana1_d->setText(QString::number(((float)ex->analog[1]/P5_ADC_MAX)*P5_ADC_SUPPLY,'f',2));
-
-    ui->disp_accx_d->setText(QString::number((double)ex->accel.x/8192, 'f', 2));
-    ui->disp_accy_d->setText(QString::number((double)ex->accel.y/8192, 'f', 2));
-    ui->disp_accz_d->setText(QString::number((double)ex->accel.z/8192, 'f', 2));
     ui->disp_gyrox_d->setText(QString::number((double)ex->gyro.x/16.4, 'i', 0));
     ui->disp_gyroy_d->setText(QString::number((double)ex->gyro.y/16.4, 'i', 0));
     ui->disp_gyroz_d->setText(QString::number((double)ex->gyro.z/16.4, 'i', 0));
 
-    ui->disp_strain_d->setText(QString::number(((double)(ex->strain-32768)/32768)*100, 'i', 0));
+    ui->disp_current_d->setText(QString::number(ex->current, 'i',0));
+    ui->disp_vb_d->setText(QString::number((float)ex->volt_batt/1000, 'f',2));
+    ui->disp_vg_d->setText(QString::number((float)ex->volt_int/1000, 'f',2));
+    ui->disp_temp_d->setText(QString::number((float)ex->temp/10,'f',1));
+
+    ui->disp_ana_d->setText(QString::number((float)ex->analog[0]/1000,'f',2));
+    ui->disp_ana1_d->setText(QString::number((float)ex->analog[1]/1000,'f',2));
+
+    ui->disp_strain_d->setText(QString::number(ex->strain,'i', 0));
 
     QString myStr;
     myFlexSEA_Generic.decodeStatus(SL_BASE_EX, ui->comboBox_slave->currentIndex(), \
-                                      ex->status1, ex->status2, &myStr);
+                                      ex->exRaw.status1, ex->exRaw.status2, &myStr);
     ui->label_status1->setText(myStr);
 
     //==========
