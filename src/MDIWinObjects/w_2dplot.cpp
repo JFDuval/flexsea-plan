@@ -69,136 +69,6 @@ W_2DPlot::~W_2DPlot()
 // Public function(s):
 //****************************************************************************
 
-//Gets called by the timer, updates the plot:
-/*
-void W_2DPlot::refresh2DPlot(void)
-{
-    uint8_t index = 0;
-    struct execute_s *execute_ptr;
-    int phaseShift = 0;
-
-    //We go through the list and we update the appropriate data:
-    data_to_plot[0] = ui->cBoxvar1->currentIndex();
-    data_to_plot[1] = ui->cBoxvar2->currentIndex();
-    data_to_plot[2] = ui->cBoxvar3->currentIndex();
-    data_to_plot[3] = ui->cBoxvar4->currentIndex();
-    data_to_plot[4] = ui->cBoxvar5->currentIndex();
-    data_to_plot[5] = ui->cBoxvar6->currentIndex();
-
-    //For every variable:
-    for(index = 0; index < VAR_NUM; index++)
-    {
-        //Point to the selected slave:
-        myFlexSEA_Generic.assignExecutePtr(&execute_ptr, SL_BASE_EX, \
-                                           select_plot_slave(index), false);
-
-        //'Used' as default, 'false' when set at Unused
-        varUsed[index] = true;
-
-        //Update buffers with latest results:
-        switch(data_to_plot[index])
-        {
-            case 0: //"**Unused**"
-                varUsed[index] = false;
-                update_graph_array(index, 0);
-                break;
-            case 1: //"Accel X"
-                update_graph_array(index, execute_ptr->accel.x);
-                break;
-            case 2: //"Accel Y"
-                update_graph_array(index, execute_ptr->accel.y);
-                break;
-            case 3: //"Accel Z"
-                update_graph_array(index, execute_ptr->accel.z);
-                break;
-            case 4: //"Gyro X"
-                update_graph_array(index, execute_ptr->gyro.x);
-                break;
-            case 5: //"Gyro Y"
-                update_graph_array(index, execute_ptr->gyro.y);
-                break;
-            case 6: //"Gyro Z"
-                update_graph_array(index, execute_ptr->gyro.z);
-                break;
-            case 7: //"Encoder"
-                update_graph_array(index, execute_ptr->enc_display);
-                break;
-            case 8: //"Motor current"
-                update_graph_array(index, execute_ptr->current);
-                break;
-            case 9: //"Analog[0]"
-                update_graph_array(index, (int) execute_ptr->analog[0]);
-                break;
-            case 10: //Analog[1]
-                update_graph_array(index, (int) execute_ptr->analog[1]);    //ToDo move up
-                break;
-            case 11: //"Strain"
-                update_graph_array(index, execute_ptr->strain);
-                break;
-            case 12: //"+VB"
-                update_graph_array(index, execute_ptr->volt_batt);
-                break;
-            case 13: //"+VG"
-                update_graph_array(index, execute_ptr->volt_int);
-                break;
-            case 14: //"Temp"
-                update_graph_array(index, execute_ptr->temp);
-                break;
-            case 15: //"Fake Data"
-                phaseShift = (TWO_PI/VAR_NUM)*index;
-                update_graph_array(index, gen_test_data((phaseShift)));
-                break;
-            case 16: //"Setpoint (square)"
-                update_graph_array(index, 0);//ctrl_setpoint);   //ToDo Fix
-                break;
-            case 17: //"Setpoint (trap)"
-                update_graph_array(index, 0);//ctrl_setpoint_trap);  //ToDo Fix
-                break;
-            case 18: //"Strain ch1"
-                update_graph_array(index, strain[0].strain_filtered);
-                break;
-            case 19: //"Strain ch2"
-                update_graph_array(index, strain[1].strain_filtered);
-                break;
-            case 20: //"Strain ch3"
-                update_graph_array(index, strain[2].strain_filtered);
-                break;
-            case 21: //"Strain ch4"
-                update_graph_array(index, strain[3].strain_filtered);
-                break;
-            case 22: //"Strain ch5"
-                update_graph_array(index, strain[4].strain_filtered);
-                break;
-            case 23: //"Strain ch6"
-                update_graph_array(index, strain[5].strain_filtered);
-                break;
-            case 24: //"AS5047 (Mot.)"
-                update_graph_array(index, ricnu_1.ex.enc_commut);
-                break;
-            case 25: //"AS5048 (Joint)"
-                update_graph_array(index, ricnu_1.ex.enc_control);
-                break;
-            default:
-                varUsed[index] = false;
-                break;
-        }
-
-        if(varUsed[index] == false)
-        {
-            //This channel isn't used, we make it invisible
-            qlsData[index]->setVisible(false);
-        }
-        else
-        {
-            qlsData[index]->setVisible(true);
-        }
-
-        //Plot it:
-        refreshData2DPlot(graph_xarray, graph_yarray[index], plot_len, index);
-    }
-}
-*/
-
 void W_2DPlot::refresh2DPlot(void)
 {
     uint8_t index = 0;
@@ -337,10 +207,8 @@ void W_2DPlot::initUserInput(void)
     {
         varToPlotPtr32s[i] = &nullVar32s;
         varToPlotPtr32u[i] = &nullVar32u;
-
         varToPlotPtr16s[i] = &nullVar16s;
         varToPlotPtr16u[i] = &nullVar16u;
-
         varToPlotPtr8s[i] = &nullVar8s;
         varToPlotPtr8u[i] = &nullVar8u;
     }
@@ -497,8 +365,6 @@ void W_2DPlot::updateVarList(uint8_t var, QComboBox *myCombo)
 //pointer.
 void W_2DPlot::assignVariable(uint8_t var)
 {
-    //qDebug() << "assignVariable: var =" << var << "decode =" << varDecode[var];
-
     switch(slaveBType[var])
     {
         case FLEXSEA_PLAN_BASE:
@@ -506,13 +372,18 @@ void W_2DPlot::assignVariable(uint8_t var)
             break;
         case FLEXSEA_MANAGE_BASE:
 
+            struct manage_s *mnPtr;
+            myFlexSEA_Generic.assignManagePtr(&mnPtr, SL_BASE_ALL, \
+                                           slaveIndex[var]);
+            //assignVariableMn(var, myPtr);
+
             break;
         case FLEXSEA_EXECUTE_BASE:
 
-            struct execute_s *myPtr;
-            myFlexSEA_Generic.assignExecutePtr(&myPtr, SL_BASE_ALL, \
-                                               slaveIndex[var], varDecode[var]);
-            assignVariableEx(var, myPtr);
+            struct execute_s *exPtr;
+            myFlexSEA_Generic.assignExecutePtr(&exPtr, SL_BASE_ALL, \
+                                               slaveIndex[var]);
+            assignVariableEx(var, exPtr);
 
             break;
         case FLEXSEA_BATTERY_BASE:

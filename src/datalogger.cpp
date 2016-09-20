@@ -215,7 +215,7 @@ void DataLogger::logReadAllExec(QTextStream *filePtr, uint8_t slaveIndex, \
                                 char term, qint64 t_ms, QString t_text)
 {
     struct execute_s *exPtr;
-    myFlexSEA_Generic.assignExecutePtr(&exPtr, SL_BASE_ALL, slaveIndex, false);
+    myFlexSEA_Generic.assignExecutePtr(&exPtr, SL_BASE_ALL, slaveIndex);
 
     (*filePtr) << t_text << ',' << \
                         t_ms << ',' << \
@@ -230,6 +230,8 @@ void DataLogger::logReadAllExec(QTextStream *filePtr, uint8_t slaveIndex, \
                         exPtr->analog[1] << ',' << \
                         exPtr->current << ',' << \
                         exPtr->enc_display << ',' << \
+                        exPtr->enc_control << ',' << \
+                        exPtr->enc_commut << ',' << \
                         exPtr->volt_batt << ',' << \
                         exPtr->volt_int << ',' << \
                         exPtr->temp << ',' << \
@@ -242,7 +244,7 @@ void DataLogger::logReadAllRicnu(QTextStream *filePtr, uint8_t slaveIndex, \
                                  char term, qint64 t_ms, QString t_text)
 {
     struct ricnu_s *myPtr;
-    myFlexSEA_Generic.assignRicnuPtr(&myPtr, SL_BASE_ALL, slaveIndex, false);
+    myFlexSEA_Generic.assignRicnuPtr(&myPtr, SL_BASE_ALL, slaveIndex);
 
     logFileStream << t_text << ',' << \
                         t_ms << ',' << \
@@ -262,6 +264,34 @@ void DataLogger::logReadAllRicnu(QTextStream *filePtr, uint8_t slaveIndex, \
                         myPtr->ext_strain[3] << ',' << \
                         myPtr->ext_strain[4] << ',' << \
                         myPtr->ext_strain[5] << ',' << \
+                        term;
+}
+
+void DataLogger::logReadAllManage(QTextStream *filePtr, uint8_t slaveIndex, \
+                                char term, qint64 t_ms, QString t_text)
+{
+    struct manage_s *mnPtr;
+    myFlexSEA_Generic.assignManagePtr(&mnPtr, SL_BASE_MN, slaveIndex);
+
+    (*filePtr) << t_text << ',' << \
+                        t_ms << ',' << \
+                        mnPtr->accel.x << ',' << \
+                        mnPtr->accel.y << ',' << \
+                        mnPtr->accel.z << ',' << \
+                        mnPtr->gyro.x << ',' << \
+                        mnPtr->gyro.y << ',' << \
+                        mnPtr->gyro.z << ',' << \
+                        mnPtr->digitalIn << ',' << \
+                        mnPtr->sw1 << ',' << \
+                        mnPtr->analog[0] << ',' << \
+                        mnPtr->analog[1] << ',' << \
+                        mnPtr->analog[2] << ',' << \
+                        mnPtr->analog[3] << ',' << \
+                        mnPtr->analog[4] << ',' << \
+                        mnPtr->analog[5] << ',' << \
+                        mnPtr->analog[6] << ',' << \
+                        mnPtr->analog[7] << ',' << \
+                        mnPtr->status1 << ',' << \
                         term;
 }
 
@@ -333,7 +363,9 @@ void DataLogger::writeExecuteReadAllHeader(uint8_t item)
                         "analog_0," << \
                         "analog_1," << \
                         "current," << \
-                        "encoder," << \
+                        "enc-disp," << \
+                        "enc-cont," << \
+                        "enc-comm," << \
                         "VB," << \
                         "VG," << \
                         "Temp," << \

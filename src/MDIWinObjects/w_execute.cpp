@@ -38,6 +38,7 @@
 #include "main.h"
 #include <QString>
 #include <QTextStream>
+#include <QDebug>
 
 //****************************************************************************
 // Constructor & Destructor:
@@ -67,41 +68,10 @@ W_Execute::~W_Execute()
 //Call this function to refresh the display
 void W_Execute::refresh(void)
 {
-    struct execute_s *exPtr, *exPtrD;
-    myFlexSEA_Generic.assignExecutePtr(&exPtr, SL_BASE_ALL, \
-                                       ui->comboBox_slave->currentIndex(),
-                                       false);
-    myFlexSEA_Generic.assignExecutePtr(&exPtrD, SL_BASE_ALL, \
-                                       ui->comboBox_slave->currentIndex(),
-                                       true);
-    displayExecute(exPtr, exPtrD);
-}
-
-void W_Execute::log(QTextStream *filePtr, uint8_t slaveIndex, \
-                                char term, qint64 t_ms, QString t_text)
-{
     struct execute_s *exPtr;
-    myFlexSEA_Generic.assignExecutePtr(&exPtr, SL_BASE_ALL, slaveIndex, false);
-
-    (*filePtr) << t_text << ',' << \
-                        t_ms << ',' << \
-                        exPtr->accel.x << ',' << \
-                        exPtr->accel.y << ',' << \
-                        exPtr->accel.z << ',' << \
-                        exPtr->gyro.x << ',' << \
-                        exPtr->gyro.y << ',' << \
-                        exPtr->gyro.z << ',' << \
-                        exPtr->strain << ',' << \
-                        exPtr->analog[0] << ',' << \
-                        exPtr->analog[1] << ',' << \
-                        exPtr->current << ',' << \
-                        exPtr->enc_display << ',' << \
-                        exPtr->volt_batt << ',' << \
-                        exPtr->volt_int << ',' << \
-                        exPtr->temp << ',' << \
-                        exPtr->status1 << ',' << \
-                        exPtr->status2 << \
-                        term;
+    myFlexSEA_Generic.assignExecutePtr(&exPtr, SL_BASE_ALL, \
+                                       ui->comboBox_slave->currentIndex());
+    displayExecute(exPtr);
 }
 
 //****************************************************************************
@@ -119,7 +89,7 @@ void W_Execute::init(void)
                                             SL_BASE_EX, SL_LEN_EX);
 }
 
-void W_Execute::displayExecute(struct execute_s *ex, struct execute_s *exd)
+void W_Execute::displayExecute(struct execute_s *ex)
 {
     int combined_status = 0;
 
@@ -133,7 +103,9 @@ void W_Execute::displayExecute(struct execute_s *ex, struct execute_s *exd)
     ui->disp_gyroy->setText(QString::number(ex->gyro.y));
     ui->disp_gyroz->setText(QString::number(ex->gyro.z));
 
-    ui->disp_enc->setText(QString::number(ex->enc_display));
+    ui->disp_encDisplay->setText(QString::number(ex->enc_display));
+    ui->disp_encControl->setText(QString::number(ex->enc_control));
+    ui->disp_encCommut->setText(QString::number(ex->enc_commut));
 
     ui->disp_strain->setText(QString::number(ex->strain));
     ui->disp_ana->setText(QString::number(ex->analog[0]));

@@ -68,43 +68,10 @@ W_Gossip::~W_Gossip()
 //Call this function to refresh the display
 void W_Gossip::refresh(void)
 {
-    struct gossip_s *goPtr, *goPtrD;
-    myFlexSEA_Generic.assignGossipPtr(&goPtr, SL_BASE_GOSSIP, \
-                                      ui->comboBox_slave->currentIndex(), \
-                                      false);
-    myFlexSEA_Generic.assignGossipPtr(&goPtrD, SL_BASE_GOSSIP, \
-                                      ui->comboBox_slave->currentIndex(), \
-                                      true);
-    displayGossip(goPtr, goPtrD);
-}
-
-void W_Gossip::log(QTextStream *filePtr, uint8_t slaveIndex, \
-                                char term, qint64 t_ms, QString t_text)
-{
     struct gossip_s *goPtr;
-    myFlexSEA_Generic.assignGossipPtr(&goPtr, SL_BASE_GOSSIP, slaveIndex, false);
-/*
-    (*filePtr) << t_text << ',' << \
-                        t_ms << ',' << \
-                        mnPtr->accel.x << ',' << \
-                        mnPtr->accel.y << ',' << \
-                        mnPtr->accel.z << ',' << \
-                        mnPtr->gyro.x << ',' << \
-                        mnPtr->gyro.y << ',' << \
-                        mnPtr->gyro.z << ',' << \
-                        mnPtr->digitalIn << ',' << \
-                        mnPtr->sw1 << ',' << \
-                        mnPtr->analog[0] << ',' << \
-                        mnPtr->analog[1] << ',' << \
-                        mnPtr->analog[2] << ',' << \
-                        mnPtr->analog[3] << ',' << \
-                        mnPtr->analog[4] << ',' << \
-                        mnPtr->analog[5] << ',' << \
-                        mnPtr->analog[6] << ',' << \
-                        mnPtr->analog[7] << ',' << \
-                        mnPtr->status1 << ',' << \
-                        term;
-						*/
+    myFlexSEA_Generic.assignGossipPtr(&goPtr, SL_BASE_GOSSIP, \
+                                      ui->comboBox_slave->currentIndex());
+    displayGossip(goPtr);
 }
 
 //****************************************************************************
@@ -122,7 +89,7 @@ void W_Gossip::init(void)
                                             SL_BASE_GOSSIP, SL_LEN_GOSSIP);
 }
 
-void W_Gossip::displayGossip(struct gossip_s *go, struct gossip_s *god)
+void W_Gossip::displayGossip(struct gossip_s *go)
 {
     int combined_status = 0;
 

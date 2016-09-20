@@ -94,6 +94,8 @@ private:
                             char term, qint64 t_ms, QString t_text);
     void logReadAllRicnu(QTextStream *filePtr, uint8_t slaveIndex, \
                             char term, qint64 t_ms, QString t_text);
+    void logReadAllManage(QTextStream *filePtr, uint8_t slaveIndex, \
+                                    char term, qint64 t_ms, QString t_text);
     void getFctPtrs(uint8_t slaveIndex, uint8_t expIndex, \
                     void (DataLogger::**myHeaderFctPtr) (uint8_t item), \
                     void (DataLogger::**myLogFctPtr) (QTextStream *filePtr, uint8_t slaveIndex, \

@@ -67,39 +67,9 @@ W_Strain::~W_Strain()
 //Call this function to refresh the display
 void W_Strain::refresh(void)
 {
-    struct strain_s *stPtr, *stPtrD;
-    //myFlexSEA_Generic.assignStrainPtr(&stPtr, ui->comboBox_slave->currentIndex());
-    displayStrain(stPtr, stPtrD);
-}
-
-void W_Strain::log(QTextStream *filePtr, uint8_t slaveIndex, \
-                                char term, qint64 t_ms, QString t_text)
-{
     struct strain_s *stPtr;
-    myFlexSEA_Generic.assignStrainPtr(&stPtr, SL_BASE_STRAIN, slaveIndex, false);
-
-	/*
-    (*filePtr) << t_text << ',' << \
-                        t_ms << ',' << \
-                        mnPtr->accel.x << ',' << \
-                        mnPtr->accel.y << ',' << \
-                        mnPtr->accel.z << ',' << \
-                        mnPtr->gyro.x << ',' << \
-                        mnPtr->gyro.y << ',' << \
-                        mnPtr->gyro.z << ',' << \
-                        mnPtr->digitalIn << ',' << \
-                        mnPtr->sw1 << ',' << \
-                        mnPtr->analog[0] << ',' << \
-                        mnPtr->analog[1] << ',' << \
-                        mnPtr->analog[2] << ',' << \
-                        mnPtr->analog[3] << ',' << \
-                        mnPtr->analog[4] << ',' << \
-                        mnPtr->analog[5] << ',' << \
-                        mnPtr->analog[6] << ',' << \
-                        mnPtr->analog[7] << ',' << \
-                        mnPtr->status1 << ',' << \
-                        term;
-						*/
+    //myFlexSEA_Generic.assignStrainPtr(&stPtr, ui->comboBox_slave->currentIndex());
+    displayStrain(stPtr);
 }
 
 //****************************************************************************
@@ -120,7 +90,7 @@ void W_Strain::init(void)
     //active_slave = myFlexSEA_Generic.getSlaveCodeMn(active_slave_index);
 }
 
-void W_Strain::displayStrain(struct strain_s *st, struct strain_s *std)
+void W_Strain::displayStrain(struct strain_s *st)
 {
     int combined_status = 0;
 /*

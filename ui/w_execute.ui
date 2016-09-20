@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>359</width>
-    <height>528</height>
+    <width>377</width>
+    <height>584</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -43,7 +43,14 @@
      <property name="horizontalSpacing">
       <number>6</number>
      </property>
-     <item row="16" column="0">
+     <item row="1" column="0" colspan="5">
+      <widget class="Line" name="line">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+      </widget>
+     </item>
+     <item row="18" column="0">
       <widget class="QLabel" name="label_43">
        <property name="minimumSize">
         <size>
@@ -62,7 +69,7 @@
        </property>
       </widget>
      </item>
-     <item row="15" column="1">
+     <item row="17" column="1">
       <widget class="QLabel" name="label_40">
        <property name="minimumSize">
         <size>
@@ -81,7 +88,7 @@
        </property>
       </widget>
      </item>
-     <item row="15" column="2">
+     <item row="17" column="2">
       <widget class="QLabel" name="disp_vg">
        <property name="minimumSize">
         <size>
@@ -121,7 +128,7 @@
        </property>
       </widget>
      </item>
-     <item row="15" column="3">
+     <item row="17" column="3">
       <widget class="QLabel" name="disp_vg_d">
        <property name="minimumSize">
         <size>
@@ -161,7 +168,7 @@
        </property>
       </widget>
      </item>
-     <item row="16" column="3">
+     <item row="18" column="3">
       <widget class="QLabel" name="disp_temp_d">
        <property name="minimumSize">
         <size>
@@ -201,7 +208,7 @@
        </property>
       </widget>
      </item>
-     <item row="16" column="2">
+     <item row="18" column="2">
       <widget class="QLabel" name="disp_temp">
        <property name="minimumSize">
         <size>
@@ -241,7 +248,7 @@
        </property>
       </widget>
      </item>
-     <item row="17" column="0" rowspan="2">
+     <item row="19" column="0" rowspan="2">
       <widget class="QLabel" name="label_15">
        <property name="minimumSize">
         <size>
@@ -260,7 +267,7 @@
        </property>
       </widget>
      </item>
-     <item row="17" column="2">
+     <item row="19" column="2">
       <widget class="QLabel" name="disp_stat1">
        <property name="minimumSize">
         <size>
@@ -300,7 +307,7 @@
        </property>
       </widget>
      </item>
-     <item row="18" column="2" colspan="2">
+     <item row="20" column="2" colspan="2">
       <widget class="QLabel" name="label_status1">
        <property name="minimumSize">
         <size>
@@ -313,7 +320,7 @@
        </property>
       </widget>
      </item>
-     <item row="16" column="4">
+     <item row="18" column="4">
       <widget class="QLabel" name="label_44">
        <property name="text">
         <string>°C</string>
@@ -880,7 +887,7 @@
        </property>
       </widget>
      </item>
-     <item row="14" column="0" rowspan="2">
+     <item row="16" column="0" rowspan="2">
       <widget class="QLabel" name="label_38">
        <property name="minimumSize">
         <size>
@@ -936,25 +943,6 @@
        </property>
        <property name="alignment">
         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-       </property>
-      </widget>
-     </item>
-     <item row="13" column="0">
-      <widget class="QLabel" name="label_14">
-       <property name="minimumSize">
-        <size>
-         <width>80</width>
-         <height>0</height>
-        </size>
-       </property>
-       <property name="layoutDirection">
-        <enum>Qt::LeftToRight</enum>
-       </property>
-       <property name="text">
-        <string>Encoder</string>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignCenter</set>
        </property>
       </widget>
      </item>
@@ -1038,7 +1026,7 @@
        </property>
       </widget>
      </item>
-     <item row="14" column="2">
+     <item row="16" column="2">
       <widget class="QLabel" name="disp_vb">
        <property name="minimumSize">
         <size>
@@ -1118,7 +1106,7 @@
        </property>
       </widget>
      </item>
-     <item row="14" column="1">
+     <item row="16" column="1">
       <widget class="QLabel" name="label_39">
        <property name="minimumSize">
         <size>
@@ -1559,7 +1547,7 @@
       </widget>
      </item>
      <item row="13" column="2">
-      <widget class="QLabel" name="disp_enc">
+      <widget class="QLabel" name="disp_encDisplay">
        <property name="minimumSize">
         <size>
          <width>50</width>
@@ -1640,14 +1628,14 @@
        </property>
       </widget>
      </item>
-     <item row="15" column="4">
+     <item row="17" column="4">
       <widget class="QLabel" name="label_42">
        <property name="text">
         <string>V</string>
        </property>
       </widget>
      </item>
-     <item row="14" column="3">
+     <item row="16" column="3">
       <widget class="QLabel" name="disp_vb_d">
        <property name="minimumSize">
         <size>
@@ -1687,17 +1675,10 @@
        </property>
       </widget>
      </item>
-     <item row="14" column="4">
+     <item row="16" column="4">
       <widget class="QLabel" name="label_41">
        <property name="text">
         <string>V</string>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="0" colspan="5">
-      <widget class="Line" name="line">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
        </property>
       </widget>
      </item>
@@ -1705,6 +1686,126 @@
       <widget class="QLabel" name="label_16">
        <property name="text">
         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; text-decoration: underline;&quot;&gt;Parameter:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       </property>
+      </widget>
+     </item>
+     <item row="14" column="2">
+      <widget class="QLabel" name="disp_encControl">
+       <property name="minimumSize">
+        <size>
+         <width>50</width>
+         <height>22</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>200</width>
+         <height>16777215</height>
+        </size>
+       </property>
+       <property name="baseSize">
+        <size>
+         <width>50</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="autoFillBackground">
+        <bool>false</bool>
+       </property>
+       <property name="frameShape">
+        <enum>QFrame::Box</enum>
+       </property>
+       <property name="frameShadow">
+        <enum>QFrame::Raised</enum>
+       </property>
+       <property name="lineWidth">
+        <number>1</number>
+       </property>
+       <property name="text">
+        <string>Default</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item row="15" column="2">
+      <widget class="QLabel" name="disp_encCommut">
+       <property name="minimumSize">
+        <size>
+         <width>50</width>
+         <height>22</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>200</width>
+         <height>16777215</height>
+        </size>
+       </property>
+       <property name="baseSize">
+        <size>
+         <width>50</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="autoFillBackground">
+        <bool>false</bool>
+       </property>
+       <property name="frameShape">
+        <enum>QFrame::Box</enum>
+       </property>
+       <property name="frameShadow">
+        <enum>QFrame::Raised</enum>
+       </property>
+       <property name="lineWidth">
+        <number>1</number>
+       </property>
+       <property name="text">
+        <string>Default</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item row="13" column="1">
+      <widget class="QLabel" name="label_17">
+       <property name="text">
+        <string>Display</string>
+       </property>
+      </widget>
+     </item>
+     <item row="14" column="1">
+      <widget class="QLabel" name="label_18">
+       <property name="text">
+        <string>Control</string>
+       </property>
+      </widget>
+     </item>
+     <item row="15" column="1">
+      <widget class="QLabel" name="label_19">
+       <property name="text">
+        <string>Commut.</string>
+       </property>
+      </widget>
+     </item>
+     <item row="13" column="0" rowspan="3">
+      <widget class="QLabel" name="label_14">
+       <property name="minimumSize">
+        <size>
+         <width>80</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="layoutDirection">
+        <enum>Qt::LeftToRight</enum>
+       </property>
+       <property name="text">
+        <string>Encoder(s)</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
        </property>
       </widget>
      </item>

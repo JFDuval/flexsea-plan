@@ -57,8 +57,6 @@ public:
 	
 	//Function(s):
     void refresh(void);
-    void log(QTextStream *filePtr, uint8_t slaveIndex, \
-                char term, qint64 t_ms, QString t_text);
 
 public slots:
 
@@ -71,7 +69,7 @@ private:
 	
 	//Function(s):
 	void init(void);
-    void displayManage(struct manage_s *mn, struct manage_s *mnd);
+    void displayManage(struct manage_s *mn);
 };
 
 //****************************************************************************

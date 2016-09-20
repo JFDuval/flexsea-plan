@@ -109,18 +109,12 @@ public:
 	void init(void);
 
     //Pointer assignements:
-    void assignExecutePtr(struct execute_s **myPtr, uint8_t base, uint8_t slave, \
-                          bool decode);
-    void assignManagePtr(struct manage_s **myPtr, uint8_t base, uint8_t slave, \
-                         bool decode);
-    void assignRicnuPtr(struct ricnu_s **myPtr, uint8_t base, uint8_t slave, \
-                        bool decode);
-    void assignStrainPtr(struct strain_s **myPtr, uint8_t base, uint8_t slave, \
-                         bool decode);
-    void assignGossipPtr(struct gossip_s **myPtr, uint8_t base, uint8_t slave, \
-                         bool decode);
-    void assignBatteryPtr(struct battery_s **myPtr, uint8_t base, uint8_t slave, \
-                          bool decode);
+    void assignExecutePtr(struct execute_s **myPtr, uint8_t base, uint8_t slave);
+    void assignManagePtr(struct manage_s **myPtr, uint8_t base, uint8_t slave);
+    void assignRicnuPtr(struct ricnu_s **myPtr, uint8_t base, uint8_t slave);
+    void assignStrainPtr(struct strain_s **myPtr, uint8_t base, uint8_t slave);
+    void assignGossipPtr(struct gossip_s **myPtr, uint8_t base, uint8_t slave);
+    void assignBatteryPtr(struct battery_s **myPtr, uint8_t base, uint8_t slave);
 
     void populateSlaveComboBox(QComboBox *cbox, uint8_t base, uint8_t len);
     void populateExpComboBox(QComboBox *cbox);
@@ -131,6 +125,7 @@ public:
     void decodeStatus(uint8_t base, uint8_t index, uint8_t stat1, \
                         uint8_t stat2, QString *str1);
     void packetVisualizer(uint numb, uint8_t *packet);
+    void decodeExecute(struct executeD_s *myPtr);
 	
 public slots:
 

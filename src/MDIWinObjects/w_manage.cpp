@@ -67,43 +67,13 @@ W_Manage::~W_Manage()
 //Call this function to refresh the display
 void W_Manage::refresh(void)
 {
-    struct manage_s *mnPtr, *mnPtrD;
-    myFlexSEA_Generic.assignManagePtr(&mnPtr, SL_BASE_MN, \
-                                      ui->comboBox_slave->currentIndex(),
-                                      false);
-    myFlexSEA_Generic.assignManagePtr(&mnPtrD, SL_BASE_MN, \
-                                      ui->comboBox_slave->currentIndex(),
-                                      true);
-    displayManage(mnPtr, mnPtrD);
-}
-
-void W_Manage::log(QTextStream *filePtr, uint8_t slaveIndex, \
-                                char term, qint64 t_ms, QString t_text)
-{
     struct manage_s *mnPtr;
-    myFlexSEA_Generic.assignManagePtr(&mnPtr, SL_BASE_MN, slaveIndex, false);
-
-    (*filePtr) << t_text << ',' << \
-                        t_ms << ',' << \
-                        mnPtr->accel.x << ',' << \
-                        mnPtr->accel.y << ',' << \
-                        mnPtr->accel.z << ',' << \
-                        mnPtr->gyro.x << ',' << \
-                        mnPtr->gyro.y << ',' << \
-                        mnPtr->gyro.z << ',' << \
-                        mnPtr->digitalIn << ',' << \
-                        mnPtr->sw1 << ',' << \
-                        mnPtr->analog[0] << ',' << \
-                        mnPtr->analog[1] << ',' << \
-                        mnPtr->analog[2] << ',' << \
-                        mnPtr->analog[3] << ',' << \
-                        mnPtr->analog[4] << ',' << \
-                        mnPtr->analog[5] << ',' << \
-                        mnPtr->analog[6] << ',' << \
-                        mnPtr->analog[7] << ',' << \
-                        mnPtr->status1 << ',' << \
-                        term;
+    myFlexSEA_Generic.assignManagePtr(&mnPtr, SL_BASE_MN, \
+                                      ui->comboBox_slave->currentIndex());
+    displayManage(mnPtr);
 }
+
+
 
 //****************************************************************************
 // Public slot(s):
@@ -120,7 +90,7 @@ void W_Manage::init(void)
                                             SL_LEN_MN);
 }
 
-void W_Manage::displayManage(struct manage_s *mn, struct manage_s *mnd)
+void W_Manage::displayManage(struct manage_s *mn)
 {
     int combined_status = 0;
 /*

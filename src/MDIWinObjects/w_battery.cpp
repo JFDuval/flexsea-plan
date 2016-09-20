@@ -67,38 +67,9 @@ W_Battery::~W_Battery()
 //Call this function to refresh the display
 void W_Battery::refresh(void)
 {
-    struct battery_s *baPtr, *baPtrD;
-    //myFlexSEA_Generic.assignBatteryPtr(&baPtr, ui->comboBox_slave->currentIndex());
-    displayBattery(baPtr, baPtrD);
-}
-
-void W_Battery::log(QTextStream *filePtr, uint8_t slaveIndex, \
-                                char term, qint64 t_ms, QString t_text)
-{
     struct battery_s *baPtr;
-    myFlexSEA_Generic.assignBatteryPtr(&baPtr, SL_BASE_BATT, slaveIndex, false);
-/*
-    (*filePtr) << t_text << ',' << \
-                        t_ms << ',' << \
-                        mnPtr->accel.x << ',' << \
-                        mnPtr->accel.y << ',' << \
-                        mnPtr->accel.z << ',' << \
-                        mnPtr->gyro.x << ',' << \
-                        mnPtr->gyro.y << ',' << \
-                        mnPtr->gyro.z << ',' << \
-                        mnPtr->digitalIn << ',' << \
-                        mnPtr->sw1 << ',' << \
-                        mnPtr->analog[0] << ',' << \
-                        mnPtr->analog[1] << ',' << \
-                        mnPtr->analog[2] << ',' << \
-                        mnPtr->analog[3] << ',' << \
-                        mnPtr->analog[4] << ',' << \
-                        mnPtr->analog[5] << ',' << \
-                        mnPtr->analog[6] << ',' << \
-                        mnPtr->analog[7] << ',' << \
-                        mnPtr->status1 << ',' << \
-                        term;
-						*/
+    //myFlexSEA_Generic.assignBatteryPtr(&baPtr, ui->comboBox_slave->currentIndex());
+    displayBattery(baPtr);
 }
 
 //****************************************************************************
@@ -119,7 +90,7 @@ void W_Battery::init(void)
 //    active_slave = myFlexSEA_Generic.getSlaveCodeBa(active_slave_index);
 }
 
-void W_Battery::displayBattery(struct battery_s *ba, struct battery_s *bad)
+void W_Battery::displayBattery(struct battery_s *ba)
 {
     int combined_status = 0;
 /*
