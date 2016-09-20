@@ -38,6 +38,7 @@
 #include <QtCharts>
 #include <QtCharts/QChartView>
 #include <QtCharts/QSplineSeries>
+#include <QDebug>
 #include "flexsea_generic.h"
 #include "main.h"
 
@@ -56,6 +57,7 @@ W_2DPlot::W_2DPlot(QWidget *parent) :
     setWindowTitle("2D Plot");
     setWindowIcon(QIcon(":icons/d_logo_small.png"));
 
+    initFlag = true;
     initUserInput();
     initChart();
 }
@@ -86,29 +88,37 @@ void W_2DPlot::refresh2DPlot(void)
             qlsData[index]->setVisible(true);
         }
 
-        switch(varToPlotFormat[index])
+        if(varDecode[index] == false)
         {
-            case FORMAT_32S:
-                update_graph_array(index, (*varToPlotPtr32s[index]));
-                break;
-            case FORMAT_32U:
-                update_graph_array(index, (int)(*varToPlotPtr32u[index]));
-                break;
-            case FORMAT_16S:
-                update_graph_array(index, (int)(*varToPlotPtr16s[index]));
-                break;
-            case FORMAT_16U:
-                update_graph_array(index, (int)(*varToPlotPtr16u[index]));
-                break;
-            case FORMAT_8S:
-                update_graph_array(index, (int)(*varToPlotPtr8s[index]));
-                break;
-            case FORMAT_8U:
-                update_graph_array(index, (int)(*varToPlotPtr8u[index]));
-                break;
-            default:
-                update_graph_array(index, 0);
-                break;
+            switch(varToPlotFormat[index])
+            {
+                case FORMAT_32S:
+                    update_graph_array(index, (*varToPlotPtr32s[index]));
+                    //qDebug() << "Index: " << index << (*varToPlotPtr32s[index]);
+                    break;
+                case FORMAT_32U:
+                    update_graph_array(index, (int)(*varToPlotPtr32u[index]));
+                    break;
+                case FORMAT_16S:
+                    update_graph_array(index, (int)(*varToPlotPtr16s[index]));
+                    break;
+                case FORMAT_16U:
+                    update_graph_array(index, (int)(*varToPlotPtr16u[index]));
+                    break;
+                case FORMAT_8S:
+                    update_graph_array(index, (int)(*varToPlotPtr8s[index]));
+                    break;
+                case FORMAT_8U:
+                    update_graph_array(index, (int)(*varToPlotPtr8u[index]));
+                    break;
+                default:
+                    update_graph_array(index, 0);
+                    break;
+            }
+        }
+        else
+        {
+            update_graph_array(index, (*varToPlotPtrD32s[index]));
         }
 
         //Plot it:
@@ -206,6 +216,7 @@ void W_2DPlot::initUserInput(void)
     for(int i = 0; i < VAR_NUM; i++)
     {
         varToPlotPtr32s[i] = &nullVar32s;
+        varToPlotPtrD32s[i] = &nullVar32s;
         varToPlotPtr32u[i] = &nullVar32u;
         varToPlotPtr16s[i] = &nullVar16s;
         varToPlotPtr16u[i] = &nullVar16u;
@@ -291,29 +302,35 @@ void W_2DPlot::initUserInput(void)
                                           SL_LEN_ALL);
 
     //Variable comboBoxes:
+    saveCurrentSettings();  //Needed for the 1st var_list
     updateVarList(0, ui->cBoxvar1);
     updateVarList(1, ui->cBoxvar2);
     updateVarList(2, ui->cBoxvar3);
     updateVarList(3, ui->cBoxvar4);
     updateVarList(4, ui->cBoxvar5);
     updateVarList(5, ui->cBoxvar6);
+
+    //Init flag:
+    initFlag = false;
+
     saveCurrentSettings();
 }
 
 //Each board type has a different variable list.
 void W_2DPlot::updateVarList(uint8_t var, QComboBox *myCombo)
 {
-    QStringList var_list;
+    QStringList var_list, toolTipList;
 
     uint8_t bType = slaveBType[var];
 
-    //qDebug() << "Updating Var List for index =" << index << "bType = " << bType;
+    //qDebug() << "Updating Var List for index =" << var << "bType = " << bType;
 
     //Build the string:
     switch(bType)
     {
         case FLEXSEA_PLAN_BASE:
             var_list << "**Unused**";
+            toolTipList << "";
             break;
         case FLEXSEA_MANAGE_BASE:
             var_list << "**Unused**" << "Accel X" << "Accel Y" << "Accel Z" \
@@ -321,6 +338,11 @@ void W_2DPlot::updateVarList(uint8_t var, QComboBox *myCombo)
                     << "Digital Inputs" << "Analog[0]" << "Analog[1]" \
                     << "Analog[2]" << "Analog[3]" << "Analog[4]" \
                     << "Analog[5]" << "Analog[6]" << "Analog[7]" << "Status";
+            toolTipList << "Unused" << "Decoded: mg" << "Decoded: mg" << "Decoded: mg" \
+                        << "Decoded: deg/s" << "Decoded: deg/s" << "Decoded: deg/s" << "Raw Value Only" \
+                        << "Raw Value Only" << "Decoded: mV" << "Decoded: mV" \
+                        << "Decoded: mV" << "Decoded: mV" << "Decoded: mV" \
+                        << "Decoded: mV" << "Decoded: mV" << "Decoded: mV" << "Raw Value Only";
             break;
         case FLEXSEA_EXECUTE_BASE:
             var_list << "**Unused**" << "Accel X" << "Accel Y" << "Accel Z" \
@@ -331,32 +353,59 @@ void W_2DPlot::updateVarList(uint8_t var, QComboBox *myCombo)
                     << "Temperature" << "Status 1" << "Status 2" \
                     << "Setpoint (square)" << "Setpoint (trapezoidal)" \
                     << "Fake Data";
+            toolTipList << "Unused" << "Decoded: mg" << "Decoded: mg" << "Decoded: mg" \
+                    << "Decoded: deg/s" << "Decoded: deg/s" << "Decoded: deg/s" << "Raw Value Only" \
+                    << "Raw value only" << "Raw value only" \
+                    << "Decoded: mA" << "Decoded: mV" << "Decoded: mV" \
+                    << "Decoded: ±100%" << "Decoded: mV" << "Decoded: mV" \
+                    << "Decoded: 10x C" << "Raw value only" << "Raw value only" \
+                    << "Raw value only" << "Raw value only" \
+                    << "Raw value only";
             break;
         case FLEXSEA_BATTERY_BASE:
             var_list << "**Unused**" << "Battery Voltage" << "Battery Current" \
                     << "Power" << "Pushbutton" << "Status";
+            toolTipList << "Unused" << "Decoded: mV" << "Decoded: mA" \
+                    << "Decoded: mW" << "Raw Values Only" << "Raw Values Only";
             break;
         case FLEXSEA_STRAIN_BASE:
             var_list << "**Unused**" << "Strain ch[1]" << "Strain ch[2]" \
                     << "Strain ch[3]" << "Strain ch[4]" << "Strain ch[5]" \
                     << "Strain ch[6]";
+            toolTipList << "Unused" << "Decoded: ±100%" << "Decoded: ±100%" \
+                    << "Decoded: ±100%" << "Decoded: ±100%" << "Decoded: ±100%" \
+                    << "Decoded: ±100%";
             break;
         case FLEXSEA_GOSSIP_BASE:
             var_list << "**Unused**" << "Accel X" << "Accel Y" << "Accel Z" \
                     << "Gyro X" << "Gyro Y" << "Gyro Z" << "Magneto X" \
-                    << "Magneto X" << "Magneto X" << "IO[1]" << "IO[2]" \
+                    << "Magneto Y" << "Magneto Z" << "IO[1]" << "IO[2]" \
                     << "CapSense[1]" << "CapSense[2]" << "CapSense[3]" \
                     << "CapSense[4]" << "Status";
+            toolTipList << "Unused" << "Decoded: mg" << "Decoded: mg" << "Decoded: mg" \
+                    << "Decoded: deg/s" << "Decoded: deg/s" << "Decoded: deg/s" << "Decoded: ?" \
+                    << "Decoded: ?" << "Decoded: ?" << "Raw Values Only" << "Raw Values Only" \
+                    << "Raw Values Only" << "Raw Values Only" << "Raw Values Only" \
+                    << "Raw Values Only" << "Raw Values Only";
             break;
         default:
             var_list << "Invalid";
+            toolTipList << "Invalid";
+    }
+
+    //var_list & toolTipList need to be the same length:
+    if(var_list.length() != toolTipList.length())
+    {
+        qDebug() << "Error in updateVarList()!";
     }
 
     //Fill the comboBox:
     myCombo->clear();
+    myCombo->setToolTipDuration(750);
     for(int index = 0; index < var_list.count(); index++)
     {
         myCombo->addItem(var_list.at(index));
+        myCombo->setItemData(index, toolTipList.at(index), Qt::ToolTipRole);
     }
 }
 
@@ -372,18 +421,20 @@ void W_2DPlot::assignVariable(uint8_t var)
             break;
         case FLEXSEA_MANAGE_BASE:
 
+        /*
             struct manage_s *mnPtr;
             myFlexSEA_Generic.assignManagePtr(&mnPtr, SL_BASE_ALL, \
                                            slaveIndex[var]);
             //assignVariableMn(var, myPtr);
+            */
 
             break;
         case FLEXSEA_EXECUTE_BASE:
 
-            struct execute_s *exPtr;
-            myFlexSEA_Generic.assignExecutePtr(&exPtr, SL_BASE_ALL, \
+            struct executeD_s *exDPtr;
+            myFlexSEA_Generic.assignExecutePtr(&exDPtr, SL_BASE_ALL, \
                                                slaveIndex[var]);
-            assignVariableEx(var, exPtr);
+            assignVariableEx(var, exDPtr);
 
             break;
         case FLEXSEA_BATTERY_BASE:
@@ -401,7 +452,7 @@ void W_2DPlot::assignVariable(uint8_t var)
 }
 
 //Assigns a pointer to the desired variable - Execute boards
-void W_2DPlot::assignVariableEx(uint8_t var, struct execute_s *myPtr)
+void W_2DPlot::assignVariableEx(uint8_t var, struct executeD_s *myPtr)
 {
     //'Used' as default, 'false' when set at Unused
     varUsed[var] = true;
@@ -410,90 +461,117 @@ void W_2DPlot::assignVariableEx(uint8_t var, struct execute_s *myPtr)
     //Assign pointer:
     switch(varIndex[var])
     {
+        /*Format: (every Case except Unused)
+         * Line 1: data format, raw variable
+         * Line 2: raw variable
+         * Line 3: decoded variable (always int32),
+                    null if not decoded  */
         case 0: //"**Unused**"
             varUsed[var] = false;
             varToPlotFormat[var] = FORMAT_32S;
             varToPlotPtr32s[var] = &nullVar32s;
+            varToPlotPtrD32s[var] = &nullVar32s;
+            qDebug() << "nullVar32s:" << nullVar32s;
             break;
         case 1: //"Accel X"
             varToPlotFormat[var] = FORMAT_16S;
-            varToPlotPtr16s[var] = &myPtr->accel.x;
+            varToPlotPtr16s[var] = &myPtr->exRaw.accel.x;
+            varToPlotPtrD32s[var] = &myPtr->accel.x;
             break;
         case 2: //"Accel Y"
             varToPlotFormat[var] = FORMAT_16S;
-            varToPlotPtr16s[var] = &myPtr->accel.y;
+            varToPlotPtr16s[var] = &myPtr->exRaw.accel.y;
+            varToPlotPtrD32s[var] = &myPtr->accel.y;
             break;
         case 3: //"Accel Z"
             varToPlotFormat[var] = FORMAT_16S;
-            varToPlotPtr16s[var] = &myPtr->accel.z;
+            varToPlotPtr16s[var] = &myPtr->exRaw.accel.z;
+            varToPlotPtrD32s[var] = &myPtr->accel.z;
             break;
         case 4: //"Gyro X"
             varToPlotFormat[var] = FORMAT_16S;
-            varToPlotPtr16s[var] = &myPtr->gyro.x;
+            varToPlotPtr16s[var] = &myPtr->exRaw.gyro.x;
+            varToPlotPtrD32s[var] = &myPtr->gyro.x;
             break;
         case 5: //"Gyro Y"
             varToPlotFormat[var] = FORMAT_16S;
-            varToPlotPtr16s[var] = &myPtr->gyro.y;
+            varToPlotPtr16s[var] = &myPtr->exRaw.gyro.y;
+            varToPlotPtrD32s[var] = &myPtr->gyro.y;
             break;
         case 6: //"Gyro Z"
             varToPlotFormat[var] = FORMAT_16S;
-            varToPlotPtr16s[var] = &myPtr->gyro.z;
+            varToPlotPtr16s[var] = &myPtr->exRaw.gyro.z;
+            varToPlotPtrD32s[var] = &myPtr->gyro.z;
             break;
         case 7: //"Encoder Display"
             varToPlotFormat[var] = FORMAT_32S;
-            varToPlotPtr32s[var] = &myPtr->enc_display;
+            varToPlotPtr32s[var] = &myPtr->exRaw.enc_display;
+            varToPlotPtrD32s[var] = &nullVar32s;
             break;
         case 8: //"Encoder Control"
             varToPlotFormat[var] = FORMAT_32S;
-            varToPlotPtr32s[var] = &myPtr->enc_control;
+            varToPlotPtr32s[var] = &myPtr->exRaw.enc_control;
+            varToPlotPtrD32s[var] = &nullVar32s;
             break;
         case 9: //"Encoder Commutation"
             varToPlotFormat[var] = FORMAT_32S;
-            varToPlotPtr32s[var] = &myPtr->enc_commut;
+            varToPlotPtr32s[var] = &myPtr->exRaw.enc_commut;
+            varToPlotPtrD32s[var] = &nullVar32s;
             break;
         case 10: //"Motor current"
             varToPlotFormat[var] = FORMAT_16S;
-            varToPlotPtr16s[var] = &myPtr->current;
+            varToPlotPtr16s[var] = &myPtr->exRaw.current;
+            varToPlotPtrD32s[var] = &myPtr->current;
             break;
         case 11: //"Analog[0]"
             varToPlotFormat[var] = FORMAT_16U;
-            varToPlotPtr16u[var] = &myPtr->analog[0];
+            varToPlotPtr16u[var] = &myPtr->exRaw.analog[0];
+            varToPlotPtrD32s[var] = &myPtr->analog[0];
             break;
         case 12: //Analog[1]
             varToPlotFormat[var] = FORMAT_16U;
-            varToPlotPtr16u[var] = &myPtr->analog[1];
+            varToPlotPtr16u[var] = &myPtr->exRaw.analog[1];
+            varToPlotPtrD32s[var] = &myPtr->analog[1];
             break;
         case 13: //"Strain"
             varToPlotFormat[var] = FORMAT_16U;
-            varToPlotPtr16u[var] = &myPtr->strain;
+            varToPlotPtr16u[var] = &myPtr->exRaw.strain;
+            varToPlotPtrD32s[var] = &myPtr->strain;
             break;
         case 14: //"+VB"
             varToPlotFormat[var] = FORMAT_8U;
-            varToPlotPtr8u[var] = &myPtr->volt_batt;
+            varToPlotPtr8u[var] = &myPtr->exRaw.volt_batt;
+            varToPlotPtrD32s[var] = &myPtr->volt_batt;
             break;
         case 15: //"+VG"
             varToPlotFormat[var] = FORMAT_8U;
-            varToPlotPtr8u[var] = &myPtr->volt_int;
+            varToPlotPtr8u[var] = &myPtr->exRaw.volt_int;
+            varToPlotPtrD32s[var] = &myPtr->volt_int;
             break;
         case 16: //"Temp"
             varToPlotFormat[var] = FORMAT_8U;
-            varToPlotPtr8u[var] = &myPtr->temp;
+            varToPlotPtr8u[var] = &myPtr->exRaw.temp;
+            varToPlotPtrD32s[var] = &myPtr->temp;
             break;
         case 17: //"Status 1"
             varToPlotFormat[var] = FORMAT_8U;
-            varToPlotPtr8u[var] = &myPtr->status1;
+            varToPlotPtr8u[var] = &myPtr->exRaw.status1;
+            varToPlotPtrD32s[var] = &nullVar32s;
             break;
         case 18: //"Status 2"
             varToPlotFormat[var] = FORMAT_8U;
-            varToPlotPtr8u[var] = &myPtr->status2;
+            varToPlotPtr8u[var] = &myPtr->exRaw.status2;
+            varToPlotPtrD32s[var] = &nullVar32s;
             break;
         case 19: //"Setpoint (square)"
             varToPlotFormat[var] = FORMAT_32S;
             varToPlotPtr32s[var] = &nullVar32s;//ctrl_setpoint);   //ToDo Fix
+            varToPlotPtrD32s[var] = &nullVar32s;
             break;
         case 20: //"Setpoint (trap)"
             varToPlotFormat[var] = FORMAT_32S;
             varToPlotPtr32s[var] = &nullVar32s;//ctrl_setpoint_trap);  //ToDo Fix
+            varToPlotPtrD32s[var] = &nullVar32s;
             break;
         case 21: //"Fake Data"
         /*
@@ -502,10 +580,12 @@ void W_2DPlot::assignVariableEx(uint8_t var, struct execute_s *myPtr)
             */
             varToPlotFormat[var] = FORMAT_32S;
             varToPlotPtr32s[var] = &nullVar32s;   //***ToDo***
+            varToPlotPtrD32s[var] = &nullVar32s;
             break;
         default:
             varToPlotFormat[var] = FORMAT_32S;
             varToPlotPtr32s[var] = &nullVar32s;
+            varToPlotPtrD32s[var] = &nullVar32s;
             varUsed[var] = false;
             break;
     }
@@ -938,118 +1018,172 @@ void W_2DPlot::on_pushButtonFreeze_clicked()
 
 void W_2DPlot::on_cBoxvar1slave_currentIndexChanged(int index)
 {
-    saveCurrentSettings();
-    updateVarList(0, ui->cBoxvar1);
-    assignVariable(0);
+    if(initFlag == false)
+    {
+        saveCurrentSettings();
+        updateVarList(0, ui->cBoxvar1);
+        assignVariable(0);
+    }
 }
 
 void W_2DPlot::on_cBoxvar2slave_currentIndexChanged(int index)
 {
-    saveCurrentSettings();
-    updateVarList(1, ui->cBoxvar2);
-    assignVariable(1);
+    if(initFlag == false)
+    {
+        saveCurrentSettings();
+        updateVarList(1, ui->cBoxvar2);
+        assignVariable(1);
+    }
 }
 
 void W_2DPlot::on_cBoxvar3slave_currentIndexChanged(int index)
 {
-    saveCurrentSettings();
-    updateVarList(2, ui->cBoxvar3);
-    assignVariable(2);
+    if(initFlag == false)
+    {
+        saveCurrentSettings();
+        updateVarList(2, ui->cBoxvar3);
+        assignVariable(2);
+    }
 }
 
 void W_2DPlot::on_cBoxvar4slave_currentIndexChanged(int index)
 {
-    saveCurrentSettings();
-    updateVarList(3, ui->cBoxvar4);
-    assignVariable(3);
+    if(initFlag == false)
+    {
+        saveCurrentSettings();
+        updateVarList(3, ui->cBoxvar4);
+        assignVariable(3);
+    }
 }
 
 void W_2DPlot::on_cBoxvar5slave_currentIndexChanged(int index)
 {
-    saveCurrentSettings();
-    updateVarList(4, ui->cBoxvar5);
-    assignVariable(4);
+    if(initFlag == false)
+    {
+        saveCurrentSettings();
+        updateVarList(4, ui->cBoxvar5);
+        assignVariable(4);
+    }
 }
 
 void W_2DPlot::on_cBoxvar6slave_currentIndexChanged(int index)
 {
-    saveCurrentSettings();
-    updateVarList(5, ui->cBoxvar6);
-    assignVariable(5);
+    if(initFlag == false)
+    {
+        saveCurrentSettings();
+        updateVarList(5, ui->cBoxvar6);
+        assignVariable(5);
+    }
 }
 
 //Variable comboBoxes:
 
 void W_2DPlot::on_cBoxvar1_currentIndexChanged(int index)
 {
-    saveCurrentSettings();
-    assignVariable(0);
+    if(initFlag == false)
+    {
+        saveCurrentSettings();
+        assignVariable(0);
+    }
 }
 
 void W_2DPlot::on_cBoxvar2_currentIndexChanged(int index)
 {
-    saveCurrentSettings();
-    assignVariable(1);
+    if(initFlag == false)
+    {
+        saveCurrentSettings();
+        assignVariable(1);
+    }
 }
 
 void W_2DPlot::on_cBoxvar3_currentIndexChanged(int index)
 {
-    saveCurrentSettings();
-    assignVariable(2);
+    if(initFlag == false)
+    {
+        saveCurrentSettings();
+        assignVariable(2);
+    }
 }
 
 void W_2DPlot::on_cBoxvar4_currentIndexChanged(int index)
 {
-    saveCurrentSettings();
-    assignVariable(3);
+    if(initFlag == false)
+    {
+        saveCurrentSettings();
+        assignVariable(3);
+    }
 }
 
 void W_2DPlot::on_cBoxvar5_currentIndexChanged(int index)
 {
-    saveCurrentSettings();
-    assignVariable(4);
+    if(initFlag == false)
+    {
+        saveCurrentSettings();
+        assignVariable(4);
+    }
 }
 
 void W_2DPlot::on_cBoxvar6_currentIndexChanged(int index)
 {
-    saveCurrentSettings();
-    assignVariable(5);
+    if(initFlag == false)
+    {
+        saveCurrentSettings();
+        assignVariable(5);
+    }
 }
 
 //Decode checkboxes:
 
 void W_2DPlot::on_checkBoxD1_stateChanged(int arg1)
 {
-    saveCurrentSettings();
-    assignVariable(0);
+    if(initFlag == false)
+    {
+        saveCurrentSettings();
+        assignVariable(0);
+    }
 }
 
 void W_2DPlot::on_checkBoxD2_stateChanged(int arg1)
 {
-    saveCurrentSettings();
-    assignVariable(1);
+    if(initFlag == false)
+    {
+        saveCurrentSettings();
+        assignVariable(1);
+    }
 }
 
 void W_2DPlot::on_checkBoxD3_stateChanged(int arg1)
 {
-    saveCurrentSettings();
-    assignVariable(2);
+    if(initFlag == false)
+    {
+        saveCurrentSettings();
+        assignVariable(2);
+    }
 }
 
 void W_2DPlot::on_checkBoxD4_stateChanged(int arg1)
 {
-    saveCurrentSettings();
-    assignVariable(3);
+    if(initFlag == false)
+    {
+        saveCurrentSettings();
+        assignVariable(3);
+    }
 }
 
 void W_2DPlot::on_checkBoxD5_stateChanged(int arg1)
 {
-    saveCurrentSettings();
-    assignVariable(4);
+    if(initFlag == false)
+    {
+        saveCurrentSettings();
+        assignVariable(4);
+    }
 }
 
 void W_2DPlot::on_checkBoxD6_stateChanged(int arg1)
 {
-    saveCurrentSettings();
-    assignVariable(5);
+    if(initFlag == false)
+    {
+        saveCurrentSettings();
+        assignVariable(5);
+    }
 }

@@ -134,15 +134,15 @@ private:
     bool allChannelUnused(void);
     int plotting_len;
     QStringList var_list_margin;
-    bool plotFreezed;
+    bool plotFreezed, initFlag;
 
-    int32_t *varToPlotPtr32s[VAR_NUM];
+    int32_t *varToPlotPtr32s[VAR_NUM], *varToPlotPtrD32s[VAR_NUM];
     int16_t *varToPlotPtr16s[VAR_NUM];
     int8_t *varToPlotPtr8s[VAR_NUM];
     uint32_t *varToPlotPtr32u[VAR_NUM];
     uint16_t *varToPlotPtr16u[VAR_NUM];
     uint8_t *varToPlotPtr8u[VAR_NUM];
-    uint8_t varToPlotFormat[3];
+    uint8_t varToPlotFormat[6];
     int32_t nullVar32s;
     uint32_t nullVar32u;
     int16_t nullVar16s;
@@ -169,7 +169,7 @@ private:
     void updateVarList(uint8_t var, QComboBox *myCombo);
     void saveCurrentSettings(void);
     void assignVariable(uint8_t var);
-    void assignVariableEx(uint8_t var, struct execute_s *myPtr);
+    void assignVariableEx(uint8_t var, struct executeD_s *myPtr);
 };
 
 #endif // W_2DPLOT_H

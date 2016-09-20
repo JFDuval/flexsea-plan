@@ -267,7 +267,8 @@ void FlexSEA_Generic::decodeStatus(uint8_t base, uint8_t index, uint8_t stat1, \
 //Decodes some of Execute's fields
 void FlexSEA_Generic::decodeExecute(uint8_t base, uint8_t index)
 {
-    struct executeD_s *exDPtr = &execD1;
+    struct executeD_s *exDPtr = &execD1;    //ToDo change this
+    //Assign ptr here
 
     //Accel in mG
     exDPtr->accel.x = (1000*exDPtr->exRaw.accel.x)/8192;
@@ -307,18 +308,10 @@ void FlexSEA_Generic::decodeSlave(uint8_t base, uint8_t index)
 
             break;
         case FLEXSEA_MANAGE_BASE:
-/*
-            struct manage_s *mnPtr;
-            myFlexSEA_Generic.assignManagePtr(&mnPtr, SL_BASE_ALL, \
-                                           slaveIndex[var]);
-            //assignVariableMn(var, myPtr);
-            */
-
+            //decodeManage(base, index);
             break;
         case FLEXSEA_EXECUTE_BASE:
-
             decodeExecute(base, index);
-
             break;
         case FLEXSEA_BATTERY_BASE:
 
@@ -332,32 +325,11 @@ void FlexSEA_Generic::decodeSlave(uint8_t base, uint8_t index)
         default:
             break;
     }
-    /*
-    myPtrD->current =
-    ui->disp_current_d->setText(QString::number((float)ex->current*18.5, 'i',0));
-    ui->disp_vb_d->setText(QString::number(P4_ADC_SUPPLY*((16*(float)ex->volt_batt/3 + 302 )/P4_ADC_MAX) / 0.0738, 'f',2));
-    ui->disp_vg_d->setText(QString::number(P4_ADC_SUPPLY*((26*(float)ex->volt_int/3 + 440 )/P4_ADC_MAX) / 0.43, 'f',2));
-    ui->disp_temp_d->setText(QString::number(((((2.625*(float)ex->temp + 41)/P4_ADC_MAX)*P4_ADC_SUPPLY) - P4_T0) / P4_TC,'f',1));
-
-    ui->disp_ana_d->setText(QString::number(((float)ex->analog[0]/P5_ADC_MAX)*P5_ADC_SUPPLY,'f',2));
-    ui->disp_ana1_d->setText(QString::number(((float)ex->analog[1]/P5_ADC_MAX)*P5_ADC_SUPPLY,'f',2));
-
-    ui->disp_accx_d->setText(QString::number((double)ex->accel.x/8192, 'f', 2));
-    ui->disp_accy_d->setText(QString::number((double)ex->accel.y/8192, 'f', 2));
-    ui->disp_accz_d->setText(QString::number((double)ex->accel.z/8192, 'f', 2));
-    ui->disp_gyrox_d->setText(QString::number((double)ex->gyro.x/16.4, 'i', 0));
-    ui->disp_gyroy_d->setText(QString::number((double)ex->gyro.y/16.4, 'i', 0));
-    ui->disp_gyroz_d->setText(QString::number((double)ex->gyro.z/16.4, 'i', 0));
-
-    ui->disp_strain_d->setText(QString::number(((double)(ex->strain-32768)/32768)*100, 'i', 0));
-    */
 }
 
 void FlexSEA_Generic::assignExecutePtr(struct execute_s **myPtr, uint8_t base, \
                                        uint8_t slave)
 {
-    //qDebug() << "Decode =" << decode;
-
     //Based on selected slave, what structure do we use?
     switch(list_to_slave[base+slave])
     {
@@ -375,6 +347,30 @@ void FlexSEA_Generic::assignExecutePtr(struct execute_s **myPtr, uint8_t base, \
             break;
         default:
             *myPtr = &exec1;
+            break;
+    }
+}
+
+void FlexSEA_Generic::assignExecutePtr(struct executeD_s **myPtr, uint8_t base, \
+                                       uint8_t slave)
+{
+    //Based on selected slave, what structure do we use?
+    switch(list_to_slave[base+slave])
+    {
+        case FLEXSEA_EXECUTE_1:
+            *myPtr = &execD1;
+            break;
+        case FLEXSEA_EXECUTE_2:
+            *myPtr = &execD2;
+            break;
+        case FLEXSEA_EXECUTE_3:
+            *myPtr = &execD3;
+            break;
+        case FLEXSEA_EXECUTE_4:
+            *myPtr = &execD4;
+            break;
+        default:
+            *myPtr = &execD1;
             break;
     }
 }

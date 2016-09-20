@@ -108,13 +108,16 @@ public:
 
 	void init(void);
 
-    //Pointer assignements:
+    //Pointer assignements - raw structures:
     void assignExecutePtr(struct execute_s **myPtr, uint8_t base, uint8_t slave);
     void assignManagePtr(struct manage_s **myPtr, uint8_t base, uint8_t slave);
     void assignRicnuPtr(struct ricnu_s **myPtr, uint8_t base, uint8_t slave);
     void assignStrainPtr(struct strain_s **myPtr, uint8_t base, uint8_t slave);
     void assignGossipPtr(struct gossip_s **myPtr, uint8_t base, uint8_t slave);
     void assignBatteryPtr(struct battery_s **myPtr, uint8_t base, uint8_t slave);
+
+    //Pointer assignements - decoded structures:
+    void assignExecutePtr(struct executeD_s **myPtr, uint8_t base, uint8_t slave);
 
     void populateSlaveComboBox(QComboBox *cbox, uint8_t base, uint8_t len);
     void populateExpComboBox(QComboBox *cbox);
