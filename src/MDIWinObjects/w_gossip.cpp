@@ -21,7 +21,7 @@
 	Biomechatronics research group <http://biomech.media.mit.edu/>
 	[Contributors] 
 *****************************************************************************
-	[This file] w_gossip.h: Gossip View Window
+	[This file] w_gossip: Gossip View Window
 *****************************************************************************
 	[Change log] (Convention: YYYY-MM-DD | author | comment)
 	* 2016-09-15 | jfduval | New code
@@ -68,7 +68,7 @@ W_Gossip::~W_Gossip()
 //Call this function to refresh the display
 void W_Gossip::refresh(void)
 {
-    struct gossip_s *goPtr;
+    struct gossipD_s *goPtr;
     myFlexSEA_Generic.assignGossipPtr(&goPtr, SL_BASE_GOSSIP, \
                                       ui->comboBox_slave->currentIndex());
     displayGossip(goPtr);
@@ -89,49 +89,49 @@ void W_Gossip::init(void)
                                             SL_BASE_GOSSIP, SL_LEN_GOSSIP);
 }
 
-void W_Gossip::displayGossip(struct gossip_s *go)
+void W_Gossip::displayGossip(struct gossipD_s *go)
 {
     int combined_status = 0;
 
     //Raw values:
     //===========
 
-    ui->disp_accx->setText(QString::number(go->accel.x));
-    ui->disp_accy->setText(QString::number(go->accel.y));
-    ui->disp_accz->setText(QString::number(go->accel.z));
-    ui->disp_gyrox->setText(QString::number(go->gyro.x));
-    ui->disp_gyroy->setText(QString::number(go->gyro.y));
-    ui->disp_gyroz->setText(QString::number(go->gyro.z));
+    ui->disp_accx->setText(QString::number(go->goRaw.accel.x));
+    ui->disp_accy->setText(QString::number(go->goRaw.accel.y));
+    ui->disp_accz->setText(QString::number(go->goRaw.accel.z));
+	
+    ui->disp_gyrox->setText(QString::number(go->goRaw.gyro.x));
+    ui->disp_gyroy->setText(QString::number(go->goRaw.gyro.y));
+    ui->disp_gyroz->setText(QString::number(go->goRaw.gyro.z));
+	
+	ui->disp_magnetox->setText(QString::number(go->goRaw.magneto.x));
+    ui->disp_magnetoy->setText(QString::number(go->goRaw.magneto.y));
+    ui->disp_magnetoz->setText(QString::number(go->goRaw.magneto.z));
+	
+    ui->disp_cs1->setText(QString::number(go->goRaw.capsense[0]));
+    ui->disp_cs2->setText(QString::number(go->goRaw.capsense[1]));
+    ui->disp_cs3->setText(QString::number(go->goRaw.capsense[2]));
+    ui->disp_cs4->setText(QString::number(go->goRaw.capsense[3]));
+	
+	ui->disp_io1->setText(QString::number(go->goRaw.io[0]));
+	ui->disp_io2->setText(QString::number(go->goRaw.io[1]));
+	
+    ui->disp_stat1->setText(QString::number(go->goRaw.status));
+	
+	//Decoded values:
+    //===============
 
-/*
+    ui->disp_accx_d->setText(QString::number((float)go->accel.x/1000,'f',2));
+    ui->disp_accy_d->setText(QString::number((float)go->accel.y/1000,'f',2));
+    ui->disp_accz_d->setText(QString::number((float)go->accel.z/1000,'f',2));
 
-    combined_status = (ex->status2 << 8) & ex->status1;
-    ui->disp_stat1->setText(QString::number(combined_status));
-
-    //Decode some of them:
-    //===================
-
-    ui->disp_current_d->setText(QString::number((float)ex->current*18.5, 'i',0));
-    ui->disp_vb_d->setText(QString::number(P4_ADC_SUPPLY*((16*(float)ex->volt_batt/3 + 302 )/P4_ADC_MAX) / 0.0738, 'f',2));
-    ui->disp_vg_d->setText(QString::number(P4_ADC_SUPPLY*((26*(float)ex->volt_int/3 + 440 )/P4_ADC_MAX) / 0.43, 'f',2));
-    ui->disp_temp_d->setText(QString::number(((((2.625*(float)ex->temp + 41)/P4_ADC_MAX)*P4_ADC_SUPPLY) - P4_T0) / P4_TC,'f',1));
-
-    ui->disp_ana_d->setText(QString::number(((float)ex->analog[0]/P5_ADC_MAX)*P5_ADC_SUPPLY,'f',2));
-    ui->disp_ana1_d->setText(QString::number(((float)ex->analog[1]/P5_ADC_MAX)*P5_ADC_SUPPLY,'f',2));
-
-    ui->disp_accx_d->setText(QString::number((double)ex->accel.x/8192, 'f', 2));
-    ui->disp_accy_d->setText(QString::number((double)ex->accel.y/8192, 'f', 2));
-    ui->disp_accz_d->setText(QString::number((double)ex->accel.z/8192, 'f', 2));
-    ui->disp_gyrox_d->setText(QString::number((double)ex->gyro.x/16.4, 'i', 0));
-    ui->disp_gyroy_d->setText(QString::number((double)ex->gyro.y/16.4, 'i', 0));
-    ui->disp_gyroz_d->setText(QString::number((double)ex->gyro.z/16.4, 'i', 0));
-
-    ui->disp_strain_d->setText(QString::number(((double)(ex->strain-32768)/32768)*100, 'i', 0));
-
-    QString myStr;
-    myFlexSEA_Generic.execStatusBytes(ex->status1, ex->status2, &myStr);
-    ui->label_status1->setText(myStr);
-*/
+    ui->disp_gyrox_d->setText(QString::number(go->gyro.x, 'i', 0));
+    ui->disp_gyroy_d->setText(QString::number(go->gyro.y, 'i', 0));
+    ui->disp_gyroz_d->setText(QString::number(go->gyro.z, 'i', 0));
+	
+    ui->disp_magnetox_d->setText(QString::number(go->magneto.x, 'i', 0));
+    ui->disp_magnetoy_d->setText(QString::number(go->magneto.y, 'i', 0));
+    ui->disp_magnetoz_d->setText(QString::number(go->magneto.z, 'i', 0));
 
     //==========
 }

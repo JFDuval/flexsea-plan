@@ -69,7 +69,7 @@ private:
 	
 	//Function(s):
 	void init(void);
-    void displayGossip(struct gossip_s *go);
+    void displayGossip(struct gossipD_s *go);
 };
 
 //****************************************************************************

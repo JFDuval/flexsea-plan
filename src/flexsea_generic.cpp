@@ -21,12 +21,12 @@
 	Biomechatronics research group <http://biomech.media.mit.edu/>
 	[Contributors] 
 *****************************************************************************
-	[This file] flexsea_generic.h: Generic functions used by many classes
+	[This file] flexsea_generic: Generic functions used by many classes
 *****************************************************************************
 	[Change log] (Convention: YYYY-MM-DD | author | comment)
 	* 2016-09-09 | jfduval | Initial GPL-3.0 release
     * 2016-09-12 | jfduval | Moved the status display here, from w_execute
-    * 2016-09-16 | jfduval | Major code rework tu support multiple boards
+    * 2016-09-16 | jfduval | Major code rework to support multiple boards
 ****************************************************************************/
 
 //****************************************************************************
@@ -59,7 +59,8 @@ void FlexSEA_Generic::init(void)
     var_list_slave.clear();
     var_list_slave << "Execute 1" << "Execute 2" << "Execute 3" << \
                       "Execute 4" << "Manage 1" << "Manage 2" << "Plan 1" << \
-                      "Gossip 1" << "Gossip 2" <<"Battery 1" << "Strain 1";
+                      "Gossip 1" << "Gossip 2" <<"Battery 1" << "Strain 1" << \
+					  "RIC/NU 1";
 
     //Lookup from list to actual slave number (FlexSEA convention):
     list_to_slave[0] = FLEXSEA_EXECUTE_1;
@@ -73,6 +74,7 @@ void FlexSEA_Generic::init(void)
     list_to_slave[8] = FLEXSEA_GOSSIP_2;
     list_to_slave[9] = FLEXSEA_BATTERY_1;
     list_to_slave[10] = FLEXSEA_STRAIN_1;
+	list_to_slave[11] = FLEXSEA_EXECUTE_1;	//RIC/NU == Execute (for now)
 
     //Experiments:
     //============
@@ -267,8 +269,8 @@ void FlexSEA_Generic::decodeStatus(uint8_t base, uint8_t index, uint8_t stat1, \
 //Decodes some of Execute's fields
 void FlexSEA_Generic::decodeExecute(uint8_t base, uint8_t index)
 {
-    struct executeD_s *exDPtr = &execD1;    //ToDo change this
-    //Assign ptr here
+    struct executeD_s *exDPtr;
+    assignExecutePtr(&exDPtr, base, index);
 
     //Accel in mG
     exDPtr->accel.x = (1000*exDPtr->exRaw.accel.x)/8192;
@@ -296,6 +298,51 @@ void FlexSEA_Generic::decodeExecute(uint8_t base, uint8_t index)
     exDPtr->analog[0] = (int32_t)1000*((float)exDPtr->exRaw.analog[0]/ \
                         P5_ADC_MAX)*P5_ADC_SUPPLY;
 }
+
+//Decodes some of Manage's fields
+void FlexSEA_Generic::decodeManage(uint8_t base, uint8_t index)
+{
+    /* ToDo
+    struct executeD_s *exDPtr;
+    assignExecutePtr(&exDPtr, base, index);
+
+    //Accel in mG
+    exDPtr->accel.x = (1000*exDPtr->exRaw.accel.x)/8192;
+    exDPtr->accel.y = (1000*exDPtr->exRaw.accel.y)/8192;
+    exDPtr->accel.z = (1000*exDPtr->exRaw.accel.z)/8192;
+
+    //Gyro in degrees/s
+    exDPtr->gyro.x = (100*exDPtr->exRaw.gyro.x)/164;
+    exDPtr->gyro.y = (100*exDPtr->exRaw.gyro.y)/164;
+    exDPtr->gyro.z = (100*exDPtr->exRaw.gyro.z)/164;
+
+    exDPtr->analog[0] = (int32_t)1000*((float)exDPtr->exRaw.analog[0]/ \
+                        P5_ADC_MAX)*P5_ADC_SUPPLY;
+                        */
+}
+
+//Decodes some of Gossip's fields
+void FlexSEA_Generic::decodeGossip(uint8_t base, uint8_t index)
+{
+    /* ToDo
+    struct executeD_s *exDPtr;
+    assignExecutePtr(&exDPtr, base, index);
+
+    //Accel in mG
+    exDPtr->accel.x = (1000*exDPtr->exRaw.accel.x)/8192;
+    exDPtr->accel.y = (1000*exDPtr->exRaw.accel.y)/8192;
+    exDPtr->accel.z = (1000*exDPtr->exRaw.accel.z)/8192;
+
+    //Gyro in degrees/s
+    exDPtr->gyro.x = (100*exDPtr->exRaw.gyro.x)/164;
+    exDPtr->gyro.y = (100*exDPtr->exRaw.gyro.y)/164;
+    exDPtr->gyro.z = (100*exDPtr->exRaw.gyro.z)/164;
+
+    exDPtr->analog[0] = (int32_t)1000*((float)exDPtr->exRaw.analog[0]/ \
+                        P5_ADC_MAX)*P5_ADC_SUPPLY;
+                        */
+}
+
 
 //Decodes some of the slave's fields
 void FlexSEA_Generic::decodeSlave(uint8_t base, uint8_t index)
@@ -327,6 +374,7 @@ void FlexSEA_Generic::decodeSlave(uint8_t base, uint8_t index)
     }
 }
 
+//Assign pointer - raw data
 void FlexSEA_Generic::assignExecutePtr(struct execute_s **myPtr, uint8_t base, \
                                        uint8_t slave)
 {
@@ -351,6 +399,7 @@ void FlexSEA_Generic::assignExecutePtr(struct execute_s **myPtr, uint8_t base, \
     }
 }
 
+//Assign pointer - decoded data
 void FlexSEA_Generic::assignExecutePtr(struct executeD_s **myPtr, uint8_t base, \
                                        uint8_t slave)
 {
@@ -375,6 +424,7 @@ void FlexSEA_Generic::assignExecutePtr(struct executeD_s **myPtr, uint8_t base, 
     }
 }
 
+//Assign pointer - raw data
 void FlexSEA_Generic::assignManagePtr(struct manage_s **myPtr, uint8_t base, \
                                       uint8_t slave)
 {
@@ -393,6 +443,27 @@ void FlexSEA_Generic::assignManagePtr(struct manage_s **myPtr, uint8_t base, \
     }
 }
 
+
+//Assign pointer - decoded data
+void FlexSEA_Generic::assignManagePtr(struct manageD_s **myPtr, uint8_t base, \
+                                      uint8_t slave)
+{
+    //Based on selected slave, what structure do we use?
+    switch(list_to_slave[base+slave])
+    {
+        case FLEXSEA_MANAGE_1:
+            *myPtr = &managD1;
+            break;
+        case FLEXSEA_MANAGE_2:
+            *myPtr = &managD2;
+            break;
+        default:
+            *myPtr = &managD1;
+            break;
+    }
+}
+
+//Assign pointer - raw data
 void FlexSEA_Generic::assignRicnuPtr(struct ricnu_s **myPtr, uint8_t base, \
                                      uint8_t slave)
 {
@@ -408,6 +479,23 @@ void FlexSEA_Generic::assignRicnuPtr(struct ricnu_s **myPtr, uint8_t base, \
     }
 }
 
+//Assign pointer - decoded data
+void FlexSEA_Generic::assignRicnuPtr(struct ricnuD_s **myPtr, uint8_t base, \
+                                     uint8_t slave)
+{
+    //Based on selected slave, what structure do we use?
+    switch(list_to_slave[base+slave])
+    {
+        case FLEXSEA_EXECUTE_1: //RIC/NU is the same as Execute
+            *myPtr = &ricnuD_1;
+            break;
+        default:
+            *myPtr = &ricnuD_1;
+            break;
+    }
+}
+
+//Assign pointer - raw data
 void FlexSEA_Generic::assignGossipPtr(struct gossip_s **myPtr, uint8_t base, \
                                       uint8_t slave)
 {
@@ -426,6 +514,26 @@ void FlexSEA_Generic::assignGossipPtr(struct gossip_s **myPtr, uint8_t base, \
     }
 }
 
+//Assign pointer - decoded data
+void FlexSEA_Generic::assignGossipPtr(struct gossipD_s **myPtr, uint8_t base, \
+                                      uint8_t slave)
+{
+    //Based on selected slave, what structure do we use?
+    switch(list_to_slave[base+slave])
+    {
+        case FLEXSEA_GOSSIP_1:
+            *myPtr = &gossipD1;
+            break;
+        case FLEXSEA_GOSSIP_2:
+            *myPtr = &gossipD2;
+            break;
+        default:
+            *myPtr = &gossipD1;
+            break;
+    }
+}
+
+//Assign pointer - raw data
 void FlexSEA_Generic::assignStrainPtr(struct strain_s **myPtr, uint8_t base, \
                                       uint8_t slave)
 {
@@ -441,6 +549,23 @@ void FlexSEA_Generic::assignStrainPtr(struct strain_s **myPtr, uint8_t base, \
     }
 }
 
+//Assign pointer - decoded data
+void FlexSEA_Generic::assignStrainPtr(struct strainD_s **myPtr, uint8_t base, \
+                                      uint8_t slave)
+{
+    //Based on selected slave, what structure do we use?
+    switch(list_to_slave[base+slave])
+    {
+        case FLEXSEA_STRAIN_1:
+            *myPtr = &strainD[0];    //***ToDo 99% sure this is wrong!
+            break;
+        default:
+            *myPtr = &strainD[0];
+            break;
+    }
+}
+
+//Assign pointer - raw data
 void FlexSEA_Generic::assignBatteryPtr(struct battery_s **myPtr, uint8_t base, \
                                        uint8_t slave)
 {
@@ -452,6 +577,22 @@ void FlexSEA_Generic::assignBatteryPtr(struct battery_s **myPtr, uint8_t base, \
             break;
         default:
             *myPtr = &batt1;
+            break;
+    }
+}
+
+//Assign pointer - decoded data
+void FlexSEA_Generic::assignBatteryPtr(struct batteryD_s **myPtr, uint8_t base, \
+                                       uint8_t slave)
+{
+    //Based on selected slave, what structure do we use?
+    switch(list_to_slave[base+slave])
+    {
+        case FLEXSEA_BATTERY_1:
+            *myPtr = &battD1;
+            break;
+        default:
+            *myPtr = &battD1;
             break;
     }
 }

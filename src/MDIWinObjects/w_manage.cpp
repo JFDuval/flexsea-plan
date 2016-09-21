@@ -67,7 +67,7 @@ W_Manage::~W_Manage()
 //Call this function to refresh the display
 void W_Manage::refresh(void)
 {
-    struct manage_s *mnPtr;
+    struct manageD_s *mnPtr;
     myFlexSEA_Generic.assignManagePtr(&mnPtr, SL_BASE_MN, \
                                       ui->comboBox_slave->currentIndex());
     displayManage(mnPtr);
@@ -90,59 +90,51 @@ void W_Manage::init(void)
                                             SL_LEN_MN);
 }
 
-void W_Manage::displayManage(struct manage_s *mn)
+void W_Manage::displayManage(struct manageD_s *mn)
 {
     int combined_status = 0;
-/*
-    //Raw values:
+
+	//Raw values:
     //===========
+	
+    ui->disp_accx->setText(QString::number(mn->mnRaw.accel.x));
+    ui->disp_accy->setText(QString::number(mn->mnRaw.accel.y));
+    ui->disp_accz->setText(QString::number(mn->mnRaw.accel.z));
+    ui->disp_gyrox->setText(QString::number(mn->mnRaw.gyro.x));
+    ui->disp_gyroy->setText(QString::number(mn->mnRaw.gyro.y));
+    ui->disp_gyroz->setText(QString::number(mn->mnRaw.gyro.z));
+	
+	ui->dispUserButton->setText("ToDo");
+	ui->dispDI->setText("ToDo");
+	
+	ui->dispAna0->setText(QString::number(mn->mnRaw.analog[0]));
+	ui->dispAna1->setText(QString::number(mn->mnRaw.analog[1]));
+	ui->dispAna2->setText(QString::number(mn->mnRaw.analog[2]));
+	ui->dispAna3->setText(QString::number(mn->mnRaw.analog[3]));
+	ui->dispAna4->setText(QString::number(mn->mnRaw.analog[4]));
+	ui->dispAna5->setText(QString::number(mn->mnRaw.analog[5]));
+	ui->dispAna6->setText(QString::number(mn->mnRaw.analog[6]));
+	ui->dispAna7->setText(QString::number(mn->mnRaw.analog[7]));
+	
+    //Decoded values:
+    //===============
+	
+	ui->disp_accx_d->setText(QString::number((float)mn->accel.x/1000,'f',2));
+    ui->disp_accy_d->setText(QString::number((float)mn->accel.y/1000,'f',2));
+    ui->disp_accz_d->setText(QString::number((float)mn->accel.z/1000,'f',2));
 
-    ui->disp_accx->setText(QString::number(ex->accel.x));
-    ui->disp_accy->setText(QString::number(ex->accel.y));
-    ui->disp_accz->setText(QString::number(ex->accel.z));
-    ui->disp_gyrox->setText(QString::number(ex->gyro.x));
-    ui->disp_gyroy->setText(QString::number(ex->gyro.y));
-    ui->disp_gyroz->setText(QString::number(ex->gyro.z));
-
-    ui->disp_enc->setText(QString::number(ex->enc_display));
-
-    ui->disp_strain->setText(QString::number(ex->strain));
-    ui->disp_ana->setText(QString::number(ex->analog[0]));
-    ui->disp_ana1->setText(QString::number(ex->analog[1]));
-
-    ui->disp_current->setText(QString::number(ex->current));
-
-    ui->disp_vb->setText(QString::number(ex->volt_batt));
-    ui->disp_vg->setText(QString::number(ex->volt_int));
-    ui->disp_temp->setText(QString::number(ex->temp));
-
-    combined_status = (ex->status2 << 8) & ex->status1;
-    ui->disp_stat1->setText(QString::number(combined_status));
-
-    //Decode some of them:
-    //===================
-
-    ui->disp_current_d->setText(QString::number((float)ex->current*18.5, 'i',0));
-    ui->disp_vb_d->setText(QString::number(P4_ADC_SUPPLY*((16*(float)ex->volt_batt/3 + 302 )/P4_ADC_MAX) / 0.0738, 'f',2));
-    ui->disp_vg_d->setText(QString::number(P4_ADC_SUPPLY*((26*(float)ex->volt_int/3 + 440 )/P4_ADC_MAX) / 0.43, 'f',2));
-    ui->disp_temp_d->setText(QString::number(((((2.625*(float)ex->temp + 41)/P4_ADC_MAX)*P4_ADC_SUPPLY) - P4_T0) / P4_TC,'f',1));
-
-    ui->disp_ana_d->setText(QString::number(((float)ex->analog[0]/P5_ADC_MAX)*P5_ADC_SUPPLY,'f',2));
-    ui->disp_ana1_d->setText(QString::number(((float)ex->analog[1]/P5_ADC_MAX)*P5_ADC_SUPPLY,'f',2));
-
-    ui->disp_accx_d->setText(QString::number((double)ex->accel.x/8192, 'f', 2));
-    ui->disp_accy_d->setText(QString::number((double)ex->accel.y/8192, 'f', 2));
-    ui->disp_accz_d->setText(QString::number((double)ex->accel.z/8192, 'f', 2));
-    ui->disp_gyrox_d->setText(QString::number((double)ex->gyro.x/16.4, 'i', 0));
-    ui->disp_gyroy_d->setText(QString::number((double)ex->gyro.y/16.4, 'i', 0));
-    ui->disp_gyroz_d->setText(QString::number((double)ex->gyro.z/16.4, 'i', 0));
-
-    ui->disp_strain_d->setText(QString::number(((double)(ex->strain-32768)/32768)*100, 'i', 0));
-
-    QString myStr;
-    myFlexSEA_Generic.execStatusBytes(ex->status1, ex->status2, &myStr);
-    ui->label_status1->setText(myStr);
-*/
+    ui->disp_gyrox_d->setText(QString::number(mn->gyro.x, 'i', 0));
+    ui->disp_gyroy_d->setText(QString::number(mn->gyro.y, 'i', 0));
+    ui->disp_gyroz_d->setText(QString::number(mn->gyro.z, 'i', 0));
+	
+	ui->dispAna0d->setText(QString::number((float)mn->analog[0]/1000,'f',2));
+	ui->dispAna1d->setText(QString::number((float)mn->analog[1]/1000,'f',2));
+	ui->dispAna2d->setText(QString::number((float)mn->analog[2]/1000,'f',2));
+	ui->dispAna3d->setText(QString::number((float)mn->analog[3]/1000,'f',2));
+	ui->dispAna4d->setText(QString::number((float)mn->analog[4]/1000,'f',2));
+	ui->dispAna5d->setText(QString::number((float)mn->analog[5]/1000,'f',2));
+	ui->dispAna6d->setText(QString::number((float)mn->analog[6]/1000,'f',2));
+	ui->dispAna7d->setText(QString::number((float)mn->analog[7]/1000,'f',2));
 
     //==========
 }

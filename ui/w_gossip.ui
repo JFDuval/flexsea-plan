@@ -603,7 +603,7 @@
       </widget>
      </item>
      <item row="17" column="2">
-      <widget class="QLabel" name="disp_cs1_4">
+      <widget class="QLabel" name="disp_cs4">
        <property name="minimumSize">
         <size>
          <width>50</width>
@@ -728,7 +728,7 @@
       </widget>
      </item>
      <item row="9" column="3">
-      <widget class="QLabel" name="disp_magnetoxd">
+      <widget class="QLabel" name="disp_magnetox_d">
        <property name="minimumSize">
         <size>
          <width>50</width>
@@ -879,7 +879,7 @@
       </widget>
      </item>
      <item row="10" column="3">
-      <widget class="QLabel" name="disp_magnetoyd">
+      <widget class="QLabel" name="disp_magnetoy_d">
        <property name="minimumSize">
         <size>
          <width>50</width>
@@ -1337,7 +1337,7 @@
       </widget>
      </item>
      <item row="11" column="3">
-      <widget class="QLabel" name="disp_magnetozd">
+      <widget class="QLabel" name="disp_magnetoz_d">
        <property name="minimumSize">
         <size>
          <width>50</width>
@@ -1377,7 +1377,7 @@
       </widget>
      </item>
      <item row="16" column="2">
-      <widget class="QLabel" name="disp_cs1_3">
+      <widget class="QLabel" name="disp_cs3">
        <property name="minimumSize">
         <size>
          <width>50</width>
@@ -1457,7 +1457,7 @@
       </widget>
      </item>
      <item row="15" column="2">
-      <widget class="QLabel" name="disp_cs1_2">
+      <widget class="QLabel" name="disp_cs2">
        <property name="minimumSize">
         <size>
          <width>50</width>

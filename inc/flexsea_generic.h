@@ -21,7 +21,7 @@
 	Biomechatronics research group <http://biomech.media.mit.edu/>
 	[Contributors] 
 *****************************************************************************
-	[This file] flexsea_generic.h: Generic functions used by many classes
+	[This file] flexsea_generic: Generic functions used by many classes
 *****************************************************************************/
 
 #ifndef FLEXSEA_GENERIC_H
@@ -43,21 +43,23 @@
 //=====================
 
 //Slave list: base index:
-#define SL_BASE_ALL             0
-#define SL_BASE_EX              0
-#define SL_BASE_MN              4
-#define SL_BASE_PLAN            6
-#define SL_BASE_GOSSIP          7
-#define SL_BASE_BATT            9
-#define SL_BASE_STRAIN          10
+#define SL_BASE_ALL             	0
+#define SL_BASE_EX              	0
+#define SL_BASE_MN              	4
+#define SL_BASE_PLAN            	6
+#define SL_BASE_GOSSIP          	7
+#define SL_BASE_BATT            	9
+#define SL_BASE_STRAIN          	10
+#define SL_BASE_RICNU				11
 //Slave list: length/number of fields
-#define SL_LEN_ALL              11
-#define SL_LEN_EX               4
-#define SL_LEN_MN               2
-#define SL_LEN_PLAN             1
-#define SL_LEN_GOSSIP           2
-#define SL_LEN_BATT             1
-#define SL_LEN_STRAIN           1
+#define SL_LEN_ALL              	12
+#define SL_LEN_EX               	4
+#define SL_LEN_MN               	2
+#define SL_LEN_PLAN             	1
+#define SL_LEN_GOSSIP           	2
+#define SL_LEN_BATT             	1
+#define SL_LEN_STRAIN           	1
+#define SL_LEN_RICNU           		1
 
 //Display and conversions:
 //========================
@@ -118,6 +120,11 @@ public:
 
     //Pointer assignements - decoded structures:
     void assignExecutePtr(struct executeD_s **myPtr, uint8_t base, uint8_t slave);
+	void assignManagePtr(struct manageD_s **myPtr, uint8_t base, uint8_t slave);
+    void assignRicnuPtr(struct ricnuD_s **myPtr, uint8_t base, uint8_t slave);
+    void assignStrainPtr(struct strainD_s **myPtr, uint8_t base, uint8_t slave);
+    void assignGossipPtr(struct gossipD_s **myPtr, uint8_t base, uint8_t slave);
+    void assignBatteryPtr(struct batteryD_s **myPtr, uint8_t base, uint8_t slave);
 
     void populateSlaveComboBox(QComboBox *cbox, uint8_t base, uint8_t len);
     void populateExpComboBox(QComboBox *cbox);
@@ -130,6 +137,8 @@ public:
     void packetVisualizer(uint numb, uint8_t *packet);
     void decodeSlave(uint8_t base, uint8_t index);
     void decodeExecute(uint8_t base, uint8_t index);
+    void decodeManage(uint8_t base, uint8_t index);
+    void decodeGossip(uint8_t base, uint8_t index);
 	
 public slots:
 

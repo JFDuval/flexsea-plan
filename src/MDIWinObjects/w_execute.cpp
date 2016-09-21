@@ -68,8 +68,8 @@ W_Execute::~W_Execute()
 //Call this function to refresh the display
 void W_Execute::refresh(void)
 {
-    struct executeD_s *exPtr = &execD1; //Test - fix
- //   myFlexSEA_Generic.assignExecutePtr(&exPtr, SL_BASE_ALL, \
+    struct executeD_s *exPtr;
+    myFlexSEA_Generic.assignExecutePtr(&exPtr, SL_BASE_ALL, \
                                        ui->comboBox_slave->currentIndex());
     displayExecute(exPtr);
 }
@@ -118,8 +118,8 @@ void W_Execute::displayExecute(struct executeD_s *ex)
     combined_status = (ex->exRaw.status2 << 8) & ex->exRaw.status1;
     ui->disp_stat1->setText(QString::number(combined_status));
 
-    //Decode some of them:
-    //===================
+    //Decoded values:
+    //===============
 
     ui->disp_accx_d->setText(QString::number((float)ex->accel.x/1000,'f',2));
     ui->disp_accy_d->setText(QString::number((float)ex->accel.y/1000,'f',2));
