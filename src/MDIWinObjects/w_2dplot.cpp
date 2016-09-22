@@ -310,6 +310,9 @@ void W_2DPlot::initUserInput(void)
     updateVarList(4, ui->cBoxvar5);
     updateVarList(5, ui->cBoxvar6);
 
+    //By default, we track Slave 1:
+    ui->checkBoxTrack->setChecked(true);
+
     //Init flag:
     initFlag = false;
 
@@ -478,7 +481,6 @@ void W_2DPlot::assignVariableEx(uint8_t var, struct executeD_s *myPtr)
             varToPlotFormat[var] = FORMAT_32S;
             varToPlotPtr32s[var] = &nullVar32s;
             varToPlotPtrD32s[var] = &nullVar32s;
-            qDebug() << "nullVar32s:" << nullVar32s;
             break;
         case 1: //"Accel X"
             varToPlotFormat[var] = FORMAT_16S;
@@ -618,7 +620,6 @@ void W_2DPlot::assignVariableMn(uint8_t var, struct manageD_s *myPtr)
             varToPlotFormat[var] = FORMAT_32S;
             varToPlotPtr32s[var] = &nullVar32s;
             varToPlotPtrD32s[var] = &nullVar32s;
-            qDebug() << "nullVar32s:" << nullVar32s;
             break;
         case 1: //"Accel X"
             varToPlotFormat[var] = FORMAT_16S;
@@ -734,7 +735,6 @@ void W_2DPlot::assignVariableGo(uint8_t var, struct gossipD_s *myPtr)
             varToPlotFormat[var] = FORMAT_32S;
             varToPlotPtr32s[var] = &nullVar32s;
             varToPlotPtrD32s[var] = &nullVar32s;
-            qDebug() << "nullVar32s:" << nullVar32s;
             break;
         case 1: //"Accel X"
             varToPlotFormat[var] = FORMAT_16S;
@@ -842,7 +842,6 @@ void W_2DPlot::assignVariableBa(uint8_t var, struct batteryD_s *myPtr)
             varToPlotFormat[var] = FORMAT_32S;
             varToPlotPtr32s[var] = &nullVar32s;
             varToPlotPtrD32s[var] = &nullVar32s;
-            qDebug() << "nullVar32s:" << nullVar32s;
             break;
         case 1: //"Voltage"
             varToPlotFormat[var] = FORMAT_16U;
@@ -906,7 +905,6 @@ void W_2DPlot::assignVariableSt(uint8_t var, struct strainD_s *myPtr)
             varToPlotFormat[var] = FORMAT_32S;
             varToPlotPtr32s[var] = &nullVar32s;
             varToPlotPtrD32s[var] = &nullVar32s;
-            qDebug() << "nullVar32s:" << nullVar32s;
             break;
         case 1: //"Ch 1"
             varToPlotFormat[var] = FORMAT_16S;
@@ -1362,8 +1360,38 @@ void W_2DPlot::on_cBoxvar1slave_currentIndexChanged(int index)
     if(initFlag == false)
     {
         saveCurrentSettings();
-        updateVarList(0, ui->cBoxvar1);
-        assignVariable(0);
+
+        if(ui->checkBoxTrack->isChecked() == false)
+        {
+            //If the Tracking box isn't checked we only change #1:
+            updateVarList(0, ui->cBoxvar1);
+            assignVariable(0);
+            qDebug() << "Only change #1";
+        }
+        else
+        {
+            //Tracking, let's update all channels at once:
+            qDebug() << "Change all slaves.";
+
+            ui->cBoxvar2slave->setCurrentIndex(ui->cBoxvar1slave->currentIndex());
+            ui->cBoxvar3slave->setCurrentIndex(ui->cBoxvar1slave->currentIndex());
+            ui->cBoxvar4slave->setCurrentIndex(ui->cBoxvar1slave->currentIndex());
+            ui->cBoxvar5slave->setCurrentIndex(ui->cBoxvar1slave->currentIndex());
+            ui->cBoxvar6slave->setCurrentIndex(ui->cBoxvar1slave->currentIndex());
+
+            updateVarList(0, ui->cBoxvar1);
+            updateVarList(1, ui->cBoxvar2);
+            updateVarList(2, ui->cBoxvar3);
+            updateVarList(3, ui->cBoxvar4);
+            updateVarList(4, ui->cBoxvar5);
+            updateVarList(5, ui->cBoxvar6);
+            assignVariable(0);
+            assignVariable(1);
+            assignVariable(2);
+            assignVariable(3);
+            assignVariable(4);
+            assignVariable(5);
+        }
     }
 }
 
@@ -1527,4 +1555,10 @@ void W_2DPlot::on_checkBoxD6_stateChanged(int arg1)
         saveCurrentSettings();
         assignVariable(5);
     }
+}
+
+void W_2DPlot::on_pushButtonClear_clicked()
+{
+    qDebug() << "Clear plot! (Not programmed yet)";
+    init_yarrays();
 }

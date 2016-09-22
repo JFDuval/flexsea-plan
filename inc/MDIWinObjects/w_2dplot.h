@@ -118,6 +118,8 @@ private slots:
     void on_checkBoxD5_stateChanged(int arg1);
     void on_checkBoxD6_stateChanged(int arg1);
 
+    void on_pushButtonClear_clicked();
+
 private:
 	//Variables & Objects:
     Ui::W_2DPlot *ui;
