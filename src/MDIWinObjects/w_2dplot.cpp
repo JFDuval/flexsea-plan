@@ -1366,12 +1366,12 @@ void W_2DPlot::on_cBoxvar1slave_currentIndexChanged(int index)
             //If the Tracking box isn't checked we only change #1:
             updateVarList(0, ui->cBoxvar1);
             assignVariable(0);
-            qDebug() << "Only change #1";
+            //qDebug() << "Only change #1";
         }
         else
         {
             //Tracking, let's update all channels at once:
-            qDebug() << "Change all slaves.";
+            qDebug() << "Change all slaves (tracking #1)";
 
             ui->cBoxvar2slave->setCurrentIndex(ui->cBoxvar1slave->currentIndex());
             ui->cBoxvar3slave->setCurrentIndex(ui->cBoxvar1slave->currentIndex());
@@ -1559,6 +1559,6 @@ void W_2DPlot::on_checkBoxD6_stateChanged(int arg1)
 
 void W_2DPlot::on_pushButtonClear_clicked()
 {
-    qDebug() << "Clear plot! (Not programmed yet)";
+    qDebug() << "Clear plot!";
     init_yarrays();
 }

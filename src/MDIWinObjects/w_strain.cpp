@@ -67,8 +67,9 @@ W_Strain::~W_Strain()
 //Call this function to refresh the display
 void W_Strain::refresh(void)
 {
-    struct strain_s *stPtr;
-    //myFlexSEA_Generic.assignStrainPtr(&stPtr, ui->comboBox_slave->currentIndex());
+    struct strainD_s *stPtr;
+    myFlexSEA_Generic.assignStrainPtr(&stPtr, SL_BASE_ALL, \
+                                       ui->comboBoxSlave->currentIndex());
     displayStrain(stPtr);
 }
 
@@ -83,66 +84,36 @@ void W_Strain::refresh(void)
 void W_Strain::init(void)
 {
     //Populates Slave list:
-    //myFlexSEA_Generic.populateComboBoxMn(ui->comboBox_slave);
-
-    //Variables:
-    //active_slave_index = ui->comboBox_slave->currentIndex();
-    //active_slave = myFlexSEA_Generic.getSlaveCodeMn(active_slave_index);
+    myFlexSEA_Generic.populateSlaveComboBox(ui->comboBoxSlave, \
+                                            SL_BASE_STRAIN, SL_LEN_STRAIN);
 }
 
-void W_Strain::displayStrain(struct strain_s *st)
+void W_Strain::displayStrain(struct strainD_s *st)
 {
     int combined_status = 0;
-/*
+
     //Raw values:
     //===========
 
-    ui->disp_accx->setText(QString::number(ex->accel.x));
-    ui->disp_accy->setText(QString::number(ex->accel.y));
-    ui->disp_accz->setText(QString::number(ex->accel.z));
-    ui->disp_gyrox->setText(QString::number(ex->gyro.x));
-    ui->disp_gyroy->setText(QString::number(ex->gyro.y));
-    ui->disp_gyroz->setText(QString::number(ex->gyro.z));
+    //ToDo Wrong
+    ui->disp_strain_ch1->setText(QString::number(st->stRaw.strain_filtered));
+    ui->disp_strain_ch2->setText(QString::number(st->stRaw.strain_filtered));
+    ui->disp_strain_ch3->setText(QString::number(st->stRaw.strain_filtered));
+    ui->disp_strain_ch4->setText(QString::number(st->stRaw.strain_filtered));
+    ui->disp_strain_ch5->setText(QString::number(st->stRaw.strain_filtered));
+    ui->disp_strain_ch6->setText(QString::number(st->stRaw.strain_filtered));
 
-    ui->disp_enc->setText(QString::number(ex->enc_display));
-
-    ui->disp_strain->setText(QString::number(ex->strain));
-    ui->disp_ana->setText(QString::number(ex->analog[0]));
-    ui->disp_ana1->setText(QString::number(ex->analog[1]));
-
-    ui->disp_current->setText(QString::number(ex->current));
-
-    ui->disp_vb->setText(QString::number(ex->volt_batt));
-    ui->disp_vg->setText(QString::number(ex->volt_int));
-    ui->disp_temp->setText(QString::number(ex->temp));
-
-    combined_status = (ex->status2 << 8) & ex->status1;
-    ui->disp_stat1->setText(QString::number(combined_status));
-
-    //Decode some of them:
+    //Decoded values:
     //===================
 
-    ui->disp_current_d->setText(QString::number((float)ex->current*18.5, 'i',0));
-    ui->disp_vb_d->setText(QString::number(P4_ADC_SUPPLY*((16*(float)ex->volt_batt/3 + 302 )/P4_ADC_MAX) / 0.0738, 'f',2));
-    ui->disp_vg_d->setText(QString::number(P4_ADC_SUPPLY*((26*(float)ex->volt_int/3 + 440 )/P4_ADC_MAX) / 0.43, 'f',2));
-    ui->disp_temp_d->setText(QString::number(((((2.625*(float)ex->temp + 41)/P4_ADC_MAX)*P4_ADC_SUPPLY) - P4_T0) / P4_TC,'f',1));
-
-    ui->disp_ana_d->setText(QString::number(((float)ex->analog[0]/P5_ADC_MAX)*P5_ADC_SUPPLY,'f',2));
-    ui->disp_ana1_d->setText(QString::number(((float)ex->analog[1]/P5_ADC_MAX)*P5_ADC_SUPPLY,'f',2));
-
-    ui->disp_accx_d->setText(QString::number((double)ex->accel.x/8192, 'f', 2));
-    ui->disp_accy_d->setText(QString::number((double)ex->accel.y/8192, 'f', 2));
-    ui->disp_accz_d->setText(QString::number((double)ex->accel.z/8192, 'f', 2));
-    ui->disp_gyrox_d->setText(QString::number((double)ex->gyro.x/16.4, 'i', 0));
-    ui->disp_gyroy_d->setText(QString::number((double)ex->gyro.y/16.4, 'i', 0));
-    ui->disp_gyroz_d->setText(QString::number((double)ex->gyro.z/16.4, 'i', 0));
-
-    ui->disp_strain_d->setText(QString::number(((double)(ex->strain-32768)/32768)*100, 'i', 0));
-
-    QString myStr;
-    myFlexSEA_Generic.execStatusBytes(ex->status1, ex->status2, &myStr);
-    ui->label_status1->setText(myStr);
-*/
+    /*
+    ui->disp_strain_ch1_d->setText(QString::number(st->strain_filtered,'i',0));
+    ui->disp_strain_ch2_d->setText(QString::number(st->strain_filtered)'i',0);
+    ui->disp_strain_ch3_d->setText(QString::number(st->strain_filtered)'i',0);
+    ui->disp_strain_ch4_d->setText(QString::number(st->strain_filtered)'i',0);
+    ui->disp_strain_ch5_d->setText(QString::number(st->strain_filtered)'i',0);
+    ui->disp_strain_ch6_d->setText(QString::number(st->strain_filtered)'i',0);
+    */
 
     //==========
 }

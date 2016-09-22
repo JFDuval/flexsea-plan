@@ -67,8 +67,9 @@ W_Battery::~W_Battery()
 //Call this function to refresh the display
 void W_Battery::refresh(void)
 {
-    struct battery_s *baPtr;
-    //myFlexSEA_Generic.assignBatteryPtr(&baPtr, ui->comboBox_slave->currentIndex());
+    struct batteryD_s *baPtr;
+    myFlexSEA_Generic.assignBatteryPtr(&baPtr, SL_BASE_ALL, \
+                                       ui->comboBox_slave->currentIndex());
     displayBattery(baPtr);
 }
 
@@ -82,69 +83,38 @@ void W_Battery::refresh(void)
 
 void W_Battery::init(void)
 {
-    //Populates Slave list:
-//    myFlexSEA_Generic.populateComboBoxBa(ui->comboBox_slave);
+    //Populates Slave list - active slave:
+    myFlexSEA_Generic.populateSlaveComboBox(ui->comboBox_slave, \
+                                            SL_BASE_BATT, SL_LEN_BATT);
 
-    //Variables:
-    //active_slave_index = ui->comboBox_slave->currentIndex();
-//    active_slave = myFlexSEA_Generic.getSlaveCodeBa(active_slave_index);
+    //Populates Slave list - connected to slave:
+    myFlexSEA_Generic.populateSlaveComboBox(ui->comboBox_slaveM, \
+                                            SL_BASE_ALL, SL_LEN_ALL);
+
+    //Start with manage 1:
+    ui->comboBox_slaveM->setCurrentIndex(SL_BASE_MN);
 }
 
-void W_Battery::displayBattery(struct battery_s *ba)
+void W_Battery::displayBattery(struct batteryD_s *ba)
 {
     int combined_status = 0;
-/*
+
     //Raw values:
     //===========
 
-    ui->disp_accx->setText(QString::number(ex->accel.x));
-    ui->disp_accy->setText(QString::number(ex->accel.y));
-    ui->disp_accz->setText(QString::number(ex->accel.z));
-    ui->disp_gyrox->setText(QString::number(ex->gyro.x));
-    ui->disp_gyroy->setText(QString::number(ex->gyro.y));
-    ui->disp_gyroz->setText(QString::number(ex->gyro.z));
+    ui->dispV->setText(QString::number(ba->baRaw.voltage));
+    ui->dispI->setText(QString::number(ba->baRaw.current));
+    ui->dispPB->setText(QString::number(ba->baRaw.pushbutton));
+    ui->dispTemp->setText(QString::number(ba->baRaw.temp));
+    ui->dispStatus1->setText(QString::number(ba->baRaw.status));
 
-    ui->disp_enc->setText(QString::number(ex->enc_display));
+    //Decoded values:
+    //===============
 
-    ui->disp_strain->setText(QString::number(ex->strain));
-    ui->disp_ana->setText(QString::number(ex->analog[0]));
-    ui->disp_ana1->setText(QString::number(ex->analog[1]));
-
-    ui->disp_current->setText(QString::number(ex->current));
-
-    ui->disp_vb->setText(QString::number(ex->volt_batt));
-    ui->disp_vg->setText(QString::number(ex->volt_int));
-    ui->disp_temp->setText(QString::number(ex->temp));
-
-    combined_status = (ex->status2 << 8) & ex->status1;
-    ui->disp_stat1->setText(QString::number(combined_status));
-
-    //Decode some of them:
-    //===================
-
-    ui->disp_current_d->setText(QString::number((float)ex->current*18.5, 'i',0));
-    ui->disp_vb_d->setText(QString::number(P4_ADC_SUPPLY*((16*(float)ex->volt_batt/3 + 302 )/P4_ADC_MAX) / 0.0738, 'f',2));
-    ui->disp_vg_d->setText(QString::number(P4_ADC_SUPPLY*((26*(float)ex->volt_int/3 + 440 )/P4_ADC_MAX) / 0.43, 'f',2));
-    ui->disp_temp_d->setText(QString::number(((((2.625*(float)ex->temp + 41)/P4_ADC_MAX)*P4_ADC_SUPPLY) - P4_T0) / P4_TC,'f',1));
-
-    ui->disp_ana_d->setText(QString::number(((float)ex->analog[0]/P5_ADC_MAX)*P5_ADC_SUPPLY,'f',2));
-    ui->disp_ana1_d->setText(QString::number(((float)ex->analog[1]/P5_ADC_MAX)*P5_ADC_SUPPLY,'f',2));
-
-    ui->disp_accx_d->setText(QString::number((double)ex->accel.x/8192, 'f', 2));
-    ui->disp_accy_d->setText(QString::number((double)ex->accel.y/8192, 'f', 2));
-    ui->disp_accz_d->setText(QString::number((double)ex->accel.z/8192, 'f', 2));
-    ui->disp_gyrox_d->setText(QString::number((double)ex->gyro.x/16.4, 'i', 0));
-    ui->disp_gyroy_d->setText(QString::number((double)ex->gyro.y/16.4, 'i', 0));
-    ui->disp_gyroz_d->setText(QString::number((double)ex->gyro.z/16.4, 'i', 0));
-
-    ui->disp_strain_d->setText(QString::number(((double)(ex->strain-32768)/32768)*100, 'i', 0));
-
-    QString myStr;
-    myFlexSEA_Generic.execStatusBytes(ex->status1, ex->status2, &myStr);
-    ui->label_status1->setText(myStr);
-*/
-
-    //==========
+    ui->dispVd->setText(QString::number((float)ba->voltage/1000,'f',2));
+    ui->dispId->setText(QString::number((float)ba->current/1000,'f',2));
+    ui->dispVd->setText(QString::number((float)ba->temp/10,'f',1));
+    ui->dispPd->setText(QString::number((float)ba->power/1000,'f',2));
 }
 
 //****************************************************************************

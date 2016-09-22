@@ -69,7 +69,7 @@ private:
 	
 	//Function(s):
 	void init(void);
-    void displayBattery(struct battery_s *ba);
+    void displayBattery(struct batteryD_s *ba);
 };
 
 //****************************************************************************
