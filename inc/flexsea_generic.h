@@ -93,6 +93,10 @@
 #define P5_ADC_SUPPLY               5.0
 #define P5_ADC_MAX                  4096
 
+//STM32 ADC conversions:
+#define STM32_ADC_SUPPLY            3.3
+#define STM32_ADC_MAX               4096
+
 //****************************************************************************
 // Namespace & Class
 //****************************************************************************
@@ -139,6 +143,8 @@ public:
     void decodeExecute(uint8_t base, uint8_t index);
     void decodeManage(uint8_t base, uint8_t index);
     void decodeGossip(uint8_t base, uint8_t index);
+    void decodeBattery(uint8_t base, uint8_t index);
+    //void decodeStrain(uint8_t base, uint8_t index);
 	
 public slots:
 

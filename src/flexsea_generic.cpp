@@ -302,45 +302,69 @@ void FlexSEA_Generic::decodeExecute(uint8_t base, uint8_t index)
 //Decodes some of Manage's fields
 void FlexSEA_Generic::decodeManage(uint8_t base, uint8_t index)
 {
-    /* ToDo
-    struct executeD_s *exDPtr;
-    assignExecutePtr(&exDPtr, base, index);
+    struct manageD_s *mnDPtr;
+    assignManagePtr(&mnDPtr, base, index);
 
     //Accel in mG
-    exDPtr->accel.x = (1000*exDPtr->exRaw.accel.x)/8192;
-    exDPtr->accel.y = (1000*exDPtr->exRaw.accel.y)/8192;
-    exDPtr->accel.z = (1000*exDPtr->exRaw.accel.z)/8192;
+    mnDPtr->accel.x = (1000*mnDPtr->mnRaw.accel.x)/8192;
+    mnDPtr->accel.y = (1000*mnDPtr->mnRaw.accel.y)/8192;
+    mnDPtr->accel.z = (1000*mnDPtr->mnRaw.accel.z)/8192;
 
     //Gyro in degrees/s
-    exDPtr->gyro.x = (100*exDPtr->exRaw.gyro.x)/164;
-    exDPtr->gyro.y = (100*exDPtr->exRaw.gyro.y)/164;
-    exDPtr->gyro.z = (100*exDPtr->exRaw.gyro.z)/164;
+    mnDPtr->gyro.x = (100*mnDPtr->mnRaw.gyro.x)/164;
+    mnDPtr->gyro.y = (100*mnDPtr->mnRaw.gyro.y)/164;
+    mnDPtr->gyro.z = (100*mnDPtr->mnRaw.gyro.z)/164;
 
-    exDPtr->analog[0] = (int32_t)1000*((float)exDPtr->exRaw.analog[0]/ \
-                        P5_ADC_MAX)*P5_ADC_SUPPLY;
-                        */
+    mnDPtr->analog[0] = (int32_t)1000*((float)mnDPtr->mnRaw.analog[0]/ \
+                        STM32_ADC_MAX)*STM32_ADC_SUPPLY;
+    mnDPtr->analog[1] = (int32_t)1000*((float)mnDPtr->mnRaw.analog[1]/ \
+                        STM32_ADC_MAX)*STM32_ADC_SUPPLY;
+    mnDPtr->analog[2] = (int32_t)1000*((float)mnDPtr->mnRaw.analog[2]/ \
+                        STM32_ADC_MAX)*STM32_ADC_SUPPLY;
+    mnDPtr->analog[3] = (int32_t)1000*((float)mnDPtr->mnRaw.analog[3]/ \
+                        STM32_ADC_MAX)*STM32_ADC_SUPPLY;
+    mnDPtr->analog[4] = (int32_t)1000*((float)mnDPtr->mnRaw.analog[4]/ \
+                        STM32_ADC_MAX)*STM32_ADC_SUPPLY;
+    mnDPtr->analog[5] = (int32_t)1000*((float)mnDPtr->mnRaw.analog[5]/ \
+                        STM32_ADC_MAX)*STM32_ADC_SUPPLY;
+    mnDPtr->analog[6] = (int32_t)1000*((float)mnDPtr->mnRaw.analog[6]/ \
+                        STM32_ADC_MAX)*STM32_ADC_SUPPLY;
+    mnDPtr->analog[7] = (int32_t)1000*((float)mnDPtr->mnRaw.analog[7]/ \
+                        STM32_ADC_MAX)*STM32_ADC_SUPPLY;
 }
 
 //Decodes some of Gossip's fields
 void FlexSEA_Generic::decodeGossip(uint8_t base, uint8_t index)
 {
-    /* ToDo
-    struct executeD_s *exDPtr;
-    assignExecutePtr(&exDPtr, base, index);
+    struct gossipD_s *goDPtr;
+    assignGossipPtr(&goDPtr, base, index);
 
     //Accel in mG
-    exDPtr->accel.x = (1000*exDPtr->exRaw.accel.x)/8192;
-    exDPtr->accel.y = (1000*exDPtr->exRaw.accel.y)/8192;
-    exDPtr->accel.z = (1000*exDPtr->exRaw.accel.z)/8192;
+    goDPtr->accel.x = (1000*goDPtr->goRaw.accel.x)/8192;
+    goDPtr->accel.y = (1000*goDPtr->goRaw.accel.y)/8192;
+    goDPtr->accel.z = (1000*goDPtr->goRaw.accel.z)/8192;
 
     //Gyro in degrees/s
-    exDPtr->gyro.x = (100*exDPtr->exRaw.gyro.x)/164;
-    exDPtr->gyro.y = (100*exDPtr->exRaw.gyro.y)/164;
-    exDPtr->gyro.z = (100*exDPtr->exRaw.gyro.z)/164;
+    goDPtr->gyro.x = (100*goDPtr->goRaw.gyro.x)/164;
+    goDPtr->gyro.y = (100*goDPtr->goRaw.gyro.y)/164;
+    goDPtr->gyro.z = (100*goDPtr->goRaw.gyro.z)/164;
 
-    exDPtr->analog[0] = (int32_t)1000*((float)exDPtr->exRaw.analog[0]/ \
-                        P5_ADC_MAX)*P5_ADC_SUPPLY;
-                        */
+    //Magneto in uT (0.15uT/LSB)
+    goDPtr->magneto.x = (15*goDPtr->goRaw.magneto.x)/100;
+    goDPtr->magneto.y = (15*goDPtr->goRaw.magneto.y)/100;
+    goDPtr->magneto.z = (15*goDPtr->goRaw.magneto.z)/100;
+}
+
+//Decodes some of Battery's fields
+void FlexSEA_Generic::decodeBattery(uint8_t base, uint8_t index)
+{
+    struct batteryD_s *baDPtr;
+    assignBatteryPtr(&baDPtr, base, index);
+
+    baDPtr->voltage = baDPtr->baRaw.voltage;  //ToDo
+    baDPtr->current = baDPtr->baRaw.current;  //ToDo
+    baDPtr->power = baDPtr->voltage * baDPtr->current;
+    baDPtr->temp = baDPtr->baRaw.temp;  //ToDo
 }
 
 
@@ -355,19 +379,19 @@ void FlexSEA_Generic::decodeSlave(uint8_t base, uint8_t index)
 
             break;
         case FLEXSEA_MANAGE_BASE:
-            //decodeManage(base, index);
+            decodeManage(base, index);
             break;
         case FLEXSEA_EXECUTE_BASE:
             decodeExecute(base, index);
             break;
         case FLEXSEA_BATTERY_BASE:
-
+            decodeBattery(base, index);
             break;
         case FLEXSEA_STRAIN_BASE:
-
+            //decodeManage(base, index);
             break;
         case FLEXSEA_GOSSIP_BASE:
-
+            decodeGossip(base, index);
             break;
         default:
             break;

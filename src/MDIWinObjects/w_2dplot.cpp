@@ -364,9 +364,10 @@ void W_2DPlot::updateVarList(uint8_t var, QComboBox *myCombo)
             break;
         case FLEXSEA_BATTERY_BASE:
             var_list << "**Unused**" << "Battery Voltage" << "Battery Current" \
-                    << "Power" << "Pushbutton" << "Status";
+                    << "Power" << "Temperature" << "Pushbutton" << "Status";
             toolTipList << "Unused" << "Decoded: mV" << "Decoded: mA" \
-                    << "Decoded: mW" << "Raw Values Only" << "Raw Values Only";
+                    << "Decoded: mW" << "Decoded: 10x C" << "Raw Values Only" \
+                    << "Raw Values Only";
             break;
         case FLEXSEA_STRAIN_BASE:
             var_list << "**Unused**" << "Strain ch[1]" << "Strain ch[2]" \
@@ -383,8 +384,8 @@ void W_2DPlot::updateVarList(uint8_t var, QComboBox *myCombo)
                     << "CapSense[1]" << "CapSense[2]" << "CapSense[3]" \
                     << "CapSense[4]" << "Status";
             toolTipList << "Unused" << "Decoded: mg" << "Decoded: mg" << "Decoded: mg" \
-                    << "Decoded: deg/s" << "Decoded: deg/s" << "Decoded: deg/s" << "Decoded: ?" \
-                    << "Decoded: ?" << "Decoded: ?" << "Raw Values Only" << "Raw Values Only" \
+                    << "Decoded: deg/s" << "Decoded: deg/s" << "Decoded: deg/s" << "Decoded: uT" \
+                    << "Decoded: uT" << "Decoded: uT" << "Raw Values Only" << "Raw Values Only" \
                     << "Raw Values Only" << "Raw Values Only" << "Raw Values Only" \
                     << "Raw Values Only" << "Raw Values Only";
             break;
@@ -420,31 +421,37 @@ void W_2DPlot::assignVariable(uint8_t var)
 
             break;
         case FLEXSEA_MANAGE_BASE:
-
-        /*
-            struct manage_s *mnPtr;
-            myFlexSEA_Generic.assignManagePtr(&mnPtr, SL_BASE_ALL, \
-                                           slaveIndex[var]);
-            //assignVariableMn(var, myPtr);
-            */
-
+            struct manageD_s *mnDPtr;
+            myFlexSEA_Generic.assignManagePtr(&mnDPtr, SL_BASE_ALL, \
+                                               slaveIndex[var]);
+            assignVariableMn(var, mnDPtr);
             break;
         case FLEXSEA_EXECUTE_BASE:
-
             struct executeD_s *exDPtr;
             myFlexSEA_Generic.assignExecutePtr(&exDPtr, SL_BASE_ALL, \
                                                slaveIndex[var]);
             assignVariableEx(var, exDPtr);
-
             break;
         case FLEXSEA_BATTERY_BASE:
-
+            struct batteryD_s *baDPtr;
+            myFlexSEA_Generic.assignBatteryPtr(&baDPtr, SL_BASE_ALL, \
+                                               slaveIndex[var]);
+            assignVariableBa(var, baDPtr);
             break;
         case FLEXSEA_STRAIN_BASE:
-
+        /* ToDo
+            struct strainD_s *stDPtr;
+            myFlexSEA_Generic.assignStrainPtr(&stDPtr, SL_BASE_ALL, \
+                                               slaveIndex[var]);
+            assignVariableSt(var, stDPtr);
+        */
             break;
-        case FLEXSEA_GOSSIP_BASE:
 
+        case FLEXSEA_GOSSIP_BASE:
+            struct gossipD_s *goDPtr;
+            myFlexSEA_Generic.assignGossipPtr(&goDPtr, SL_BASE_ALL, \
+                                               slaveIndex[var]);
+            assignVariableGo(var, goDPtr);
             break;
         default:
             break;
@@ -582,6 +589,340 @@ void W_2DPlot::assignVariableEx(uint8_t var, struct executeD_s *myPtr)
             varToPlotPtr32s[var] = &nullVar32s;   //***ToDo***
             varToPlotPtrD32s[var] = &nullVar32s;
             break;
+        default:
+            varToPlotFormat[var] = FORMAT_32S;
+            varToPlotPtr32s[var] = &nullVar32s;
+            varToPlotPtrD32s[var] = &nullVar32s;
+            varUsed[var] = false;
+            break;
+    }
+}
+
+//Assigns a pointer to the desired variable - Manage boards
+void W_2DPlot::assignVariableMn(uint8_t var, struct manageD_s *myPtr)
+{
+    //'Used' as default, 'false' when set at Unused
+    varUsed[var] = true;
+    varToPlotFormat[var] = FORMAT_32S;
+
+    //Assign pointer:
+    switch(varIndex[var])
+    {
+        /*Format: (every Case except Unused)
+         * Line 1: data format, raw variable
+         * Line 2: raw variable
+         * Line 3: decoded variable (always int32),
+                    null if not decoded  */
+        case 0: //"**Unused**"
+            varUsed[var] = false;
+            varToPlotFormat[var] = FORMAT_32S;
+            varToPlotPtr32s[var] = &nullVar32s;
+            varToPlotPtrD32s[var] = &nullVar32s;
+            qDebug() << "nullVar32s:" << nullVar32s;
+            break;
+        case 1: //"Accel X"
+            varToPlotFormat[var] = FORMAT_16S;
+            varToPlotPtr16s[var] = &myPtr->mnRaw.accel.x;
+            varToPlotPtrD32s[var] = &myPtr->accel.x;
+            break;
+        case 2: //"Accel Y"
+            varToPlotFormat[var] = FORMAT_16S;
+            varToPlotPtr16s[var] = &myPtr->mnRaw.accel.y;
+            varToPlotPtrD32s[var] = &myPtr->accel.y;
+            break;
+        case 3: //"Accel Z"
+            varToPlotFormat[var] = FORMAT_16S;
+            varToPlotPtr16s[var] = &myPtr->mnRaw.accel.z;
+            varToPlotPtrD32s[var] = &myPtr->accel.z;
+            break;
+        case 4: //"Gyro X"
+            varToPlotFormat[var] = FORMAT_16S;
+            varToPlotPtr16s[var] = &myPtr->mnRaw.gyro.x;
+            varToPlotPtrD32s[var] = &myPtr->gyro.x;
+            break;
+        case 5: //"Gyro Y"
+            varToPlotFormat[var] = FORMAT_16S;
+            varToPlotPtr16s[var] = &myPtr->mnRaw.gyro.y;
+            varToPlotPtrD32s[var] = &myPtr->gyro.y;
+            break;
+        case 6: //"Gyro Z"
+            varToPlotFormat[var] = FORMAT_16S;
+            varToPlotPtr16s[var] = &myPtr->mnRaw.gyro.z;
+            varToPlotPtrD32s[var] = &myPtr->gyro.z;
+            break;
+        case 7: //"Pushbutton"
+            varToPlotFormat[var] = FORMAT_8U;
+            varToPlotPtr8u[var] = &myPtr->mnRaw.sw1;
+            varToPlotPtrD32s[var] = &nullVar32s;
+            break;
+        case 8: //"Digital inputs"
+            varToPlotFormat[var] = FORMAT_16U;
+            varToPlotPtr16u[var] = &myPtr->mnRaw.digitalIn;
+            varToPlotPtrD32s[var] = &nullVar32s;
+            break;
+        case 9: //"Analog[0]"
+            varToPlotFormat[var] = FORMAT_16U;
+            varToPlotPtr16u[var] = &myPtr->mnRaw.analog[0];
+            varToPlotPtrD32s[var] = &myPtr->analog[0];
+            break;
+        case 10: //Analog[1]
+            varToPlotFormat[var] = FORMAT_16U;
+            varToPlotPtr16u[var] = &myPtr->mnRaw.analog[1];
+            varToPlotPtrD32s[var] = &myPtr->analog[1];
+            break;
+        case 11: //"Analog[2]"
+            varToPlotFormat[var] = FORMAT_16U;
+            varToPlotPtr16u[var] = &myPtr->mnRaw.analog[2];
+            varToPlotPtrD32s[var] = &myPtr->analog[2];
+            break;
+        case 12: //Analog[3]
+            varToPlotFormat[var] = FORMAT_16U;
+            varToPlotPtr16u[var] = &myPtr->mnRaw.analog[3];
+            varToPlotPtrD32s[var] = &myPtr->analog[3];
+            break;
+        case 13: //"Analog[4]"
+            varToPlotFormat[var] = FORMAT_16U;
+            varToPlotPtr16u[var] = &myPtr->mnRaw.analog[4];
+            varToPlotPtrD32s[var] = &myPtr->analog[4];
+            break;
+        case 14: //Analog[5]
+            varToPlotFormat[var] = FORMAT_16U;
+            varToPlotPtr16u[var] = &myPtr->mnRaw.analog[5];
+            varToPlotPtrD32s[var] = &myPtr->analog[5];
+            break;
+        case 15: //"Analog[6]"
+            varToPlotFormat[var] = FORMAT_16U;
+            varToPlotPtr16u[var] = &myPtr->mnRaw.analog[6];
+            varToPlotPtrD32s[var] = &myPtr->analog[6];
+            break;
+        case 16: //Analog[7]
+            varToPlotFormat[var] = FORMAT_16U;
+            varToPlotPtr16u[var] = &myPtr->mnRaw.analog[7];
+            varToPlotPtrD32s[var] = &myPtr->analog[7];
+            break;
+        case 17: //"Status"
+            varToPlotFormat[var] = FORMAT_8U;
+            varToPlotPtr8u[var] = &myPtr->mnRaw.status1;
+            varToPlotPtrD32s[var] = &nullVar32s;
+            break;
+        default:
+            varToPlotFormat[var] = FORMAT_32S;
+            varToPlotPtr32s[var] = &nullVar32s;
+            varToPlotPtrD32s[var] = &nullVar32s;
+            varUsed[var] = false;
+            break;
+    }
+}
+
+//Assigns a pointer to the desired variable - Gossip boards
+void W_2DPlot::assignVariableGo(uint8_t var, struct gossipD_s *myPtr)
+{
+    //'Used' as default, 'false' when set at Unused
+    varUsed[var] = true;
+    varToPlotFormat[var] = FORMAT_32S;
+
+    //Assign pointer:
+    switch(varIndex[var])
+    {
+        /*Format: (every Case except Unused)
+         * Line 1: data format, raw variable
+         * Line 2: raw variable
+         * Line 3: decoded variable (always int32),
+                    null if not decoded  */
+        case 0: //"**Unused**"
+            varUsed[var] = false;
+            varToPlotFormat[var] = FORMAT_32S;
+            varToPlotPtr32s[var] = &nullVar32s;
+            varToPlotPtrD32s[var] = &nullVar32s;
+            qDebug() << "nullVar32s:" << nullVar32s;
+            break;
+        case 1: //"Accel X"
+            varToPlotFormat[var] = FORMAT_16S;
+            varToPlotPtr16s[var] = &myPtr->goRaw.accel.x;
+            varToPlotPtrD32s[var] = &myPtr->accel.x;
+            break;
+        case 2: //"Accel Y"
+            varToPlotFormat[var] = FORMAT_16S;
+            varToPlotPtr16s[var] = &myPtr->goRaw.accel.y;
+            varToPlotPtrD32s[var] = &myPtr->accel.y;
+            break;
+        case 3: //"Accel Z"
+            varToPlotFormat[var] = FORMAT_16S;
+            varToPlotPtr16s[var] = &myPtr->goRaw.accel.z;
+            varToPlotPtrD32s[var] = &myPtr->accel.z;
+            break;
+        case 4: //"Gyro X"
+            varToPlotFormat[var] = FORMAT_16S;
+            varToPlotPtr16s[var] = &myPtr->goRaw.gyro.x;
+            varToPlotPtrD32s[var] = &myPtr->gyro.x;
+            break;
+        case 5: //"Gyro Y"
+            varToPlotFormat[var] = FORMAT_16S;
+            varToPlotPtr16s[var] = &myPtr->goRaw.gyro.y;
+            varToPlotPtrD32s[var] = &myPtr->gyro.y;
+            break;
+        case 6: //"Gyro Z"
+            varToPlotFormat[var] = FORMAT_16S;
+            varToPlotPtr16s[var] = &myPtr->goRaw.gyro.z;
+            varToPlotPtrD32s[var] = &myPtr->gyro.z;
+            break;
+        case 7: //"Magneto X"
+            varToPlotFormat[var] = FORMAT_16S;
+            varToPlotPtr16s[var] = &myPtr->goRaw.magneto.x;
+            varToPlotPtrD32s[var] = &myPtr->magneto.x;
+            break;
+        case 8: //"Magneto Y"
+            varToPlotFormat[var] = FORMAT_16S;
+            varToPlotPtr16s[var] = &myPtr->goRaw.magneto.y;
+            varToPlotPtrD32s[var] = &myPtr->magneto.y;
+            break;
+        case 9: //"Magneto Z"
+            varToPlotFormat[var] = FORMAT_16S;
+            varToPlotPtr16s[var] = &myPtr->goRaw.magneto.z;
+            varToPlotPtrD32s[var] = &myPtr->magneto.z;
+            break;
+        case 10: //"IO 1"
+            varToPlotFormat[var] = FORMAT_16U;
+            varToPlotPtr16u[var] = &myPtr->goRaw.io[0];
+            varToPlotPtrD32s[var] = &nullVar32s;
+            break;
+        case 11: //"IO 2"
+            varToPlotFormat[var] = FORMAT_16U;
+            varToPlotPtr16u[var] = &myPtr->goRaw.io[1];
+            varToPlotPtrD32s[var] = &nullVar32s;
+            break;
+        case 12: //"Capsense 1"
+            varToPlotFormat[var] = FORMAT_16U;
+            varToPlotPtr16u[var] = &myPtr->goRaw.capsense[0];
+            varToPlotPtrD32s[var] = &nullVar32s;
+            break;
+        case 13: //"Capsense 2"
+            varToPlotFormat[var] = FORMAT_16U;
+            varToPlotPtr16u[var] = &myPtr->goRaw.capsense[1];
+            varToPlotPtrD32s[var] = &nullVar32s;
+        case 14: //"Capsense 3"
+            varToPlotFormat[var] = FORMAT_16U;
+            varToPlotPtr16u[var] = &myPtr->goRaw.capsense[2];
+            varToPlotPtrD32s[var] = &nullVar32s;
+        case 15: //"Capsense 4"
+            varToPlotFormat[var] = FORMAT_16U;
+            varToPlotPtr16u[var] = &myPtr->goRaw.capsense[3];
+            varToPlotPtrD32s[var] = &nullVar32s;
+        case 16: //"Status"
+            varToPlotFormat[var] = FORMAT_8U;
+            varToPlotPtr8u[var] = &myPtr->goRaw.status;
+            varToPlotPtrD32s[var] = &nullVar32s;
+            break;
+        default:
+            varToPlotFormat[var] = FORMAT_32S;
+            varToPlotPtr32s[var] = &nullVar32s;
+            varToPlotPtrD32s[var] = &nullVar32s;
+            varUsed[var] = false;
+            break;
+    }
+}
+
+//Assigns a pointer to the desired variable - Battery boards
+void W_2DPlot::assignVariableBa(uint8_t var, struct batteryD_s *myPtr)
+{
+    //'Used' as default, 'false' when set at Unused
+    varUsed[var] = true;
+    varToPlotFormat[var] = FORMAT_32S;
+
+    //Assign pointer:
+    switch(varIndex[var])
+    {
+        /*Format: (every Case except Unused)
+         * Line 1: data format, raw variable
+         * Line 2: raw variable
+         * Line 3: decoded variable (always int32),
+                    null if not decoded  */
+        case 0: //"**Unused**"
+            varUsed[var] = false;
+            varToPlotFormat[var] = FORMAT_32S;
+            varToPlotPtr32s[var] = &nullVar32s;
+            varToPlotPtrD32s[var] = &nullVar32s;
+            qDebug() << "nullVar32s:" << nullVar32s;
+            break;
+        case 1: //"Voltage"
+            varToPlotFormat[var] = FORMAT_16U;
+            varToPlotPtr16u[var] = &myPtr->baRaw.voltage;
+            varToPlotPtrD32s[var] = &myPtr->voltage;
+            break;
+        case 2: //"Current"
+            varToPlotFormat[var] = FORMAT_16S;
+            varToPlotPtr16s[var] = &myPtr->baRaw.current;
+            varToPlotPtrD32s[var] = &myPtr->current;
+            break;
+        case 3: //"Power"
+            varToPlotFormat[var] = FORMAT_16U;
+            varToPlotPtr16u[var] = &nullVar16u;
+            varToPlotPtrD32s[var] = &myPtr->power;
+            break;
+        case 4: //"Temperature"
+            varToPlotFormat[var] = FORMAT_8U;
+            varToPlotPtr8u[var] = &myPtr->baRaw.temp;
+            varToPlotPtrD32s[var] = &myPtr->temp;
+            break;
+        case 5: //"Pushbutton"
+            varToPlotFormat[var] = FORMAT_8U;
+            varToPlotPtr8u[var] = &myPtr->baRaw.pushbutton;
+            varToPlotPtrD32s[var] = &nullVar32s;
+            break;
+        case 6: //"Status"
+            varToPlotFormat[var] = FORMAT_8U;
+            varToPlotPtr8u[var] = &myPtr->baRaw.status;
+            varToPlotPtrD32s[var] = &nullVar32s;
+            break;
+        default:
+            varToPlotFormat[var] = FORMAT_32S;
+            varToPlotPtr32s[var] = &nullVar32s;
+            varToPlotPtrD32s[var] = &nullVar32s;
+            varUsed[var] = false;
+            break;
+    }
+}
+
+//***ToDo*** incomplete
+//Assigns a pointer to the desired variable - Strain boards
+void W_2DPlot::assignVariableSt(uint8_t var, struct strainD_s *myPtr)
+{
+    //'Used' as default, 'false' when set at Unused
+    varUsed[var] = true;
+    varToPlotFormat[var] = FORMAT_32S;
+
+    //Assign pointer:
+    switch(varIndex[var])
+    {
+        /*Format: (every Case except Unused)
+         * Line 1: data format, raw variable
+         * Line 2: raw variable
+         * Line 3: decoded variable (always int32),
+                    null if not decoded  */
+
+    /*
+        case 0: //"**Unused**"
+            varUsed[var] = false;
+            varToPlotFormat[var] = FORMAT_32S;
+            varToPlotPtr32s[var] = &nullVar32s;
+            varToPlotPtrD32s[var] = &nullVar32s;
+            qDebug() << "nullVar32s:" << nullVar32s;
+            break;
+        case 1: //"Ch 1"
+            varToPlotFormat[var] = FORMAT_16S;
+            varToPlotPtr16s[var] = &myPtr->stRaw.strain_filtered;
+            varToPlotPtrD32s[var] = &myPtr->;
+            break;
+
+
+
+        case 7: //"Status"
+            varToPlotFormat[var] = FORMAT_8U;
+            varToPlotPtr8u[var] = &myPtr->goRaw.status;
+            varToPlotPtrD32s[var] = &nullVar32s;
+            break;
+
+    */
         default:
             varToPlotFormat[var] = FORMAT_32S;
             varToPlotPtr32s[var] = &nullVar32s;

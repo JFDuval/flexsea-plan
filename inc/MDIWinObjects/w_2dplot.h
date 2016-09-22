@@ -170,6 +170,10 @@ private:
     void saveCurrentSettings(void);
     void assignVariable(uint8_t var);
     void assignVariableEx(uint8_t var, struct executeD_s *myPtr);
+    void assignVariableMn(uint8_t var, struct manageD_s *myPtr);
+    void assignVariableGo(uint8_t var, struct gossipD_s *myPtr);
+    void assignVariableBa(uint8_t var, struct batteryD_s *myPtr);
+    void assignVariableSt(uint8_t var, struct strainD_s *myPtr);
 };
 
 #endif // W_2DPLOT_H
