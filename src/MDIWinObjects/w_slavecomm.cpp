@@ -123,7 +123,7 @@ void W_SlaveComm::initSlaveCom(void)
 {
     QString slave_name;
 
-    //Safeguard - protectd from signals emited during setup
+    //Safeguard - protected from signals emited during setup
     allComboBoxesPopulated = false;
 
     //Status bar:
