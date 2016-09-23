@@ -94,7 +94,6 @@ void W_2DPlot::refresh2DPlot(void)
             {
                 case FORMAT_32S:
                     update_graph_array(index, (*varToPlotPtr32s[index]));
-                    //qDebug() << "Index: " << index << (*varToPlotPtr32s[index]);
                     break;
                 case FORMAT_32U:
                     update_graph_array(index, (int)(*varToPlotPtr32u[index]));
@@ -430,10 +429,10 @@ void W_2DPlot::assignVariable(uint8_t var)
             assignVariableMn(var, mnDPtr);
             break;
         case FLEXSEA_EXECUTE_BASE:
-            struct executeD_s *exDPtr;
-            myFlexSEA_Generic.assignExecutePtr(&exDPtr, SL_BASE_ALL, \
+            struct execute_s *exPtr;
+            myFlexSEA_Generic.assignExecutePtr(&exPtr, SL_BASE_ALL, \
                                                slaveIndex[var]);
-            assignVariableEx(var, exDPtr);
+            assignVariableEx(var, exPtr);
             break;
         case FLEXSEA_BATTERY_BASE:
             struct batteryD_s *baDPtr;
@@ -462,7 +461,7 @@ void W_2DPlot::assignVariable(uint8_t var)
 }
 
 //Assigns a pointer to the desired variable - Execute boards
-void W_2DPlot::assignVariableEx(uint8_t var, struct executeD_s *myPtr)
+void W_2DPlot::assignVariableEx(uint8_t var, struct execute_s *myPtr)
 {
     //'Used' as default, 'false' when set at Unused
     varUsed[var] = true;
@@ -484,92 +483,92 @@ void W_2DPlot::assignVariableEx(uint8_t var, struct executeD_s *myPtr)
             break;
         case 1: //"Accel X"
             varToPlotFormat[var] = FORMAT_16S;
-            varToPlotPtr16s[var] = &myPtr->exRaw.accel.x;
-            varToPlotPtrD32s[var] = &myPtr->accel.x;
+            varToPlotPtr16s[var] = &myPtr->accel.x;
+            varToPlotPtrD32s[var] = &myPtr->decoded.accel.x;
             break;
         case 2: //"Accel Y"
             varToPlotFormat[var] = FORMAT_16S;
-            varToPlotPtr16s[var] = &myPtr->exRaw.accel.y;
-            varToPlotPtrD32s[var] = &myPtr->accel.y;
+            varToPlotPtr16s[var] = &myPtr->accel.y;
+            varToPlotPtrD32s[var] = &myPtr->decoded.accel.y;
             break;
         case 3: //"Accel Z"
             varToPlotFormat[var] = FORMAT_16S;
-            varToPlotPtr16s[var] = &myPtr->exRaw.accel.z;
-            varToPlotPtrD32s[var] = &myPtr->accel.z;
+            varToPlotPtr16s[var] = &myPtr->accel.z;
+            varToPlotPtrD32s[var] = &myPtr->decoded.accel.z;
             break;
         case 4: //"Gyro X"
             varToPlotFormat[var] = FORMAT_16S;
-            varToPlotPtr16s[var] = &myPtr->exRaw.gyro.x;
-            varToPlotPtrD32s[var] = &myPtr->gyro.x;
+            varToPlotPtr16s[var] = &myPtr->gyro.x;
+            varToPlotPtrD32s[var] = &myPtr->decoded.gyro.x;
             break;
         case 5: //"Gyro Y"
             varToPlotFormat[var] = FORMAT_16S;
-            varToPlotPtr16s[var] = &myPtr->exRaw.gyro.y;
-            varToPlotPtrD32s[var] = &myPtr->gyro.y;
+            varToPlotPtr16s[var] = &myPtr->gyro.y;
+            varToPlotPtrD32s[var] = &myPtr->decoded.gyro.y;
             break;
         case 6: //"Gyro Z"
             varToPlotFormat[var] = FORMAT_16S;
-            varToPlotPtr16s[var] = &myPtr->exRaw.gyro.z;
-            varToPlotPtrD32s[var] = &myPtr->gyro.z;
+            varToPlotPtr16s[var] = &myPtr->gyro.z;
+            varToPlotPtrD32s[var] = &myPtr->decoded.gyro.z;
             break;
         case 7: //"Encoder Display"
             varToPlotFormat[var] = FORMAT_32S;
-            varToPlotPtr32s[var] = &myPtr->exRaw.enc_display;
+            varToPlotPtr32s[var] = &myPtr->enc_display;
             varToPlotPtrD32s[var] = &nullVar32s;
             break;
         case 8: //"Encoder Control"
             varToPlotFormat[var] = FORMAT_32S;
-            varToPlotPtr32s[var] = &myPtr->exRaw.enc_control;
+            varToPlotPtr32s[var] = &myPtr->enc_control;
             varToPlotPtrD32s[var] = &nullVar32s;
             break;
         case 9: //"Encoder Commutation"
             varToPlotFormat[var] = FORMAT_32S;
-            varToPlotPtr32s[var] = &myPtr->exRaw.enc_commut;
+            varToPlotPtr32s[var] = &myPtr->enc_commut;
             varToPlotPtrD32s[var] = &nullVar32s;
             break;
         case 10: //"Motor current"
             varToPlotFormat[var] = FORMAT_16S;
-            varToPlotPtr16s[var] = &myPtr->exRaw.current;
-            varToPlotPtrD32s[var] = &myPtr->current;
+            varToPlotPtr16s[var] = &myPtr->current;
+            varToPlotPtrD32s[var] = &myPtr->decoded.current;
             break;
         case 11: //"Analog[0]"
             varToPlotFormat[var] = FORMAT_16U;
-            varToPlotPtr16u[var] = &myPtr->exRaw.analog[0];
-            varToPlotPtrD32s[var] = &myPtr->analog[0];
+            varToPlotPtr16u[var] = &myPtr->analog[0];
+            varToPlotPtrD32s[var] = &myPtr->decoded.analog[0];
             break;
         case 12: //Analog[1]
             varToPlotFormat[var] = FORMAT_16U;
-            varToPlotPtr16u[var] = &myPtr->exRaw.analog[1];
-            varToPlotPtrD32s[var] = &myPtr->analog[1];
+            varToPlotPtr16u[var] = &myPtr->analog[1];
+            varToPlotPtrD32s[var] = &myPtr->decoded.analog[1];
             break;
         case 13: //"Strain"
             varToPlotFormat[var] = FORMAT_16U;
-            varToPlotPtr16u[var] = &myPtr->exRaw.strain;
-            varToPlotPtrD32s[var] = &myPtr->strain;
+            varToPlotPtr16u[var] = &myPtr->strain;
+            varToPlotPtrD32s[var] = &myPtr->decoded.strain;
             break;
         case 14: //"+VB"
             varToPlotFormat[var] = FORMAT_8U;
-            varToPlotPtr8u[var] = &myPtr->exRaw.volt_batt;
-            varToPlotPtrD32s[var] = &myPtr->volt_batt;
+            varToPlotPtr8u[var] = &myPtr->volt_batt;
+            varToPlotPtrD32s[var] = &myPtr->decoded.volt_batt;
             break;
         case 15: //"+VG"
             varToPlotFormat[var] = FORMAT_8U;
-            varToPlotPtr8u[var] = &myPtr->exRaw.volt_int;
-            varToPlotPtrD32s[var] = &myPtr->volt_int;
+            varToPlotPtr8u[var] = &myPtr->volt_int;
+            varToPlotPtrD32s[var] = &myPtr->decoded.volt_int;
             break;
         case 16: //"Temp"
             varToPlotFormat[var] = FORMAT_8U;
-            varToPlotPtr8u[var] = &myPtr->exRaw.temp;
-            varToPlotPtrD32s[var] = &myPtr->temp;
+            varToPlotPtr8u[var] = &myPtr->temp;
+            varToPlotPtrD32s[var] = &myPtr->decoded.temp;
             break;
         case 17: //"Status 1"
             varToPlotFormat[var] = FORMAT_8U;
-            varToPlotPtr8u[var] = &myPtr->exRaw.status1;
+            varToPlotPtr8u[var] = &myPtr->status1;
             varToPlotPtrD32s[var] = &nullVar32s;
             break;
         case 18: //"Status 2"
             varToPlotFormat[var] = FORMAT_8U;
-            varToPlotPtr8u[var] = &myPtr->exRaw.status2;
+            varToPlotPtr8u[var] = &myPtr->status2;
             varToPlotPtrD32s[var] = &nullVar32s;
             break;
         case 19: //"Setpoint (square)"

@@ -269,33 +269,33 @@ void FlexSEA_Generic::decodeStatus(uint8_t base, uint8_t index, uint8_t stat1, \
 //Decodes some of Execute's fields
 void FlexSEA_Generic::decodeExecute(uint8_t base, uint8_t index)
 {
-    struct executeD_s *exDPtr;
-    assignExecutePtr(&exDPtr, base, index);
+    struct execute_s *exPtr;
+    assignExecutePtr(&exPtr, base, index);
 
     //Accel in mG
-    exDPtr->accel.x = (1000*exDPtr->exRaw.accel.x)/8192;
-    exDPtr->accel.y = (1000*exDPtr->exRaw.accel.y)/8192;
-    exDPtr->accel.z = (1000*exDPtr->exRaw.accel.z)/8192;
+    exPtr->decoded.accel.x = (1000*exPtr->accel.x)/8192;
+    exPtr->decoded.accel.y = (1000*exPtr->accel.y)/8192;
+    exPtr->decoded.accel.z = (1000*exPtr->accel.z)/8192;
 
     //Gyro in degrees/s
-    exDPtr->gyro.x = (100*exDPtr->exRaw.gyro.x)/164;
-    exDPtr->gyro.y = (100*exDPtr->exRaw.gyro.y)/164;
-    exDPtr->gyro.z = (100*exDPtr->exRaw.gyro.z)/164;
+    exPtr->decoded.gyro.x = (100*exPtr->gyro.x)/164;
+    exPtr->decoded.gyro.y = (100*exPtr->gyro.y)/164;
+    exPtr->decoded.gyro.z = (100*exPtr->gyro.z)/164;
 
-    exDPtr->current = (185*exDPtr->exRaw.current)/10;   //mA
+    exPtr->decoded.current = (185*exPtr->current)/10;   //mA
 
-    exDPtr->volt_batt = (int32_t)1000*P4_ADC_SUPPLY*((16*\
-                        (float)exDPtr->exRaw.volt_batt/3 + 302 ) \
+    exPtr->decoded.volt_batt = (int32_t)1000*P4_ADC_SUPPLY*((16*\
+                        (float)exPtr->volt_batt/3 + 302 ) \
                         /P4_ADC_MAX) / 0.0738;          //mV
 
-    exDPtr->volt_int = (int32_t)1000*P4_ADC_SUPPLY*((26*\
-                        (float)exDPtr->exRaw.volt_int/3 + 440 ) \
+    exPtr->decoded.volt_int = (int32_t)1000*P4_ADC_SUPPLY*((26*\
+                        (float)exPtr->volt_int/3 + 440 ) \
                         /P4_ADC_MAX) / 0.43;            //mV
 
-    exDPtr->temp = (int32_t)10*((((2.625*(float)exDPtr->exRaw.temp + 41) \
+    exPtr->decoded.temp = (int32_t)10*((((2.625*(float)exPtr->temp + 41) \
                       /P4_ADC_MAX)*P4_ADC_SUPPLY) - P4_T0) / P4_TC; //C*10
 
-    exDPtr->analog[0] = (int32_t)1000*((float)exDPtr->exRaw.analog[0]/ \
+    exPtr->decoded.analog[0] = (int32_t)1000*((float)exPtr->analog[0]/ \
                         P5_ADC_MAX)*P5_ADC_SUPPLY;
 }
 
@@ -423,6 +423,7 @@ void FlexSEA_Generic::assignExecutePtr(struct execute_s **myPtr, uint8_t base, \
     }
 }
 
+/*
 //Assign pointer - decoded data
 void FlexSEA_Generic::assignExecutePtr(struct executeD_s **myPtr, uint8_t base, \
                                        uint8_t slave)
@@ -447,6 +448,7 @@ void FlexSEA_Generic::assignExecutePtr(struct executeD_s **myPtr, uint8_t base, 
             break;
     }
 }
+*/
 
 //Assign pointer - raw data
 void FlexSEA_Generic::assignManagePtr(struct manage_s **myPtr, uint8_t base, \

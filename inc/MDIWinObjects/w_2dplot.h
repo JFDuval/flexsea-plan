@@ -117,7 +117,6 @@ private slots:
     void on_checkBoxD4_stateChanged(int arg1);
     void on_checkBoxD5_stateChanged(int arg1);
     void on_checkBoxD6_stateChanged(int arg1);
-
     void on_pushButtonClear_clicked();
 
 private:
@@ -171,7 +170,7 @@ private:
     void updateVarList(uint8_t var, QComboBox *myCombo);
     void saveCurrentSettings(void);
     void assignVariable(uint8_t var);
-    void assignVariableEx(uint8_t var, struct executeD_s *myPtr);
+    void assignVariableEx(uint8_t var, struct execute_s *myPtr);
     void assignVariableMn(uint8_t var, struct manageD_s *myPtr);
     void assignVariableGo(uint8_t var, struct gossipD_s *myPtr);
     void assignVariableBa(uint8_t var, struct batteryD_s *myPtr);

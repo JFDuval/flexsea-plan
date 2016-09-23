@@ -123,7 +123,7 @@ public:
     void assignBatteryPtr(struct battery_s **myPtr, uint8_t base, uint8_t slave);
 
     //Pointer assignements - decoded structures:
-    void assignExecutePtr(struct executeD_s **myPtr, uint8_t base, uint8_t slave);
+    //void assignExecutePtr(struct executeD_s **myPtr, uint8_t base, uint8_t slave);
 	void assignManagePtr(struct manageD_s **myPtr, uint8_t base, uint8_t slave);
     void assignRicnuPtr(struct ricnuD_s **myPtr, uint8_t base, uint8_t slave);
     void assignStrainPtr(struct strainD_s **myPtr, uint8_t base, uint8_t slave);
