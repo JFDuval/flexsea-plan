@@ -67,7 +67,7 @@ W_Manage::~W_Manage()
 //Call this function to refresh the display
 void W_Manage::refresh(void)
 {
-    struct manageD_s *mnPtr;
+    struct manage_s *mnPtr;
     myFlexSEA_Generic.assignManagePtr(&mnPtr, SL_BASE_MN, \
                                       ui->comboBox_slave->currentIndex());
     displayManage(mnPtr);
@@ -90,51 +90,51 @@ void W_Manage::init(void)
                                             SL_LEN_MN);
 }
 
-void W_Manage::displayManage(struct manageD_s *mn)
+void W_Manage::displayManage(struct manage_s *mn)
 {
     int combined_status = 0;
 
 	//Raw values:
     //===========
 	
-    ui->disp_accx->setText(QString::number(mn->mnRaw.accel.x));
-    ui->disp_accy->setText(QString::number(mn->mnRaw.accel.y));
-    ui->disp_accz->setText(QString::number(mn->mnRaw.accel.z));
-    ui->disp_gyrox->setText(QString::number(mn->mnRaw.gyro.x));
-    ui->disp_gyroy->setText(QString::number(mn->mnRaw.gyro.y));
-    ui->disp_gyroz->setText(QString::number(mn->mnRaw.gyro.z));
+    ui->disp_accx->setText(QString::number(mn->accel.x));
+    ui->disp_accy->setText(QString::number(mn->accel.y));
+    ui->disp_accz->setText(QString::number(mn->accel.z));
+    ui->disp_gyrox->setText(QString::number(mn->gyro.x));
+    ui->disp_gyroy->setText(QString::number(mn->gyro.y));
+    ui->disp_gyroz->setText(QString::number(mn->gyro.z));
 	
 	ui->dispUserButton->setText("ToDo");
 	ui->dispDI->setText("ToDo");
 	
-	ui->dispAna0->setText(QString::number(mn->mnRaw.analog[0]));
-	ui->dispAna1->setText(QString::number(mn->mnRaw.analog[1]));
-	ui->dispAna2->setText(QString::number(mn->mnRaw.analog[2]));
-	ui->dispAna3->setText(QString::number(mn->mnRaw.analog[3]));
-	ui->dispAna4->setText(QString::number(mn->mnRaw.analog[4]));
-	ui->dispAna5->setText(QString::number(mn->mnRaw.analog[5]));
-	ui->dispAna6->setText(QString::number(mn->mnRaw.analog[6]));
-	ui->dispAna7->setText(QString::number(mn->mnRaw.analog[7]));
+    ui->dispAna0->setText(QString::number(mn->analog[0]));
+    ui->dispAna1->setText(QString::number(mn->analog[1]));
+    ui->dispAna2->setText(QString::number(mn->analog[2]));
+    ui->dispAna3->setText(QString::number(mn->analog[3]));
+    ui->dispAna4->setText(QString::number(mn->analog[4]));
+    ui->dispAna5->setText(QString::number(mn->analog[5]));
+    ui->dispAna6->setText(QString::number(mn->analog[6]));
+    ui->dispAna7->setText(QString::number(mn->analog[7]));
 	
     //Decoded values:
     //===============
 	
-	ui->disp_accx_d->setText(QString::number((float)mn->accel.x/1000,'f',2));
-    ui->disp_accy_d->setText(QString::number((float)mn->accel.y/1000,'f',2));
-    ui->disp_accz_d->setText(QString::number((float)mn->accel.z/1000,'f',2));
+    ui->disp_accx_d->setText(QString::number((float)mn->decoded.accel.x/1000,'f',2));
+    ui->disp_accy_d->setText(QString::number((float)mn->decoded.accel.y/1000,'f',2));
+    ui->disp_accz_d->setText(QString::number((float)mn->decoded.accel.z/1000,'f',2));
 
-    ui->disp_gyrox_d->setText(QString::number(mn->gyro.x, 'i', 0));
-    ui->disp_gyroy_d->setText(QString::number(mn->gyro.y, 'i', 0));
-    ui->disp_gyroz_d->setText(QString::number(mn->gyro.z, 'i', 0));
+    ui->disp_gyrox_d->setText(QString::number(mn->decoded.gyro.x, 'i', 0));
+    ui->disp_gyroy_d->setText(QString::number(mn->decoded.gyro.y, 'i', 0));
+    ui->disp_gyroz_d->setText(QString::number(mn->decoded.gyro.z, 'i', 0));
 	
-	ui->dispAna0d->setText(QString::number((float)mn->analog[0]/1000,'f',2));
-	ui->dispAna1d->setText(QString::number((float)mn->analog[1]/1000,'f',2));
-	ui->dispAna2d->setText(QString::number((float)mn->analog[2]/1000,'f',2));
-	ui->dispAna3d->setText(QString::number((float)mn->analog[3]/1000,'f',2));
-	ui->dispAna4d->setText(QString::number((float)mn->analog[4]/1000,'f',2));
-	ui->dispAna5d->setText(QString::number((float)mn->analog[5]/1000,'f',2));
-	ui->dispAna6d->setText(QString::number((float)mn->analog[6]/1000,'f',2));
-	ui->dispAna7d->setText(QString::number((float)mn->analog[7]/1000,'f',2));
+    ui->dispAna0d->setText(QString::number((float)mn->decoded.analog[0]/1000,'f',2));
+    ui->dispAna1d->setText(QString::number((float)mn->decoded.analog[1]/1000,'f',2));
+    ui->dispAna2d->setText(QString::number((float)mn->decoded.analog[2]/1000,'f',2));
+    ui->dispAna3d->setText(QString::number((float)mn->decoded.analog[3]/1000,'f',2));
+    ui->dispAna4d->setText(QString::number((float)mn->decoded.analog[4]/1000,'f',2));
+    ui->dispAna5d->setText(QString::number((float)mn->decoded.analog[5]/1000,'f',2));
+    ui->dispAna6d->setText(QString::number((float)mn->decoded.analog[6]/1000,'f',2));
+    ui->dispAna7d->setText(QString::number((float)mn->decoded.analog[7]/1000,'f',2));
 
     //==========
 }

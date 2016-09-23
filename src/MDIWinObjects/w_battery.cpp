@@ -67,7 +67,7 @@ W_Battery::~W_Battery()
 //Call this function to refresh the display
 void W_Battery::refresh(void)
 {
-    struct batteryD_s *baPtr;
+    struct battery_s *baPtr;
     myFlexSEA_Generic.assignBatteryPtr(&baPtr, SL_BASE_ALL, \
                                        ui->comboBox_slave->currentIndex());
     displayBattery(baPtr);
@@ -95,26 +95,26 @@ void W_Battery::init(void)
     ui->comboBox_slaveM->setCurrentIndex(SL_BASE_MN);
 }
 
-void W_Battery::displayBattery(struct batteryD_s *ba)
+void W_Battery::displayBattery(struct battery_s *ba)
 {
     int combined_status = 0;
 
     //Raw values:
     //===========
 
-    ui->dispV->setText(QString::number(ba->baRaw.voltage));
-    ui->dispI->setText(QString::number(ba->baRaw.current));
-    ui->dispPB->setText(QString::number(ba->baRaw.pushbutton));
-    ui->dispTemp->setText(QString::number(ba->baRaw.temp));
-    ui->dispStatus1->setText(QString::number(ba->baRaw.status));
+    ui->dispV->setText(QString::number(ba->voltage));
+    ui->dispI->setText(QString::number(ba->current));
+    ui->dispPB->setText(QString::number(ba->pushbutton));
+    ui->dispTemp->setText(QString::number(ba->temp));
+    ui->dispStatus1->setText(QString::number(ba->status));
 
     //Decoded values:
     //===============
 
-    ui->dispVd->setText(QString::number((float)ba->voltage/1000,'f',2));
-    ui->dispId->setText(QString::number((float)ba->current/1000,'f',2));
-    ui->dispVd->setText(QString::number((float)ba->temp/10,'f',1));
-    ui->dispPd->setText(QString::number((float)ba->power/1000,'f',2));
+    ui->dispVd->setText(QString::number((float)ba->decoded.voltage/1000,'f',2));
+    ui->dispId->setText(QString::number((float)ba->decoded.current/1000,'f',2));
+    ui->dispVd->setText(QString::number((float)ba->decoded.temp/10,'f',1));
+    ui->dispPd->setText(QString::number((float)ba->decoded.power/1000,'f',2));
 }
 
 //****************************************************************************

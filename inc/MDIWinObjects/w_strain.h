@@ -69,7 +69,7 @@ private:
 	
 	//Function(s):
 	void init(void);
-    void displayStrain(struct strainD_s *st);
+    void displayStrain(struct strain_s *st);
 };
 
 //****************************************************************************

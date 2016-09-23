@@ -67,7 +67,7 @@ W_Strain::~W_Strain()
 //Call this function to refresh the display
 void W_Strain::refresh(void)
 {
-    struct strainD_s *stPtr;
+    struct strain_s *stPtr;
     myFlexSEA_Generic.assignStrainPtr(&stPtr, SL_BASE_ALL, \
                                        ui->comboBoxSlave->currentIndex());
     displayStrain(stPtr);
@@ -88,7 +88,7 @@ void W_Strain::init(void)
                                             SL_BASE_STRAIN, SL_LEN_STRAIN);
 }
 
-void W_Strain::displayStrain(struct strainD_s *st)
+void W_Strain::displayStrain(struct strain_s *st)
 {
     int combined_status = 0;
 
@@ -96,23 +96,23 @@ void W_Strain::displayStrain(struct strainD_s *st)
     //===========
 
     //ToDo Wrong
-    ui->disp_strain_ch1->setText(QString::number(st->stRaw.strain_filtered));
-    ui->disp_strain_ch2->setText(QString::number(st->stRaw.strain_filtered));
-    ui->disp_strain_ch3->setText(QString::number(st->stRaw.strain_filtered));
-    ui->disp_strain_ch4->setText(QString::number(st->stRaw.strain_filtered));
-    ui->disp_strain_ch5->setText(QString::number(st->stRaw.strain_filtered));
-    ui->disp_strain_ch6->setText(QString::number(st->stRaw.strain_filtered));
+    ui->disp_strain_ch1->setText(QString::number(st->strain_filtered));
+    ui->disp_strain_ch2->setText(QString::number(st->strain_filtered));
+    ui->disp_strain_ch3->setText(QString::number(st->strain_filtered));
+    ui->disp_strain_ch4->setText(QString::number(st->strain_filtered));
+    ui->disp_strain_ch5->setText(QString::number(st->strain_filtered));
+    ui->disp_strain_ch6->setText(QString::number(st->strain_filtered));
 
     //Decoded values:
     //===================
 
     /*
-    ui->disp_strain_ch1_d->setText(QString::number(st->strain_filtered,'i',0));
-    ui->disp_strain_ch2_d->setText(QString::number(st->strain_filtered)'i',0);
-    ui->disp_strain_ch3_d->setText(QString::number(st->strain_filtered)'i',0);
-    ui->disp_strain_ch4_d->setText(QString::number(st->strain_filtered)'i',0);
-    ui->disp_strain_ch5_d->setText(QString::number(st->strain_filtered)'i',0);
-    ui->disp_strain_ch6_d->setText(QString::number(st->strain_filtered)'i',0);
+    ui->disp_strain_ch1_d->setText(QString::number(st->decoded.strain_filtered,'i',0));
+    ui->disp_strain_ch2_d->setText(QString::number(st->decoded.strain_filtered)'i',0);
+    ui->disp_strain_ch3_d->setText(QString::number(st->decoded.strain_filtered)'i',0);
+    ui->disp_strain_ch4_d->setText(QString::number(st->decoded.strain_filtered)'i',0);
+    ui->disp_strain_ch5_d->setText(QString::number(st->decoded.strain_filtered)'i',0);
+    ui->disp_strain_ch6_d->setText(QString::number(st->decoded.strain_filtered)'i',0);
     */
 
     //==========

@@ -124,6 +124,8 @@ void W_Ricnu::displayRicnu(struct ricnu_s *ricnu)
     //Decode some of them:
     //===================
 
+    //***ToDo*** this shouldn't be done here - mimic w_execute
+
     ui->disp_current_d->setText(QString::number((float)ricnu->ex.current*18.5, 'i',0));
     ui->disp_vb_d->setText(QString::number(P4_ADC_SUPPLY*((16*(float)ricnu->ex.volt_batt/3 + 302 )/P4_ADC_MAX) / 0.0738, 'f',2));
 

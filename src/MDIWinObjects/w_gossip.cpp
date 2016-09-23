@@ -68,7 +68,7 @@ W_Gossip::~W_Gossip()
 //Call this function to refresh the display
 void W_Gossip::refresh(void)
 {
-    struct gossipD_s *goPtr;
+    struct gossip_s *goPtr;
     myFlexSEA_Generic.assignGossipPtr(&goPtr, SL_BASE_GOSSIP, \
                                       ui->comboBox_slave->currentIndex());
     displayGossip(goPtr);
@@ -89,49 +89,49 @@ void W_Gossip::init(void)
                                             SL_BASE_GOSSIP, SL_LEN_GOSSIP);
 }
 
-void W_Gossip::displayGossip(struct gossipD_s *go)
+void W_Gossip::displayGossip(struct gossip_s *go)
 {
     int combined_status = 0;
 
     //Raw values:
     //===========
 
-    ui->disp_accx->setText(QString::number(go->goRaw.accel.x));
-    ui->disp_accy->setText(QString::number(go->goRaw.accel.y));
-    ui->disp_accz->setText(QString::number(go->goRaw.accel.z));
+    ui->disp_accx->setText(QString::number(go->accel.x));
+    ui->disp_accy->setText(QString::number(go->accel.y));
+    ui->disp_accz->setText(QString::number(go->accel.z));
 	
-    ui->disp_gyrox->setText(QString::number(go->goRaw.gyro.x));
-    ui->disp_gyroy->setText(QString::number(go->goRaw.gyro.y));
-    ui->disp_gyroz->setText(QString::number(go->goRaw.gyro.z));
+    ui->disp_gyrox->setText(QString::number(go->gyro.x));
+    ui->disp_gyroy->setText(QString::number(go->gyro.y));
+    ui->disp_gyroz->setText(QString::number(go->gyro.z));
 	
-	ui->disp_magnetox->setText(QString::number(go->goRaw.magneto.x));
-    ui->disp_magnetoy->setText(QString::number(go->goRaw.magneto.y));
-    ui->disp_magnetoz->setText(QString::number(go->goRaw.magneto.z));
+    ui->disp_magnetox->setText(QString::number(go->magneto.x));
+    ui->disp_magnetoy->setText(QString::number(go->magneto.y));
+    ui->disp_magnetoz->setText(QString::number(go->magneto.z));
 	
-    ui->disp_cs1->setText(QString::number(go->goRaw.capsense[0]));
-    ui->disp_cs2->setText(QString::number(go->goRaw.capsense[1]));
-    ui->disp_cs3->setText(QString::number(go->goRaw.capsense[2]));
-    ui->disp_cs4->setText(QString::number(go->goRaw.capsense[3]));
+    ui->disp_cs1->setText(QString::number(go->capsense[0]));
+    ui->disp_cs2->setText(QString::number(go->capsense[1]));
+    ui->disp_cs3->setText(QString::number(go->capsense[2]));
+    ui->disp_cs4->setText(QString::number(go->capsense[3]));
 	
-	ui->disp_io1->setText(QString::number(go->goRaw.io[0]));
-	ui->disp_io2->setText(QString::number(go->goRaw.io[1]));
+    ui->disp_io1->setText(QString::number(go->io[0]));
+    ui->disp_io2->setText(QString::number(go->io[1]));
 	
-    ui->disp_stat1->setText(QString::number(go->goRaw.status));
+    ui->disp_stat1->setText(QString::number(go->status));
 	
 	//Decoded values:
     //===============
 
-    ui->disp_accx_d->setText(QString::number((float)go->accel.x/1000,'f',2));
-    ui->disp_accy_d->setText(QString::number((float)go->accel.y/1000,'f',2));
-    ui->disp_accz_d->setText(QString::number((float)go->accel.z/1000,'f',2));
+    ui->disp_accx_d->setText(QString::number((float)go->decoded.accel.x/1000,'f',2));
+    ui->disp_accy_d->setText(QString::number((float)go->decoded.accel.y/1000,'f',2));
+    ui->disp_accz_d->setText(QString::number((float)go->decoded.accel.z/1000,'f',2));
 
-    ui->disp_gyrox_d->setText(QString::number(go->gyro.x, 'i', 0));
-    ui->disp_gyroy_d->setText(QString::number(go->gyro.y, 'i', 0));
-    ui->disp_gyroz_d->setText(QString::number(go->gyro.z, 'i', 0));
+    ui->disp_gyrox_d->setText(QString::number(go->decoded.gyro.x, 'i', 0));
+    ui->disp_gyroy_d->setText(QString::number(go->decoded.gyro.y, 'i', 0));
+    ui->disp_gyroz_d->setText(QString::number(go->decoded.gyro.z, 'i', 0));
 	
-    ui->disp_magnetox_d->setText(QString::number(go->magneto.x, 'i', 0));
-    ui->disp_magnetoy_d->setText(QString::number(go->magneto.y, 'i', 0));
-    ui->disp_magnetoz_d->setText(QString::number(go->magneto.z, 'i', 0));
+    ui->disp_magnetox_d->setText(QString::number(go->decoded.magneto.x, 'i', 0));
+    ui->disp_magnetoy_d->setText(QString::number(go->decoded.magneto.y, 'i', 0));
+    ui->disp_magnetoz_d->setText(QString::number(go->decoded.magneto.z, 'i', 0));
 
     //==========
 }

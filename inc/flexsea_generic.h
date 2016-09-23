@@ -122,14 +122,6 @@ public:
     void assignGossipPtr(struct gossip_s **myPtr, uint8_t base, uint8_t slave);
     void assignBatteryPtr(struct battery_s **myPtr, uint8_t base, uint8_t slave);
 
-    //Pointer assignements - decoded structures:
-    //void assignExecutePtr(struct executeD_s **myPtr, uint8_t base, uint8_t slave);
-	void assignManagePtr(struct manageD_s **myPtr, uint8_t base, uint8_t slave);
-    void assignRicnuPtr(struct ricnuD_s **myPtr, uint8_t base, uint8_t slave);
-    void assignStrainPtr(struct strainD_s **myPtr, uint8_t base, uint8_t slave);
-    void assignGossipPtr(struct gossipD_s **myPtr, uint8_t base, uint8_t slave);
-    void assignBatteryPtr(struct batteryD_s **myPtr, uint8_t base, uint8_t slave);
-
     void populateSlaveComboBox(QComboBox *cbox, uint8_t base, uint8_t len);
     void populateExpComboBox(QComboBox *cbox);
     uint8_t getSlaveBoardType(uint8_t base, uint8_t index);
