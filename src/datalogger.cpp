@@ -67,7 +67,7 @@ void DataLogger::openFile(uint8_t item)
     QString msg = "";
 
     //File Dialog (returns the selected file name):
-    QDir::setCurrent("Plan-GUI-Logs");
+    QDir::setCurrent("../Plan-GUI-Logs");
     filename = QFileDialog::getSaveFileName( \
                 this,
                 tr("Open Log File"),
@@ -308,13 +308,13 @@ void DataLogger::init(void)
 void DataLogger::logDirectory(void)
 {
     //Do we already have a "Plan-GUI-Logs" directory?
-    if(!QDir("Plan-GUI-Logs").exists())
+    if(!QDir("../Plan-GUI-Logs").exists())
     {
         //No, create it:
-        QDir().mkdir("Plan-GUI-Logs");
-        qDebug() << "Created Plan-GUI-Logs";
-        emit setStatusBarMessage("Created the Plan-GUI-Logs directory.");
-        //ui->statusBar->showMessage("Created the Plan-GUI-Logs directory.");
+        QDir().mkdir("../Plan-GUI-Logs");
+        qDebug() << "Created /Plan-GUI-Logs";
+        emit setStatusBarMessage("Created the /Plan-GUI-Logs directory.");
+        //ui->statusBar->showMessage("Created the /Plan-GUI-Logs directory.");
     }
     else
     {
