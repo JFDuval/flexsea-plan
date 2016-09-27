@@ -71,7 +71,7 @@ void DataLogger::openFile(uint8_t item)
     filename = QFileDialog::getSaveFileName( \
                 this,
                 tr("Open Log File"),
-                QDir::currentPath(),
+                QDir::currentPath() + "\\.csv" ,
                 tr("Log files (*.txt *.csv);;All files (*.*)"));
 
     //Extract filename to simplify UI:
