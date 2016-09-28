@@ -164,12 +164,12 @@ void W_Ricnu::displayRicnu(struct ricnu_s *ricnu)
     exec1.current = ricnu->ex.current;
     exec1.volt_batt = ricnu->ex.volt_batt;
 
-    strain[0].strain_filtered = ricnu->ext_strain[0];
-    strain[1].strain_filtered = ricnu->ext_strain[1];
-    strain[2].strain_filtered = ricnu->ext_strain[2];
-    strain[3].strain_filtered = ricnu->ext_strain[3];
-    strain[4].strain_filtered = ricnu->ext_strain[4];
-    strain[5].strain_filtered = ricnu->ext_strain[5];
+    strain1.ch[0].strain_filtered = ricnu->ext_strain[0];
+    strain1.ch[1].strain_filtered = ricnu->ext_strain[1];
+    strain1.ch[2].strain_filtered = ricnu->ext_strain[2];
+    strain1.ch[3].strain_filtered = ricnu->ext_strain[3];
+    strain1.ch[4].strain_filtered = ricnu->ext_strain[4];
+    strain1.ch[5].strain_filtered = ricnu->ext_strain[5];
 }
 
 //****************************************************************************
