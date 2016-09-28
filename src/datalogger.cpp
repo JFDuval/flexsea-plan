@@ -77,30 +77,39 @@ void DataLogger::openFile(uint8_t item)
     //Extract filename to simplify UI:
     QString path = QDir::currentPath();
     int pathLen = path.length();
-    //qDebug() << "Current path: " << path << ", len = " << pathLen;
     QString shortFileName = filename.mid(pathLen+1);
-    //qDebug() << "File name: " << shortFileName;
+
 
     //Now we open it:
     logFile.setFileName(filename);
     if(logFile.open(QIODevice::ReadWrite))
     {
-        msg = "Successfully opened: '" + shortFileName + "'.";
+        msg = tr("Successfully opened: '") + shortFileName + "'.";
         emit setLogFileStatus(msg);
         qDebug() << msg;
+
+        //Associate stream to file:
+        logFileStream.setDevice(&logFile);
+        msg = tr("Opened '") + filename + "'.";
+        emit setStatusBarMessage(msg);
+
+        //TODO Will it be the best way to handle the file status since another function can close it?
+        fileOpened[item] = true;
+
     }
+
+    //If no file selected
     else
     {
-        msg = "Datalogging file error!";
+        msg = tr("No log file selected.");
         emit setLogFileStatus(msg);
         qDebug() << msg;
-    }
-    //Associate stream to file:
-    logFileStream.setDevice(&logFile);
 
-    msg = "Opened '" + filename + "'.";
-    emit setStatusBarMessage(msg);
-    fileOpened[0] = true;
+        msg = tr("No log file selected or the file couldn't be opened.");
+        emit setStatusBarMessage(msg);
+        fileOpened[item] = false;
+        //todo
+    }
 }
 
 void DataLogger::writeToFile(uint8_t item, uint8_t slaveIndex, uint8_t expIndex)
