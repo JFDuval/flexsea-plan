@@ -81,7 +81,7 @@ void FlexSEA_Generic::init(void)
 
     var_list_exp.clear();
     var_list_exp << "Read All (Barebone)" << "In Control" \
-                    << "Strain Amp" << "RIC/NU Knee" << "CSEA Knee" \
+                    << "RIC/NU Knee" << "CSEA Knee" \
                     << "2DOF Ankle" << "[Your project]";
 }
 

@@ -458,6 +458,8 @@ void W_2DPlot::assignVariable(uint8_t var)
     }
 }
 
+//TODO move this to the w_board files
+
 //Assigns a pointer to the desired variable - Execute boards
 void W_2DPlot::assignVariableEx(uint8_t var, struct execute_s *myPtr)
 {
