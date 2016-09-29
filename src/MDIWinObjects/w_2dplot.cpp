@@ -441,12 +441,10 @@ void W_2DPlot::assignVariable(uint8_t var)
             assignVariableBa(var, baPtr);
             break;
         case FLEXSEA_STRAIN_BASE:
-        /* ToDo
-            struct strainD_s *stDPtr;
-            myFlexSEA_Generic.assignStrainPtr(&stDPtr, SL_BASE_ALL, \
+            struct strain_s *stPtr;
+            myFlexSEA_Generic.assignStrainPtr(&stPtr, SL_BASE_ALL, \
                                                slaveIndex[var]);
-            assignVariableSt(var, stDPtr);
-        */
+            assignVariableSt(var, stPtr);
             break;
 
         case FLEXSEA_GOSSIP_BASE:
@@ -459,6 +457,8 @@ void W_2DPlot::assignVariable(uint8_t var)
             break;
     }
 }
+
+//TODO move this to the w_board files
 
 //Assigns a pointer to the desired variable - Execute boards
 void W_2DPlot::assignVariableEx(uint8_t var, struct execute_s *myPtr)
@@ -881,7 +881,6 @@ void W_2DPlot::assignVariableBa(uint8_t var, struct battery_s *myPtr)
     }
 }
 
-//***ToDo*** incomplete
 //Assigns a pointer to the desired variable - Strain boards
 void W_2DPlot::assignVariableSt(uint8_t var, struct strain_s *myPtr)
 {
@@ -898,7 +897,6 @@ void W_2DPlot::assignVariableSt(uint8_t var, struct strain_s *myPtr)
          * Line 3: decoded variable (always int32),
                     null if not decoded  */
 
-    /*
         case 0: //"**Unused**"
             varUsed[var] = false;
             varToPlotFormat[var] = FORMAT_32S;
@@ -906,20 +904,43 @@ void W_2DPlot::assignVariableSt(uint8_t var, struct strain_s *myPtr)
             varToPlotPtrD32s[var] = &nullVar32s;
             break;
         case 1: //"Ch 1"
-            varToPlotFormat[var] = FORMAT_16S;
-            varToPlotPtr16s[var] = &myPtr->stRaw.strain_filtered;
-            varToPlotPtrD32s[var] = &myPtr->;
+            varToPlotFormat[var] = FORMAT_16U;
+            varToPlotPtr16u[var] = &myPtr->ch[0].strain_filtered;
+            varToPlotPtrD32s[var] = &myPtr->decoded.strain[0];
             break;
-
-
-
+        case 2: //"Ch 2"
+            varToPlotFormat[var] = FORMAT_16U;
+            varToPlotPtr16u[var] = &myPtr->ch[1].strain_filtered;
+            varToPlotPtrD32s[var] = &myPtr->decoded.strain[1];
+            break;
+        case 3: //"Ch 3"
+            varToPlotFormat[var] = FORMAT_16U;
+            varToPlotPtr16u[var] = &myPtr->ch[2].strain_filtered;
+            varToPlotPtrD32s[var] = &myPtr->decoded.strain[2];
+            break;
+        case 4: //"Ch 4"
+            varToPlotFormat[var] = FORMAT_16U;
+            varToPlotPtr16u[var] = &myPtr->ch[3].strain_filtered;
+            varToPlotPtrD32s[var] = &myPtr->decoded.strain[3];
+            break;
+        case 5: //"Ch 5"
+            varToPlotFormat[var] = FORMAT_16U;
+            varToPlotPtr16u[var] = &myPtr->ch[4].strain_filtered;
+            varToPlotPtrD32s[var] = &myPtr->decoded.strain[4];
+            break;
+        case 6: //"Ch 6"
+            varToPlotFormat[var] = FORMAT_16U;
+            varToPlotPtr16u[var] = &myPtr->ch[5].strain_filtered;
+            varToPlotPtrD32s[var] = &myPtr->decoded.strain[5];
+            break;
+/*
         case 7: //"Status"
             varToPlotFormat[var] = FORMAT_8U;
             varToPlotPtr8u[var] = &myPtr->status;
             varToPlotPtrD32s[var] = &nullVar32s;
             break;
+*/
 
-    */
         default:
             varToPlotFormat[var] = FORMAT_32S;
             varToPlotPtr32s[var] = &nullVar32s;

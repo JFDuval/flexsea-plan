@@ -95,25 +95,22 @@ void W_Strain::displayStrain(struct strain_s *st)
     //Raw values:
     //===========
 
-    //ToDo Wrong
-    ui->disp_strain_ch1->setText(QString::number(st->strain_filtered));
-    ui->disp_strain_ch2->setText(QString::number(st->strain_filtered));
-    ui->disp_strain_ch3->setText(QString::number(st->strain_filtered));
-    ui->disp_strain_ch4->setText(QString::number(st->strain_filtered));
-    ui->disp_strain_ch5->setText(QString::number(st->strain_filtered));
-    ui->disp_strain_ch6->setText(QString::number(st->strain_filtered));
+    ui->disp_strain_ch1->setText(QString::number(st->ch[0].strain_filtered));
+    ui->disp_strain_ch2->setText(QString::number(st->ch[1].strain_filtered));
+    ui->disp_strain_ch3->setText(QString::number(st->ch[2].strain_filtered));
+    ui->disp_strain_ch4->setText(QString::number(st->ch[3].strain_filtered));
+    ui->disp_strain_ch5->setText(QString::number(st->ch[4].strain_filtered));
+    ui->disp_strain_ch6->setText(QString::number(st->ch[5].strain_filtered));
 
     //Decoded values:
     //===================
 
-    /*
-    ui->disp_strain_ch1_d->setText(QString::number(st->decoded.strain_filtered,'i',0));
-    ui->disp_strain_ch2_d->setText(QString::number(st->decoded.strain_filtered)'i',0);
-    ui->disp_strain_ch3_d->setText(QString::number(st->decoded.strain_filtered)'i',0);
-    ui->disp_strain_ch4_d->setText(QString::number(st->decoded.strain_filtered)'i',0);
-    ui->disp_strain_ch5_d->setText(QString::number(st->decoded.strain_filtered)'i',0);
-    ui->disp_strain_ch6_d->setText(QString::number(st->decoded.strain_filtered)'i',0);
-    */
+    ui->disp_strain_ch1_d->setText(QString::number(st->decoded.strain[0],'i',0));
+    ui->disp_strain_ch2_d->setText(QString::number(st->decoded.strain[1],'i',0));
+    ui->disp_strain_ch3_d->setText(QString::number(st->decoded.strain[2],'i',0));
+    ui->disp_strain_ch4_d->setText(QString::number(st->decoded.strain[3],'i',0));
+    ui->disp_strain_ch5_d->setText(QString::number(st->decoded.strain[4],'i',0));
+    ui->disp_strain_ch6_d->setText(QString::number(st->decoded.strain[5],'i',0));
 
     //==========
 }

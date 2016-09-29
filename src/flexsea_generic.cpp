@@ -81,7 +81,7 @@ void FlexSEA_Generic::init(void)
 
     var_list_exp.clear();
     var_list_exp << "Read All (Barebone)" << "In Control" \
-                    << "Strain Amp" << "RIC/NU Knee" << "CSEA Knee" \
+                    << "RIC/NU Knee" << "CSEA Knee" \
                     << "2DOF Ankle" << "[Your project]";
 }
 
@@ -266,6 +266,8 @@ void FlexSEA_Generic::decodeStatus(uint8_t base, uint8_t index, uint8_t stat1, \
     }
 }
 
+//TODO these decoding functions should be in the w_board files
+
 //Decodes some of Execute's fields
 void FlexSEA_Generic::decodeExecute(uint8_t base, uint8_t index)
 {
@@ -361,12 +363,26 @@ void FlexSEA_Generic::decodeBattery(uint8_t base, uint8_t index)
     struct battery_s *baPtr;
     assignBatteryPtr(&baPtr, base, index);
 
-    baPtr->decoded.voltage = baPtr->voltage;  //ToDo
-    baPtr->decoded.current = baPtr->current;  //ToDo
+    baPtr->decoded.voltage = baPtr->voltage;    //TODO
+    baPtr->decoded.current = baPtr->current;    //TODO
     baPtr->decoded.power = baPtr->voltage * baPtr->current;
-    baPtr->decoded.temp = baPtr->temp;  //ToDo
+    baPtr->decoded.temp = baPtr->temp;          //TODO
 }
 
+//Decodes some of Strain's fields
+void FlexSEA_Generic::decodeStrain(uint8_t base, uint8_t index)
+{
+    struct strain_s *stPtr;
+    assignStrainPtr(&stPtr, base, index);
+
+    stPtr->decoded.strain[0] = (100*(stPtr->ch[0].strain_filtered-32768)/32768);
+    stPtr->decoded.strain[1] = (100*(stPtr->ch[1].strain_filtered-32768)/32768);
+    stPtr->decoded.strain[2] = (100*(stPtr->ch[2].strain_filtered-32768)/32768);
+    stPtr->decoded.strain[3] = (100*(stPtr->ch[3].strain_filtered-32768)/32768);
+    stPtr->decoded.strain[4] = (100*(stPtr->ch[4].strain_filtered-32768)/32768);
+    stPtr->decoded.strain[5] = (100*(stPtr->ch[5].strain_filtered-32768)/32768);
+
+}
 
 //Decodes some of the slave's fields
 void FlexSEA_Generic::decodeSlave(uint8_t base, uint8_t index)
@@ -388,7 +404,7 @@ void FlexSEA_Generic::decodeSlave(uint8_t base, uint8_t index)
             decodeBattery(base, index);
             break;
         case FLEXSEA_STRAIN_BASE:
-            //decodeManage(base, index);
+            decodeStrain(base, index);
             break;
         case FLEXSEA_GOSSIP_BASE:
             decodeGossip(base, index);
@@ -485,10 +501,10 @@ void FlexSEA_Generic::assignStrainPtr(struct strain_s **myPtr, uint8_t base, \
     switch(list_to_slave[base+slave])
     {
         case FLEXSEA_STRAIN_1:
-            *myPtr = &strain[0];    //***ToDo 99% sure this is wrong!
+            *myPtr = &strain1;
             break;
         default:
-            *myPtr = &strain[0];
+            *myPtr = &strain1;
             break;
     }
 }

@@ -175,6 +175,8 @@ void DataLogger::getFctPtrs(uint8_t slaveIndex, uint8_t expIndex, \
                 case FLEXSEA_PLAN_BASE:
                     break;
                 case FLEXSEA_MANAGE_BASE:
+                    (*myHeaderFctPtr) = &writeManageReadAllHeader;
+                    (*myLogFctPtr) = &logReadAllManage;
                     break;
                 case FLEXSEA_EXECUTE_BASE:
                     (*myHeaderFctPtr) = &writeExecuteReadAllHeader;
@@ -183,25 +185,26 @@ void DataLogger::getFctPtrs(uint8_t slaveIndex, uint8_t expIndex, \
                 case FLEXSEA_BATTERY_BASE:
                     break;
                 case FLEXSEA_STRAIN_BASE:
+                    (*myHeaderFctPtr) = &writeStrainReadAllHeader;
+                    (*myLogFctPtr) = &logReadAllStrain;
                     break;
                 case FLEXSEA_GOSSIP_BASE:
+                    (*myHeaderFctPtr) = &writeGossipReadAllHeader;
+                    (*myLogFctPtr) = &logReadAllGossip;
                     break;
             }
             break;
         case 1: //In Control
             qDebug() << "Not programmed!";
             break;
-        case 2: //Strain Amp
-            qDebug() << "Not programmed!";
-            break;
-        case 3: //RIC/NU Knee
+        case 2: //RIC/NU Knee
             (*myHeaderFctPtr) = &writeReadAllRicnuHeader;
             (*myLogFctPtr) = &logReadAllRicnu;
             break;
-        case 4: //CSEA Knee
+        case 3: //CSEA Knee
             qDebug() << "Not programmed!";
             break;
-        case 5: //2DOF Ankle
+        case 4: //2DOF Ankle
             qDebug() << "Not programmed!";
             break;
         default:
@@ -247,6 +250,50 @@ void DataLogger::logReadAllExec(QTextStream *filePtr, uint8_t slaveIndex, \
                         exPtr->status1 << ',' << \
                         exPtr->status2 << \
                         term;
+}
+
+void DataLogger::logReadAllStrain(QTextStream *filePtr, uint8_t slaveIndex, \
+                                char term, qint64 t_ms, QString t_text)
+{
+    struct strain_s *stPtr;
+    myFlexSEA_Generic.assignStrainPtr(&stPtr, SL_BASE_ALL, slaveIndex);
+
+    (*filePtr) << t_text << ',' << \
+                        t_ms << ',' << \
+                        stPtr->ch[0].strain_filtered << ',' << \
+                        stPtr->ch[1].strain_filtered << ',' << \
+                        stPtr->ch[2].strain_filtered << ',' << \
+                        stPtr->ch[3].strain_filtered << ',' << \
+                        stPtr->ch[4].strain_filtered << ',' << \
+                        stPtr->ch[5].strain_filtered << \
+                        term;
+}
+
+void DataLogger::logReadAllGossip(QTextStream *filePtr, uint8_t slaveIndex, \
+                                char term, qint64 t_ms, QString t_text)
+{
+    struct gossip_s *goPtr;
+    myFlexSEA_Generic.assignGossipPtr(&goPtr, SL_BASE_ALL, slaveIndex);
+
+    (*filePtr) << t_text << ',' << \
+                        t_ms << ',' << \
+                  goPtr->accel.x << ',' << \
+                  goPtr->accel.y << ',' << \
+                  goPtr->accel.z << ',' << \
+                  goPtr->gyro.x << ',' << \
+                  goPtr->gyro.y << ',' << \
+                  goPtr->gyro.z << ',' << \
+                  goPtr->magneto.x << ',' << \
+                  goPtr->magneto.y << ',' << \
+                  goPtr->magneto.z << ',' << \
+                  goPtr->io[0] << ',' << \
+                  goPtr->io[1] << ',' << \
+                  goPtr->capsense[0] << ',' << \
+                  goPtr->capsense[1] << ',' << \
+                  goPtr->capsense[2] << ',' << \
+                  goPtr->capsense[3] << ',' << \
+                  goPtr->status << \
+                  term;
 }
 
 void DataLogger::logReadAllRicnu(QTextStream *filePtr, uint8_t slaveIndex, \
@@ -384,6 +431,78 @@ void DataLogger::writeExecuteReadAllHeader(uint8_t item)
     }
 }
 
+void DataLogger::writeManageReadAllHeader(uint8_t item)
+{
+    if(fileOpened[item] == true)
+    {
+        //Print header:
+        logFileStream << "Timestamp," << \
+                        "Timestamp (ms)," << \
+                        "accel.x," << \
+                        "accel.y," << \
+                        "accel.z," << \
+                        "gyro.x," << \
+                        "gyro.y," << \
+                        "gyro.z," << \
+                        "digitalIn," << \
+                        "sw1," << \
+                        "analog0," << \
+                        "analog1," << \
+                        "analog2," << \
+                        "analog3," << \
+                        "analog4," << \
+                        "analog5," << \
+                        "analog6," << \
+                        "analog7," << \
+                        "Status1" << \
+                        endl;
+    }
+}
+
+void DataLogger::writeStrainReadAllHeader(uint8_t item)
+{
+    if(fileOpened[item] == true)
+    {
+        //Print header:
+        logFileStream << "Timestamp," << \
+                        "Timestamp (ms)," << \
+                        "ch1,"  << \
+                        "ch2,"  << \
+                        "ch3,"  << \
+                        "ch4,"  << \
+                        "ch5,"  << \
+                        "ch6"  << \
+                        endl;
+    }
+}
+
+void DataLogger::writeGossipReadAllHeader(uint8_t item)
+{
+    if(fileOpened[item] == true)
+    {
+        //Print header:
+        logFileStream << "Timestamp," << \
+                        "Timestamp (ms)," << \
+                        "accel.x," << \
+                        "accel.y," << \
+                        "accel.z," << \
+                        "gyro.x," << \
+                        "gyro.y," << \
+                        "gyro.z," << \
+                        "magneto.x," << \
+                        "magneto.y," << \
+                        "magneto.z," << \
+                        "io1," << \
+                        "io2," << \
+                        "capsense1," << \
+                        "capsense2," << \
+                        "capsense3," << \
+                        "capsense4," << \
+                        "Status1" << \
+                        endl;
+    }
+}
+
 void DataLogger::writeReadAllRicnuHeader(uint8_t item)
 {
     if(fileOpened[item] == true)
@@ -406,7 +525,7 @@ void DataLogger::writeReadAllRicnuHeader(uint8_t item)
                         "strain3," << \
                         "strain4," << \
                         "strain5," << \
-                        "strain6," << \
+                        "strain6" << \
                         endl;
     }
 }

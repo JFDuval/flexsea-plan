@@ -613,16 +613,13 @@ void W_SlaveComm::sc_item1_slot(void)
             case 1: //In Control
                 qDebug() << "Not programmed!";
                 break;
-            case 2: //Strain Amp
-                qDebug() << "Not programmed!";
-                break;
-            case 3: //RIC/NU Knee
+            case 2: //RIC/NU Knee
                 sc_read_all_ricnu(0);
                 break;
-            case 4: //CSEA Knee
+            case 3: //CSEA Knee
                 qDebug() << "Not programmed!";
                 break;
-            case 5: //2DOF Ankle
+            case 4: //2DOF Ankle
                 qDebug() << "Not programmed!";
                 break;
             default:

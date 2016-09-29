@@ -89,12 +89,19 @@ private:
     void writeIdentifier(uint8_t item, uint8_t slaveIndex, uint8_t expIndex);
     void writeExecuteReadAllHeader(uint8_t item);
     void writeReadAllRicnuHeader(uint8_t item);
+    void writeManageReadAllHeader(uint8_t item);
+    void writeStrainReadAllHeader(uint8_t item);
+    void writeGossipReadAllHeader(uint8_t item);
 	void logDirectory(void);
     void logReadAllExec(QTextStream *filePtr, uint8_t slaveIndex, \
                             char term, qint64 t_ms, QString t_text);
     void logReadAllRicnu(QTextStream *filePtr, uint8_t slaveIndex, \
                             char term, qint64 t_ms, QString t_text);
     void logReadAllManage(QTextStream *filePtr, uint8_t slaveIndex, \
+                                    char term, qint64 t_ms, QString t_text);
+    void logReadAllGossip(QTextStream *filePtr, uint8_t slaveIndex, \
+                                    char term, qint64 t_ms, QString t_text);
+    void logReadAllStrain(QTextStream *filePtr, uint8_t slaveIndex, \
                                     char term, qint64 t_ms, QString t_text);
     void getFctPtrs(uint8_t slaveIndex, uint8_t expIndex, \
                     void (DataLogger::**myHeaderFctPtr) (uint8_t item), \

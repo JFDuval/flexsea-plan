@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>334</width>
-    <height>243</height>
+    <width>244</width>
+    <height>247</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -16,7 +16,7 @@
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
     <layout class="QGridLayout" name="gridLayout_10">
-     <item row="9" column="1">
+     <item row="10" column="1">
       <spacer name="horizontalSpacer_5">
        <property name="orientation">
         <enum>Qt::Horizontal</enum>
@@ -26,13 +26,13 @@
        </property>
        <property name="sizeHint" stdset="0">
         <size>
-         <width>120</width>
-         <height>20</height>
+         <width>75</width>
+         <height>5</height>
         </size>
        </property>
       </spacer>
      </item>
-     <item row="9" column="2">
+     <item row="10" column="2">
       <spacer name="horizontalSpacer_4">
        <property name="orientation">
         <enum>Qt::Horizontal</enum>
@@ -42,14 +42,26 @@
        </property>
        <property name="sizeHint" stdset="0">
         <size>
-         <width>120</width>
-         <height>20</height>
+         <width>75</width>
+         <height>5</height>
         </size>
        </property>
       </spacer>
      </item>
      <item row="6" column="1">
       <widget class="QLabel" name="disp_strain_ch4">
+       <property name="minimumSize">
+        <size>
+         <width>75</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>75</width>
+         <height>16777215</height>
+        </size>
+       </property>
        <property name="autoFillBackground">
         <bool>false</bool>
        </property>
@@ -80,8 +92,27 @@
      <item row="0" column="1">
       <widget class="QComboBox" name="comboBoxSlave"/>
      </item>
+     <item row="1" column="0" colspan="3">
+      <widget class="Line" name="line">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+      </widget>
+     </item>
      <item row="3" column="1">
       <widget class="QLabel" name="disp_strain_ch1">
+       <property name="minimumSize">
+        <size>
+         <width>75</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>75</width>
+         <height>16777215</height>
+        </size>
+       </property>
        <property name="autoFillBackground">
         <bool>false</bool>
        </property>
@@ -127,6 +158,18 @@
      </item>
      <item row="8" column="1">
       <widget class="QLabel" name="disp_strain_ch6">
+       <property name="minimumSize">
+        <size>
+         <width>75</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>75</width>
+         <height>16777215</height>
+        </size>
+       </property>
        <property name="autoFillBackground">
         <bool>false</bool>
        </property>
@@ -159,6 +202,18 @@
      </item>
      <item row="7" column="2">
       <widget class="QLabel" name="disp_strain_ch5_d">
+       <property name="minimumSize">
+        <size>
+         <width>75</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>75</width>
+         <height>16777215</height>
+        </size>
+       </property>
        <property name="autoFillBackground">
         <bool>false</bool>
        </property>
@@ -181,6 +236,18 @@
      </item>
      <item row="3" column="2">
       <widget class="QLabel" name="disp_strain_ch1_d">
+       <property name="minimumSize">
+        <size>
+         <width>75</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>75</width>
+         <height>16777215</height>
+        </size>
+       </property>
        <property name="autoFillBackground">
         <bool>false</bool>
        </property>
@@ -203,6 +270,18 @@
      </item>
      <item row="8" column="2">
       <widget class="QLabel" name="disp_strain_ch6_d">
+       <property name="minimumSize">
+        <size>
+         <width>75</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>75</width>
+         <height>16777215</height>
+        </size>
+       </property>
        <property name="autoFillBackground">
         <bool>false</bool>
        </property>
@@ -251,6 +330,18 @@
      </item>
      <item row="7" column="1">
       <widget class="QLabel" name="disp_strain_ch5">
+       <property name="minimumSize">
+        <size>
+         <width>75</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>75</width>
+         <height>16777215</height>
+        </size>
+       </property>
        <property name="autoFillBackground">
         <bool>false</bool>
        </property>
@@ -300,7 +391,7 @@
      <item row="2" column="2">
       <widget class="QLabel" name="label_31">
        <property name="text">
-        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; text-decoration: underline;&quot;&gt;Decoded (±100%):&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; text-decoration: underline;&quot;&gt;Decoded:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
        </property>
        <property name="alignment">
         <set>Qt::AlignCenter</set>
@@ -322,6 +413,18 @@
      </item>
      <item row="4" column="1">
       <widget class="QLabel" name="disp_strain_ch2">
+       <property name="minimumSize">
+        <size>
+         <width>75</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>75</width>
+         <height>16777215</height>
+        </size>
+       </property>
        <property name="autoFillBackground">
         <bool>false</bool>
        </property>
@@ -344,6 +447,18 @@
      </item>
      <item row="4" column="2">
       <widget class="QLabel" name="disp_strain_ch2_d">
+       <property name="minimumSize">
+        <size>
+         <width>75</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>75</width>
+         <height>16777215</height>
+        </size>
+       </property>
        <property name="autoFillBackground">
         <bool>false</bool>
        </property>
@@ -366,6 +481,18 @@
      </item>
      <item row="5" column="1">
       <widget class="QLabel" name="disp_strain_ch3">
+       <property name="minimumSize">
+        <size>
+         <width>75</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>75</width>
+         <height>16777215</height>
+        </size>
+       </property>
        <property name="autoFillBackground">
         <bool>false</bool>
        </property>
@@ -388,6 +515,18 @@
      </item>
      <item row="5" column="2">
       <widget class="QLabel" name="disp_strain_ch3_d">
+       <property name="minimumSize">
+        <size>
+         <width>75</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>75</width>
+         <height>16777215</height>
+        </size>
+       </property>
        <property name="autoFillBackground">
         <bool>false</bool>
        </property>
@@ -410,6 +549,18 @@
      </item>
      <item row="6" column="2">
       <widget class="QLabel" name="disp_strain_ch4_d">
+       <property name="minimumSize">
+        <size>
+         <width>75</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>75</width>
+         <height>16777215</height>
+        </size>
+       </property>
        <property name="autoFillBackground">
         <bool>false</bool>
        </property>
@@ -430,10 +581,10 @@
        </property>
       </widget>
      </item>
-     <item row="1" column="0" colspan="3">
-      <widget class="Line" name="line">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
+     <item row="9" column="0" colspan="3">
+      <widget class="QLabel" name="label_2">
+       <property name="text">
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-style:italic;&quot;&gt;Decoded: ±100% of full scale&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
        </property>
       </widget>
      </item>

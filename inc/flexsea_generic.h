@@ -136,7 +136,7 @@ public:
     void decodeManage(uint8_t base, uint8_t index);
     void decodeGossip(uint8_t base, uint8_t index);
     void decodeBattery(uint8_t base, uint8_t index);
-    //void decodeStrain(uint8_t base, uint8_t index);
+    void decodeStrain(uint8_t base, uint8_t index);
 	
 public slots:
 
