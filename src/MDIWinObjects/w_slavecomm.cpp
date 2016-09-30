@@ -570,7 +570,8 @@ void W_SlaveComm::sc_read_all_ricnu(uint8_t item)
     emit slaveReadWrite(numb, comm_str_usb, READ);
 
     //2) Decode values
-    //...
+    myFlexSEA_Generic.decodeSlave(SL_BASE_ALL, slaveIndex);
+    //(Uncertain about timings, probably delayed by 1 sample)
 
     //3) Log
     if(logThisItem[item] == true)

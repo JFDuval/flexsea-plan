@@ -125,9 +125,9 @@ void W_Execute::displayExecute(struct execute_s *ex)
     ui->disp_accy_d->setText(QString::number((float)ex->decoded.accel.y/1000,'f',2));
     ui->disp_accz_d->setText(QString::number((float)ex->decoded.accel.z/1000,'f',2));
 
-    ui->disp_gyrox_d->setText(QString::number((double)ex->decoded.gyro.x/16.4, 'i', 0));
-    ui->disp_gyroy_d->setText(QString::number((double)ex->decoded.gyro.y/16.4, 'i', 0));
-    ui->disp_gyroz_d->setText(QString::number((double)ex->decoded.gyro.z/16.4, 'i', 0));
+    ui->disp_gyrox_d->setText(QString::number((double)ex->decoded.gyro.x, 'i', 0));
+    ui->disp_gyroy_d->setText(QString::number((double)ex->decoded.gyro.y, 'i', 0));
+    ui->disp_gyroz_d->setText(QString::number((double)ex->decoded.gyro.z, 'i', 0));
 
     ui->disp_current_d->setText(QString::number(ex->decoded.current, 'i',0));
     ui->disp_vb_d->setText(QString::number((float)ex->decoded.volt_batt/1000, 'f',2));

@@ -74,7 +74,7 @@ void FlexSEA_Generic::init(void)
     list_to_slave[8] = FLEXSEA_GOSSIP_2;
     list_to_slave[9] = FLEXSEA_BATTERY_1;
     list_to_slave[10] = FLEXSEA_STRAIN_1;
-	list_to_slave[11] = FLEXSEA_EXECUTE_1;	//RIC/NU == Execute (for now)
+    list_to_slave[11] = FLEXSEA_VIRTUAL_1;	//RIC/NU
 
     //Experiments:
     //============
@@ -284,7 +284,8 @@ void FlexSEA_Generic::decodeExecute(uint8_t base, uint8_t index)
     exPtr->decoded.gyro.y = (100*exPtr->gyro.y)/164;
     exPtr->decoded.gyro.z = (100*exPtr->gyro.z)/164;
 
-    exPtr->decoded.current = (185*exPtr->current)/10;   //mA
+    //exPtr->decoded.current = (185*exPtr->current)/10;   //mA
+    exPtr->decoded.current = exPtr->current;   //1mA/bit for sine comm.
 
     exPtr->decoded.volt_batt = (int32_t)1000*P4_ADC_SUPPLY*((16*\
                         (float)exPtr->volt_batt/3 + 302 ) \

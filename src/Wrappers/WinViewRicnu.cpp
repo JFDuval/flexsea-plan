@@ -61,7 +61,7 @@ WinViewRicnu::~WinViewRicnu()
 // Public slot(s):
 //****************************************************************************
 
-void WinViewRicnu::refreshDisplayExecute(void)
+void WinViewRicnu::refreshDisplayRicnu(void)
 {
     my_w_ricnu->refresh();
 }

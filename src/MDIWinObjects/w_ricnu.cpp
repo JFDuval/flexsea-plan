@@ -104,7 +104,7 @@ void W_Ricnu::displayRicnu(struct ricnu_s *ricnu)
     ui->disp_gyroy->setText(QString::number(ricnu->ex.gyro.y));
     ui->disp_gyroz->setText(QString::number(ricnu->ex.gyro.z));
 
-    ui->enc_mot->setText(QString::number(ricnu->ex.enc_commut));
+    ui->enc_mot->setText(QString::number(ricnu->ex.enc_motor));
     ui->enc_joint->setText(QString::number(ricnu->ex.enc_control));
 
     ui->strain1->setText(QString::number(ricnu->ext_strain[0]));
@@ -116,25 +116,18 @@ void W_Ricnu::displayRicnu(struct ricnu_s *ricnu)
 
     ui->disp_current->setText(QString::number(ricnu->ex.current));
 
-    ui->disp_vb->setText(QString::number(ricnu->ex.volt_batt));
-
-    //combined_status = (ex->status2 << 8) & ex->status1;
-    //ui->disp_stat1->setText(QString::number(combined_status));
-
     //Decode some of them:
     //===================
 
-    //***ToDo*** this shouldn't be done here - mimic w_execute
+    ui->disp_accx_d->setText(QString::number((float)ricnu->ex.decoded.accel.x/1000,'f',2));
+    ui->disp_accy_d->setText(QString::number((float)ricnu->ex.decoded.accel.y/1000,'f',2));
+    ui->disp_accz_d->setText(QString::number((float)ricnu->ex.decoded.accel.z/1000,'f',2));
 
-    ui->disp_current_d->setText(QString::number((float)ricnu->ex.current*18.5, 'i',0));
-    ui->disp_vb_d->setText(QString::number(P4_ADC_SUPPLY*((16*(float)ricnu->ex.volt_batt/3 + 302 )/P4_ADC_MAX) / 0.0738, 'f',2));
+    ui->disp_gyrox_d->setText(QString::number((double)ricnu->ex.decoded.gyro.x, 'i', 0));
+    ui->disp_gyroy_d->setText(QString::number((double)ricnu->ex.decoded.gyro.y, 'i', 0));
+    ui->disp_gyroz_d->setText(QString::number((double)ricnu->ex.decoded.gyro.z, 'i', 0));
 
-    ui->disp_accx_d->setText(QString::number((double)ricnu->ex.accel.x/8192, 'f', 2));
-    ui->disp_accy_d->setText(QString::number((double)ricnu->ex.accel.y/8192, 'f', 2));
-    ui->disp_accz_d->setText(QString::number((double)ricnu->ex.accel.z/8192, 'f', 2));
-    ui->disp_gyrox_d->setText(QString::number((double)ricnu->ex.gyro.x/16.4, 'i', 0));
-    ui->disp_gyroy_d->setText(QString::number((double)ricnu->ex.gyro.y/16.4, 'i', 0));
-    ui->disp_gyroz_d->setText(QString::number((double)ricnu->ex.gyro.z/16.4, 'i', 0));
+    ui->disp_current_d->setText(QString::number(ricnu->ex.decoded.current, 'i',0));
 
     ui->strain1d->setText(QString::number(((double)(ricnu->ext_strain[0]-32768)/32768)*100, 'i', 0));
     ui->strain2d->setText(QString::number(((double)(ricnu->ext_strain[1]-32768)/32768)*100, 'i', 0));
@@ -142,27 +135,6 @@ void W_Ricnu::displayRicnu(struct ricnu_s *ricnu)
     ui->strain4d->setText(QString::number(((double)(ricnu->ext_strain[3]-32768)/32768)*100, 'i', 0));
     ui->strain5d->setText(QString::number(((double)(ricnu->ext_strain[4]-32768)/32768)*100, 'i', 0));
     ui->strain6d->setText(QString::number(((double)(ricnu->ext_strain[5]-32768)/32768)*100, 'i', 0));
-
-
-    /*
-    QString myStr;
-    myFlexSEA_Generic.execStatusBytes(ex->status1, ex->status2, &myStr);
-    ui->label_status1->setText(myStr);
-    */
-    //==========
-
-    //***ToDo: this is an ugly hack***
-    //To be able to plot RIC/NU values we copy them in the exec & strain structures
-    exec1.accel.x = ricnu->ex.accel.x;
-    exec1.accel.y = ricnu->ex.accel.y;
-    exec1.accel.z = ricnu->ex.accel.z;
-
-    exec1.gyro.x = ricnu->ex.gyro.x;
-    exec1.gyro.y = ricnu->ex.gyro.y;
-    exec1.gyro.z = ricnu->ex.gyro.z;
-
-    exec1.current = ricnu->ex.current;
-    exec1.volt_batt = ricnu->ex.volt_batt;
 
     strain1.ch[0].strain_filtered = ricnu->ext_strain[0];
     strain1.ch[1].strain_filtered = ricnu->ext_strain[1];

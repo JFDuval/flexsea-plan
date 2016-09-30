@@ -175,6 +175,7 @@ private:
     void assignVariableGo(uint8_t var, struct gossip_s *myPtr);
     void assignVariableBa(uint8_t var, struct battery_s *myPtr);
     void assignVariableSt(uint8_t var, struct strain_s *myPtr);
+    void assignVariableRicnu(uint8_t var, struct ricnu_s *myPtr);
 };
 
 #endif // W_2DPLOT_H

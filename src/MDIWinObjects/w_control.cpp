@@ -119,6 +119,8 @@ void W_Control::initControl(void)
 
     //Toggle:
     ctrl_toggle_state = 0;
+
+    ui->statusController->setText("Active controller: none/not selected via GUI.");
 }
 
 void W_Control::initTimers(void)
@@ -176,8 +178,7 @@ void W_Control::controller_setpoint(int val)
             numb = tx_cmd_ctrl_i(active_slave, CMD_WRITE, payload_str, PAYLOAD_BUF_LEN, val, 0);
             break;
         //case 4: //Impedance
-            //valid = 0;
-            //break;
+            //Done with position (see above)
         case 5: //Custom/other
             valid = 0;
             break;
@@ -311,6 +312,11 @@ void W_Control::on_pushButton_SetController_clicked()
     numb = comm_gen_str(payload_str, comm_str_usb, PAYLOAD_BUF_LEN);
     numb = COMM_STR_BUF_LEN;
     emit writeCommand(numb, comm_str_usb);
+
+    //Notify user:
+    QString msg;
+    msg = "Active controller: " + var_list_controllers.at(wanted_controller);
+    ui->statusController->setText(msg);
 }
 
 void W_Control::on_pushButton_setp_a_go_clicked()
@@ -476,10 +482,16 @@ void W_Control::on_pushButton_SetGains_clicked()
 
     if(valid)
     {
+        qDebug() << "Valid controller.";
+
         //Common for all gain functions:
         numb = comm_gen_str(payload_str, comm_str_usb, PAYLOAD_BUF_LEN);
         numb = COMM_STR_BUF_LEN;
         emit writeCommand(numb, comm_str_usb);
+    }
+    else
+    {
+        qDebug() << "Invalid controller, no gains set.";
     }
 }
 
@@ -615,12 +627,12 @@ void W_Control::refreshStatusGain(void)
             QString::number(ctrl_gains[2][3]) + ", " + \
             QString::number(ctrl_gains[2][4]) + ", " + \
             QString::number(ctrl_gains[2][5]) + "]  Z = [" + \
-            QString::number(ctrl_gains[5][0]) + ", " + \
-            QString::number(ctrl_gains[5][1]) + ", " + \
-            QString::number(ctrl_gains[5][2]) + ", " + \
-            QString::number(ctrl_gains[5][3]) + ", " + \
-            QString::number(ctrl_gains[5][4]) + ", " + \
-            QString::number(ctrl_gains[5][5]) + "].</i>";
+            QString::number(ctrl_gains[4][0]) + ", " + \
+            QString::number(ctrl_gains[4][1]) + ", " + \
+            QString::number(ctrl_gains[4][2]) + ", " + \
+            QString::number(ctrl_gains[4][3]) + ", " + \
+            QString::number(ctrl_gains[4][4]) + ", " + \
+            QString::number(ctrl_gains[4][5]) + "].</i>";
 			
     ui->statusGains->setText(str);
     qDebug() << str;

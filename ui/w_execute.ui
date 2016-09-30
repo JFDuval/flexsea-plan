@@ -1711,6 +1711,13 @@
     </layout>
    </item>
    <item>
+    <widget class="QLabel" name="label_17">
+     <property name="text">
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-style:italic; color:#7f7f7f;&quot;&gt;Note: using a gain of 1mA/bit for the current.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     </property>
+    </widget>
+   </item>
+   <item>
     <spacer name="verticalSpacer">
      <property name="orientation">
       <enum>Qt::Vertical</enum>

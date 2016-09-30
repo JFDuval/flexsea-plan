@@ -487,11 +487,11 @@ void MainWindow::createViewRicnu(void)
 
         //Link SerialDriver and RIC/NU:
         connect(mySerialDriver, SIGNAL(newDataReady()), \
-                myViewRicnu[ricnuViewObjectCount], SLOT(refreshDisplayExecute()));
+                myViewRicnu[ricnuViewObjectCount], SLOT(refreshDisplayRicnu()));
 
         //Link to MainWindow for the close signal:
         connect(myViewRicnu[ricnuViewObjectCount], SIGNAL(windowClosed()), \
-                this, SLOT(closeViewExecute()));
+                this, SLOT(closeViewRicnu()));
 
         ricnuViewObjectCount++;
     }

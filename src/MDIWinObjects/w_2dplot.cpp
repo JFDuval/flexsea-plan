@@ -391,6 +391,19 @@ void W_2DPlot::updateVarList(uint8_t var, QComboBox *myCombo)
                     << "Raw Values Only" << "Raw Values Only" << "Raw Values Only" \
                     << "Raw Values Only" << "Raw Values Only";
             break;
+        case FLEXSEA_VIRTUAL_BASE:
+            //TODO: Virtual can be many things. For now we only use it with
+            //RIC/NU. Generalize.
+            var_list << "**Unused**" << "Accel X" << "Accel Y" << "Accel Z" \
+                    << "Gyro X" << "Gyro Y" << "Gyro Z" << "Encoder Motor" \
+                    << "Encoder Joint" << "Strain[0]" << "Strain[1]" \
+                    << "Strain[2]" << "Strain[3]" << "Strain[4]" << "Strain[5]";
+            toolTipList << "Unused" << "Decoded: mg" << "Decoded: mg" << "Decoded: mg" \
+                    << "Decoded: deg/s" << "Decoded: deg/s" << "Decoded: deg/s" << "Raw Value Only" \
+                    << "Raw value only" << "Decoded: ±100%" << "Decoded: ±100%" \
+                    << "Decoded: ±100%"<< "Decoded: ±100%"<< "Decoded: ±100%"\
+                    << "Decoded: ±100%";
+            break;
         default:
             var_list << "Invalid";
             toolTipList << "Invalid";
@@ -420,7 +433,7 @@ void W_2DPlot::assignVariable(uint8_t var)
     switch(slaveBType[var])
     {
         case FLEXSEA_PLAN_BASE:
-
+            //ToDo, if needed
             break;
         case FLEXSEA_MANAGE_BASE:
             struct manage_s *mnPtr;
@@ -446,12 +459,18 @@ void W_2DPlot::assignVariable(uint8_t var)
                                                slaveIndex[var]);
             assignVariableSt(var, stPtr);
             break;
-
         case FLEXSEA_GOSSIP_BASE:
             struct gossip_s *goPtr;
             myFlexSEA_Generic.assignGossipPtr(&goPtr, SL_BASE_ALL, \
                                                slaveIndex[var]);
             assignVariableGo(var, goPtr);
+            break;
+        case FLEXSEA_VIRTUAL_BASE:
+            //TODO Generalize for other projects than RIC/NU
+            struct ricnu_s *myPtr;
+            myFlexSEA_Generic.assignRicnuPtr(&myPtr, SL_BASE_ALL, \
+                                               slaveIndex[var]);
+            assignVariableRicnu(var, myPtr);
             break;
         default:
             break;
@@ -595,6 +614,105 @@ void W_2DPlot::assignVariableEx(uint8_t var, struct execute_s *myPtr)
             varToPlotPtr32s[var] = &nullVar32s;
             varToPlotPtrD32s[var] = &nullVar32s;
             varUsed[var] = false;
+            break;
+    }
+}
+
+//Assigns a pointer to the desired variable - RINC/NU (Execute) boards
+void W_2DPlot::assignVariableRicnu(uint8_t var, struct ricnu_s *myPtr)
+{
+    //'Used' as default, 'false' when set at Unused
+    varUsed[var] = true;
+    varToPlotFormat[var] = FORMAT_32S;
+
+    //Assign pointer:
+    switch(varIndex[var])
+    {
+        /*Format: (every Case except Unused)
+         * Line 1: data format, raw variable
+         * Line 2: raw variable
+         * Line 3: decoded variable (always int32),
+                    null if not decoded  */
+        case 0: //"**Unused**"
+            varUsed[var] = false;
+            varToPlotFormat[var] = FORMAT_32S;
+            varToPlotPtr32s[var] = &nullVar32s;
+            varToPlotPtrD32s[var] = &nullVar32s;
+            break;
+        case 1: //"Accel X"
+            varToPlotFormat[var] = FORMAT_16S;
+            varToPlotPtr16s[var] = &myPtr->ex.accel.x;
+            varToPlotPtrD32s[var] = &myPtr->ex.decoded.accel.x;
+            break;
+        case 2: //"Accel Y"
+            varToPlotFormat[var] = FORMAT_16S;
+            varToPlotPtr16s[var] = &myPtr->ex.accel.y;
+            varToPlotPtrD32s[var] = &myPtr->ex.decoded.accel.y;
+            break;
+        case 3: //"Accel Z"
+            varToPlotFormat[var] = FORMAT_16S;
+            varToPlotPtr16s[var] = &myPtr->ex.accel.z;
+            varToPlotPtrD32s[var] = &myPtr->ex.decoded.accel.z;
+            break;
+        case 4: //"Gyro X"
+            varToPlotFormat[var] = FORMAT_16S;
+            varToPlotPtr16s[var] = &myPtr->ex.gyro.x;
+            varToPlotPtrD32s[var] = &myPtr->ex.decoded.gyro.x;
+            break;
+        case 5: //"Gyro Y"
+            varToPlotFormat[var] = FORMAT_16S;
+            varToPlotPtr16s[var] = &myPtr->ex.gyro.y;
+            varToPlotPtrD32s[var] = &myPtr->ex.decoded.gyro.y;
+            break;
+        case 6: //"Gyro Z"
+            varToPlotFormat[var] = FORMAT_16S;
+            varToPlotPtr16s[var] = &myPtr->ex.gyro.z;
+            varToPlotPtrD32s[var] = &myPtr->ex.decoded.gyro.z;
+            break;
+        case 7: //"Encoder Motor"
+            varToPlotFormat[var] = FORMAT_32S;
+            varToPlotPtr32s[var] = &myPtr->ex.enc_motor;
+            varToPlotPtrD32s[var] = &nullVar32s;
+            break;
+        case 8: //"Encoder Control"
+            varToPlotFormat[var] = FORMAT_32S;
+            varToPlotPtr32s[var] = &myPtr->ex.enc_control;
+            varToPlotPtrD32s[var] = &nullVar32s;
+            break;
+        case 9: //"Motor current"
+            varToPlotFormat[var] = FORMAT_16S;
+            varToPlotPtr16s[var] = &myPtr->ex.current;
+            varToPlotPtrD32s[var] = &myPtr->ex.decoded.current;
+            break;
+        case 10: //"Strain[0]"
+            varToPlotFormat[var] = FORMAT_16U;
+            varToPlotPtr16u[var] = &myPtr->ext_strain[0];
+            varToPlotPtrD32s[var] = &myPtr->decoded.ext_strain[0];
+            break;
+        case 11: //"Strain[1]"
+            varToPlotFormat[var] = FORMAT_16U;
+            varToPlotPtr16u[var] = &myPtr->ext_strain[1];
+            varToPlotPtrD32s[var] = &myPtr->decoded.ext_strain[1];
+            break;
+        case 12: //"Strain[2]"
+            varToPlotFormat[var] = FORMAT_16U;
+            varToPlotPtr16u[var] = &myPtr->ext_strain[2];
+            varToPlotPtrD32s[var] = &myPtr->decoded.ext_strain[2];
+            break;
+        case 13: //"Strain[3]"
+            varToPlotFormat[var] = FORMAT_16U;
+            varToPlotPtr16u[var] = &myPtr->ext_strain[3];
+            varToPlotPtrD32s[var] = &myPtr->decoded.ext_strain[3];
+            break;
+        case 14: //"Strain[4]"
+            varToPlotFormat[var] = FORMAT_16U;
+            varToPlotPtr16u[var] = &myPtr->ext_strain[4];
+            varToPlotPtrD32s[var] = &myPtr->decoded.ext_strain[4];
+            break;
+        case 15: //"Strain[5]"
+            varToPlotFormat[var] = FORMAT_16U;
+            varToPlotPtr16u[var] = &myPtr->ext_strain[5];
+            varToPlotPtrD32s[var] = &myPtr->decoded.ext_strain[5];
             break;
     }
 }

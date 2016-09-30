@@ -59,7 +59,7 @@ public:
     ~WinViewRicnu();
 
 public slots:
-    void refreshDisplayExecute(void);
+    void refreshDisplayRicnu(void);
 
 signals:
     void windowClosed(void);

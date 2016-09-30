@@ -111,7 +111,6 @@ private:
 signals:
     void setLogFileStatus(QString msg);
     void setStatusBarMessage(QString msg);
-
 };
 
 //****************************************************************************
