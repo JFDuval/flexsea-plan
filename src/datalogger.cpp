@@ -67,40 +67,49 @@ void DataLogger::openFile(uint8_t item)
     QString msg = "";
 
     //File Dialog (returns the selected file name):
-    QDir::setCurrent("../Plan-GUI-Logs");
+    QDir::setCurrent("Plan-GUI-Logs");
     filename = QFileDialog::getSaveFileName( \
                 this,
                 tr("Open Log File"),
-                QDir::currentPath(),
+                QDir::currentPath() + "\\.csv" ,
                 tr("Log files (*.txt *.csv);;All files (*.*)"));
 
     //Extract filename to simplify UI:
     QString path = QDir::currentPath();
     int pathLen = path.length();
-    //qDebug() << "Current path: " << path << ", len = " << pathLen;
     QString shortFileName = filename.mid(pathLen+1);
-    //qDebug() << "File name: " << shortFileName;
+
 
     //Now we open it:
     logFile.setFileName(filename);
     if(logFile.open(QIODevice::ReadWrite))
     {
-        msg = "Successfully opened: '" + shortFileName + "'.";
+        msg = tr("Successfully opened: '") + shortFileName + "'.";
         emit setLogFileStatus(msg);
         qDebug() << msg;
+
+        //Associate stream to file:
+        logFileStream.setDevice(&logFile);
+        msg = tr("Opened '") + filename + "'.";
+        emit setStatusBarMessage(msg);
+
+        //TODO Will it be the best way to handle the file status since another function can close it?
+        fileOpened[item] = true;
+
     }
+
+    //If no file selected
     else
     {
-        msg = "Datalogging file error!";
+        msg = tr("No log file selected.");
         emit setLogFileStatus(msg);
         qDebug() << msg;
-    }
-    //Associate stream to file:
-    logFileStream.setDevice(&logFile);
 
-    msg = "Opened '" + filename + "'.";
-    emit setStatusBarMessage(msg);
-    fileOpened[0] = true;
+        msg = tr("No log file selected or the file couldn't be opened.");
+        emit setStatusBarMessage(msg);
+        fileOpened[item] = false;
+        //todo
+    }
 }
 
 void DataLogger::writeToFile(uint8_t item, uint8_t slaveIndex, uint8_t expIndex)
@@ -355,13 +364,13 @@ void DataLogger::init(void)
 void DataLogger::logDirectory(void)
 {
     //Do we already have a "Plan-GUI-Logs" directory?
-    if(!QDir("../Plan-GUI-Logs").exists())
+    if(!QDir("Plan-GUI-Logs").exists())
     {
         //No, create it:
-        QDir().mkdir("../Plan-GUI-Logs");
-        qDebug() << "Created /Plan-GUI-Logs";
-        emit setStatusBarMessage("Created the /Plan-GUI-Logs directory.");
-        //ui->statusBar->showMessage("Created the /Plan-GUI-Logs directory.");
+        QDir().mkdir("Plan-GUI-Logs");
+        qDebug() << "Created Plan-GUI-Logs";
+        emit setStatusBarMessage("Created the Plan-GUI-Logs directory.");
+        //ui->statusBar->showMessage("Created the Plan-GUI-Logs directory.");
     }
     else
     {

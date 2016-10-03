@@ -232,6 +232,7 @@ void W_PlanConfig::on_closeComButton_clicked()
     //ui->comStatusTxt->setText("COM Port closed.");
     ui->comProgressBar->setValue(0);
     ui->comProgressBar->setDisabled(true);
+
 }
 
 void W_PlanConfig::on_pushButtonRefresh_clicked()
@@ -242,4 +243,19 @@ void W_PlanConfig::on_pushButtonRefresh_clicked()
 void W_PlanConfig::on_pbOpenLog1_clicked()
 {
     emit openLogFile(0);
+}
+
+void W_PlanConfig::on_pbOpenLog2_clicked()
+{
+    emit openLogFile(1);
+}
+
+void W_PlanConfig::on_pbOpenLog3_clicked()
+{
+    emit openLogFile(2);
+}
+
+void W_PlanConfig::on_pbOpenLog4_clicked()
+{
+    emit openLogFile(3);
 }
