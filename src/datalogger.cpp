@@ -311,7 +311,7 @@ void DataLogger::logReadAllRicnu(QTextStream *filePtr, uint8_t slaveIndex, \
                         myPtr->ex.gyro.y << ',' << \
                         myPtr->ex.gyro.z << ',' << \
                         myPtr->ex.current << ',' << \
-                        myPtr->ex.enc_commut << ',' << \
+                        myPtr->ex.enc_motor << ',' << \
                         myPtr->ex.enc_control << ',' << \
                         myPtr->ex.volt_batt << ',' << \
                         myPtr->ext_strain[0] << ',' << \
