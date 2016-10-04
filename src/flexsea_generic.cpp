@@ -302,6 +302,13 @@ void FlexSEA_Generic::decodeExecute(uint8_t base, uint8_t index)
                         P5_ADC_MAX)*P5_ADC_SUPPLY;
 }
 
+//RIC/NU is a special case of Execute board. Call this AFTER decodeExecute()
+//TODO think about a better way to do this
+void FlexSEA_Generic::decodeRicnu(uint8_t base, uint8_t index)
+{
+    ricnu_1.ex = exec1;
+}
+
 //Decodes some of Manage's fields
 void FlexSEA_Generic::decodeManage(uint8_t base, uint8_t index)
 {
@@ -400,6 +407,7 @@ void FlexSEA_Generic::decodeSlave(uint8_t base, uint8_t index)
             break;
         case FLEXSEA_EXECUTE_BASE:
             decodeExecute(base, index);
+            decodeRicnu(base, index);
             break;
         case FLEXSEA_BATTERY_BASE:
             decodeBattery(base, index);

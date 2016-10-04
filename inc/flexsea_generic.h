@@ -133,6 +133,7 @@ public:
     void packetVisualizer(uint numb, uint8_t *packet);
     void decodeSlave(uint8_t base, uint8_t index);
     void decodeExecute(uint8_t base, uint8_t index);
+    void decodeRicnu(uint8_t base, uint8_t index);
     void decodeManage(uint8_t base, uint8_t index);
     void decodeGossip(uint8_t base, uint8_t index);
     void decodeBattery(uint8_t base, uint8_t index);

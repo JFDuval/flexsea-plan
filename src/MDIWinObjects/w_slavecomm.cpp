@@ -110,7 +110,7 @@ void W_SlaveComm::receiveComPortStatus(bool status)
 void W_SlaveComm::externalSlaveWrite(char numb, unsigned char *tx_data)
 {
     //First test: send right away
-    //***ToDo Fix***
+    //***TODO Fix***
     myFlexSEA_Generic.packetVisualizer(numb, tx_data);
     emit slaveReadWrite(numb, tx_data, WRITE);
 }
@@ -363,7 +363,7 @@ void W_SlaveComm::managePushButton(int idx, bool forceOff)
              if(logThisItem[0] == true)
              {
                  logThisItem[0] = false;
-                 emit closeLogFile(0);   //ToDo support multiple files
+                 emit closeLogFile(0);   //TODO support multiple files
              }
         }
     }
@@ -425,7 +425,7 @@ void W_SlaveComm::connectSCItem(int item, int sig_idx, int breakB4make)
     else
     {
         //...
-        //ToDo Items 2-4
+        //TODO Items 2-4
     }
 }
 
@@ -504,7 +504,7 @@ void W_SlaveComm::configSlaveComm(int item)
         }
         else
         {
-            //ToDo deal with Items 2-4 here
+            //TODO deal with Items 2-4 here
         }
 
         //Update status message:
@@ -604,7 +604,7 @@ void W_SlaveComm::indicatorTimeout(bool rst)
 //This is what gets connected to a timer slot.
 void W_SlaveComm::sc_item1_slot(void)
 {
-    if(pb_state[0] == 1 && sc_comPortOpen == true) //ToDo: add slot, and private variable
+    if(pb_state[0] == 1 && sc_comPortOpen == true) //TODO: add slot, and private variable
     {
         switch(selected_exp_index[0])
         {

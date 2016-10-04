@@ -175,7 +175,8 @@ void DataLogger::getFctPtrs(uint8_t slaveIndex, uint8_t expIndex, \
                 case FLEXSEA_PLAN_BASE:
                     break;
                 case FLEXSEA_MANAGE_BASE:
-                    (*myHeaderFctPtr) = &writeManageReadAllHeader;
+                    //(*myHeaderFctPtr) = &writeManageReadAllHeader;
+                    *myHeaderFctPtr = &DataLogger::writeManageReadAllHeader;
                     (*myLogFctPtr) = &logReadAllManage;
                     break;
                 case FLEXSEA_EXECUTE_BASE:
