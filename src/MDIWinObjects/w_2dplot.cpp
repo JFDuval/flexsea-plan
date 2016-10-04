@@ -396,11 +396,11 @@ void W_2DPlot::updateVarList(uint8_t var, QComboBox *myCombo)
             //RIC/NU. Generalize.
             var_list << "**Unused**" << "Accel X" << "Accel Y" << "Accel Z" \
                     << "Gyro X" << "Gyro Y" << "Gyro Z" << "Encoder Motor" \
-                    << "Encoder Joint" << "Strain[0]" << "Strain[1]" \
+                    << "Encoder Joint" << "Motor current" << "Strain[0]" << "Strain[1]" \
                     << "Strain[2]" << "Strain[3]" << "Strain[4]" << "Strain[5]";
             toolTipList << "Unused" << "Decoded: mg" << "Decoded: mg" << "Decoded: mg" \
                     << "Decoded: deg/s" << "Decoded: deg/s" << "Decoded: deg/s" << "Raw Value Only" \
-                    << "Raw value only" << "Decoded: ±100%" << "Decoded: ±100%" \
+                    << "Raw value only" << "Decoded: mA" << "Decoded: ±100%" << "Decoded: ±100%" \
                     << "Decoded: ±100%"<< "Decoded: ±100%"<< "Decoded: ±100%"\
                     << "Decoded: ±100%";
             break;

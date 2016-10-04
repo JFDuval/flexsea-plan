@@ -314,7 +314,6 @@ void DataLogger::logReadAllRicnu(QTextStream *filePtr, uint8_t slaveIndex, \
                         myPtr->ex.current << ',' << \
                         myPtr->ex.enc_motor << ',' << \
                         myPtr->ex.enc_control << ',' << \
-                        myPtr->ex.volt_batt << ',' << \
                         myPtr->ext_strain[0] << ',' << \
                         myPtr->ext_strain[1] << ',' << \
                         myPtr->ext_strain[2] << ',' << \
@@ -520,7 +519,6 @@ void DataLogger::writeReadAllRicnuHeader(uint8_t item)
                         "current," << \
                         "enc-mot," << \
                         "enc-joint," << \
-                        "VB," << \
                         "strain1," << \
                         "strain2," << \
                         "strain3," << \
