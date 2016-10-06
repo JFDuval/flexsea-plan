@@ -90,9 +90,16 @@ void W_Ricnu::init(void)
     active_slave = myFlexSEA_Generic.getSlaveID(SL_BASE_EX, active_slave_index);
 }
 
+//TODO: lots of copy&paste from w_strain.
 void W_Ricnu::displayRicnu(struct ricnu_s *ricnu)
 {
-    //int combined_status = 0;
+    //Unpack:
+    //=======
+
+    unpackCompressed6ch(ricnu->st.compressedBytes, &ricnu->st.ch[0].strain_filtered,
+                        &ricnu->st.ch[1].strain_filtered, &ricnu->st.ch[2].strain_filtered,
+                        &ricnu->st.ch[3].strain_filtered, &ricnu->st.ch[4].strain_filtered,
+                        &ricnu->st.ch[5].strain_filtered);
 
     //Raw values:
     //===========
@@ -107,12 +114,21 @@ void W_Ricnu::displayRicnu(struct ricnu_s *ricnu)
     ui->enc_mot->setText(QString::number(ricnu->ex.enc_motor));
     ui->enc_joint->setText(QString::number(ricnu->ex.enc_control));
 
+    ui->strain1->setText(QString::number(ricnu->st.ch[0].strain_filtered));
+    ui->strain2->setText(QString::number(ricnu->st.ch[1].strain_filtered));
+    ui->strain3->setText(QString::number(ricnu->st.ch[2].strain_filtered));
+    ui->strain4->setText(QString::number(ricnu->st.ch[3].strain_filtered));
+    ui->strain5->setText(QString::number(ricnu->st.ch[4].strain_filtered));
+    ui->strain6->setText(QString::number(ricnu->st.ch[5].strain_filtered));
+
+    /*
     ui->strain1->setText(QString::number(ricnu->ext_strain[0]));
     ui->strain2->setText(QString::number(ricnu->ext_strain[1]));
     ui->strain3->setText(QString::number(ricnu->ext_strain[2]));
     ui->strain4->setText(QString::number(ricnu->ext_strain[3]));
     ui->strain5->setText(QString::number(ricnu->ext_strain[4]));
     ui->strain6->setText(QString::number(ricnu->ext_strain[5]));
+    */
 
     ui->disp_current->setText(QString::number(ricnu->ex.current));
 
@@ -129,19 +145,35 @@ void W_Ricnu::displayRicnu(struct ricnu_s *ricnu)
 
     ui->disp_current_d->setText(QString::number(ricnu->ex.decoded.current, 'i',0));
 
-    ui->strain1d->setText(QString::number(((double)(ricnu->ext_strain[0]-32768)/32768)*100, 'i', 0));
-    ui->strain2d->setText(QString::number(((double)(ricnu->ext_strain[1]-32768)/32768)*100, 'i', 0));
-    ui->strain3d->setText(QString::number(((double)(ricnu->ext_strain[2]-32768)/32768)*100, 'i', 0));
-    ui->strain4d->setText(QString::number(((double)(ricnu->ext_strain[3]-32768)/32768)*100, 'i', 0));
-    ui->strain5d->setText(QString::number(((double)(ricnu->ext_strain[4]-32768)/32768)*100, 'i', 0));
-    ui->strain6d->setText(QString::number(((double)(ricnu->ext_strain[5]-32768)/32768)*100, 'i', 0));
+    //TODO change
+    ui->strain1d->setText(QString::number(ricnu->st.decoded.strain[0],'i',0));
+    ui->strain2d->setText(QString::number(ricnu->st.decoded.strain[1],'i',0));
+    ui->strain3d->setText(QString::number(ricnu->st.decoded.strain[2],'i',0));
+    ui->strain4d->setText(QString::number(ricnu->st.decoded.strain[3],'i',0));
+    ui->strain5d->setText(QString::number(ricnu->st.decoded.strain[4],'i',0));
+    ui->strain6d->setText(QString::number(ricnu->st.decoded.strain[5],'i',0));
 
+    strain1 = ricnu->st;
+    /*
     strain1.ch[0].strain_filtered = ricnu->ext_strain[0];
     strain1.ch[1].strain_filtered = ricnu->ext_strain[1];
     strain1.ch[2].strain_filtered = ricnu->ext_strain[2];
     strain1.ch[3].strain_filtered = ricnu->ext_strain[3];
     strain1.ch[4].strain_filtered = ricnu->ext_strain[4];
     strain1.ch[5].strain_filtered = ricnu->ext_strain[5];
+*/
+}
+
+//Unpack from buffer
+void W_Ricnu::unpackCompressed6ch(uint8_t *buf, uint16_t *v0, uint16_t *v1, uint16_t *v2, \
+                            uint16_t *v3, uint16_t *v4, uint16_t *v5)
+{
+    *v0 = ((*(buf+0) << 8 | *(buf+1)) >> 4);
+    *v1 = (((*(buf+1) << 8 | *(buf+2))) & 0xFFF);
+    *v2 = ((*(buf+3) << 8 | *(buf+4)) >> 4);
+    *v3 = (((*(buf+4) << 8 | *(buf+5))) & 0xFFF);
+    *v4 = ((*(buf+6) << 8 | *(buf+7)) >> 4);
+    *v5 = (((*(buf+7) << 8 | *(buf+8))) & 0xFFF);
 }
 
 //****************************************************************************

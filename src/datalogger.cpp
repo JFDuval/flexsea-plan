@@ -314,12 +314,12 @@ void DataLogger::logReadAllRicnu(QTextStream *filePtr, uint8_t slaveIndex, \
                         myPtr->ex.current << ',' << \
                         myPtr->ex.enc_motor << ',' << \
                         myPtr->ex.enc_control << ',' << \
-                        myPtr->ext_strain[0] << ',' << \
-                        myPtr->ext_strain[1] << ',' << \
-                        myPtr->ext_strain[2] << ',' << \
-                        myPtr->ext_strain[3] << ',' << \
-                        myPtr->ext_strain[4] << ',' << \
-                        myPtr->ext_strain[5] << ',' << \
+                        myPtr->st.ch[0].strain_filtered << ',' << \
+                        myPtr->st.ch[1].strain_filtered << ',' << \
+                        myPtr->st.ch[2].strain_filtered << ',' << \
+                        myPtr->st.ch[3].strain_filtered << ',' << \
+                        myPtr->st.ch[4].strain_filtered << ',' << \
+                        myPtr->st.ch[5].strain_filtered << ',' << \
                         term;
 }
 

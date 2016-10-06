@@ -307,6 +307,7 @@ void FlexSEA_Generic::decodeExecute(uint8_t base, uint8_t index)
 void FlexSEA_Generic::decodeRicnu(uint8_t base, uint8_t index)
 {
     ricnu_1.ex = exec1;
+    ricnu_1.st = strain1;
 }
 
 //Decodes some of Manage's fields
@@ -383,13 +384,12 @@ void FlexSEA_Generic::decodeStrain(uint8_t base, uint8_t index)
     struct strain_s *stPtr;
     assignStrainPtr(&stPtr, base, index);
 
-    stPtr->decoded.strain[0] = (100*(stPtr->ch[0].strain_filtered-32768)/32768);
-    stPtr->decoded.strain[1] = (100*(stPtr->ch[1].strain_filtered-32768)/32768);
-    stPtr->decoded.strain[2] = (100*(stPtr->ch[2].strain_filtered-32768)/32768);
-    stPtr->decoded.strain[3] = (100*(stPtr->ch[3].strain_filtered-32768)/32768);
-    stPtr->decoded.strain[4] = (100*(stPtr->ch[4].strain_filtered-32768)/32768);
-    stPtr->decoded.strain[5] = (100*(stPtr->ch[5].strain_filtered-32768)/32768);
-
+    stPtr->decoded.strain[0] = (100*(stPtr->ch[0].strain_filtered-STRAIN_MIDPOINT)/STRAIN_MIDPOINT);
+    stPtr->decoded.strain[1] = (100*(stPtr->ch[1].strain_filtered-STRAIN_MIDPOINT)/STRAIN_MIDPOINT);
+    stPtr->decoded.strain[2] = (100*(stPtr->ch[2].strain_filtered-STRAIN_MIDPOINT)/STRAIN_MIDPOINT);
+    stPtr->decoded.strain[3] = (100*(stPtr->ch[3].strain_filtered-STRAIN_MIDPOINT)/STRAIN_MIDPOINT);
+    stPtr->decoded.strain[4] = (100*(stPtr->ch[4].strain_filtered-STRAIN_MIDPOINT)/STRAIN_MIDPOINT);
+    stPtr->decoded.strain[5] = (100*(stPtr->ch[5].strain_filtered-STRAIN_MIDPOINT)/STRAIN_MIDPOINT);
 }
 
 //Decodes some of the slave's fields
@@ -407,6 +407,7 @@ void FlexSEA_Generic::decodeSlave(uint8_t base, uint8_t index)
             break;
         case FLEXSEA_EXECUTE_BASE:
             decodeExecute(base, index);
+            decodeStrain(base, index);
             decodeRicnu(base, index);
             break;
         case FLEXSEA_BATTERY_BASE:

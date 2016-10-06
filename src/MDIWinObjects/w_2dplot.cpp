@@ -686,32 +686,32 @@ void W_2DPlot::assignVariableRicnu(uint8_t var, struct ricnu_s *myPtr)
             break;
         case 10: //"Strain[0]"
             varToPlotFormat[var] = FORMAT_16U;
-            varToPlotPtr16u[var] = &myPtr->ext_strain[0];
+            varToPlotPtr16u[var] = &myPtr->st.ch[0].strain_filtered;
             varToPlotPtrD32s[var] = &myPtr->decoded.ext_strain[0];
             break;
         case 11: //"Strain[1]"
             varToPlotFormat[var] = FORMAT_16U;
-            varToPlotPtr16u[var] = &myPtr->ext_strain[1];
+            varToPlotPtr16u[var] = &myPtr->st.ch[1].strain_filtered;
             varToPlotPtrD32s[var] = &myPtr->decoded.ext_strain[1];
             break;
         case 12: //"Strain[2]"
             varToPlotFormat[var] = FORMAT_16U;
-            varToPlotPtr16u[var] = &myPtr->ext_strain[2];
+            varToPlotPtr16u[var] = &myPtr->st.ch[2].strain_filtered;
             varToPlotPtrD32s[var] = &myPtr->decoded.ext_strain[2];
             break;
         case 13: //"Strain[3]"
             varToPlotFormat[var] = FORMAT_16U;
-            varToPlotPtr16u[var] = &myPtr->ext_strain[3];
+            varToPlotPtr16u[var] = &myPtr->st.ch[3].strain_filtered;
             varToPlotPtrD32s[var] = &myPtr->decoded.ext_strain[3];
             break;
         case 14: //"Strain[4]"
             varToPlotFormat[var] = FORMAT_16U;
-            varToPlotPtr16u[var] = &myPtr->ext_strain[4];
+            varToPlotPtr16u[var] = &myPtr->st.ch[4].strain_filtered;
             varToPlotPtrD32s[var] = &myPtr->decoded.ext_strain[4];
             break;
         case 15: //"Strain[5]"
             varToPlotFormat[var] = FORMAT_16U;
-            varToPlotPtr16u[var] = &myPtr->ext_strain[5];
+            varToPlotPtr16u[var] = &myPtr->st.ch[5].strain_filtered;
             varToPlotPtrD32s[var] = &myPtr->decoded.ext_strain[5];
             break;
     }
