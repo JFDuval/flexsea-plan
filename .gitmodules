@@ -1,0 +1,6 @@
+[submodule "flexsea-system"]
+	path = flexsea-system
+	url = https://github.com/JFDuval/flexsea-system.git
+[submodule "flexsea-comm"]
+	path = flexsea-comm
+	url = https://github.com/JFDuval/flexsea-comm.git
