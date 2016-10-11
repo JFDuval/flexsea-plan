@@ -56,13 +56,13 @@
      <property name="minimumSize">
       <size>
        <width>20</width>
-       <height>0</height>
+       <height>20</height>
       </size>
      </property>
      <property name="maximumSize">
       <size>
-       <width>20</width>
-       <height>16777215</height>
+       <width>23</width>
+       <height>23</height>
       </size>
      </property>
      <property name="baseSize">
@@ -94,13 +94,13 @@
      <property name="minimumSize">
       <size>
        <width>20</width>
-       <height>0</height>
+       <height>20</height>
       </size>
      </property>
      <property name="maximumSize">
       <size>
-       <width>20</width>
-       <height>16777215</height>
+       <width>23</width>
+       <height>23</height>
       </size>
      </property>
      <property name="baseSize">
@@ -298,7 +298,7 @@
    <item row="2" column="7">
     <widget class="QLabel" name="stat2">
      <property name="sizePolicy">
-      <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
        <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
@@ -306,13 +306,13 @@
      <property name="minimumSize">
       <size>
        <width>20</width>
-       <height>0</height>
+       <height>20</height>
       </size>
      </property>
      <property name="maximumSize">
       <size>
-       <width>20</width>
-       <height>16777215</height>
+       <width>23</width>
+       <height>23</height>
       </size>
      </property>
      <property name="baseSize">
@@ -348,7 +348,7 @@
    <item row="1" column="7">
     <widget class="QLabel" name="stat1">
      <property name="sizePolicy">
-      <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
        <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
@@ -356,13 +356,13 @@
      <property name="minimumSize">
       <size>
        <width>20</width>
-       <height>0</height>
+       <height>20</height>
       </size>
      </property>
      <property name="maximumSize">
       <size>
-       <width>20</width>
-       <height>16777215</height>
+       <width>23</width>
+       <height>23</height>
       </size>
      </property>
      <property name="baseSize">
@@ -429,7 +429,7 @@
    <item row="3" column="7">
     <widget class="QLabel" name="stat3">
      <property name="sizePolicy">
-      <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
        <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
@@ -437,13 +437,13 @@
      <property name="minimumSize">
       <size>
        <width>20</width>
-       <height>0</height>
+       <height>20</height>
       </size>
      </property>
      <property name="maximumSize">
       <size>
-       <width>20</width>
-       <height>16777215</height>
+       <width>23</width>
+       <height>23</height>
       </size>
      </property>
      <property name="baseSize">
@@ -467,7 +467,7 @@
    <item row="4" column="7">
     <widget class="QLabel" name="stat4">
      <property name="sizePolicy">
-      <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
        <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
@@ -475,13 +475,13 @@
      <property name="minimumSize">
       <size>
        <width>20</width>
-       <height>0</height>
+       <height>20</height>
       </size>
      </property>
      <property name="maximumSize">
       <size>
-       <width>20</width>
-       <height>16777215</height>
+       <width>23</width>
+       <height>23</height>
       </size>
      </property>
      <property name="baseSize">
@@ -506,13 +506,13 @@
      <property name="minimumSize">
       <size>
        <width>20</width>
-       <height>0</height>
+       <height>20</height>
       </size>
      </property>
      <property name="maximumSize">
       <size>
-       <width>20</width>
-       <height>16777215</height>
+       <width>23</width>
+       <height>23</height>
       </size>
      </property>
      <property name="baseSize">
@@ -544,13 +544,13 @@
      <property name="minimumSize">
       <size>
        <width>20</width>
-       <height>0</height>
+       <height>20</height>
       </size>
      </property>
      <property name="maximumSize">
       <size>
-       <width>20</width>
-       <height>16777215</height>
+       <width>23</width>
+       <height>23</height>
       </size>
      </property>
      <property name="baseSize">

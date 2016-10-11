@@ -56,6 +56,7 @@ public:
     ~W_Control();
 
 public slots:
+    void stream_ctrl(void);
 
 signals:
     void writeCommand(char numb, unsigned char *tx_data);
@@ -84,7 +85,7 @@ private:
     int ctrl_gains[6][6];
     int trapez_steps = 0;
     uint8_t toggle_output_state = 0;
-    QStringList var_list_controllers;
+    QStringList var_list_controllers, var_list_enc_disp;
     QTimer *timerCtrl;
 	
 	//Function(s):
@@ -92,8 +93,7 @@ private:
     void init_ctrl_gains(void);
     void save_ctrl_gains(int controller, int16_t *gains);
 	void controller_setpoint(int val);
-    void initTimers(void);	
-	void stream_ctrl(void);
+    void initTimers(void);
 	void control_trapeze(void);
 	void refreshStatusGain(void);
 };

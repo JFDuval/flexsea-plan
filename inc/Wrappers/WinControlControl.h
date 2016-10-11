@@ -60,6 +60,7 @@ public:
 
 public slots:
     void receiveWriteCommand(char numb, unsigned char *tx_data);
+    void refreshDisplay(void);
 
 signals:
     void windowClosed(void);

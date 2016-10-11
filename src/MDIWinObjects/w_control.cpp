@@ -121,6 +121,14 @@ void W_Control::initControl(void)
     ctrl_toggle_state = 0;
 
     ui->statusController->setText("Active controller: none/not selected via GUI.");
+
+    //Display control encoder:
+    var_list_enc_disp << "Execute's" << "RIC/NU's";
+    for(int index = 0; index < var_list_enc_disp.count(); index++)
+    {
+        ui->comboBoxDispSel->addItem(var_list_enc_disp.at(index));
+    }
+    ui->labelDispEncoder->setText("No data");   //Initial
 }
 
 void W_Control::initTimers(void)
@@ -165,17 +173,19 @@ void W_Control::controller_setpoint(int val)
         case 1: //Open
             valid = 1;
             numb = tx_cmd_ctrl_o(active_slave, CMD_WRITE, payload_str, PAYLOAD_BUF_LEN, val);
+            qDebug() << "Open: " << val;
             break;
         case 2: //Position
         case 4: //Impedance
             valid = 1;
             numb = tx_cmd_ctrl_p(active_slave, CMD_WRITE, payload_str, PAYLOAD_BUF_LEN, trap_pos, trap_posi, trap_posf, trap_spd, trap_acc);
             trapez_steps = trapez_gen_motion_1(trap_posi, trap_posf, trap_spd, trap_acc);
-            qDebug() << "posi = " << trap_posi << ", posf = " << trap_posf << ", spd = " << trap_spd << ", trap_acc = " << trap_acc;
+            qDebug() << "Pos/Z: posi = " << trap_posi << ", posf = " << trap_posf << ", spd = " << trap_spd << ", trap_acc = " << trap_acc;
              break;
         case 3: //Current
             valid = 1;
             numb = tx_cmd_ctrl_i(active_slave, CMD_WRITE, payload_str, PAYLOAD_BUF_LEN, val, 0);
+            qDebug() << "Current: " << val;
             break;
         //case 4: //Impedance
             //Done with position (see above)
@@ -205,25 +215,18 @@ void W_Control::stream_ctrl(void)
     struct execute_s *ex_ptr;
     myFlexSEA_Generic.assignExecutePtr(&ex_ptr, SL_BASE_EX, active_slave_index);
 
-    //***ToDo this isn't clean, fix this
-    qDebug() << "Ugly code in void W_Control::stream_ctrl(void) - deactivated";
-    // ui->disp_meas_val->setText(QString::number(12345));
-
-    /*
-    if(selected_experiment == 0)    //Execute
+    if(ui->comboBoxDispSel->currentIndex() == 0)    //Execute's
     {
-        ui->disp_meas_val->setText(QString::number(ex_ptr->enc_display));
+        ui->labelDispEncoder->setText(QString::number(ex_ptr->enc_control));
     }
-    else if(selected_experiment == 2)
+    else if(ui->comboBoxDispSel->currentIndex() == 1)   //RIC/NU's
     {
-        //When using In Control we use 'actual_val'
-        ui->disp_meas_val->setText(QString::number(in_control_1.actual_val));
+        ui->labelDispEncoder->setText(QString::number(ricnu_1.ex.enc_control));
     }
-    else if(selected_experiment == 4)   //RIC/NU
+    else
     {
-        ui->disp_meas_val->setText(QString::number(ricnu_1.ex.enc_control));
+        ui->labelDispEncoder->setText("Invalid.");
     }
-    */
 }
 
 void W_Control::control_trapeze(void)
@@ -325,9 +328,7 @@ void W_Control::on_pushButton_setp_a_go_clicked()
     val = ui->control_setp_a->text().toInt();
 
     ctrl_setpoint = ui->control_setp_a->text().toInt();
-    trap_posi = exec1.enc_display;  //ToDo FIX THIS
-    //trap_posi = 0;  //ToDo WRONG
-    qDebug() << "Wrong, fix me! on_pushButton_setp_X_go_clicked()";
+    trap_posi = ui->labelDispEncoder->text().toInt();
     trap_posf = ui->control_setp_a->text().toInt();
     trap_pos = ctrl_setpoint;
 
@@ -343,9 +344,7 @@ void W_Control::on_pushButton_setp_b_go_clicked()
     val = ui->control_setp_b->text().toInt();
 
     ctrl_setpoint = ui->control_setp_b->text().toInt();
-    trap_posi = exec1.enc_display;    ////ToDo FIX THIS
-    //trap_posi = 0;  //ToDo WRONG
-    qDebug() << "Wrong, fix me! on_pushButton_setp_X_go_clicked()";
+    trap_posi = ui->labelDispEncoder->text().toInt();
     trap_posf = ui->control_setp_b->text().toInt();
     trap_pos = ctrl_setpoint;
 

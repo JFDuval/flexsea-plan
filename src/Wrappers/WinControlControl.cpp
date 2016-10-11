@@ -69,6 +69,11 @@ void WinControlControl::receiveWriteCommand(char numb, unsigned char *tx_data)
     emit writeCommand(numb, tx_data);
 }
 
+void WinControlControl::refreshDisplay(void)
+{
+    my_control->stream_ctrl();
+}
+
 //****************************************************************************
 // Private function(s):
 //****************************************************************************

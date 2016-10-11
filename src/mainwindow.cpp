@@ -309,6 +309,10 @@ void MainWindow::createControlControl(void)
         connect(myControl[controlObjectCount], SIGNAL(writeCommand(char,unsigned char*)), \
                 mySlaveComm[0], SLOT(receiveExternalSlaveWrite(char,unsigned char*)));
 
+        //Link SerialDriver and Control:
+        connect(mySerialDriver, SIGNAL(newDataReady()), \
+                myControl[controlObjectCount], SLOT(refreshDisplay()));
+
         controlObjectCount++;
     }
     else
