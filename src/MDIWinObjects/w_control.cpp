@@ -123,7 +123,7 @@ void W_Control::initControl(void)
     ui->statusController->setText("Active controller: none/not selected via GUI.");
 
     //Display control encoder:
-    var_list_enc_disp << "Execute's" << "RIC/NU's";
+    var_list_enc_disp << "Execute's" << "RIC/NU - Motor" << "RIC/NU - Joint";
     for(int index = 0; index < var_list_enc_disp.count(); index++)
     {
         ui->comboBoxDispSel->addItem(var_list_enc_disp.at(index));
@@ -219,9 +219,13 @@ void W_Control::stream_ctrl(void)
     {
         ui->labelDispEncoder->setText(QString::number(ex_ptr->enc_control));
     }
-    else if(ui->comboBoxDispSel->currentIndex() == 1)   //RIC/NU's
+    else if(ui->comboBoxDispSel->currentIndex() == 1)   //RIC/NU - Motor
     {
-        ui->labelDispEncoder->setText(QString::number(ricnu_1.ex.enc_control));
+        ui->labelDispEncoder->setText(QString::number(ricnu_1.ex.enc_motor));
+    }
+    else if(ui->comboBoxDispSel->currentIndex() == 2)   //RIC/NU - Joint
+    {
+        ui->labelDispEncoder->setText(QString::number(ricnu_1.ex.enc_joint));
     }
     else
     {

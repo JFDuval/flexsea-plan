@@ -676,7 +676,7 @@ void W_2DPlot::assignVariableRicnu(uint8_t var, struct ricnu_s *myPtr)
             break;
         case 8: //"Encoder Control"
             varToPlotFormat[var] = FORMAT_32S;
-            varToPlotPtr32s[var] = &myPtr->ex.enc_control;
+            varToPlotPtr32s[var] = &myPtr->ex.enc_joint;
             varToPlotPtrD32s[var] = &nullVar32s;
             break;
         case 9: //"Motor current"

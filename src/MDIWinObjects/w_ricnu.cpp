@@ -112,7 +112,7 @@ void W_Ricnu::displayRicnu(struct ricnu_s *ricnu)
     ui->disp_gyroz->setText(QString::number(ricnu->ex.gyro.z));
 
     ui->enc_mot->setText(QString::number(ricnu->ex.enc_motor));
-    ui->enc_joint->setText(QString::number(ricnu->ex.enc_control));
+    ui->enc_joint->setText(QString::number(ricnu->ex.enc_joint));
 
     ui->strain1->setText(QString::number(ricnu->st.ch[0].strain_filtered));
     ui->strain2->setText(QString::number(ricnu->st.ch[1].strain_filtered));
