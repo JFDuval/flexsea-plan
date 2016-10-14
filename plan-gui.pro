@@ -14,21 +14,11 @@ TEMPLATE = app
 INCLUDEPATH += inc \
     inc/MDIWinObjects \
     inc/Wrappers \
-    ../flexsea-comm/inc \
-    ../flexsea-system/inc
+    flexsea-comm/inc \
+    flexsea-system/inc \
 
 SOURCES += src/main.cpp \
     src/mainwindow.cpp \
-    ../flexsea-comm/src/flexsea.c \
-    ../flexsea-comm/src/flexsea_buffers.c \
-    ../flexsea-comm/src/flexsea_comm.c \
-    ../flexsea-comm/src/flexsea_payload.c \
-    ../flexsea-system/src/flexsea_cmd_application.c \
-    ../flexsea-system/src/flexsea_cmd_control.c \
-    ../flexsea-system/src/flexsea_cmd_external.c \
-    ../flexsea-system/src/flexsea_cmd_sensors.c \
-    ../flexsea-system/src/flexsea_system.c \
-    ../flexsea-system/src/flexsea_cmd_data.c \
     src/MDIWinObjects/w_2dplot.cpp \
     src/MDIWinObjects/w_anycommand.cpp \
     src/MDIWinObjects/w_battery.cpp \
@@ -59,21 +49,21 @@ SOURCES += src/main.cpp \
     src/flexsea_generic.cpp \
     src/serialdriver.cpp \
     src/flexsea_board.c \
-    src/trapez.c
+    src/trapez.c \
+    flexsea-comm/src/flexsea.c \
+    flexsea-comm/src/flexsea_buffers.c \
+    flexsea-comm/src/flexsea_comm.c \
+    flexsea-comm/src/flexsea_payload.c \
+    flexsea-system/src/flexsea_cmd_application.c \
+    flexsea-system/src/flexsea_cmd_control.c \
+    flexsea-system/src/flexsea_cmd_data.c \
+    flexsea-system/src/flexsea_cmd_external.c \
+    flexsea-system/src/flexsea_cmd_sensors.c \
+    flexsea-system/src/flexsea_system.c
 
 
 HEADERS  += inc/main.h \
     inc/mainwindow.h \
-    ../flexsea-comm/inc/flexsea.h \
-    ../flexsea-comm/inc/flexsea_buffers.h \
-    ../flexsea-comm/inc/flexsea_comm.h \
-    ../flexsea-comm/inc/flexsea_payload.h \
-    ../flexsea-system/inc/flexsea_cmd_application.h \
-    ../flexsea-system/inc/flexsea_cmd_control.h \
-    ../flexsea-system/inc/flexsea_cmd_external.h \
-    ../flexsea-system/inc/flexsea_cmd_sensors.h \
-    ../flexsea-system/inc/flexsea_system.h \
-    ../flexsea-system/inc/flexsea_cmd_data.h \
     inc/flexsea_generic.h \
     inc/datalogger.h \
     inc/trapez.h \
@@ -104,7 +94,17 @@ HEADERS  += inc/main.h \
     inc/Wrappers/WinViewGossip.h \
     inc/Wrappers/WinViewManage.h \
     inc/Wrappers/WinViewRicnu.h \
-    inc/Wrappers/WinViewStrain.h
+    inc/Wrappers/WinViewStrain.h \
+    flexsea-comm/inc/flexsea.h \
+    flexsea-comm/inc/flexsea_buffers.h \
+    flexsea-comm/inc/flexsea_comm.h \
+    flexsea-comm/inc/flexsea_payload.h \
+    flexsea-system/inc/flexsea_cmd_application.h \
+    flexsea-system/inc/flexsea_cmd_control.h \
+    flexsea-system/inc/flexsea_cmd_data.h \
+    flexsea-system/inc/flexsea_cmd_external.h \
+    flexsea-system/inc/flexsea_cmd_sensors.h \
+    flexsea-system/inc/flexsea_system.h
 
 FORMS    += ui/mainwindow.ui \
     ui/w_execute.ui \
@@ -128,3 +128,11 @@ RESOURCES += \
 #Linked will fail - debug only
 #QMAKE_CFLAGS = $$QMAKE_CFLAGS -E
 #QMAKE_CXXFLAGS = $$QMAKE_CXXFLAGS -E
+
+DISTFILES += \
+    flexsea-comm/flexsea.gitignore \
+    flexsea-comm/GPL-3.0.txt \
+    flexsea-system/flexsea.gitignore \
+    flexsea-system/GPL-3.0.txt \
+    flexsea-comm/README.md \
+    flexsea-system/README.md
