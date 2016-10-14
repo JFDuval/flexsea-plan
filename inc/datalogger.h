@@ -66,9 +66,7 @@ private slots:
 
 private:
 	//Variables & Objects:
-    QString filename;
-    QString logdir_path;
-    QFile logFile;
+    QFile logFile[4];
     QTextStream logFileStream;
 	QDateTime *myTime;
     FlexSEA_Generic myFlexSEA_Generic;

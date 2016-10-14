@@ -46,10 +46,6 @@
 
 DataLogger::DataLogger(QWidget *parent) : QWidget(parent)
 {
-    fileOpened[0] = false;
-    fileOpened[1] = false;
-    fileOpened[2] = false;
-    fileOpened[3] = false;
 	logDirectory();
 	init();
 }
@@ -65,6 +61,7 @@ DataLogger::DataLogger(QWidget *parent) : QWidget(parent)
 void DataLogger::openFile(uint8_t item)
 {
     QString msg = "";
+    QString filename;
 
     //File Dialog (returns the selected file name):
     QDir::setCurrent("Plan-GUI-Logs");
@@ -81,21 +78,17 @@ void DataLogger::openFile(uint8_t item)
 
 
     //Now we open it:
-    logFile.setFileName(filename);
-    if(logFile.open(QIODevice::ReadWrite))
+    logFile[item].setFileName(filename);
+    if(logFile[item].open(QIODevice::ReadWrite))
     {
         msg = tr("Successfully opened: '") + shortFileName + "'.";
         emit setLogFileStatus(msg);
         qDebug() << msg;
 
         //Associate stream to file:
-        logFileStream.setDevice(&logFile);
+        logFileStream.setDevice(&logFile[item]);
         msg = tr("Opened '") + filename + "'.";
         emit setStatusBarMessage(msg);
-
-        //TODO Will it be the best way to handle the file status since another function can close it?
-        fileOpened[item] = true;
-
     }
 
     //If no file selected
@@ -107,8 +100,6 @@ void DataLogger::openFile(uint8_t item)
 
         msg = tr("No log file selected or the file couldn't be opened.");
         emit setStatusBarMessage(msg);
-        fileOpened[item] = false;
-        //todo
     }
 }
 
@@ -145,7 +136,7 @@ void DataLogger::writeToFile(uint8_t item, uint8_t slaveIndex, uint8_t expIndex)
     logTimestamp(&t_ms, &t_text);
     t_ms -= t_ms_initial[item];
 
-    if(fileOpened[item] == true)
+    if(logFile[item].isOpen())
     {
         //And we add to the text file:
         (this->*logFctPtr)(&logFileStream, slaveIndex, '\n', t_ms, t_text);
@@ -216,11 +207,10 @@ void DataLogger::getFctPtrs(uint8_t slaveIndex, uint8_t expIndex, \
 
 void DataLogger::closeFile(uint8_t item)
 {
-    if(fileOpened[item] == true)
+    if(logFile[item].isOpen())
     {
         logFileStream << endl;
-        logFile.close();
-        fileOpened[item] = false;
+        logFile[item].close();
     }
 }
 
@@ -396,7 +386,7 @@ void DataLogger::writeIdentifier(uint8_t item, uint8_t slaveIndex, uint8_t expIn
                         "Experiment index = " + QString::number(expIndex) + " (" + \
                         expName + ")]\n";
     qDebug() << msg;
-    if(fileOpened[item] == true)
+    if(logFile[item].isOpen())
     {
         logFileStream << msg;
     }
@@ -404,7 +394,7 @@ void DataLogger::writeIdentifier(uint8_t item, uint8_t slaveIndex, uint8_t expIn
 
 void DataLogger::writeExecuteReadAllHeader(uint8_t item)
 {
-    if(fileOpened[item] == true)
+    if(logFile[item].isOpen())
     {
         //Print header:
         logFileStream << "Timestamp," << \
@@ -433,7 +423,7 @@ void DataLogger::writeExecuteReadAllHeader(uint8_t item)
 
 void DataLogger::writeManageReadAllHeader(uint8_t item)
 {
-    if(fileOpened[item] == true)
+    if(logFile[item].isOpen())
     {
         //Print header:
         logFileStream << "Timestamp," << \
@@ -461,7 +451,7 @@ void DataLogger::writeManageReadAllHeader(uint8_t item)
 
 void DataLogger::writeStrainReadAllHeader(uint8_t item)
 {
-    if(fileOpened[item] == true)
+    if(logFile[item].isOpen())
     {
         //Print header:
         logFileStream << "Timestamp," << \
@@ -478,7 +468,7 @@ void DataLogger::writeStrainReadAllHeader(uint8_t item)
 
 void DataLogger::writeGossipReadAllHeader(uint8_t item)
 {
-    if(fileOpened[item] == true)
+    if(logFile[item].isOpen())
     {
         //Print header:
         logFileStream << "Timestamp," << \
@@ -505,7 +495,7 @@ void DataLogger::writeGossipReadAllHeader(uint8_t item)
 
 void DataLogger::writeReadAllRicnuHeader(uint8_t item)
 {
-    if(fileOpened[item] == true)
+    if(logFile[item].isOpen())
     {
         //Print header:
         logFileStream << "Timestamp," << \
