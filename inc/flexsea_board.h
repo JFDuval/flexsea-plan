@@ -17,11 +17,11 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *****************************************************************************
 	[Lead developper] Jean-Francois (JF) Duval, jfduval at dephy dot com.
-	[Origin] Based on Jean-Francois Duval's work at the MIT Media Lab 
+	[Origin] Based on Jean-Francois Duval's work at the MIT Media Lab
 	Biomechatronics research group <http://biomech.media.mit.edu/>
-	[Contributors] 
+	[Contributors]
 *****************************************************************************
-	[This file] flexsea_board: configuration and functions for this 
+	[This file] flexsea_board: configuration and functions for this
 	particular board
 *****************************************************************************
 	[Change log] (Convention: YYYY-MM-DD | author | comment)
@@ -36,8 +36,8 @@
 extern "C" {
 #endif
 
-// Although it's a part of the FlexSEA stack that file doesn't live in /common/
-// as it needs to be unique to each board.
+// Although it's a part of the FlexSEA stack that file doesn't live in
+// flexsea-comm or flexsea-system, as it needs to be unique to each board.
 
 //****************************************************************************
 // Include(s)
