@@ -58,15 +58,18 @@ public:
     explicit DataLogger(QWidget *parent = 0);
 	
 public slots:
-    void openFile(uint8_t item);
-    void closeFile(uint8_t item);
+    void openRecordingFile(uint8_t item);
+    void closeRecordingFile(uint8_t item);
+    void openReadingFile(void);
+    void closeReadingFile(void);
     void writeToFile(uint8_t item, uint8_t slaveIndex, uint8_t expIndex);
 
 private slots:	
 
 private:
 	//Variables & Objects:
-    QFile logFile[4];
+    QFile logRecordingFile[4];
+    QFile logReadingFile;
     QTextStream logFileStream;
 	QDateTime *myTime;
     FlexSEA_Generic myFlexSEA_Generic;

@@ -259,3 +259,13 @@ void W_PlanConfig::on_pbOpenLog4_clicked()
 {
     emit openLogFile(3);
 }
+
+void W_PlanConfig::on_pbLoadLogFile_clicked()
+{
+    emit loadLogFile();
+}
+
+void W_PlanConfig::on_pbCloseLogFile_clicked()
+{
+    emit closeLogFile();
+}

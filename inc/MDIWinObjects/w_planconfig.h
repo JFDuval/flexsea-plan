@@ -63,6 +63,8 @@ private slots:
     void on_pbOpenLog2_clicked();
     void on_pbOpenLog3_clicked();
     void on_pbOpenLog4_clicked();
+    void on_pbLoadLogFile_clicked();
+    void on_pbCloseLogFile_clicked();
 
 public slots:
     void setComProgress(int val, int rst);
@@ -84,6 +86,8 @@ private:
     void openCom(QString name, int tries, int delay);
     void closeCom(void);
     void openLogFile(uint8_t);
+    void loadLogFile(void);
+    void closeLogFile(void);
 };
 
 #endif // W_PLANCONFIG_H

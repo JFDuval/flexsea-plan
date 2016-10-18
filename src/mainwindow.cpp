@@ -115,7 +115,11 @@ MainWindow::MainWindow(QWidget *parent) :
 
     //Log:
     connect(myConfig[0], SIGNAL(transmitOpenLogFile(uint8_t)), \
-            myDataLogger, SLOT(openFile(uint8_t)));
+            myDataLogger, SLOT(openRecordingFile(uint8_t)));
+    connect(myConfig[0], SIGNAL(transmitLoadLogFile(uint8_t)), \
+            myDataLogger, SLOT(openReadingFile(uint8_t)));
+    connect(myConfig[0], SIGNAL(transmitCloseLogFile(uint8_t)), \
+            myDataLogger, SLOT(closeReadingFile(uint8_t)));
     connect(mySlaveComm[0], SIGNAL(writeToLogFile(uint8_t,uint8_t,uint8_t)), \
             myDataLogger, SLOT(writeToFile(uint8_t,uint8_t,uint8_t)));
     connect(mySlaveComm[0], SIGNAL(closeLogFile(uint8_t)), \

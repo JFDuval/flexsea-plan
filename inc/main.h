@@ -48,8 +48,8 @@ extern "C" {
 #include <time.h>
 #include "trapez.h"
 #include "flexsea_board.h"
-#include "../../flexsea-system/inc/flexsea_system.h"
-#include "../../flexsea-comm/inc/flexsea.h"
+#include "flexsea_system.h"
+#include "flexsea.h"
 
 //****************************************************************************
 // Shared variable(s)

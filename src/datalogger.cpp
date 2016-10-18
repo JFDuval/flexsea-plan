@@ -58,14 +58,14 @@ DataLogger::DataLogger(QWidget *parent) : QWidget(parent)
 // Public slot(s):
 //****************************************************************************
 
-void DataLogger::openFile(uint8_t item)
+void DataLogger::openRecordingFile(uint8_t item)
 {
     QString msg = "";
-    QString filename;
+
 
     //File Dialog (returns the selected file name):
     QDir::setCurrent("Plan-GUI-Logs");
-    filename = QFileDialog::getSaveFileName( \
+    QString filename = QFileDialog::getSaveFileName( \
                 this,
                 tr("Open Log File"),
                 QDir::currentPath() + "\\.csv" ,
@@ -78,15 +78,62 @@ void DataLogger::openFile(uint8_t item)
 
 
     //Now we open it:
-    logFile[item].setFileName(filename);
-    if(logFile[item].open(QIODevice::ReadWrite))
+    logRecordingFile[item].setFileName(filename);
+    if(logRecordingFile[item].open(QIODevice::ReadWrite))
+    {
+        msg = tr("Successfully opened: '") + shortFileName + "'.";
+        //TODO Datalogger should not know that there's a logFile and bar status. Abstraction principle is not respected here. Is there a way to use some sort of return value instead of signal slot?
+        emit setLogFileStatus(msg);
+        qDebug() << msg;
+
+        //Associate stream to file:
+        logFileStream.setDevice(&logRecordingFile[item]);
+        msg = tr("Opened '") + filename + "'.";
+        emit setStatusBarMessage(msg);
+    }
+
+    //If no file selected
+    else
+    {
+        msg = tr("No log file selected.");
+        emit setLogFileStatus(msg);
+        qDebug() << msg;
+
+        msg = tr("No log file selected or the file couldn't be opened.");
+        emit setStatusBarMessage(msg);
+    }
+}
+
+// TODO To excerpt in another method the common part between reading and recording file
+void DataLogger::openReadingFile(void)
+{
+    QString msg = "";
+
+
+    //File Dialog (returns the selected file name):
+    QDir::setCurrent("Plan-GUI-Logs");
+    QString filename = QFileDialog::getSaveFileName( \
+                this,
+                tr("Open Log File"),
+                QDir::currentPath() + "\\.csv" ,
+                tr("Log files (*.txt *.csv);;All files (*.*)"));
+
+    //Extract filename to simplify UI:
+    QString path = QDir::currentPath();
+    int pathLen = path.length();
+    QString shortFileName = filename.mid(pathLen+1);
+
+
+    //Now we open it:
+    logReadingFile.setFileName(filename);
+    if(logReadingFile.open(QIODevice::ReadWrite))
     {
         msg = tr("Successfully opened: '") + shortFileName + "'.";
         emit setLogFileStatus(msg);
         qDebug() << msg;
 
         //Associate stream to file:
-        logFileStream.setDevice(&logFile[item]);
+        logFileStream.setDevice(&logReadingFile);
         msg = tr("Opened '") + filename + "'.";
         emit setStatusBarMessage(msg);
     }
@@ -136,7 +183,7 @@ void DataLogger::writeToFile(uint8_t item, uint8_t slaveIndex, uint8_t expIndex)
     logTimestamp(&t_ms, &t_text);
     t_ms -= t_ms_initial[item];
 
-    if(logFile[item].isOpen())
+    if(logRecordingFile[item].isOpen())
     {
         //And we add to the text file:
         (this->*logFctPtr)(&logFileStream, slaveIndex, '\n', t_ms, t_text);
@@ -205,12 +252,20 @@ void DataLogger::getFctPtrs(uint8_t slaveIndex, uint8_t expIndex, \
     }
 }
 
-void DataLogger::closeFile(uint8_t item)
+void DataLogger::closeRecordingFile(uint8_t item)
 {
-    if(logFile[item].isOpen())
+    if(logRecordingFile[item].isOpen())
     {
         logFileStream << endl;
-        logFile[item].close();
+        logRecordingFile[item].close();
+    }
+}
+
+void DataLogger::closeReadingFile(void)
+{
+    if(logReadingFile.isOpen())
+    {
+        logReadingFile.close();
     }
 }
 
@@ -386,7 +441,7 @@ void DataLogger::writeIdentifier(uint8_t item, uint8_t slaveIndex, uint8_t expIn
                         "Experiment index = " + QString::number(expIndex) + " (" + \
                         expName + ")]\n";
     qDebug() << msg;
-    if(logFile[item].isOpen())
+    if(logRecordingFile[item].isOpen())
     {
         logFileStream << msg;
     }
@@ -394,7 +449,7 @@ void DataLogger::writeIdentifier(uint8_t item, uint8_t slaveIndex, uint8_t expIn
 
 void DataLogger::writeExecuteReadAllHeader(uint8_t item)
 {
-    if(logFile[item].isOpen())
+    if(logRecordingFile[item].isOpen())
     {
         //Print header:
         logFileStream << "Timestamp," << \
@@ -423,7 +478,7 @@ void DataLogger::writeExecuteReadAllHeader(uint8_t item)
 
 void DataLogger::writeManageReadAllHeader(uint8_t item)
 {
-    if(logFile[item].isOpen())
+    if(logRecordingFile[item].isOpen())
     {
         //Print header:
         logFileStream << "Timestamp," << \
@@ -451,7 +506,7 @@ void DataLogger::writeManageReadAllHeader(uint8_t item)
 
 void DataLogger::writeStrainReadAllHeader(uint8_t item)
 {
-    if(logFile[item].isOpen())
+    if(logRecordingFile[item].isOpen())
     {
         //Print header:
         logFileStream << "Timestamp," << \
@@ -468,7 +523,7 @@ void DataLogger::writeStrainReadAllHeader(uint8_t item)
 
 void DataLogger::writeGossipReadAllHeader(uint8_t item)
 {
-    if(logFile[item].isOpen())
+    if(logRecordingFile[item].isOpen())
     {
         //Print header:
         logFileStream << "Timestamp," << \
@@ -495,7 +550,7 @@ void DataLogger::writeGossipReadAllHeader(uint8_t item)
 
 void DataLogger::writeReadAllRicnuHeader(uint8_t item)
 {
-    if(logFile[item].isOpen())
+    if(logRecordingFile[item].isOpen())
     {
         //Print header:
         logFileStream << "Timestamp," << \
