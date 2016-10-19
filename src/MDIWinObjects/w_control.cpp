@@ -17,9 +17,9 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *****************************************************************************
 	[Lead developper] Jean-Francois (JF) Duval, jfduval at dephy dot com.
-	[Origin] Based on Jean-Francois Duval's work at the MIT Media Lab 
+	[Origin] Based on Jean-Francois Duval's work at the MIT Media Lab
 	Biomechatronics research group <http://biomech.media.mit.edu/>
-	[Contributors] 
+	[Contributors]
 *****************************************************************************
 	[This file] w_control.cpp: Control Window
 *****************************************************************************
@@ -45,21 +45,21 @@
 //****************************************************************************
 
 W_Control::W_Control(QWidget *parent) :
-    QWidget(parent),
-    ui(new Ui::W_Control)
+	QWidget(parent),
+	ui(new Ui::W_Control)
 {
-    ui->setupUi(this);
+	ui->setupUi(this);
 
-    setWindowTitle("Control");
-    setWindowIcon(QIcon(":icons/d_logo_small.png"));
+	setWindowTitle("Control");
+	setWindowIcon(QIcon(":icons/d_logo_small.png"));
 
-    initControl();
-    initTimers();
+	initControl();
+	initTimers();
 }
 
 W_Control::~W_Control()
 {
-    delete ui;
+	delete ui;
 }
 
 //****************************************************************************
@@ -76,204 +76,204 @@ W_Control::~W_Control()
 
 void W_Control::initControl(void)
 {
-    //QString str;
+	//QString str;
 
-    //Setpoints:
-    ui->control_slider_min->setText("0");
-    ui->control_slider_max->setText("0");
-    ui->hSlider_Ctrl->setMinimum(ui->control_slider_min->text().toInt());
-    ui->hSlider_Ctrl->setMaximum(ui->control_slider_max->text().toInt());
-    ui->control_setp_a->setText("0");
-    ui->control_setp_b->setText("0");
-    ui->control_toggle_delayA->setText("1000");
-    ui->control_toggle_delayB->setText("1000");
-    ui->control_trapeze_spd->setText("10000");
-    ui->control_trapeze_acc->setText("10000");
+	//Setpoints:
+	ui->control_slider_min->setText("0");
+	ui->control_slider_max->setText("0");
+	ui->hSlider_Ctrl->setMinimum(ui->control_slider_min->text().toInt());
+	ui->hSlider_Ctrl->setMaximum(ui->control_slider_max->text().toInt());
+	ui->control_setp_a->setText("0");
+	ui->control_setp_b->setText("0");
+	ui->control_toggle_delayA->setText("1000");
+	ui->control_toggle_delayB->setText("1000");
+	ui->control_trapeze_spd->setText("10000");
+	ui->control_trapeze_acc->setText("10000");
 
-    //Populates Slave list:
-    myFlexSEA_Generic.populateSlaveComboBox(ui->comboBox_slave, SL_BASE_EX, \
-                                            SL_LEN_EX);
-    //Variables:
-    active_slave_index = ui->comboBox_slave->currentIndex();
-    active_slave = myFlexSEA_Generic.getSlaveID(SL_BASE_EX, active_slave_index);
+	//Populates Slave list:
+	myFlexSEA_Generic.populateSlaveComboBox(ui->comboBox_slave, SL_BASE_EX, \
+											SL_LEN_EX);
+	//Variables:
+	active_slave_index = ui->comboBox_slave->currentIndex();
+	active_slave = myFlexSEA_Generic.getSlaveID(SL_BASE_EX, active_slave_index);
 
 
-    //Variable option lists:
-    var_list_controllers << "**Null**" << "Open" << "Position" << "Current" \
-                         << "Impedance" << "Other/custom";
-    for(int index = 0; index < var_list_controllers.count(); index++)
-    {
-        ui->comboBox_ctrl_list->addItem(var_list_controllers.at(index));
-    }
+	//Variable option lists:
+	var_list_controllers << "**Null**" << "Open" << "Position" << "Current" \
+						 << "Impedance" << "Other/custom";
+	for(int index = 0; index < var_list_controllers.count(); index++)
+	{
+		ui->comboBox_ctrl_list->addItem(var_list_controllers.at(index));
+	}
 
-    //Gains:
-    init_ctrl_gains();  //All 0 when we start
-    ui->control_g0->setText("0");
-    ui->control_g1->setText("0");
-    ui->control_g2->setText("0");
-    ui->control_g3->setText("0");
-    ui->control_g4->setText("0");
-    ui->control_g5->setText("0");
+	//Gains:
+	init_ctrl_gains();  //All 0 when we start
+	ui->control_g0->setText("0");
+	ui->control_g1->setText("0");
+	ui->control_g2->setText("0");
+	ui->control_g3->setText("0");
+	ui->control_g4->setText("0");
+	ui->control_g5->setText("0");
 	refreshStatusGain();
-    ui->statusGains->setTextFormat(Qt::RichText);
+	ui->statusGains->setTextFormat(Qt::RichText);
 
-    //Toggle:
-    ctrl_toggle_state = 0;
+	//Toggle:
+	ctrl_toggle_state = 0;
 
-    ui->statusController->setText("Active controller: none/not selected via GUI.");
+	ui->statusController->setText("Active controller: none/not selected via GUI.");
 
-    //Display control encoder:
-    var_list_enc_disp << "Execute's" << "RIC/NU - Motor" << "RIC/NU - Joint";
-    for(int index = 0; index < var_list_enc_disp.count(); index++)
-    {
-        ui->comboBoxDispSel->addItem(var_list_enc_disp.at(index));
-    }
-    ui->labelDispEncoder->setText("No data");   //Initial
+	//Display control encoder:
+	var_list_enc_disp << "Execute's" << "RIC/NU - Motor" << "RIC/NU - Joint";
+	for(int index = 0; index < var_list_enc_disp.count(); index++)
+	{
+		ui->comboBoxDispSel->addItem(var_list_enc_disp.at(index));
+	}
+	ui->labelDispEncoder->setText("No data");   //Initial
 }
 
 void W_Control::initTimers(void)
 {
-    timerCtrl = new QTimer(this);
-    connect(timerCtrl, SIGNAL(timeout()), this, SLOT(timerCtrlEvent()));
+	timerCtrl = new QTimer(this);
+	connect(timerCtrl, SIGNAL(timeout()), this, SLOT(timerCtrlEvent()));
 }
 
 void W_Control::init_ctrl_gains(void)
 {
-    int i = 0, j = 0;
-    for(i = 0; i < CONTROLLERS; i++)
-    {
-        for(j = 0; j < GAIN_FIELDS; j++)
-        {
-            //All gains = 0:
-            ctrl_gains[i][j] = 0;
-        }
-    }
+	int i = 0, j = 0;
+	for(i = 0; i < CONTROLLERS; i++)
+	{
+		for(j = 0; j < GAIN_FIELDS; j++)
+		{
+			//All gains = 0:
+			ctrl_gains[i][j] = 0;
+		}
+	}
 }
 
 void W_Control::save_ctrl_gains(int controller, int16_t *gains)
 {
-    int i = 0;
-    for(i = 0; i < GAIN_FIELDS; i++)
-    {
-        ctrl_gains[controller][i] = gains[i];
-    }
+	int i = 0;
+	for(i = 0; i < GAIN_FIELDS; i++)
+	{
+		ctrl_gains[controller][i] = gains[i];
+	}
 }
 
 void W_Control::controller_setpoint(int val)
 {
-    uint numb = 0, valid = 0;
+	uint numb = 0, valid = 0;
 
-    qDebug() << "Entered controller_setpoint()";
+	qDebug() << "Entered controller_setpoint()";
 
-    switch(wanted_controller)
-    {
-        case 0: //Null
-            valid = 0;
-            break;
-        case 1: //Open
-            valid = 1;
-            numb = tx_cmd_ctrl_o(active_slave, CMD_WRITE, payload_str, PAYLOAD_BUF_LEN, val);
-            qDebug() << "Open: " << val;
-            break;
-        case 2: //Position
-        case 4: //Impedance
-            valid = 1;
-            numb = tx_cmd_ctrl_p(active_slave, CMD_WRITE, payload_str, PAYLOAD_BUF_LEN, trap_pos, trap_posi, trap_posf, trap_spd, trap_acc);
-            trapez_steps = trapez_gen_motion_1(trap_posi, trap_posf, trap_spd, trap_acc);
-            qDebug() << "Pos/Z: posi = " << trap_posi << ", posf = " << trap_posf << ", spd = " << trap_spd << ", trap_acc = " << trap_acc;
-             break;
-        case 3: //Current
-            valid = 1;
-            numb = tx_cmd_ctrl_i(active_slave, CMD_WRITE, payload_str, PAYLOAD_BUF_LEN, val, 0);
-            qDebug() << "Current: " << val;
-            break;
-        //case 4: //Impedance
-            //Done with position (see above)
-        case 5: //Custom/other
-            valid = 0;
-            break;
-        default:
-            valid = 0;
-            break;
-    }
+	switch(wanted_controller)
+	{
+		case 0: //Null
+			valid = 0;
+			break;
+		case 1: //Open
+			valid = 1;
+			numb = tx_cmd_ctrl_o(active_slave, CMD_WRITE, payload_str, PAYLOAD_BUF_LEN, val);
+			qDebug() << "Open: " << val;
+			break;
+		case 2: //Position
+		case 4: //Impedance
+			valid = 1;
+			numb = tx_cmd_ctrl_p(active_slave, CMD_WRITE, payload_str, PAYLOAD_BUF_LEN, trap_pos, trap_posi, trap_posf, trap_spd, trap_acc);
+			trapez_steps = trapez_gen_motion_1(trap_posi, trap_posf, trap_spd, trap_acc);
+			qDebug() << "Pos/Z: posi = " << trap_posi << ", posf = " << trap_posf << ", spd = " << trap_spd << ", trap_acc = " << trap_acc;
+			 break;
+		case 3: //Current
+			valid = 1;
+			numb = tx_cmd_ctrl_i(active_slave, CMD_WRITE, payload_str, PAYLOAD_BUF_LEN, val, 0);
+			qDebug() << "Current: " << val;
+			break;
+		//case 4: //Impedance
+			//Done with position (see above)
+		case 5: //Custom/other
+			valid = 0;
+			break;
+		default:
+			valid = 0;
+			break;
+	}
 
-    if(valid)
-    {
-        //Common for all gain functions:
-        numb = comm_gen_str(payload_str, comm_str_usb, PAYLOAD_BUF_LEN);
-        numb = COMM_STR_BUF_LEN;
-        emit writeCommand(numb, comm_str_usb);
-    }
-    else
-    {
-        qDebug() << "Invalid controller selected.";
-    }
+	if(valid)
+	{
+		//Common for all gain functions:
+		numb = comm_gen_str(payload_str, comm_str_usb, PAYLOAD_BUF_LEN);
+		numb = COMM_STR_BUF_LEN;
+		emit writeCommand(numb, comm_str_usb);
+	}
+	else
+	{
+		qDebug() << "Invalid controller selected.";
+	}
 }
 
 void W_Control::stream_ctrl(void)
 {
-    struct execute_s *ex_ptr;
-    myFlexSEA_Generic.assignExecutePtr(&ex_ptr, SL_BASE_EX, active_slave_index);
+	struct execute_s *ex_ptr;
+	myFlexSEA_Generic.assignExecutePtr(&ex_ptr, SL_BASE_EX, active_slave_index);
 
-    if(ui->comboBoxDispSel->currentIndex() == 0)    //Execute's
-    {
-        ui->labelDispEncoder->setText(QString::number(ex_ptr->enc_control));
-    }
-    else if(ui->comboBoxDispSel->currentIndex() == 1)   //RIC/NU - Motor
-    {
-        ui->labelDispEncoder->setText(QString::number(ricnu_1.ex.enc_motor));
-    }
-    else if(ui->comboBoxDispSel->currentIndex() == 2)   //RIC/NU - Joint
-    {
-        ui->labelDispEncoder->setText(QString::number(ricnu_1.ex.enc_joint));
-    }
-    else
-    {
-        ui->labelDispEncoder->setText("Invalid.");
-    }
+	if(ui->comboBoxDispSel->currentIndex() == 0)    //Execute's
+	{
+		ui->labelDispEncoder->setText(QString::number(ex_ptr->enc_control));
+	}
+	else if(ui->comboBoxDispSel->currentIndex() == 1)   //RIC/NU - Motor
+	{
+		ui->labelDispEncoder->setText(QString::number(ricnu_1.ex.enc_motor));
+	}
+	else if(ui->comboBoxDispSel->currentIndex() == 2)   //RIC/NU - Joint
+	{
+		ui->labelDispEncoder->setText(QString::number(ricnu_1.ex.enc_joint));
+	}
+	else
+	{
+		ui->labelDispEncoder->setText("Invalid.");
+	}
 }
 
 void W_Control::control_trapeze(void)
 {
-    int i = 0;
+	int i = 0;
 
-    //Ugly trick to match the 1ms function and the plot refresh...
-    for(i = 0; i < 27; i++)
-    {
-        trapez_get_pos(trapez_steps);
-    }
-    ctrl_setpoint_trap = trapez_get_pos(trapez_steps);
+	//Ugly trick to match the 1ms function and the plot refresh...
+	for(i = 0; i < 27; i++)
+	{
+		trapez_get_pos(trapez_steps);
+	}
+	ctrl_setpoint_trap = trapez_get_pos(trapez_steps);
 }
 
 void W_Control::timerCtrlEvent(void)
 {
-    toggle_output_state ^= 1;
+	toggle_output_state ^= 1;
 
-    qDebug() << "Control Toggle Timer Event, output = " << toggle_output_state;
+	qDebug() << "Control Toggle Timer Event, output = " << toggle_output_state;
 
-    if(toggle_output_state)
-    {
-        ctrl_setpoint = ui->control_setp_a->text().toInt();
-        trap_posi = ui->control_setp_b->text().toInt();
-        trap_posf = ui->control_setp_a->text().toInt();
-        trap_pos = ctrl_setpoint;
+	if(toggle_output_state)
+	{
+		ctrl_setpoint = ui->control_setp_a->text().toInt();
+		trap_posi = ui->control_setp_b->text().toInt();
+		trap_posf = ui->control_setp_a->text().toInt();
+		trap_pos = ctrl_setpoint;
 
-        timerCtrl->setInterval(ui->control_toggle_delayA->text().toInt());
-    }
-    else
-    {
-        ctrl_setpoint = ui->control_setp_b->text().toInt();
-        trap_posi = ui->control_setp_a->text().toInt();
-        trap_posf = ui->control_setp_b->text().toInt();
-        trap_pos = ctrl_setpoint;
+		timerCtrl->setInterval(ui->control_toggle_delayA->text().toInt());
+	}
+	else
+	{
+		ctrl_setpoint = ui->control_setp_b->text().toInt();
+		trap_posi = ui->control_setp_a->text().toInt();
+		trap_posf = ui->control_setp_b->text().toInt();
+		trap_pos = ctrl_setpoint;
 
-        timerCtrl->setInterval(ui->control_toggle_delayB->text().toInt());
-    }
+		timerCtrl->setInterval(ui->control_toggle_delayB->text().toInt());
+	}
 
-    trap_spd = ui->control_trapeze_spd->text().toInt();
-    trap_acc = ui->control_trapeze_acc->text().toInt();
+	trap_spd = ui->control_trapeze_spd->text().toInt();
+	trap_acc = ui->control_trapeze_acc->text().toInt();
 
-    controller_setpoint(ctrl_setpoint);
+	controller_setpoint(ctrl_setpoint);
 }
 
 
@@ -283,360 +283,362 @@ void W_Control::timerCtrlEvent(void)
 
 void W_Control::on_pushButton_SetController_clicked()
 {
-    int numb = 0;
-    int16_t ctrl = CTRL_NONE;
+	int numb = 0;
+	int16_t ctrl = CTRL_NONE;
 
-    selected_controller = ui->comboBox_ctrl_list->currentIndex();
-    wanted_controller = selected_controller;
+	selected_controller = ui->comboBox_ctrl_list->currentIndex();
+	wanted_controller = selected_controller;
 
-    switch(wanted_controller)
-    {
-        case 0: //Null
-            ctrl = CTRL_NONE;
-            break;
-        case 1: //Open
-            ctrl = CTRL_OPEN;
-            break;
-        case 2: //Position
-            ctrl = CTRL_POSITION;
-             break;
-        case 3: //Current
-            ctrl = CTRL_CURRENT;
-            break;
-        case 4: //Impedance
-            ctrl = CTRL_IMPEDANCE;
-            break;
-        case 5: //Custom/other
-            ctrl = CTRL_NONE;
-            break;
-        default:
-            ctrl = CTRL_NONE;
-            break;
-    }
+	switch(wanted_controller)
+	{
+		case 0: //Null
+			ctrl = CTRL_NONE;
+			break;
+		case 1: //Open
+			ctrl = CTRL_OPEN;
+			break;
+		case 2: //Position
+			ctrl = CTRL_POSITION;
+			 break;
+		case 3: //Current
+			ctrl = CTRL_CURRENT;
+			break;
+		case 4: //Impedance
+			ctrl = CTRL_IMPEDANCE;
+			break;
+		case 5: //Custom/other
+			ctrl = CTRL_NONE;
+			break;
+		default:
+			ctrl = CTRL_NONE;
+			break;
+	}
 
-    //Prepare and send command:
-    tx_cmd_ctrl_mode(active_slave, CMD_WRITE, payload_str, PAYLOAD_BUF_LEN, ctrl);
-    numb = comm_gen_str(payload_str, comm_str_usb, PAYLOAD_BUF_LEN);
-    numb = COMM_STR_BUF_LEN;
-    emit writeCommand(numb, comm_str_usb);
+	//Prepare and send command: TODO update
+	/*
+	tx_cmd_ctrl_mode(active_slave, CMD_WRITE, payload_str, PAYLOAD_BUF_LEN, ctrl);
+	numb = comm_gen_str(payload_str, comm_str_usb, PAYLOAD_BUF_LEN);
+	numb = COMM_STR_BUF_LEN;
+	*/
+	emit writeCommand(numb, comm_str_usb);
 
-    //Notify user:
-    QString msg;
-    msg = "Active controller: " + var_list_controllers.at(wanted_controller);
-    ui->statusController->setText(msg);
+	//Notify user:
+	QString msg;
+	msg = "Active controller: " + var_list_controllers.at(wanted_controller);
+	ui->statusController->setText(msg);
 }
 
 void W_Control::on_pushButton_setp_a_go_clicked()
 {
-    int val = 0;
-    val = ui->control_setp_a->text().toInt();
+	int val = 0;
+	val = ui->control_setp_a->text().toInt();
 
-    ctrl_setpoint = ui->control_setp_a->text().toInt();
-    trap_posi = ui->labelDispEncoder->text().toInt();
-    trap_posf = ui->control_setp_a->text().toInt();
-    trap_pos = ctrl_setpoint;
+	ctrl_setpoint = ui->control_setp_a->text().toInt();
+	trap_posi = ui->labelDispEncoder->text().toInt();
+	trap_posf = ui->control_setp_a->text().toInt();
+	trap_pos = ctrl_setpoint;
 
-    trap_spd = ui->control_trapeze_spd->text().toInt();
-    trap_acc = ui->control_trapeze_acc->text().toInt();
+	trap_spd = ui->control_trapeze_spd->text().toInt();
+	trap_acc = ui->control_trapeze_acc->text().toInt();
 
-    controller_setpoint(val);
+	controller_setpoint(val);
 }
 
 void W_Control::on_pushButton_setp_b_go_clicked()
 {
-    int val = 0;
-    val = ui->control_setp_b->text().toInt();
+	int val = 0;
+	val = ui->control_setp_b->text().toInt();
 
-    ctrl_setpoint = ui->control_setp_b->text().toInt();
-    trap_posi = ui->labelDispEncoder->text().toInt();
-    trap_posf = ui->control_setp_b->text().toInt();
-    trap_pos = ctrl_setpoint;
+	ctrl_setpoint = ui->control_setp_b->text().toInt();
+	trap_posi = ui->labelDispEncoder->text().toInt();
+	trap_posf = ui->control_setp_b->text().toInt();
+	trap_pos = ctrl_setpoint;
 
-    trap_spd = ui->control_trapeze_spd->text().toInt();
-    trap_acc = ui->control_trapeze_acc->text().toInt();
+	trap_spd = ui->control_trapeze_spd->text().toInt();
+	trap_acc = ui->control_trapeze_acc->text().toInt();
 
-    controller_setpoint(val);
+	controller_setpoint(val);
 }
 
 void W_Control::on_pushButton_toggle_clicked()
 {
-    //Toggle:
-    ctrl_toggle_state ^= 1;
+	//Toggle:
+	ctrl_toggle_state ^= 1;
 
-    if(!ctrl_toggle_state)
-    {
-        //We are in Toggle OFF Mode.
-        ui->pushButton_toggle->setText("Toggle ON");
+	if(!ctrl_toggle_state)
+	{
+		//We are in Toggle OFF Mode.
+		ui->pushButton_toggle->setText("Toggle ON");
 
-        //Enable GO A & B, values, etc:
-        ui->pushButton_setp_a_go->setEnabled(true);
-        ui->pushButton_setp_b_go->setEnabled(true);
-        ui->control_setp_a->setEnabled(true);
-        ui->control_setp_b->setEnabled(true);
-        ui->control_toggle_delayA->setEnabled(true);
-        ui->control_toggle_delayB->setEnabled(true);
-        ui->control_trapeze_acc->setEnabled(true);
-        ui->control_trapeze_spd->setEnabled(true);
+		//Enable GO A & B, values, etc:
+		ui->pushButton_setp_a_go->setEnabled(true);
+		ui->pushButton_setp_b_go->setEnabled(true);
+		ui->control_setp_a->setEnabled(true);
+		ui->control_setp_b->setEnabled(true);
+		ui->control_toggle_delayA->setEnabled(true);
+		ui->control_toggle_delayB->setEnabled(true);
+		ui->control_trapeze_acc->setEnabled(true);
+		ui->control_trapeze_spd->setEnabled(true);
 
-        //Stop timer:
-        timerCtrl->stop();
-    }
-    else
-    {
-        //We are in Toggle ON Mode.
-        ui->pushButton_toggle->setText("Toggle OFF");
+		//Stop timer:
+		timerCtrl->stop();
+	}
+	else
+	{
+		//We are in Toggle ON Mode.
+		ui->pushButton_toggle->setText("Toggle OFF");
 
-        //Enable GO A & B, values, etc:
-        ui->pushButton_setp_a_go->setEnabled(false);
-        ui->pushButton_setp_b_go->setEnabled(false);
-        ui->control_setp_a->setEnabled(false);
-        ui->control_setp_b->setEnabled(false);
-        ui->control_toggle_delayA->setEnabled(false);
-        ui->control_toggle_delayB->setEnabled(false);
-        ui->control_trapeze_acc->setEnabled(false);
-        ui->control_trapeze_spd->setEnabled(false);
+		//Enable GO A & B, values, etc:
+		ui->pushButton_setp_a_go->setEnabled(false);
+		ui->pushButton_setp_b_go->setEnabled(false);
+		ui->control_setp_a->setEnabled(false);
+		ui->control_setp_b->setEnabled(false);
+		ui->control_toggle_delayA->setEnabled(false);
+		ui->control_toggle_delayB->setEnabled(false);
+		ui->control_trapeze_acc->setEnabled(false);
+		ui->control_trapeze_spd->setEnabled(false);
 
-        //Start at Setpoint A, going to B:
-        toggle_output_state = 1;
+		//Start at Setpoint A, going to B:
+		toggle_output_state = 1;
 
-        //Start timer:
-        timerCtrl->start(ui->control_toggle_delayA->text().toInt());
-    }
+		//Start timer:
+		timerCtrl->start(ui->control_toggle_delayA->text().toInt());
+	}
 }
 
 void W_Control::on_pushButton_CtrlMinMax_clicked()
 {
-    //Get min & max, update slider limits:
-    ui->hSlider_Ctrl->setMinimum(ui->control_slider_min->text().toInt());
-    ui->hSlider_Ctrl->setMaximum(ui->control_slider_max->text().toInt());
-    //Set slider to min:
-    ui->hSlider_Ctrl->setValue(ui->control_slider_min->text().toInt());
+	//Get min & max, update slider limits:
+	ui->hSlider_Ctrl->setMinimum(ui->control_slider_min->text().toInt());
+	ui->hSlider_Ctrl->setMaximum(ui->control_slider_max->text().toInt());
+	//Set slider to min:
+	ui->hSlider_Ctrl->setValue(ui->control_slider_min->text().toInt());
 }
 
 void W_Control::on_hSlider_Ctrl_valueChanged(int value)
 {
-    uint val = 0;
-    val = ui->hSlider_Ctrl->value();
-    ctrl_setpoint = val;
+	uint val = 0;
+	val = ui->hSlider_Ctrl->value();
+	ctrl_setpoint = val;
 
-    //When we move the slider we do not use trapeze, we just "slip" the setpoint
-    trap_pos = val;
-    trap_posi = val;
-    trap_posf = val;
-    controller_setpoint(val);
+	//When we move the slider we do not use trapeze, we just "slip" the setpoint
+	trap_pos = val;
+	trap_posi = val;
+	trap_posf = val;
+	controller_setpoint(val);
 
-    //Wait 2ms to avoid sending a million packets when we move the slider
-    usleep(2000);
+	//Wait 2ms to avoid sending a million packets when we move the slider
+	usleep(2000);
 }
 
 void W_Control::on_pushButton_SetGains_clicked()
 {
-    QString str;
-    int16_t gains[6] = {0,0,0,0,0,0};
-    int numb = 0, valid = 0;
+	QString str;
+	int16_t gains[6] = {0,0,0,0,0,0};
+	int numb = 0, valid = 0;
 
-    //Save gains in temp variables:
-    gains[0] = ui->control_g0->text().toInt();
-    gains[1] = ui->control_g1->text().toInt();
-    gains[2] = ui->control_g2->text().toInt();
-    gains[3] = ui->control_g3->text().toInt();
-    gains[4] = ui->control_g4->text().toInt();
-    gains[5] = ui->control_g5->text().toInt();
+	//Save gains in temp variables:
+	gains[0] = ui->control_g0->text().toInt();
+	gains[1] = ui->control_g1->text().toInt();
+	gains[2] = ui->control_g2->text().toInt();
+	gains[3] = ui->control_g3->text().toInt();
+	gains[4] = ui->control_g4->text().toInt();
+	gains[5] = ui->control_g5->text().toInt();
 
-    //Send command to hardware:
+	//Send command to hardware:
 
-    //Different controllers have different gain functions:
-    selected_controller = ui->comboBox_ctrl_list->currentIndex();
-    switch(selected_controller)
-    {
-        case 0: //Null
-            valid = 0;
-            break;
-        case 1: //Open
-            valid = 0;
-            break;
-        case 2: //Position
-            valid = 1;
-            save_ctrl_gains(selected_controller, gains);
-            tx_cmd_ctrl_p_g(active_slave, CMD_WRITE, payload_str, PAYLOAD_BUF_LEN, \
-                                    gains[0], gains[1], gains[2]);
-             break;
-        case 3: //Current
-            valid = 1;
-            save_ctrl_gains(selected_controller, gains);
-            numb = tx_cmd_ctrl_i_g(active_slave, CMD_WRITE, payload_str, PAYLOAD_BUF_LEN, \
-                                gains[0], gains[1], gains[2]);
-            break;
-        case 4: //Impedance
-            valid = 1;
-            save_ctrl_gains(selected_controller, gains);
-            tx_cmd_ctrl_z_g(active_slave, CMD_WRITE, payload_str, PAYLOAD_BUF_LEN, \
-                                    gains[0], gains[1], gains[2]);
-            break;
-        case 5: //Custom/other
-            valid = 0;
-            break;
-        default:
-            valid = 0;
-            break;
-    }
-	
+	//Different controllers have different gain functions:
+	selected_controller = ui->comboBox_ctrl_list->currentIndex();
+	switch(selected_controller)
+	{
+		case 0: //Null
+			valid = 0;
+			break;
+		case 1: //Open
+			valid = 0;
+			break;
+		case 2: //Position
+			valid = 1;
+			save_ctrl_gains(selected_controller, gains);
+			tx_cmd_ctrl_p_g(active_slave, CMD_WRITE, payload_str, PAYLOAD_BUF_LEN, \
+									gains[0], gains[1], gains[2]);
+			 break;
+		case 3: //Current
+			valid = 1;
+			save_ctrl_gains(selected_controller, gains);
+			numb = tx_cmd_ctrl_i_g(active_slave, CMD_WRITE, payload_str, PAYLOAD_BUF_LEN, \
+								gains[0], gains[1], gains[2]);
+			break;
+		case 4: //Impedance
+			valid = 1;
+			save_ctrl_gains(selected_controller, gains);
+			tx_cmd_ctrl_z_g(active_slave, CMD_WRITE, payload_str, PAYLOAD_BUF_LEN, \
+									gains[0], gains[1], gains[2]);
+			break;
+		case 5: //Custom/other
+			valid = 0;
+			break;
+		default:
+			valid = 0;
+			break;
+	}
+
 	refreshStatusGain();
 
-    if(valid)
-    {
-        qDebug() << "Valid controller.";
+	if(valid)
+	{
+		qDebug() << "Valid controller.";
 
-        //Common for all gain functions:
-        numb = comm_gen_str(payload_str, comm_str_usb, PAYLOAD_BUF_LEN);
-        numb = COMM_STR_BUF_LEN;
-        emit writeCommand(numb, comm_str_usb);
-    }
-    else
-    {
-        qDebug() << "Invalid controller, no gains set.";
-    }
+		//Common for all gain functions:
+		numb = comm_gen_str(payload_str, comm_str_usb, PAYLOAD_BUF_LEN);
+		numb = COMM_STR_BUF_LEN;
+		emit writeCommand(numb, comm_str_usb);
+	}
+	else
+	{
+		qDebug() << "Invalid controller, no gains set.";
+	}
 }
 
 void W_Control::on_comboBox_ctrl_list_currentIndexChanged(int index)
 {
-    selected_controller = ui->comboBox_ctrl_list->currentIndex();
+	selected_controller = ui->comboBox_ctrl_list->currentIndex();
 
-    switch(selected_controller)
-    {
-        case 0: //Null
-            ui->control_g0->setText("0");
-            ui->control_g1->setText("0");
-            ui->control_g2->setText("0");
-            ui->control_g3->setText("0");
-            ui->control_g4->setText("0");
-            ui->control_g5->setText("0");
-            ui->control_g0->setDisabled(1);
-            ui->control_g1->setDisabled(1);
-            ui->control_g2->setDisabled(1);
-            ui->control_g3->setDisabled(1);
-            ui->control_g4->setDisabled(1);
-            ui->control_g5->setDisabled(1);
-            break;
-        case 1: //Open
-            ui->control_g0->setText("0");
-            ui->control_g1->setText("0");
-            ui->control_g2->setText("0");
-            ui->control_g3->setText("0");
-            ui->control_g4->setText("0");
-            ui->control_g5->setText("0");
-            ui->control_g0->setDisabled(1);
-            ui->control_g1->setDisabled(1);
-            ui->control_g2->setDisabled(1);
-            ui->control_g3->setDisabled(1);
-            ui->control_g4->setDisabled(1);
-            ui->control_g5->setDisabled(1);
-            break;
-        case 2: //Position
-            ui->control_g0->setText(QString::number(ctrl_gains[selected_controller][0]));
-            ui->control_g1->setText(QString::number(ctrl_gains[selected_controller][1]));
-            ui->control_g2->setText(QString::number(ctrl_gains[selected_controller][2]));
-            ui->control_g3->setText(QString::number(ctrl_gains[selected_controller][3]));
-            ui->control_g4->setText(QString::number(ctrl_gains[selected_controller][4]));
-            ui->control_g5->setText(QString::number(ctrl_gains[selected_controller][5]));
-            ui->control_g0->setEnabled(1);
-            ui->control_g1->setEnabled(1);
-            ui->control_g2->setEnabled(1);
-            ui->control_g3->setDisabled(1);
-            ui->control_g4->setDisabled(1);
-            ui->control_g5->setDisabled(1);
-            break;
+	switch(selected_controller)
+	{
+		case 0: //Null
+			ui->control_g0->setText("0");
+			ui->control_g1->setText("0");
+			ui->control_g2->setText("0");
+			ui->control_g3->setText("0");
+			ui->control_g4->setText("0");
+			ui->control_g5->setText("0");
+			ui->control_g0->setDisabled(1);
+			ui->control_g1->setDisabled(1);
+			ui->control_g2->setDisabled(1);
+			ui->control_g3->setDisabled(1);
+			ui->control_g4->setDisabled(1);
+			ui->control_g5->setDisabled(1);
+			break;
+		case 1: //Open
+			ui->control_g0->setText("0");
+			ui->control_g1->setText("0");
+			ui->control_g2->setText("0");
+			ui->control_g3->setText("0");
+			ui->control_g4->setText("0");
+			ui->control_g5->setText("0");
+			ui->control_g0->setDisabled(1);
+			ui->control_g1->setDisabled(1);
+			ui->control_g2->setDisabled(1);
+			ui->control_g3->setDisabled(1);
+			ui->control_g4->setDisabled(1);
+			ui->control_g5->setDisabled(1);
+			break;
+		case 2: //Position
+			ui->control_g0->setText(QString::number(ctrl_gains[selected_controller][0]));
+			ui->control_g1->setText(QString::number(ctrl_gains[selected_controller][1]));
+			ui->control_g2->setText(QString::number(ctrl_gains[selected_controller][2]));
+			ui->control_g3->setText(QString::number(ctrl_gains[selected_controller][3]));
+			ui->control_g4->setText(QString::number(ctrl_gains[selected_controller][4]));
+			ui->control_g5->setText(QString::number(ctrl_gains[selected_controller][5]));
+			ui->control_g0->setEnabled(1);
+			ui->control_g1->setEnabled(1);
+			ui->control_g2->setEnabled(1);
+			ui->control_g3->setDisabled(1);
+			ui->control_g4->setDisabled(1);
+			ui->control_g5->setDisabled(1);
+			break;
 
-        case 3: //Current
-            ui->control_g0->setText(QString::number(ctrl_gains[selected_controller][0]));
-            ui->control_g1->setText(QString::number(ctrl_gains[selected_controller][1]));
-            ui->control_g2->setText(QString::number(ctrl_gains[selected_controller][2]));
-            ui->control_g3->setText(QString::number(ctrl_gains[selected_controller][3]));
-            ui->control_g4->setText(QString::number(ctrl_gains[selected_controller][4]));
-            ui->control_g5->setText(QString::number(ctrl_gains[selected_controller][5]));
-            ui->control_g0->setEnabled(1);
-            ui->control_g1->setEnabled(1);
-            ui->control_g2->setEnabled(1);
-            ui->control_g3->setDisabled(1);
-            ui->control_g4->setDisabled(1);
-            ui->control_g5->setDisabled(1);
-            break;
-        case 4: //Impedance
-            ui->control_g0->setText(QString::number(ctrl_gains[selected_controller][0]));
-            ui->control_g1->setText(QString::number(ctrl_gains[selected_controller][1]));
-            ui->control_g2->setText(QString::number(ctrl_gains[selected_controller][2]));
-            ui->control_g3->setText(QString::number(ctrl_gains[selected_controller][3]));
-            ui->control_g4->setText(QString::number(ctrl_gains[selected_controller][4]));
-            ui->control_g5->setText(QString::number(ctrl_gains[selected_controller][5]));
-            ui->control_g0->setEnabled(1);
-            ui->control_g1->setEnabled(1);
-            ui->control_g2->setEnabled(1);
-            ui->control_g3->setDisabled(1);
-            ui->control_g4->setDisabled(1);
-            ui->control_g5->setDisabled(1);
-            break;
-        case 5: //Custom/other
-            ui->control_g0->setText("0");
-            ui->control_g1->setText("0");
-            ui->control_g2->setText("0");
-            ui->control_g3->setText("0");
-            ui->control_g4->setText("0");
-            ui->control_g5->setText("0");
-            ui->control_g0->setDisabled(1);
-            ui->control_g1->setDisabled(1);
-            ui->control_g2->setDisabled(1);
-            ui->control_g3->setDisabled(1);
-            ui->control_g4->setDisabled(1);
-            ui->control_g5->setDisabled(1);
-            break;
-        default:
-            ui->control_g0->setText("0");
-            ui->control_g1->setText("0");
-            ui->control_g2->setText("0");
-            ui->control_g3->setText("0");
-            ui->control_g4->setText("0");
-            ui->control_g5->setText("0");
-            ui->control_g0->setDisabled(1);
-            ui->control_g1->setDisabled(1);
-            ui->control_g2->setDisabled(1);
-            ui->control_g3->setDisabled(1);
-            ui->control_g4->setDisabled(1);
-            ui->control_g5->setDisabled(1);
-            break;
-    }
+		case 3: //Current
+			ui->control_g0->setText(QString::number(ctrl_gains[selected_controller][0]));
+			ui->control_g1->setText(QString::number(ctrl_gains[selected_controller][1]));
+			ui->control_g2->setText(QString::number(ctrl_gains[selected_controller][2]));
+			ui->control_g3->setText(QString::number(ctrl_gains[selected_controller][3]));
+			ui->control_g4->setText(QString::number(ctrl_gains[selected_controller][4]));
+			ui->control_g5->setText(QString::number(ctrl_gains[selected_controller][5]));
+			ui->control_g0->setEnabled(1);
+			ui->control_g1->setEnabled(1);
+			ui->control_g2->setEnabled(1);
+			ui->control_g3->setDisabled(1);
+			ui->control_g4->setDisabled(1);
+			ui->control_g5->setDisabled(1);
+			break;
+		case 4: //Impedance
+			ui->control_g0->setText(QString::number(ctrl_gains[selected_controller][0]));
+			ui->control_g1->setText(QString::number(ctrl_gains[selected_controller][1]));
+			ui->control_g2->setText(QString::number(ctrl_gains[selected_controller][2]));
+			ui->control_g3->setText(QString::number(ctrl_gains[selected_controller][3]));
+			ui->control_g4->setText(QString::number(ctrl_gains[selected_controller][4]));
+			ui->control_g5->setText(QString::number(ctrl_gains[selected_controller][5]));
+			ui->control_g0->setEnabled(1);
+			ui->control_g1->setEnabled(1);
+			ui->control_g2->setEnabled(1);
+			ui->control_g3->setDisabled(1);
+			ui->control_g4->setDisabled(1);
+			ui->control_g5->setDisabled(1);
+			break;
+		case 5: //Custom/other
+			ui->control_g0->setText("0");
+			ui->control_g1->setText("0");
+			ui->control_g2->setText("0");
+			ui->control_g3->setText("0");
+			ui->control_g4->setText("0");
+			ui->control_g5->setText("0");
+			ui->control_g0->setDisabled(1);
+			ui->control_g1->setDisabled(1);
+			ui->control_g2->setDisabled(1);
+			ui->control_g3->setDisabled(1);
+			ui->control_g4->setDisabled(1);
+			ui->control_g5->setDisabled(1);
+			break;
+		default:
+			ui->control_g0->setText("0");
+			ui->control_g1->setText("0");
+			ui->control_g2->setText("0");
+			ui->control_g3->setText("0");
+			ui->control_g4->setText("0");
+			ui->control_g5->setText("0");
+			ui->control_g0->setDisabled(1);
+			ui->control_g1->setDisabled(1);
+			ui->control_g2->setDisabled(1);
+			ui->control_g3->setDisabled(1);
+			ui->control_g4->setDisabled(1);
+			ui->control_g5->setDisabled(1);
+			break;
+	}
 }
 
 void W_Control::on_comboBox_slave_currentIndexChanged(int index)
 {
-    qDebug() << "Changed active slave";
-    active_slave_index = ui->comboBox_slave->currentIndex();
-    active_slave = myFlexSEA_Generic.getSlaveID(SL_BASE_EX, active_slave_index);
+	qDebug() << "Changed active slave";
+	active_slave_index = ui->comboBox_slave->currentIndex();
+	active_slave = myFlexSEA_Generic.getSlaveID(SL_BASE_EX, active_slave_index);
 }
 
 void W_Control::refreshStatusGain(void)
 {
-    QString str;
-	
-    str = "<i>Gains: I = [" + \
-            QString::number(ctrl_gains[3][0]) + ", " + \
-            QString::number(ctrl_gains[3][1]) + ", " + \
-            QString::number(ctrl_gains[3][2]) + ", " + \
-            QString::number(ctrl_gains[3][3]) + ", " + \
-            QString::number(ctrl_gains[3][4]) + ", " + \
-            QString::number(ctrl_gains[3][5]) + "]  P = [" + \
-            QString::number(ctrl_gains[2][0]) + ", " + \
-            QString::number(ctrl_gains[2][1]) + ", " + \
-            QString::number(ctrl_gains[2][2]) + ", " + \
-            QString::number(ctrl_gains[2][3]) + ", " + \
-            QString::number(ctrl_gains[2][4]) + ", " + \
-            QString::number(ctrl_gains[2][5]) + "]  Z = [" + \
-            QString::number(ctrl_gains[4][0]) + ", " + \
-            QString::number(ctrl_gains[4][1]) + ", " + \
-            QString::number(ctrl_gains[4][2]) + ", " + \
-            QString::number(ctrl_gains[4][3]) + ", " + \
-            QString::number(ctrl_gains[4][4]) + ", " + \
-            QString::number(ctrl_gains[4][5]) + "].</i>";
-			
-    ui->statusGains->setText(str);
-    qDebug() << str;
+	QString str;
+
+	str = "<i>Gains: I = [" + \
+			QString::number(ctrl_gains[3][0]) + ", " + \
+			QString::number(ctrl_gains[3][1]) + ", " + \
+			QString::number(ctrl_gains[3][2]) + ", " + \
+			QString::number(ctrl_gains[3][3]) + ", " + \
+			QString::number(ctrl_gains[3][4]) + ", " + \
+			QString::number(ctrl_gains[3][5]) + "]  P = [" + \
+			QString::number(ctrl_gains[2][0]) + ", " + \
+			QString::number(ctrl_gains[2][1]) + ", " + \
+			QString::number(ctrl_gains[2][2]) + ", " + \
+			QString::number(ctrl_gains[2][3]) + ", " + \
+			QString::number(ctrl_gains[2][4]) + ", " + \
+			QString::number(ctrl_gains[2][5]) + "]  Z = [" + \
+			QString::number(ctrl_gains[4][0]) + ", " + \
+			QString::number(ctrl_gains[4][1]) + ", " + \
+			QString::number(ctrl_gains[4][2]) + ", " + \
+			QString::number(ctrl_gains[4][3]) + ", " + \
+			QString::number(ctrl_gains[4][4]) + ", " + \
+			QString::number(ctrl_gains[4][5]) + "].</i>";
+
+	ui->statusGains->setText(str);
+	qDebug() << str;
 }

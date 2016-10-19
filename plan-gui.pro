@@ -59,7 +59,9 @@ SOURCES += src/main.cpp \
 	src/flexsea_generic.cpp \
 	src/serialdriver.cpp \
 	src/flexsea_board.c \
-	src/trapez.c
+	src/trapez.c \
+    src/peripherals.c \
+    ../flexsea-system/src/flexsea_global_structs.c
 
 
 HEADERS  += inc/main.h \
@@ -104,7 +106,9 @@ HEADERS  += inc/main.h \
 	inc/Wrappers/WinViewGossip.h \
 	inc/Wrappers/WinViewManage.h \
 	inc/Wrappers/WinViewRicnu.h \
-	inc/Wrappers/WinViewStrain.h
+	inc/Wrappers/WinViewStrain.h \
+    inc/peripherals.h \
+    ../flexsea-system/inc/flexsea_global_structs.h
 
 FORMS    += ui/mainwindow.ui \
 	ui/w_execute.ui \

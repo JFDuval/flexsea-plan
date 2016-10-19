@@ -21,15 +21,11 @@
 	Biomechatronics research group <http://biomech.media.mit.edu/>
 	[Contributors]
 *****************************************************************************
-	[This file] main: FlexSEA Plan project: GUI app to control FlexSEA slaves
-*****************************************************************************
-	[Change log] (Convention: YYYY-MM-DD | author | comment)
-	* 2016-09-09 | jfduval | Initial GPL-3.0 release
-	*
+	[This file] peripherals: misc. drivers for HW and SW peripherals
 ****************************************************************************/
 
-#ifndef INC_MAINH_H
-#define INC_MAINH_H
+#ifndef INC_PERIPH_H
+#define INC_PERIPH_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -39,66 +35,18 @@ extern "C" {
 // Include(s)
 //****************************************************************************
 
-#include <stdio.h>
-#include <stdint.h>
-#include <stdlib.h>
-#include <string.h>
-#include <unistd.h>
-#include <fcntl.h>  //ToDo useful?
-#include <time.h>
-#include "trapez.h"
-#include "peripherals.h"
-#include "flexsea_board.h"
-#include "../../flexsea-system/inc/flexsea_system.h"
-#include "../../flexsea-comm/inc/flexsea.h"
-
 //****************************************************************************
-// Shared variable(s)
+// Prototype(s):
 //****************************************************************************
 
-//extern char *fake_argv[];
-//extern const char *delims;
-
-//****************************************************************************
-// Public Function Prototype(s):
-//****************************************************************************
-
-
+uint8_t decode_usb_rx(unsigned char *newdata);
 
 //****************************************************************************
 // Definition(s):
 //****************************************************************************
 
-#ifdef SINGLE_COMMAND
-#ifdef MULTIPLE_COMMANDS
-#error "Pick one Command option!"
-#endif
-#endif
-
-//Multiple commands:
-#define MAX_COMMAND_LEN 		256
-#define MAX_ARGS 				12
-
-//IO functions, Reset:
-#define RESET_PORT				9
-#define RESET_PIN				12
-
-//#define NULL					0
-
-//Timers:
-//======
-
-#define TIM_FREQ_TO_P(f)        (1000/f)    //f in Hz, return in ms
-
-//Stream:
-//======
-
-#define STREAM_MIN_FREQ         1
-#define STREAM_MAX_FREQ         1000
-#define STREAM_DEFAULT_FREQ     35
-
 #ifdef __cplusplus
 }
 #endif
 
-#endif
+#endif  //INC_PERIPH_H

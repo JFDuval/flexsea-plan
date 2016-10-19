@@ -51,10 +51,6 @@ extern "C" {
 
 void flexsea_send_serial_slave(unsigned char port, unsigned char *str, unsigned char length);
 void flexsea_send_serial_master(unsigned char port, unsigned char *str, unsigned char length);
-uint8_t decode_spi_rx(void);
-uint8_t decode_usb_rx(unsigned char *newdata);
-void console_reset(unsigned char slaveid);
-void reset_manage(void);
 
 //****************************************************************************
 // Definition(s):
@@ -111,9 +107,6 @@ extern uint8_t board_id;
 extern uint8_t board_up_id;
 extern uint8_t board_sub1_id[SLAVE_BUS_1_CNT ? SLAVE_BUS_1_CNT : 1];
 extern uint8_t board_sub2_id[SLAVE_BUS_2_CNT ? SLAVE_BUS_2_CNT : 1];
-
-//extern uint8_t bytes_ready_spi;
-//extern uint8_t cmd_ready_spi;
 
 #ifdef __cplusplus
 }
