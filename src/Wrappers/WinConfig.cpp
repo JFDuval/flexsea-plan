@@ -53,10 +53,10 @@ WinConfig::WinConfig(QWidget *parent) :
             SLOT(receiveCloseCom()));
     connect(my_w_config, SIGNAL(openLogFile(uint8_t)), this,\
             SLOT(receiveOpenLogFile(uint8_t)));
-    connect(my_w_config, SIGNAL(loadLogFile(uint8_t)), this,\
-            SLOT(receiveloadLogFile(uint8_t)));
-    connect(my_w_config, SIGNAL(closeLogFile(uint8_t)), this,\
-            SLOT(receivecloseLogFile(uint8_t)));
+    connect(my_w_config, SIGNAL(loadLogFile()), this,\
+            SLOT(receiveLoadLogFile()));
+    connect(my_w_config, SIGNAL(closeLogFile()), this,\
+            SLOT(receiveCloseLogFile()));
 }
 
 WinConfig::~WinConfig()

@@ -112,7 +112,7 @@ void DataLogger::openReadingFile(void)
 
     //File Dialog (returns the selected file name):
     QDir::setCurrent("Plan-GUI-Logs");
-    QString filename = QFileDialog::getSaveFileName( \
+    QString filename = QFileDialog::getOpenFileName( \
                 this,
                 tr("Open Log File"),
                 QDir::currentPath() + "\\.csv" ,
@@ -126,13 +126,54 @@ void DataLogger::openReadingFile(void)
 
     //Now we open it:
     logReadingFile.setFileName(filename);
-    if(logReadingFile.open(QIODevice::ReadWrite))
+    logReadingFile.size();
+    if(logReadingFile.open(QIODevice::ReadOnly))
     {
         msg = tr("Successfully opened: '") + shortFileName + "'.";
         emit setLogFileStatus(msg);
         qDebug() << msg;
+        QList<struct execute_s> execlist;
 
         //Associate stream to file:
+        QString line, slaveName, expName;
+        QStringList splitLine;
+        uint8_t item, slaveIndex, experimentIndex;
+        line = logReadingFile.readLine();
+
+        //TODO : design a better way to parse the header.
+        item = line.section(' ', 3, 3).toInt();
+        slaveIndex = line.section(' ', 8, 8).toInt();
+        slaveName = line.section(' ', 9, 10).remove("(").remove(")");
+        experimentIndex = line.section(' ', 15, 15).toInt();
+
+        line = logReadingFile.readLine();
+
+        while (!logReadingFile.atEnd()) {
+            line = logReadingFile.readLine();
+            splitLine = line.split(',', QString::KeepEmptyParts);
+            struct execute_s newitem;
+            execlist.append(newitem);
+
+            execlist.last().accel.x   = splitLine[2].toInt();
+            execlist.last().accel.y   = splitLine[3].toInt();
+            execlist.last().accel.z   = splitLine[4].toInt();
+            execlist.last().gyro.x    = splitLine[5].toInt();
+            execlist.last().gyro.y    = splitLine[6].toInt();
+            execlist.last().gyro.z    = splitLine[7].toInt();
+            execlist.last().strain    = splitLine[8].toInt();
+            execlist.last().analog[0] = splitLine[9].toInt();
+            execlist.last().analog[1] = splitLine[10].toInt();
+            execlist.last().current   = splitLine[11].toInt();
+            execlist.last().enc_display = splitLine[12].toInt();
+            execlist.last().enc_control = splitLine[13].toInt();
+            execlist.last().enc_commut  = splitLine[14].toInt();
+            execlist.last().volt_batt = splitLine[15].toInt();
+            execlist.last().volt_int  = splitLine[16].toInt();
+            execlist.last().temp      = splitLine[17].toInt();
+            execlist.last().status1   = splitLine[18].toInt();
+            execlist.last().status2   = splitLine[19].toInt();
+        }
+
         logFileStream.setDevice(&logReadingFile);
         msg = tr("Opened '") + filename + "'.";
         emit setStatusBarMessage(msg);
