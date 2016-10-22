@@ -1700,3 +1700,9 @@ void W_2DPlot::on_pushButtonClear_clicked()
     qDebug() << "Clear plot!";
     init_yarrays();
 }
+
+void W_2DPlot::on_DataSlider_valueChanged(int value)
+{
+    emit dataSliderValueChanged(value);
+}
+

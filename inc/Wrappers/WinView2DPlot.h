@@ -63,6 +63,7 @@ public slots:
 
 signals:
     void windowClosed(void);
+    void winDataSliderValueChanged(int index);
 
 private:
 	//Variables & Objects:

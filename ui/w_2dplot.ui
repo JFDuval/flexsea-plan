@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>648</width>
-    <height>243</height>
+    <height>295</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -15,7 +15,21 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <layout class="QGridLayout" name="gridLayout_test" rowminimumheight="0"/>
+    <layout class="QGridLayout" name="gridLayout_test"/>
+   </item>
+   <item>
+    <widget class="QLabel" name="labelDataSlider">
+     <property name="text">
+      <string>Log Data Slider</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QSlider" name="DataSlider">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+    </widget>
    </item>
    <item>
     <spacer name="verticalSpacer">
@@ -109,6 +123,9 @@
          </item>
          <item row="1" column="4">
           <widget class="QCheckBox" name="checkBoxD1">
+           <property name="toolTip">
+            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Convert the data on a meaningfull scale related to the type of the sensor e.x.: Speed would be displayed in RPM is selected.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+           </property>
            <property name="text">
             <string/>
            </property>
@@ -777,6 +794,9 @@
     </spacer>
    </item>
   </layout>
+  <zorder>horizontalSlider</zorder>
+  <zorder>labelDataSlider</zorder>
+  <zorder>DataSlider</zorder>
  </widget>
  <resources/>
  <connections/>

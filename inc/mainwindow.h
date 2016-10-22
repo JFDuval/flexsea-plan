@@ -184,6 +184,7 @@ public slots:
     void setStatusBar(QString msg);
 
 signals:
+    void connectorRefreshDataSlider(int index);
 
 };
 

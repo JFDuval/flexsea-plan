@@ -171,6 +171,10 @@ void MainWindow::createViewExecute(void)
         //Link to MainWindow for the close signal:
         connect(myViewEx[exViewObjectCount], SIGNAL(windowClosed()), \
                 this, SLOT(closeViewExecute()));
+        connect(myDataLogger, SIGNAL(setNewLogFileLoaded(QList<struct execute_s> &)), \
+                myViewEx[exViewObjectCount], SLOT(winLoadNewLogFile(QList<struct execute_s> &)));
+        connect(this, SIGNAL(connectorRefreshDataSlider(int)), \
+                myViewEx[exViewObjectCount], SLOT(winRefreshDataSlider(int)));
 
         exViewObjectCount++;
     }
@@ -360,6 +364,9 @@ void MainWindow::createView2DPlot(void)
         //Link to MainWindow for the close signal:
         connect(my2DPlot[plot2DObjectCount], SIGNAL(windowClosed()), \
                 this, SLOT(closeView2DPlot()));
+        // TODO ok for one 2dplot, but when a second 2d plot will open, it wont works or be meaningfull.
+        connect(my2DPlot[plot2DObjectCount], SIGNAL(winDataSliderValueChanged(int)), \
+                this, SIGNAL(connectorRefreshDataSlider(int)));
 
         plot2DObjectCount++;
     }

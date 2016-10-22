@@ -103,6 +103,7 @@ private:
 signals:
     void setLogFileStatus(QString msg);
     void setStatusBarMessage(QString msg);
+    void setNewLogFileLoaded(QList<struct execute_s> &data);
 };
 
 //****************************************************************************

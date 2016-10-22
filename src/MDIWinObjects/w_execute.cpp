@@ -74,6 +74,17 @@ void W_Execute::refresh(void)
     displayExecute(exPtr);
 }
 
+void W_Execute::loadLogFile(QList<struct execute_s> &data)
+{
+    myExecute_s = data;
+    displayExecute(&myExecute_s[0]);
+}
+
+void W_Execute::refreshDataSlider(int index)
+{
+    displayExecute(&myExecute_s[index]);
+}
+
 //****************************************************************************
 // Public slot(s):
 //****************************************************************************

@@ -33,6 +33,7 @@
 //****************************************************************************
 
 #include "WinViewExecute.h"
+#include "flexsea_system.h"
 #include <QMdiSubWindow>
 #include "w_execute.h"
 
@@ -64,6 +65,16 @@ WinViewExecute::~WinViewExecute()
 void WinViewExecute::refreshDisplayExecute(void)
 {
     my_w_execute->refresh();
+}
+
+void WinViewExecute::winLoadNewLogFile(QList<struct execute_s> &data)
+{
+    my_w_execute->loadLogFile(data);
+}
+
+void WinViewExecute::winRefreshDataSlider(int index)
+{
+    my_w_execute->refreshDataSlider(index);
 }
 
 //****************************************************************************

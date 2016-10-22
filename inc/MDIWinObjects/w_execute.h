@@ -57,6 +57,8 @@ public:
 	
 	//Function(s):
     void refresh(void);
+    void loadLogFile(QList<struct execute_s> &data);
+    void refreshDataSlider(int index);
 
 public slots:
 
@@ -65,6 +67,7 @@ private:
 	//Variables & Objects:
     Ui::W_Execute *ui;
 	FlexSEA_Generic myFlexSEA_Generic;
+    QList<struct execute_s> myExecute_s;
     int active_slave, active_slave_index;
 	
 	//Function(s):

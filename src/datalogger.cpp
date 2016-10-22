@@ -137,14 +137,14 @@ void DataLogger::openReadingFile(void)
         //Associate stream to file:
         QString line, slaveName, expName;
         QStringList splitLine;
-        uint8_t item, slaveIndex, experimentIndex;
+        //uint8_t item, slaveIndex, experimentIndex;
         line = logReadingFile.readLine();
 
         //TODO : design a better way to parse the header.
-        item = line.section(' ', 3, 3).toInt();
-        slaveIndex = line.section(' ', 8, 8).toInt();
-        slaveName = line.section(' ', 9, 10).remove("(").remove(")");
-        experimentIndex = line.section(' ', 15, 15).toInt();
+        //item = line.section(' ', 3, 3).toInt();
+        //slaveIndex = line.section(' ', 8, 8).toInt();
+        //slaveName = line.section(' ', 9, 10).remove("(").remove(")");
+        //experimentIndex = line.section(' ', 15, 15).toInt();
 
         line = logReadingFile.readLine();
 
@@ -174,7 +174,8 @@ void DataLogger::openReadingFile(void)
             execlist.last().status2   = splitLine[19].toInt();
         }
 
-        logFileStream.setDevice(&logReadingFile);
+        emit setNewLogFileLoaded(execlist);
+
         msg = tr("Opened '") + filename + "'.";
         emit setStatusBarMessage(msg);
     }

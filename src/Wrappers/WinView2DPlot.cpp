@@ -45,6 +45,8 @@ WinView2DPlot::WinView2DPlot(QWidget *parent) :
 {
     my_2dplot = new W_2DPlot(this);
     this->setWidget(my_2dplot);
+    connect(my_2dplot, SIGNAL(dataSliderValueChanged(int)),\
+            this, SIGNAL(winDataSliderValueChanged(int)));
     //my_2dplot->resize(400,300);
 }
 

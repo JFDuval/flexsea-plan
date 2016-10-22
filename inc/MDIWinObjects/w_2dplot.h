@@ -89,6 +89,7 @@ public:
 
 public slots:
 
+
 private slots:
     void on_radioButtonXA_clicked();
     void on_radioButtonXM_clicked();
@@ -118,6 +119,10 @@ private slots:
     void on_checkBoxD5_stateChanged(int arg1);
     void on_checkBoxD6_stateChanged(int arg1);
     void on_pushButtonClear_clicked();
+    void on_DataSlider_valueChanged(int value);
+
+signals:
+    void dataSliderValueChanged(int index);
 
 private:
 	//Variables & Objects:
@@ -176,6 +181,7 @@ private:
     void assignVariableBa(uint8_t var, struct battery_s *myPtr);
     void assignVariableSt(uint8_t var, struct strain_s *myPtr);
     void assignVariableRicnu(uint8_t var, struct ricnu_s *myPtr);
+
 };
 
 #endif // W_2DPLOT_H

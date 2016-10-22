@@ -60,6 +60,8 @@ public:
 
 public slots:
     void refreshDisplayExecute(void);
+    void winLoadNewLogFile(QList<struct execute_s> &data);
+    void winRefreshDataSlider(int index);
 
 signals:
     void windowClosed(void);
