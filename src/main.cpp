@@ -35,7 +35,6 @@
 #include "mainwindow.h"
 #include <QApplication>
 #include "main.h"
-//#include "../../flexsea-system/test/unity.h"
 #include "../../flexsea-system/test/flexsea-system_test-all.h"
 
 //****************************************************************************
