@@ -16,6 +16,7 @@ INCLUDEPATH += inc \
 	inc/Wrappers \
 	../flexsea-comm/inc \
 	../flexsea-system/inc
+	../flexsea-system/test
 
 SOURCES += src/main.cpp \
 	src/mainwindow.cpp \
@@ -29,6 +30,15 @@ SOURCES += src/main.cpp \
 	../flexsea-system/src/flexsea_cmd_sensors.c \
 	../flexsea-system/src/flexsea_system.c \
 	../flexsea-system/src/flexsea_cmd_data.c \
+	../flexsea-system/src/flexsea_global_structs.c \
+	../flexsea-system/test/test-flexsea_system.c  \
+	../flexsea-system/test/unity.c \
+	../flexsea-system/test/flexsea-system_test-all.c \
+	../flexsea-system/test/test-flexsea_cmd_control.c\
+	../flexsea-system/test/test-flexsea_cmd_application.c \
+	../flexsea-system/test/test-flexsea_cmd_data.c \
+	../flexsea-system/test/test-flexsea_cmd_external.c \
+	../flexsea-system/test/test-flexsea_cmd_sensors.c \
 	src/MDIWinObjects/w_2dplot.cpp \
 	src/MDIWinObjects/w_anycommand.cpp \
 	src/MDIWinObjects/w_battery.cpp \
@@ -60,9 +70,7 @@ SOURCES += src/main.cpp \
 	src/serialdriver.cpp \
 	src/flexsea_board.c \
 	src/trapez.c \
-    src/peripherals.c \
-    ../flexsea-system/src/flexsea_global_structs.c
-
+	src/peripherals.c
 
 HEADERS  += inc/main.h \
 	inc/mainwindow.h \
@@ -76,6 +84,10 @@ HEADERS  += inc/main.h \
 	../flexsea-system/inc/flexsea_cmd_sensors.h \
 	../flexsea-system/inc/flexsea_system.h \
 	../flexsea-system/inc/flexsea_cmd_data.h \
+	../flexsea-system/inc/flexsea_global_structs.h \
+	../flexsea-system/test/unity.h \
+	../flexsea-system/test/unity_internals.h \
+	../flexsea-system/test/flexsea-system_test-all.h \
 	inc/flexsea_generic.h \
 	inc/datalogger.h \
 	inc/trapez.h \
@@ -107,8 +119,7 @@ HEADERS  += inc/main.h \
 	inc/Wrappers/WinViewManage.h \
 	inc/Wrappers/WinViewRicnu.h \
 	inc/Wrappers/WinViewStrain.h \
-    inc/peripherals.h \
-    ../flexsea-system/inc/flexsea_global_structs.h
+	inc/peripherals.h
 
 FORMS    += ui/mainwindow.ui \
 	ui/w_execute.ui \

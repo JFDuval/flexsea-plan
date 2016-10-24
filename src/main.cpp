@@ -34,67 +34,19 @@
 
 #include "mainwindow.h"
 #include <QApplication>
+#include "main.h"
+//#include "../../flexsea-system/test/unity.h"
+#include "../../flexsea-system/test/flexsea-system_test-all.h"
 
 //****************************************************************************
 // Main
 //****************************************************************************
 
-/*	TODO REMOVE
-#define BUF_LEN	50
-#include "flexsea_generic.h"
-#include <QDebug>
-void TEMPORARY_test_ricnu_fcts(void)
-{
-	//FlexSEA_Generic myFlexSEA_Generic;
-	uint16_t numb = 0;
-	uint8_t offset = 0;
-	int32_t result = 0;
-	uint8_t myBuf1[BUF_LEN], myBuf2[BUF_LEN], myBuf3[BUF_LEN], myBuf4[BUF_LEN];
-
-	memset(myBuf1, 0, BUF_LEN);
-	memset(myBuf2, 0, BUF_LEN);
-	memset(myBuf3, 0, BUF_LEN);
-	memset(myBuf4, 0, BUF_LEN);
-
-	//Legacy style (with macros):
-	//===========================
-
-	qDebug() << "Old:";
-	numb = tx_cmd_ricnu(FLEXSEA_EXECUTE_1, CMD_READ, myBuf1,\
-						PAYLOAD_BUF_LEN, 0, 1, 2, 3, 4, 5, 6, 7);
-	qDebug() << "tx_cmd_ricnu returned " << numb;
-	//COMM_GEN_STR_DEFAULT
-	numb = comm_gen_str(myBuf1, myBuf2, numb);
-	qDebug() << "comm_gen_str returned " << numb;
-	numb = COMM_STR_BUF_LEN;
-
-	//Reset:
-	memset(myBuf1, 0, BUF_LEN);
-
-	//New approach:
-	//=============
-
-	uint8_t cmd = 0, cmdType = 0;
-	uint16_t len = 0;
-
-	qDebug() << "New:";
-	tx_cmd_ricnu_rw(myBuf1, &cmd, &cmdType, &len, 0, 1, 2, 3, 4, 5, 6, 7);
-	qDebug() << "tx_cmd_ricnu_rw returned " << len;
-	numb = tx_cmd(myBuf1, cmd, cmdType, len, FLEXSEA_EXECUTE_1, myBuf3);
-	qDebug() << "tx_cmd returned " << numb;
-	numb = comm_gen_str(myBuf3, myBuf4, numb);
-	numb = COMM_STR_BUF_LEN;
-
-	//Test:
-	//=====
-	result = memcmp(myBuf2, myBuf4, len);
-
-	//myFlexSEA_Generic.packetVisualizer(numb, myBuf2);
-}
-*/
-
 int main(int argc, char *argv[])
 {
+	//Unit tests:
+	flexsea_system_test();
+
 	QApplication a(argc, argv);
 	MainWindow w;
 	w.show();
