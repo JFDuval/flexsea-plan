@@ -256,6 +256,7 @@ void MainWindow::createConfig(void)
     //Limited number of windows:
     if(configObjectCount < (CONFIG_WINDOWS_MAX))
     {
+
         myConfig[configObjectCount] = new WinConfig(ui->mdiArea);
         myConfig[configObjectCount]->setAttribute(Qt::WA_DeleteOnClose);
         myConfig[configObjectCount]->show();
@@ -348,7 +349,6 @@ void MainWindow::createView2DPlot(void)
     //Limited number of windows:
     if(plot2DObjectCount < (PLOT2D_WINDOWS_MAX))
     {
-        myConfig[0]->
         my2DPlot[plot2DObjectCount] = new WinView2DPlot(ui->mdiArea, W_2DPlot::DisplayLiveData);
         my2DPlot[plot2DObjectCount]->setAttribute(Qt::WA_DeleteOnClose);
         my2DPlot[plot2DObjectCount]->show();
@@ -536,6 +536,8 @@ void MainWindow::createConverter(void)
     //Limited number of windows:
     if(converterObjectCount < (CONVERTER_WINDOWS_MAX))
     {
+       // QMdiSubWindow *myconfig_sub = new QMdiSubWindow;
+       // myconfig_sub->setWidget();
         myConverter[converterObjectCount] = new WinConverter(ui->mdiArea);
         myConverter[converterObjectCount]->setAttribute(Qt::WA_DeleteOnClose);
         myConverter[converterObjectCount]->show();

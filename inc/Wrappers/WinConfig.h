@@ -58,7 +58,7 @@ public:
     explicit WinConfig(QWidget *parent = 0);
     ~WinConfig();
 
-    enum DataSource getDataSourceStatus(void);
+    enum W_PlanConfig::DataSource getDataSourceStatus(void);
 
 
 public slots:
