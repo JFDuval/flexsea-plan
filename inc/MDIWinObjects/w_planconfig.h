@@ -53,6 +53,16 @@ public:
 	//Constructor & Destructor:
     explicit W_PlanConfig(QWidget *parent = 0);
     ~W_PlanConfig();
+    enum DataSource
+    {
+        None,
+        LiveCOM,
+        LiveBluetooth,
+        LogFile
+    };
+
+    enum DataSource getDataSourceStatus(void);
+
 
 private slots:
     void on_comPortComboBox_currentIndexChanged(int index);
@@ -75,12 +85,13 @@ private:
     Ui::W_PlanConfig *ui;
 	QStringList comPortList;
 	int flagComInitDone, flagManualEntry;
+    enum DataSource dataSourceState;
 	
 	//Function(s):
 	void initCom(void);
 	void initLog(void);
     void getComList(void);
-    void defaultComOffUi(void); 
+    void defaultComOffUi(void);
 
  signals:
     void openCom(QString name, int tries, int delay);

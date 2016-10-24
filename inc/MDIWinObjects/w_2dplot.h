@@ -80,9 +80,17 @@ class W_2DPlot : public QWidget
     Q_OBJECT
 
 public:
+    enum DisplayMode
+    {
+        DisplayLiveData,
+        DisplayLogData
+    };
+
 	//Constructor & Destructor:
-    explicit W_2DPlot(QWidget *parent = 0);
+    explicit W_2DPlot(QWidget *parent = 0, DisplayMode mode = DisplayLiveData);
     ~W_2DPlot();
+
+
 	
 	//Function(s):
     void refresh2DPlot(void);

@@ -40,10 +40,10 @@
 // Constructor & Destructor:
 //****************************************************************************
 
-WinView2DPlot::WinView2DPlot(QWidget *parent) :
+WinView2DPlot::WinView2DPlot(QWidget *parent, W_2DPlot::DisplayMode mode) :
   QMdiSubWindow(parent)
 {
-    my_2dplot = new W_2DPlot(this);
+    my_2dplot = new W_2DPlot(this, mode);
     this->setWidget(my_2dplot);
     connect(my_2dplot, SIGNAL(dataSliderValueChanged(int)),\
             this, SIGNAL(winDataSliderValueChanged(int)));

@@ -58,6 +58,9 @@ public:
     explicit WinConfig(QWidget *parent = 0);
     ~WinConfig();
 
+    enum DataSource getDataSourceStatus(void);
+
+
 public slots:
     void setComProgress(int val, int rst);
     void setLogFileStatus(QString status);
@@ -65,6 +68,7 @@ public slots:
 private:
 	//Variables & Objects:
     W_PlanConfig *my_w_config;
+
 
 private slots:
     void receiveOpenCom(QString name, int tries, int delay);

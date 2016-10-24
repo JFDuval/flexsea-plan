@@ -82,7 +82,10 @@ void W_Execute::loadLogFile(QList<struct execute_s> &data)
 
 void W_Execute::refreshDataSlider(int index)
 {
-    displayExecute(&myExecute_s[index]);
+   if(myExecute_s.isEmpty() == false)
+   {
+        displayExecute(&myExecute_s[index]);
+   }
 }
 
 //****************************************************************************

@@ -55,8 +55,10 @@ class WinView2DPlot : public QMdiSubWindow
 
 public:
 	//Constructor & Destructor:
-    explicit WinView2DPlot(QWidget *parent = 0);
+    explicit WinView2DPlot(QWidget *parent = 0, W_2DPlot::DisplayMode mode = W_2DPlot::DisplayLiveData);
     ~WinView2DPlot();
+
+
 
 public slots:
     void refresh2DPlot(void);

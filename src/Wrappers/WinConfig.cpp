@@ -68,6 +68,10 @@ WinConfig::~WinConfig()
 //****************************************************************************
 // Public function(s):
 //****************************************************************************
+W_PlanConfig::DataSource WinConfig::getDataSourceStatus(void)
+{
+    return my_w_config->getDataSourceStatus();
+}
 
 //****************************************************************************
 // Public slot(s):

@@ -348,7 +348,8 @@ void MainWindow::createView2DPlot(void)
     //Limited number of windows:
     if(plot2DObjectCount < (PLOT2D_WINDOWS_MAX))
     {
-        my2DPlot[plot2DObjectCount] = new WinView2DPlot(ui->mdiArea);
+        myConfig[0]->
+        my2DPlot[plot2DObjectCount] = new WinView2DPlot(ui->mdiArea, W_2DPlot::DisplayLiveData);
         my2DPlot[plot2DObjectCount]->setAttribute(Qt::WA_DeleteOnClose);
         my2DPlot[plot2DObjectCount]->show();
 

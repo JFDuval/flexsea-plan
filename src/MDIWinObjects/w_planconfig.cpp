@@ -65,6 +65,10 @@ W_PlanConfig::~W_PlanConfig()
 //****************************************************************************
 // Public function(s):
 //****************************************************************************
+W_PlanConfig::DataSource W_PlanConfig::getDataSourceStatus(void)
+{
+    return dataSourceState;
+}
 
 //****************************************************************************
 // Public slot(s):

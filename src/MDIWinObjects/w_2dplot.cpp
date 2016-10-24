@@ -48,7 +48,7 @@ QT_CHARTS_USE_NAMESPACE
 // Constructor & Destructor:
 //****************************************************************************
 
-W_2DPlot::W_2DPlot(QWidget *parent) :
+W_2DPlot::W_2DPlot(QWidget *parent, DisplayMode mode) :
     QWidget(parent),
     ui(new Ui::W_2DPlot)
 {
