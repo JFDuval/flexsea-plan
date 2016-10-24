@@ -162,6 +162,8 @@ void W_Control::save_ctrl_gains(int controller, int16_t *gains)
 void W_Control::controller_setpoint(int val)
 {
 	uint numb = 0, valid = 0;
+	uint8_t cmdCode = 0, cmdType = 0;
+	uint16_t len = 0;
 
 	qDebug() << "Entered controller_setpoint()";
 
@@ -184,7 +186,11 @@ void W_Control::controller_setpoint(int val)
 			 break;
 		case 3: //Current
 			valid = 1;
-			numb = tx_cmd_ctrl_i(active_slave, CMD_WRITE, payload_str, PAYLOAD_BUF_LEN, val, 0);
+
+			tx_cmd_ctrl_i_w(payload_str, &cmdCode, &cmdType, &len, val);
+			numb = tx_cmd(payload_str, cmdCode, cmdType, len, active_slave, transferBuf);
+
+			//numb = tx_cmd_ctrl_i(active_slave, CMD_WRITE, payload_str, PAYLOAD_BUF_LEN, val, 0);
 			qDebug() << "Current: " << val;
 			break;
 		//case 4: //Impedance
@@ -200,7 +206,10 @@ void W_Control::controller_setpoint(int val)
 	if(valid)
 	{
 		//Common for all gain functions:
-		numb = comm_gen_str(payload_str, comm_str_usb, PAYLOAD_BUF_LEN);
+
+		numb = comm_gen_str(transferBuf, comm_str_usb, numb);
+		numb = COMM_STR_BUF_LEN;
+		//numb = comm_gen_str(payload_str, comm_str_usb, PAYLOAD_BUF_LEN);
 		numb = COMM_STR_BUF_LEN;
 		emit writeCommand(numb, comm_str_usb);
 	}
