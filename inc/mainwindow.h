@@ -37,7 +37,6 @@
 #include "WinSlaveComm.h"
 #include "WinConfig.h"
 #include "WinAnyCommand.h"
-#include "WinConverter.h"
 #include "WinView2DPlot.h"
 #include "WinControlControl.h"
 #include "WinViewRicnu.h"
@@ -46,6 +45,7 @@
 #include "WinViewBattery.h"
 #include "WinViewStrain.h"
 #include "WinViewGossip.h"
+#include "w_converter.h"
 #include "flexsea_generic.h"
 #include "serialdriver.h"
 #include "datalogger.h"
@@ -106,7 +106,7 @@ private:
 
     //Converter:
     int converterObjectCount;
-    WinConverter *myConverter[CONVERTER_WINDOWS_MAX];
+    W_Converter *my_w_converter[CONVERTER_WINDOWS_MAX];
 
     //Calibration:
     int calibObjectCount;

@@ -54,6 +54,7 @@ W_Converter::W_Converter(QWidget *parent) :
 
 W_Converter::~W_Converter()
 {
+    emit windowClosed();
     delete ui;
 }
 

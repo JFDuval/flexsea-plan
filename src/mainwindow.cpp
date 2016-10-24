@@ -41,7 +41,6 @@
 #include "WinConfig.h"
 #include "WinSlaveComm.h"
 #include "WinViewRicnu.h"
-#include "WinConverter.h"
 #include <QMessageBox>
 #include <QDebug>
 #include <QString>
@@ -536,18 +535,16 @@ void MainWindow::createConverter(void)
     //Limited number of windows:
     if(converterObjectCount < (CONVERTER_WINDOWS_MAX))
     {
-       // QMdiSubWindow *myconfig_sub = new QMdiSubWindow;
-       // myconfig_sub->setWidget();
-        myConverter[converterObjectCount] = new WinConverter(ui->mdiArea);
-        myConverter[converterObjectCount]->setAttribute(Qt::WA_DeleteOnClose);
-        myConverter[converterObjectCount]->show();
+        my_w_converter[converterObjectCount] = new W_Converter(this);
+        ui->mdiArea->addSubWindow(my_w_converter[converterObjectCount]);
+        my_w_converter[converterObjectCount]->show();
 
         msg = "Created 'Converter' object index " + QString::number(converterObjectCount) \
                 + " (max index = " + QString::number(CONVERTER_WINDOWS_MAX-1) + ").";
         ui->statusBar->showMessage(msg);
 
         //Link to MainWindow for the close signal:
-        connect(myConverter[converterObjectCount], SIGNAL(windowClosed()), \
+        connect(my_w_converter[converterObjectCount], SIGNAL(windowClosed()), \
                 this, SLOT(closeConverter()));
 
         converterObjectCount++;
