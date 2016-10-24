@@ -17,15 +17,15 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *****************************************************************************
 	[Lead developper] Jean-Francois (JF) Duval, jfduval at dephy dot com.
-	[Origin] Based on Jean-Francois Duval's work at the MIT Media Lab 
+	[Origin] Based on Jean-Francois Duval's work at the MIT Media Lab
 	Biomechatronics research group <http://biomech.media.mit.edu/>
-	[Contributors] 
+	[Contributors]
 *****************************************************************************
 	[This file] w_2dplot.h: 2D Plot window
 *****************************************************************************
 	[Change log] (Convention: YYYY-MM-DD | author | comment)
 	* 2016-09-09 | jfduval | Initial GPL-3.0 release
-    * 2016-09-12 | jfduval | Added Freeze/Release
+	* 2016-09-12 | jfduval | Added Freeze/Release
 ****************************************************************************/
 
 #ifndef W_2DPLOT_H
@@ -77,105 +77,106 @@ class W_2DPlot;
 
 class W_2DPlot : public QWidget
 {
-    Q_OBJECT
+	Q_OBJECT
 
 public:
 	//Constructor & Destructor:
-    explicit W_2DPlot(QWidget *parent = 0);
-    ~W_2DPlot();
-	
+	explicit W_2DPlot(QWidget *parent = 0);
+	~W_2DPlot();
+
 	//Function(s):
-    void refresh2DPlot(void);
+	void refresh2DPlot(void);
 
 public slots:
 
 private slots:
-    void on_radioButtonXA_clicked();
-    void on_radioButtonXM_clicked();
+	void on_radioButtonXA_clicked();
+	void on_radioButtonXM_clicked();
 	void on_radioButtonYA_clicked();
-    void on_radioButtonYM_clicked();
-    void on_lineEditXMin_returnPressed();
-    void on_lineEditXMax_returnPressed();
-    void on_lineEditYMin_returnPressed();
-    void on_lineEditYMax_returnPressed();
-    void on_pushButtonFreeze_clicked();
-    void on_cBoxvar1slave_currentIndexChanged(int index);
-    void on_cBoxvar2slave_currentIndexChanged(int index);
-    void on_cBoxvar3slave_currentIndexChanged(int index);
-    void on_cBoxvar4slave_currentIndexChanged(int index);
-    void on_cBoxvar5slave_currentIndexChanged(int index);
-    void on_cBoxvar6slave_currentIndexChanged(int index);
-    void on_cBoxvar1_currentIndexChanged(int index);
-    void on_cBoxvar2_currentIndexChanged(int index);
-    void on_cBoxvar3_currentIndexChanged(int index);
-    void on_cBoxvar4_currentIndexChanged(int index);
-    void on_cBoxvar5_currentIndexChanged(int index);
-    void on_cBoxvar6_currentIndexChanged(int index);
-    void on_checkBoxD1_stateChanged(int arg1);
-    void on_checkBoxD2_stateChanged(int arg1);
-    void on_checkBoxD3_stateChanged(int arg1);
-    void on_checkBoxD4_stateChanged(int arg1);
-    void on_checkBoxD5_stateChanged(int arg1);
-    void on_checkBoxD6_stateChanged(int arg1);
-    void on_pushButtonClear_clicked();
+	void on_radioButtonYM_clicked();
+	void on_lineEditXMin_returnPressed();
+	void on_lineEditXMax_returnPressed();
+	void on_lineEditYMin_returnPressed();
+	void on_lineEditYMax_returnPressed();
+	void on_pushButtonFreeze_clicked();
+	void on_cBoxvar1slave_currentIndexChanged(int index);
+	void on_cBoxvar2slave_currentIndexChanged(int index);
+	void on_cBoxvar3slave_currentIndexChanged(int index);
+	void on_cBoxvar4slave_currentIndexChanged(int index);
+	void on_cBoxvar5slave_currentIndexChanged(int index);
+	void on_cBoxvar6slave_currentIndexChanged(int index);
+	void on_cBoxvar1_currentIndexChanged(int index);
+	void on_cBoxvar2_currentIndexChanged(int index);
+	void on_cBoxvar3_currentIndexChanged(int index);
+	void on_cBoxvar4_currentIndexChanged(int index);
+	void on_cBoxvar5_currentIndexChanged(int index);
+	void on_cBoxvar6_currentIndexChanged(int index);
+	void on_checkBoxD1_stateChanged(int arg1);
+	void on_checkBoxD2_stateChanged(int arg1);
+	void on_checkBoxD3_stateChanged(int arg1);
+	void on_checkBoxD4_stateChanged(int arg1);
+	void on_checkBoxD5_stateChanged(int arg1);
+	void on_checkBoxD6_stateChanged(int arg1);
+	void on_pushButtonClear_clicked();
+	void on_pbReset_clicked();
 
 private:
 	//Variables & Objects:
-    Ui::W_2DPlot *ui;
+	Ui::W_2DPlot *ui;
 	QChart *chart;
 	QChartView *chartView;
 	FlexSEA_Generic myFlexSEA_Generic;
-    QLineSeries *qlsData[VAR_NUM];
-    QLineSeries *mySeriesTest;
+	QLineSeries *qlsData[VAR_NUM];
+	QLineSeries *mySeriesTest;
 	int graph_xarray[PLOT_BUF_LEN];
-    int graph_yarray[VAR_NUM][PLOT_BUF_LEN];
-    int plot_xmin, plot_ymin, plot_xmax, plot_ymax, plot_len;
-    uint8_t data_to_plot[VAR_NUM];
-    int graph_ylim[2*VAR_NUM];
-    bool allChannelUnused(void);
-    int plotting_len;
-    QStringList var_list_margin;
-    bool plotFreezed, initFlag;
+	int graph_yarray[VAR_NUM][PLOT_BUF_LEN];
+	int plot_xmin, plot_ymin, plot_xmax, plot_ymax, plot_len;
+	uint8_t data_to_plot[VAR_NUM];
+	int graph_ylim[2*VAR_NUM];
+	bool allChannelUnused(void);
+	int plotting_len;
+	QStringList var_list_margin;
+	bool plotFreezed, initFlag;
 
-    int32_t *varToPlotPtr32s[VAR_NUM], *varToPlotPtrD32s[VAR_NUM];
-    int16_t *varToPlotPtr16s[VAR_NUM];
-    int8_t *varToPlotPtr8s[VAR_NUM];
-    uint32_t *varToPlotPtr32u[VAR_NUM];
-    uint16_t *varToPlotPtr16u[VAR_NUM];
-    uint8_t *varToPlotPtr8u[VAR_NUM];
-    uint8_t varToPlotFormat[6];
-    int32_t nullVar32s;
-    uint32_t nullVar32u;
-    int16_t nullVar16s;
-    uint16_t nullVar16u;
-    int8_t nullVar8s;
-    uint8_t nullVar8u;
-    uint8_t slaveIndex[VAR_NUM], slaveAddr[VAR_NUM], slaveBType[VAR_NUM];
-    uint8_t varIndex[VAR_NUM];
-    bool varDecode[VAR_NUM], varUsed[VAR_NUM];
+	int32_t *varToPlotPtr32s[VAR_NUM], *varToPlotPtrD32s[VAR_NUM];
+	int16_t *varToPlotPtr16s[VAR_NUM];
+	int8_t *varToPlotPtr8s[VAR_NUM];
+	uint32_t *varToPlotPtr32u[VAR_NUM];
+	uint16_t *varToPlotPtr16u[VAR_NUM];
+	uint8_t *varToPlotPtr8u[VAR_NUM];
+	uint8_t varToPlotFormat[6];
+	int32_t nullVar32s;
+	uint32_t nullVar32u;
+	int16_t nullVar16s;
+	uint16_t nullVar16u;
+	int8_t nullVar8s;
+	uint8_t nullVar8u;
+	uint8_t slaveIndex[VAR_NUM], slaveAddr[VAR_NUM], slaveBType[VAR_NUM];
+	uint8_t varIndex[VAR_NUM];
+	bool varDecode[VAR_NUM], varUsed[VAR_NUM];
 
 	//Function(s):
-    void initChart(void);
-    void initUserInput(void);
-    void gen_graph_xarray(void);
-    void init_yarrays(void);
-    void setChartAxis(void);
-    void refreshData2DPlot(int *x, int *y, int len, uint8_t plot_index);
-    void update_plot_buf_single(int *buf, int *idx, int new_data);
-    void update_graph_array(int graph, int new_data);
-    uint8_t select_plot_slave(uint8_t index);
-    int gen_test_data(int phaseShift);
-    void array_minmax(int *arr, int len, int *min, int *max);
-    void addMargins(int *ymin, int *ymax);
-    void updateVarList(uint8_t var, QComboBox *myCombo);
-    void saveCurrentSettings(void);
-    void assignVariable(uint8_t var);
-    void assignVariableEx(uint8_t var, struct execute_s *myPtr);
-    void assignVariableMn(uint8_t var, struct manage_s *myPtr);
-    void assignVariableGo(uint8_t var, struct gossip_s *myPtr);
-    void assignVariableBa(uint8_t var, struct battery_s *myPtr);
-    void assignVariableSt(uint8_t var, struct strain_s *myPtr);
-    void assignVariableRicnu(uint8_t var, struct ricnu_s *myPtr);
+	void initChart(void);
+	void initUserInput(void);
+	void gen_graph_xarray(void);
+	void init_yarrays(void);
+	void setChartAxis(void);
+	void refreshData2DPlot(int *x, int *y, int len, uint8_t plot_index);
+	void update_plot_buf_single(int *buf, int *idx, int new_data);
+	void update_graph_array(int graph, int new_data);
+	uint8_t select_plot_slave(uint8_t index);
+	int gen_test_data(int phaseShift);
+	void array_minmax(int *arr, int len, int *min, int *max);
+	void addMargins(int *ymin, int *ymax);
+	void updateVarList(uint8_t var, QComboBox *myCombo);
+	void saveCurrentSettings(void);
+	void assignVariable(uint8_t var);
+	void assignVariableEx(uint8_t var, struct execute_s *myPtr);
+	void assignVariableMn(uint8_t var, struct manage_s *myPtr);
+	void assignVariableGo(uint8_t var, struct gossip_s *myPtr);
+	void assignVariableBa(uint8_t var, struct battery_s *myPtr);
+	void assignVariableSt(uint8_t var, struct strain_s *myPtr);
+	void assignVariableRicnu(uint8_t var, struct ricnu_s *myPtr);
 };
 
 #endif // W_2DPLOT_H
