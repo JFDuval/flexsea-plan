@@ -14,33 +14,33 @@ TEMPLATE = app
 INCLUDEPATH += inc \
 	inc/MDIWinObjects \
 	inc/Wrappers \
-	../flexsea-comm/inc \
-	../flexsea-system/inc \
-	../flexsea-system/test \
-	../flexsea-shared/unity \
-	../flexsea-shared/inc
+	flexsea-comm/inc \
+	flexsea-system/inc \
+	flexsea-system/test \
+	flexsea-shared/unity \
+	flexsea-shared/inc
 
 SOURCES += src/main.cpp \
 	src/mainwindow.cpp \
-	../flexsea-comm/src/flexsea.c \
-	../flexsea-comm/src/flexsea_buffers.c \
-	../flexsea-comm/src/flexsea_comm.c \
-	../flexsea-comm/src/flexsea_payload.c \
-	../flexsea-system/src/flexsea_cmd_application.c \
-	../flexsea-system/src/flexsea_cmd_control.c \
-	../flexsea-system/src/flexsea_cmd_external.c \
-	../flexsea-system/src/flexsea_cmd_sensors.c \
-	../flexsea-system/src/flexsea_system.c \
-	../flexsea-system/src/flexsea_cmd_data.c \
-	../flexsea-system/src/flexsea_global_structs.c \
-	../flexsea-system/test/test-flexsea_system.c  \
-	../flexsea-shared/unity/unity.c \
-	../flexsea-system/test/flexsea-system_test-all.c \
-	../flexsea-system/test/test-flexsea_cmd_control.c\
-	../flexsea-system/test/test-flexsea_cmd_application.c \
-	../flexsea-system/test/test-flexsea_cmd_data.c \
-	../flexsea-system/test/test-flexsea_cmd_external.c \
-	../flexsea-system/test/test-flexsea_cmd_sensors.c \
+	flexsea-comm/src/flexsea.c \
+	flexsea-comm/src/flexsea_buffers.c \
+	flexsea-comm/src/flexsea_comm.c \
+	flexsea-comm/src/flexsea_payload.c \
+	flexsea-system/src/flexsea_cmd_application.c \
+	flexsea-system/src/flexsea_cmd_control.c \
+	flexsea-system/src/flexsea_cmd_external.c \
+	flexsea-system/src/flexsea_cmd_sensors.c \
+	flexsea-system/src/flexsea_system.c \
+	flexsea-system/src/flexsea_cmd_data.c \
+	flexsea-system/src/flexsea_global_structs.c \
+	flexsea-system/test/test-flexsea_system.c  \
+	flexsea-shared/unity/unity.c \
+	flexsea-system/test/flexsea-system_test-all.c \
+	flexsea-system/test/test-flexsea_cmd_control.c\
+	flexsea-system/test/test-flexsea_cmd_application.c \
+	flexsea-system/test/test-flexsea_cmd_data.c \
+	flexsea-system/test/test-flexsea_cmd_external.c \
+	flexsea-system/test/test-flexsea_cmd_sensors.c \
 	src/MDIWinObjects/w_2dplot.cpp \
 	src/MDIWinObjects/w_anycommand.cpp \
 	src/MDIWinObjects/w_battery.cpp \
@@ -76,20 +76,20 @@ SOURCES += src/main.cpp \
 
 HEADERS  += inc/main.h \
 	inc/mainwindow.h \
-	../flexsea-comm/inc/flexsea.h \
-	../flexsea-comm/inc/flexsea_buffers.h \
-	../flexsea-comm/inc/flexsea_comm.h \
-	../flexsea-comm/inc/flexsea_payload.h \
-	../flexsea-system/inc/flexsea_cmd_application.h \
-	../flexsea-system/inc/flexsea_cmd_control.h \
-	../flexsea-system/inc/flexsea_cmd_external.h \
-	../flexsea-system/inc/flexsea_cmd_sensors.h \
-	../flexsea-system/inc/flexsea_system.h \
-	../flexsea-system/inc/flexsea_cmd_data.h \
-	../flexsea-system/inc/flexsea_global_structs.h \
-	../flexsea-shared/unity/unity.h \
-	../flexsea-shared/unity/unity_internals.h \
-	../flexsea-system/test/flexsea-system_test-all.h \
+	flexsea-comm/inc/flexsea.h \
+	flexsea-comm/inc/flexsea_buffers.h \
+	flexsea-comm/inc/flexsea_comm.h \
+	flexsea-comm/inc/flexsea_payload.h \
+	flexsea-system/inc/flexsea_cmd_application.h \
+	flexsea-system/inc/flexsea_cmd_control.h \
+	flexsea-system/inc/flexsea_cmd_external.h \
+	flexsea-system/inc/flexsea_cmd_sensors.h \
+	flexsea-system/inc/flexsea_system.h \
+	flexsea-system/inc/flexsea_cmd_data.h \
+	flexsea-system/inc/flexsea_global_structs.h \
+	flexsea-shared/unity/unity.h \
+	flexsea-shared/unity/unity_internals.h \
+	flexsea-system/test/flexsea-system_test-all.h \
 	inc/flexsea_generic.h \
 	inc/datalogger.h \
 	inc/trapez.h \
