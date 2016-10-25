@@ -49,9 +49,10 @@ extern "C" {
 #include "trapez.h"
 #include "peripherals.h"
 #include "flexsea_board.h"
-#include "../../flexsea-system/inc/flexsea_system.h"
-#include "../../flexsea-comm/inc/flexsea.h"
-#include "../../flexsea-system/test/flexsea-system_test-all.h"
+#include "../flexsea-system/inc/flexsea_system.h"
+#include "../flexsea-comm/inc/flexsea.h"
+#include "../flexsea-system/test/flexsea-system_test-all.h"
+#include "../flexsea-comm/test/flexsea-comm_test-all.h"
 
 //****************************************************************************
 // Shared variable(s)

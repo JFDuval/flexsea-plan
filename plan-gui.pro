@@ -15,6 +15,7 @@ INCLUDEPATH += inc \
 	inc/MDIWinObjects \
 	inc/Wrappers \
 	flexsea-comm/inc \
+	flexsea-comm/test \
 	flexsea-system/inc \
 	flexsea-system/test \
 	flexsea-shared/unity \
@@ -26,6 +27,8 @@ SOURCES += src/main.cpp \
 	flexsea-comm/src/flexsea_buffers.c \
 	flexsea-comm/src/flexsea_comm.c \
 	flexsea-comm/src/flexsea_payload.c \
+	flexsea-comm/test/flexsea-comm_test-all.c \
+	flexsea-comm/test/test-flexsea.c \
 	flexsea-system/src/flexsea_cmd_application.c \
 	flexsea-system/src/flexsea_cmd_control.c \
 	flexsea-system/src/flexsea_cmd_external.c \
@@ -80,6 +83,7 @@ HEADERS  += inc/main.h \
 	flexsea-comm/inc/flexsea_buffers.h \
 	flexsea-comm/inc/flexsea_comm.h \
 	flexsea-comm/inc/flexsea_payload.h \
+	flexsea-comm/test/flexsea-comm_test-all.h \
 	flexsea-system/inc/flexsea_cmd_application.h \
 	flexsea-system/inc/flexsea_cmd_control.h \
 	flexsea-system/inc/flexsea_cmd_external.h \

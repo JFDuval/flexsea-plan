@@ -35,7 +35,6 @@
 #include "mainwindow.h"
 #include <QApplication>
 #include "main.h"
-#include "../../flexsea-system/test/flexsea-system_test-all.h"
 
 //****************************************************************************
 // Main
@@ -44,6 +43,7 @@
 int main(int argc, char *argv[])
 {
 	//Unit tests:
+	flexsea_comm_test();
 	flexsea_system_test();
 
 	QApplication a(argc, argv);
