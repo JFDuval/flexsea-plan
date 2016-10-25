@@ -56,12 +56,12 @@ public:
     ~W_Execute();
 	
 	//Function(s):
+
+
+public slots:
     void refresh(void);
     void loadLogFile(QList<struct execute_s> &data);
     void refreshDataSlider(int index);
-
-public slots:
-
 
 private:
 	//Variables & Objects:
@@ -73,6 +73,9 @@ private:
 	//Function(s):
 	void init(void);
     void displayExecute(struct execute_s *ex);
+
+signals:
+    void windowClosed(void);
 };
 
 //****************************************************************************

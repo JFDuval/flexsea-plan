@@ -33,7 +33,7 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-#include "WinViewExecute.h"
+#include "w_execute.h"
 #include "WinSlaveComm.h"
 #include "WinConfig.h"
 #include "WinAnyCommand.h"
@@ -86,7 +86,7 @@ private:
 
     //Execute View:
     int exViewObjectCount;
-    WinViewExecute *myViewEx[EX_VIEW_WINDOWS_MAX];
+    W_Execute *myWiewExecute[EX_VIEW_WINDOWS_MAX];
 
     //Manage View:
     int mnViewObjectCount;

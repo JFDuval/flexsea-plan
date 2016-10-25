@@ -35,7 +35,6 @@
 
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
-#include "WinViewExecute.h"
 #include "WinControlControl.h"
 #include "WinView2DPlot.h"
 #include "WinConfig.h"
@@ -154,9 +153,9 @@ void MainWindow::createViewExecute(void)
     //Limited number of windows:
     if(exViewObjectCount < (EX_VIEW_WINDOWS_MAX))
     {
-        myViewEx[exViewObjectCount] = new WinViewExecute(ui->mdiArea);
-        myViewEx[exViewObjectCount]->setAttribute(Qt::WA_DeleteOnClose);
-        myViewEx[exViewObjectCount]->show();
+        myWiewExecute[exViewObjectCount] = new W_Execute(this);
+        ui->mdiArea->addSubWindow(myWiewExecute[exViewObjectCount]);
+        myWiewExecute[exViewObjectCount]->show();
 
         msg = "Created 'Execute View' object index " + \
                 QString::number(exViewObjectCount) + " (max index = " \
@@ -165,15 +164,17 @@ void MainWindow::createViewExecute(void)
 
         //Link SerialDriver and Execute:
         connect(mySerialDriver, SIGNAL(newDataReady()), \
-                myViewEx[exViewObjectCount], SLOT(refreshDisplayExecute()));
+                myWiewExecute[exViewObjectCount], SLOT(refresh()));
 
         //Link to MainWindow for the close signal:
-        connect(myViewEx[exViewObjectCount], SIGNAL(windowClosed()), \
+        connect(myWiewExecute[exViewObjectCount], SIGNAL(windowClosed()), \
                 this, SLOT(closeViewExecute()));
+
+        // Link to the DataLogger
         connect(myDataLogger, SIGNAL(setNewLogFileLoaded(QList<struct execute_s> &)), \
-                myViewEx[exViewObjectCount], SLOT(winLoadNewLogFile(QList<struct execute_s> &)));
+                myWiewExecute[exViewObjectCount], SLOT(loadLogFile(QList<struct execute_s> &)));
         connect(this, SIGNAL(connectorRefreshDataSlider(int)), \
-                myViewEx[exViewObjectCount], SLOT(winRefreshDataSlider(int)));
+                myWiewExecute[exViewObjectCount], SLOT(refreshDataSlider(int)));
 
         exViewObjectCount++;
     }

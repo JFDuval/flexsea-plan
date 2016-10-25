@@ -58,6 +58,7 @@ W_Execute::W_Execute(QWidget *parent) :
 
 W_Execute::~W_Execute()
 {
+    emit windowClosed();
     delete ui;
 }
 

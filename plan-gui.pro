@@ -39,7 +39,6 @@ SOURCES += src/main.cpp \
     src/Wrappers/WinSlaveComm.cpp \
     src/Wrappers/WinView2DPlot.cpp \
     src/Wrappers/WinViewBattery.cpp \
-    src/Wrappers/WinViewExecute.cpp \
     src/Wrappers/WinViewGossip.cpp \
     src/Wrappers/WinViewManage.cpp \
     src/Wrappers/WinViewRicnu.cpp \
@@ -88,7 +87,6 @@ HEADERS  += inc/main.h \
     inc/Wrappers/WinSlaveComm.h \
     inc/Wrappers/WinView2DPlot.h \
     inc/Wrappers/WinViewBattery.h \
-    inc/Wrappers/WinViewExecute.h \
     inc/Wrappers/WinViewGossip.h \
     inc/Wrappers/WinViewManage.h \
     inc/Wrappers/WinViewRicnu.h \
@@ -102,7 +100,8 @@ HEADERS  += inc/main.h \
     flexsea-system/inc/flexsea_cmd_data.h \
     flexsea-system/inc/flexsea_cmd_external.h \
     flexsea-system/inc/flexsea_cmd_sensors.h \
-    flexsea-system/inc/flexsea_system.h
+    flexsea-system/inc/flexsea_system.h \
+    inc/Wrappers/WinViewBattery.h
 
 FORMS    += ui/mainwindow.ui \
     ui/w_execute.ui \
