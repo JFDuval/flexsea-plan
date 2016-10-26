@@ -29,6 +29,9 @@ SOURCES += src/main.cpp \
 	flexsea-comm/src/flexsea_payload.c \
 	flexsea-comm/test/flexsea-comm_test-all.c \
 	flexsea-comm/test/test-flexsea.c \
+	flexsea-comm/test/test-flexsea_buffers.c \
+	flexsea-comm/test/test-flexsea_comm.c \
+	flexsea-comm/test/test-flexsea_payload.c \
 	flexsea-system/src/flexsea_cmd_application.c \
 	flexsea-system/src/flexsea_cmd_control.c \
 	flexsea-system/src/flexsea_cmd_external.c \
