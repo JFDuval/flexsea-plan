@@ -21,7 +21,7 @@
 	Biomechatronics research group <http://biomech.media.mit.edu/>
 	[Contributors] 
 *****************************************************************************
-	[This file] w_planconfig.h: Configuration Window
+    [This file] w_config.h: Configuration Window
 *****************************************************************************
 	[Change log] (Convention: YYYY-MM-DD | author | comment)
 	* 2016-09-09 | jfduval | Initial GPL-3.0 release
@@ -32,8 +32,8 @@
 // Include(s)
 //****************************************************************************
 
-#include "w_planconfig.h"
-#include "ui_w_planconfig.h"
+#include "w_config.h"
+#include "ui_w_config.h"
 #include <QSerialPort>
 #include <QSerialPortInfo>
 #include <QDebug>
@@ -42,9 +42,9 @@
 // Constructor & Destructor:
 //****************************************************************************
 
-W_PlanConfig::W_PlanConfig(QWidget *parent) :
+W_Config::W_Config(QWidget *parent) :
     QWidget(parent),
-    ui(new Ui::W_PlanConfig)
+    ui(new Ui::W_Config)
 {
     ui->setupUi(this);
 
@@ -57,15 +57,16 @@ W_PlanConfig::W_PlanConfig(QWidget *parent) :
     initLog();
 }
 
-W_PlanConfig::~W_PlanConfig()
+W_Config::~W_Config()
 {
+    emit windowClosed();
     delete ui;
 }
 
 //****************************************************************************
 // Public function(s):
 //****************************************************************************
-W_PlanConfig::DataSource W_PlanConfig::getDataSourceStatus(void)
+W_Config::DataSource W_Config::getDataSourceStatus(void)
 {
     return dataSourceState;
 }
@@ -74,7 +75,7 @@ W_PlanConfig::DataSource W_PlanConfig::getDataSourceStatus(void)
 // Public slot(s):
 //****************************************************************************
 
-void W_PlanConfig::setComProgress(int val, int rst)
+void W_Config::setComProgress(int val, int rst)
 {
     ui->comProgressBar->setValue(val);
     if(rst)
@@ -83,7 +84,7 @@ void W_PlanConfig::setComProgress(int val, int rst)
     }
 }
 
-void W_PlanConfig::setLogFileStatus(QString status)
+void W_Config::setLogFileStatus(QString status)
 {
     ui->logFileStatus1->setText(status);
 }
@@ -92,7 +93,7 @@ void W_PlanConfig::setLogFileStatus(QString status)
 // Private function(s):
 //****************************************************************************
 
-void W_PlanConfig::initCom(void)
+void W_Config::initCom(void)
 {
     //Flags:
     flagComInitDone = 0;
@@ -113,7 +114,7 @@ void W_PlanConfig::initCom(void)
     flagComInitDone = 1;
 }
 
-void W_PlanConfig::initLog(void)
+void W_Config::initLog(void)
 {
     ui->logFileStatus1->setText("No log file selected.");
 
@@ -129,7 +130,7 @@ void W_PlanConfig::initLog(void)
     ui->pbOpenLog4->setDisabled(true);
 }
 
-void W_PlanConfig::getComList(void)
+void W_Config::getComList(void)
 {
     //First, clear lists:
     comPortList.clear();
@@ -158,7 +159,7 @@ void W_PlanConfig::getComList(void)
     ui->comPortTxt->setText(ui->comPortComboBox->currentText());
 }
 
-void W_PlanConfig::defaultComOffUi(void)
+void W_Config::defaultComOffUi(void)
 {
     ui->openComButton->setDisabled(false);
     ui->comProgressBar->setDisabled(false);
@@ -170,7 +171,7 @@ void W_PlanConfig::defaultComOffUi(void)
 // Private slot(s):
 //****************************************************************************
 
-void W_PlanConfig::on_comPortComboBox_currentIndexChanged(int index)
+void W_Config::on_comPortComboBox_currentIndexChanged(int index)
 {
     //LineEdit mimics combobox:
     ui->comPortTxt->setText(ui->comPortComboBox->currentText());
@@ -193,7 +194,7 @@ void W_PlanConfig::on_comPortComboBox_currentIndexChanged(int index)
     }
 }
 
-void W_PlanConfig::on_openComButton_clicked()
+void W_Config::on_openComButton_clicked()
 {
     //Deal with display elements:
     defaultComOffUi();
@@ -220,7 +221,7 @@ void W_PlanConfig::on_openComButton_clicked()
     ui->closeComButton->setDisabled(false);
 }
 
-void W_PlanConfig::on_closeComButton_clicked()
+void W_Config::on_closeComButton_clicked()
 {
     //Emit signal:
     emit closeCom();
@@ -239,37 +240,37 @@ void W_PlanConfig::on_closeComButton_clicked()
 
 }
 
-void W_PlanConfig::on_pushButtonRefresh_clicked()
+void W_Config::on_pushButtonRefresh_clicked()
 {
     getComList();
 }
 
-void W_PlanConfig::on_pbOpenLog1_clicked()
+void W_Config::on_pbOpenLog1_clicked()
 {
-    emit openLogFile(0);
+    emit openRecordingFile(0);
 }
 
-void W_PlanConfig::on_pbOpenLog2_clicked()
+void W_Config::on_pbOpenLog2_clicked()
 {
-    emit openLogFile(1);
+    emit openRecordingFile(1);
 }
 
-void W_PlanConfig::on_pbOpenLog3_clicked()
+void W_Config::on_pbOpenLog3_clicked()
 {
-    emit openLogFile(2);
+    emit openRecordingFile(2);
 }
 
-void W_PlanConfig::on_pbOpenLog4_clicked()
+void W_Config::on_pbOpenLog4_clicked()
 {
-    emit openLogFile(3);
+    emit openRecordingFile(3);
 }
 
-void W_PlanConfig::on_pbLoadLogFile_clicked()
+void W_Config::on_pbLoadLogFile_clicked()
 {
-    emit loadLogFile();
+    emit openReadingFile();
 }
 
-void W_PlanConfig::on_pbCloseLogFile_clicked()
+void W_Config::on_pbCloseLogFile_clicked()
 {
-    emit closeLogFile();
+    emit closeReadingFile();
 }

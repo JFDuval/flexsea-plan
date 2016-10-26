@@ -37,7 +37,6 @@
 #include "ui_mainwindow.h"
 #include "WinControlControl.h"
 #include "WinView2DPlot.h"
-#include "WinConfig.h"
 #include "WinSlaveComm.h"
 #include "WinViewRicnu.h"
 #include <QMessageBox>
@@ -79,55 +78,22 @@ MainWindow::MainWindow(QWidget *parent) :
     battObjectCount = 0;
     strainObjectCount = 0;
 
-    //Create default objects:
-    createConfig();
-    createSlaveComm();
-
     //SerialDriver:
     mySerialDriver = new SerialDriver;
 
     //Datalogger:
     myDataLogger = new DataLogger;
 
-    //Link Config and SerialDriver:
+    //Create default objects:
+    createConfig();
+    createSlaveComm();
 
-    connect(myConfig[0], SIGNAL(transmitOpenCom(QString,int,int)), \
-            mySerialDriver, SLOT(open(QString,int,int)));
-    connect(myConfig[0], SIGNAL(transmitCloseCom()), \
-            mySerialDriver, SLOT(close()));
-    connect(mySerialDriver, SIGNAL(openProgress(int,int)), \
-            myConfig[0], SLOT(setComProgress(int,int)));
 
-    //Link SerialDriver and SlaveComm:
-
-    connect(mySerialDriver, SIGNAL(openStatus(bool)), \
-            mySlaveComm[0], SLOT(receiveComOpenStatus(bool)));
-    connect(mySlaveComm[0], SIGNAL(slaveReadWrite(uint, uint8_t*, uint8_t)), \
-            mySerialDriver, SLOT(readWrite(uint, uint8_t*, uint8_t)));
-    connect(mySerialDriver, SIGNAL(newDataReady()), \
-            mySlaveComm[0], SLOT(receiveNewDataReady()));
-    connect(mySerialDriver, SIGNAL(dataStatus(int, int)), \
-            mySlaveComm[0], SLOT(receiveDataStatus(int, int)));
-    connect(mySerialDriver, SIGNAL(newDataTimeout(bool)), \
-            mySlaveComm[0], SLOT(receiveNewDataTimeout(bool)));
-
-    //Log:
-    connect(myConfig[0], SIGNAL(transmitOpenLogFile(uint8_t)), \
-            myDataLogger, SLOT(openRecordingFile(uint8_t)));
-    connect(myConfig[0], SIGNAL(transmitLoadLogFile()), \
-            myDataLogger, SLOT(openReadingFile()));
-    connect(myConfig[0], SIGNAL(transmitCloseLogFile()), \
-            myDataLogger, SLOT(closeReadingFile()));
-    connect(mySlaveComm[0], SIGNAL(writeToLogFile(uint8_t,uint8_t,uint8_t)), \
-            myDataLogger, SLOT(writeToFile(uint8_t,uint8_t,uint8_t)));
-    connect(mySlaveComm[0], SIGNAL(closeLogFile(uint8_t)), \
-            myDataLogger, SLOT(closeRecordingFile(uint8_t)));
-    connect(myDataLogger, SIGNAL(setLogFileStatus(QString)), \
-            myConfig[0], SLOT(setLogFileStatus(QString)));
+    //Log and MainWindow
     connect(myDataLogger, SIGNAL(setStatusBarMessage(QString)), \
             this, SLOT(setStatusBar(QString)));
 
-    //SerialDriver message:
+    //SerialDriver and MainWindow
     connect(mySerialDriver, SIGNAL(setStatusBarMessage(QString)), \
             this, SLOT(setStatusBar(QString)));
 }
@@ -257,9 +223,9 @@ void MainWindow::createConfig(void)
     if(configObjectCount < (CONFIG_WINDOWS_MAX))
     {
 
-        myConfig[configObjectCount] = new WinConfig(ui->mdiArea);
-        myConfig[configObjectCount]->setAttribute(Qt::WA_DeleteOnClose);
-        myConfig[configObjectCount]->show();
+        myViewConfig[configObjectCount] = new W_Config(this);
+        ui->mdiArea->addSubWindow(myViewConfig[configObjectCount]);
+        myViewConfig[configObjectCount]->show();
 
         msg = "Created 'Config' object index " + QString::number(configObjectCount) \
                 + " (max index = " + QString::number(CONFIG_WINDOWS_MAX-1) + ").";
@@ -267,8 +233,27 @@ void MainWindow::createConfig(void)
         ui->statusBar->showMessage(msg);
 
         //Link to MainWindow for the close signal:
-        connect(myConfig[configObjectCount], SIGNAL(windowClosed()), \
+        connect(myViewConfig[configObjectCount], SIGNAL(windowClosed()), \
                 this, SLOT(closeConfig()));
+
+        //Link to DataLogger
+        connect(myViewConfig[0], SIGNAL(openRecordingFile(uint8_t)), \
+                myDataLogger, SLOT(openRecordingFile(uint8_t)));
+        connect(myViewConfig[0], SIGNAL(openReadingFile()), \
+                myDataLogger, SLOT(openReadingFile()));
+        connect(myViewConfig[0], SIGNAL(closeReadingFile()), \
+                myDataLogger, SLOT(closeReadingFile()));
+        connect(myDataLogger, SIGNAL(setLogFileStatus(QString)), \
+                myViewConfig[0], SLOT(setLogFileStatus(QString)));
+        // Link to SerialDriver
+
+        connect(myViewConfig[0], SIGNAL(openCom(QString,int,int)), \
+                mySerialDriver, SLOT(open(QString,int,int)));
+        connect(myViewConfig[0], SIGNAL(closeCom()), \
+                mySerialDriver, SLOT(close()));
+        connect(mySerialDriver, SIGNAL(openProgress(int,int)), \
+                myViewConfig[0], SLOT(setComProgress(int,int)));
+
 
         configObjectCount++;
     }
@@ -412,6 +397,24 @@ void MainWindow::createSlaveComm(void)
         //Link to MainWindow for the close signal:
         connect(mySlaveComm[slaveCommObjectCount], SIGNAL(windowClosed()), \
                 this, SLOT(closeSlaveComm()));
+
+        //Link SlaveComm and SerialDriver:
+        connect(mySerialDriver, SIGNAL(openStatus(bool)), \
+                mySlaveComm[0], SLOT(receiveComOpenStatus(bool)));
+        connect(mySlaveComm[0], SIGNAL(slaveReadWrite(uint, uint8_t*, uint8_t)), \
+                mySerialDriver, SLOT(readWrite(uint, uint8_t*, uint8_t)));
+        connect(mySerialDriver, SIGNAL(newDataReady()), \
+                mySlaveComm[0], SLOT(receiveNewDataReady()));
+        connect(mySerialDriver, SIGNAL(dataStatus(int, int)), \
+                mySlaveComm[0], SLOT(receiveDataStatus(int, int)));
+        connect(mySerialDriver, SIGNAL(newDataTimeout(bool)), \
+                mySlaveComm[0], SLOT(receiveNewDataTimeout(bool)));
+
+        //Link SlaveComm and DataLogger
+        connect(mySlaveComm[0], SIGNAL(writeToLogFile(uint8_t,uint8_t,uint8_t)), \
+                myDataLogger, SLOT(writeToFile(uint8_t,uint8_t,uint8_t)));
+        connect(mySlaveComm[0], SIGNAL(closeLogFile(uint8_t)), \
+                myDataLogger, SLOT(closeRecordingFile(uint8_t)));
 
         slaveCommObjectCount++;
     }

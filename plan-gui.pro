@@ -28,13 +28,11 @@ SOURCES += src/main.cpp \
     src/MDIWinObjects/w_execute.cpp \
     src/MDIWinObjects/w_gossip.cpp \
     src/MDIWinObjects/w_manage.cpp \
-    src/MDIWinObjects/w_planconfig.cpp \
     src/MDIWinObjects/w_ricnu.cpp \
     src/MDIWinObjects/w_slavecomm.cpp \
     src/MDIWinObjects/w_strain.cpp \
     src/Wrappers/WinAnyCommand.cpp \
     src/Wrappers/WinCalibration.cpp \
-    src/Wrappers/WinConfig.cpp \
     src/Wrappers/WinControlControl.cpp \
     src/Wrappers/WinSlaveComm.cpp \
     src/Wrappers/WinView2DPlot.cpp \
@@ -57,7 +55,8 @@ SOURCES += src/main.cpp \
     flexsea-system/src/flexsea_cmd_data.c \
     flexsea-system/src/flexsea_cmd_external.c \
     flexsea-system/src/flexsea_cmd_sensors.c \
-    flexsea-system/src/flexsea_system.c
+    flexsea-system/src/flexsea_system.c \
+    src/MDIWinObjects/w_config.cpp
 
 
 HEADERS  += inc/main.h \
@@ -76,13 +75,11 @@ HEADERS  += inc/main.h \
     inc/MDIWinObjects/w_execute.h \
     inc/MDIWinObjects/w_gossip.h \
     inc/MDIWinObjects/w_manage.h \
-    inc/MDIWinObjects/w_planconfig.h \
     inc/MDIWinObjects/w_ricnu.h \
     inc/MDIWinObjects/w_slavecomm.h \
     inc/MDIWinObjects/w_strain.h \
     inc/Wrappers/WinAnyCommand.h \
     inc/Wrappers/WinCalibration.h \
-    inc/Wrappers/WinConfig.h \
     inc/Wrappers/WinControlControl.h \
     inc/Wrappers/WinSlaveComm.h \
     inc/Wrappers/WinView2DPlot.h \
@@ -101,13 +98,13 @@ HEADERS  += inc/main.h \
     flexsea-system/inc/flexsea_cmd_external.h \
     flexsea-system/inc/flexsea_cmd_sensors.h \
     flexsea-system/inc/flexsea_system.h \
-    inc/Wrappers/WinViewBattery.h
+    inc/Wrappers/WinViewBattery.h \
+    inc/MDIWinObjects/w_config.h
 
 FORMS    += ui/mainwindow.ui \
     ui/w_execute.ui \
     ui/w_control.ui \
     ui/w_2dplot.ui \
-    ui/w_planconfig.ui \
     ui/w_slavecomm.ui \
     ui/w_anycommand.ui \
     ui/w_converter.ui \
@@ -116,7 +113,8 @@ FORMS    += ui/mainwindow.ui \
     ui/w_calibration.ui \
     ui/w_battery.ui \
     ui/w_gossip.ui \
-    ui/w_strain.ui
+    ui/w_strain.ui \
+    ui/w_config.ui
 
 RESOURCES += \
     misc/icons.qrc

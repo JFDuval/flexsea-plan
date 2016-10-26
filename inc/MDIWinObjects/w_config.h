@@ -21,15 +21,15 @@
 	Biomechatronics research group <http://biomech.media.mit.edu/>
 	[Contributors] 
 *****************************************************************************
-	[This file] w_planconfig.h: Configuration Window
+    [This file] w_config.h: Configuration Window
 *****************************************************************************
 	[Change log] (Convention: YYYY-MM-DD | author | comment)
 	* 2016-09-09 | jfduval | Initial GPL-3.0 release
 	*
 ****************************************************************************/
 
-#ifndef W_PLANCONFIG_H
-#define W_PLANCONFIG_H
+#ifndef W_CONFIG_H
+#define W_CONFIG_H
 
 //****************************************************************************
 // Include(s)
@@ -42,17 +42,17 @@
 //****************************************************************************
 
 namespace Ui {
-class W_PlanConfig;
+class W_Config;
 }
 
-class W_PlanConfig : public QWidget
+class W_Config : public QWidget
 {
     Q_OBJECT
 
 public:
 	//Constructor & Destructor:
-    explicit W_PlanConfig(QWidget *parent = 0);
-    ~W_PlanConfig();
+    explicit W_Config(QWidget *parent = 0);
+    ~W_Config();
     enum DataSource
     {
         None,
@@ -82,7 +82,7 @@ public slots:
 
 private:
 	//Variables & Objects:
-    Ui::W_PlanConfig *ui;
+    Ui::W_Config *ui;
 	QStringList comPortList;
 	int flagComInitDone, flagManualEntry;
     enum DataSource dataSourceState;
@@ -96,9 +96,10 @@ private:
  signals:
     void openCom(QString name, int tries, int delay);
     void closeCom(void);
-    void openLogFile(uint8_t);
-    void loadLogFile(void);
-    void closeLogFile(void);
+    void openRecordingFile(uint8_t);
+    void openReadingFile(void);
+    void closeReadingFile(void);
+    void windowClosed(void);
 };
 
-#endif // W_PLANCONFIG_H
+#endif // W_CONFIG_H

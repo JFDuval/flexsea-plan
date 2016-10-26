@@ -35,7 +35,7 @@
 #include <QMainWindow>
 #include "w_execute.h"
 #include "WinSlaveComm.h"
-#include "WinConfig.h"
+#include "w_config.h"
 #include "WinAnyCommand.h"
 #include "WinView2DPlot.h"
 #include "WinControlControl.h"
@@ -94,7 +94,7 @@ private:
 
     //Config objects:
     int configObjectCount;
-    WinConfig *myConfig[CONFIG_WINDOWS_MAX];
+    W_Config *myViewConfig[CONFIG_WINDOWS_MAX];
 
     //Slave Comm:
     int slaveCommObjectCount;
