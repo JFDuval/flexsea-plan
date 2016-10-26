@@ -192,20 +192,28 @@ void W_SlaveComm::initSlaveCom(void)
 
 	//Populates Slave list:
 	//=====================
-	myFlexSEA_Generic.populateSlaveComboBox(ui->comboBoxSlave1, SL_BASE_ALL, SL_LEN_ALL);
-	myFlexSEA_Generic.populateSlaveComboBox(ui->comboBoxSlave2, SL_BASE_ALL, SL_LEN_ALL);
-	myFlexSEA_Generic.populateSlaveComboBox(ui->comboBoxSlave3, SL_BASE_ALL, SL_LEN_ALL);
-	myFlexSEA_Generic.populateSlaveComboBox(ui->comboBoxSlave4, SL_BASE_ALL, SL_LEN_ALL);
+	myFlexSEA_Generic.populateSlaveComboBox(ui->comboBoxSlave1, SL_BASE_ALL, \
+											SL_LEN_ALL);
+	myFlexSEA_Generic.populateSlaveComboBox(ui->comboBoxSlave2, SL_BASE_ALL, \
+											SL_LEN_ALL);
+	myFlexSEA_Generic.populateSlaveComboBox(ui->comboBoxSlave3, SL_BASE_ALL, \
+											SL_LEN_ALL);
+	myFlexSEA_Generic.populateSlaveComboBox(ui->comboBoxSlave4, SL_BASE_ALL, \
+											SL_LEN_ALL);
 
 	//Variables:
 	active_slave_index[0] = ui->comboBoxSlave1->currentIndex();
 	active_slave_index[1] = ui->comboBoxSlave2->currentIndex();
 	active_slave_index[2] = ui->comboBoxSlave3->currentIndex();
 	active_slave_index[3] = ui->comboBoxSlave4->currentIndex();
-	active_slave[0] = myFlexSEA_Generic.getSlaveID(SL_BASE_ALL, active_slave_index[0]);
-	active_slave[1] = myFlexSEA_Generic.getSlaveID(SL_BASE_ALL, active_slave_index[1]);
-	active_slave[2] = myFlexSEA_Generic.getSlaveID(SL_BASE_ALL, active_slave_index[2]);
-	active_slave[3] = myFlexSEA_Generic.getSlaveID(SL_BASE_ALL, active_slave_index[3]);
+	active_slave[0] = myFlexSEA_Generic.getSlaveID(SL_BASE_ALL, \
+												   active_slave_index[0]);
+	active_slave[1] = myFlexSEA_Generic.getSlaveID(SL_BASE_ALL, \
+												   active_slave_index[1]);
+	active_slave[2] = myFlexSEA_Generic.getSlaveID(SL_BASE_ALL, \
+												   active_slave_index[2]);
+	active_slave[3] = myFlexSEA_Generic.getSlaveID(SL_BASE_ALL, \
+												   active_slave_index[3]);
 
 	//Populates Experiment/Command list:
 	//==================================
@@ -452,19 +460,24 @@ void W_SlaveComm::displayDataReceived(int idx, int status)
 	switch(status)
 	{
 		case DATAIN_STATUS_GREY:
-			(*label_ptr)->setStyleSheet("QLabel { background-color: rgb(127,127,127); color: black;}");
+			(*label_ptr)->setStyleSheet("QLabel { background-color: \
+										rgb(127,127,127); color: black;}");
 			break;
 		case DATAIN_STATUS_GREEN:
-				(*label_ptr)->setStyleSheet("QLabel { background-color: rgb(0,255,0); color: black;}");
-				break;
+			(*label_ptr)->setStyleSheet("QLabel { background-color: \
+										rgb(0,255,0); color: black;}");
+			break;
 		case DATAIN_STATUS_YELLOW:
-				(*label_ptr)->setStyleSheet("QLabel { background-color: rgb(255,255,0); color: black;}");
-				break;
+			(*label_ptr)->setStyleSheet("QLabel { background-color: \
+										rgb(255,255,0); color: black;}");
+			break;
 		case DATAIN_STATUS_RED:
-				(*label_ptr)->setStyleSheet("QLabel { background-color: rgb(255,0,0); color: black;}");
-				break;
+			(*label_ptr)->setStyleSheet("QLabel { background-color: \
+										rgb(255,0,0); color: black;}");
+			break;
 		default:
-			(*label_ptr)->setStyleSheet("QLabel { background-color: black; color: white;}");
+			(*label_ptr)->setStyleSheet("QLabel { background-color: \
+										black; color: white;}");
 			break;
 	}
 }
@@ -531,25 +544,15 @@ void W_SlaveComm::configSlaveComm(int item)
 //sensor values
 void W_SlaveComm::sc_read_all(uint8_t item)
 {
-	int numb = 0;
+	uint16_t numb = 0;
+	uint8_t info[2] = {PORT_USB, PORT_USB};
 	uint8_t slaveId = active_slave[item];
 	uint8_t slaveIndex = active_slave_index[item];
 	uint8_t expIndex = selected_exp_index[item];
 
-	uint8_t cmdCode = 0, cmdType = 0;
-	uint16_t len = 0;
-	uint8_t transferBuf[COMM_STR_BUF_LEN];
-
 	//1) Stream
-	/* Legacy
-	numb = tx_cmd_data_read_all(slaveId, CMD_READ, payload_str, PAYLOAD_BUF_LEN);
-	numb = comm_gen_str(payload_str, comm_str_usb, PAYLOAD_BUF_LEN);
-	numb = COMM_STR_BUF_LEN;
-	*/
-	tx_cmd_data_read_all_r(tmp_payload_xmit, &cmdCode, &cmdType, &len);
-	numb = tx_cmd(tmp_payload_xmit, cmdCode, cmdType, len, slaveId, transferBuf);
-	numb = comm_gen_str(transferBuf, comm_str_usb, numb);
-	numb = COMM_STR_BUF_LEN;
+	tx_cmd_data_read_all_r(TX_N_DEFAULT);
+	pack(P_AND_S_DEFAULT, slaveId, info, &numb, comm_str_usb);
 	emit slaveReadWrite(numb, comm_str_usb, READ);
 
 	//2) Decode values
@@ -574,7 +577,8 @@ void W_SlaveComm::sc_read_all_ricnu(uint8_t item)
 	uint8_t expIndex = selected_exp_index[item];
 
 	//1) Stream
-	numb = tx_cmd_data_read_all_ricnu(slaveId, CMD_READ, payload_str, PAYLOAD_BUF_LEN);
+	numb = tx_cmd_data_read_all_ricnu(slaveId, CMD_READ, payload_str, \
+									  PAYLOAD_BUF_LEN);
 	numb = comm_gen_str(payload_str, comm_str_usb, PAYLOAD_BUF_LEN);
 	numb = COMM_STR_BUF_LEN;
 	emit slaveReadWrite(numb, comm_str_usb, READ);

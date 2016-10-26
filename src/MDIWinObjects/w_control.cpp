@@ -292,7 +292,8 @@ void W_Control::timerCtrlEvent(void)
 
 void W_Control::on_pushButton_SetController_clicked()
 {
-	int numb = 0;
+	uint8_t info[2] = {PORT_USB, PORT_USB};
+	uint16_t numb = 0;
 	int16_t ctrl = CTRL_NONE;
 
 	selected_controller = ui->comboBox_ctrl_list->currentIndex();
@@ -329,6 +330,10 @@ void W_Control::on_pushButton_SetController_clicked()
 	numb = comm_gen_str(payload_str, comm_str_usb, PAYLOAD_BUF_LEN);
 	numb = COMM_STR_BUF_LEN;
 	*/
+
+	//New version, under test:
+	tx_cmd_ctrl_mode_w(TX_N_DEFAULT, ctrl);
+	pack(P_AND_S_DEFAULT, active_slave, info, &numb, comm_str_usb);
 	emit writeCommand(numb, comm_str_usb);
 
 	//Notify user:

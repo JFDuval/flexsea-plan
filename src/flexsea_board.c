@@ -51,21 +51,13 @@ uint8_t board_up_id = FLEXSEA_DEFAULT;
 uint8_t board_sub1_id[SLAVE_BUS_1_CNT ? SLAVE_BUS_1_CNT : 1] = {FLEXSEA_MANAGE_1};
 uint8_t board_sub2_id[SLAVE_BUS_2_CNT ? SLAVE_BUS_2_CNT : 1];
 
-unsigned char comm_str_payload1[16];
-
-//ToDo: This used to be in flexsea_rx_cmd... not clean.
-uint8_t read_offset = 0;
-
-//Slave Read Buffer:
-unsigned char slave_read_buffer[SLAVE_READ_BUFFER_LEN];
-
 //****************************************************************************
 // External variable(s)
 //****************************************************************************
 
 //plan_spi:
-unsigned char spi_rx[COMM_STR_BUF_LEN];
-unsigned char usb_rx[COMM_STR_BUF_LEN];
+uint8_t spi_rx[COMM_STR_BUF_LEN];
+uint8_t usb_rx[COMM_STR_BUF_LEN];
 
 //****************************************************************************
 // Function(s)
@@ -73,11 +65,8 @@ unsigned char usb_rx[COMM_STR_BUF_LEN];
 
 //Wrapper for the specific serial functions. Useful to keep flexsea_network
 //plateform independant (for example, we don't need need puts_rs485() for Plan)
-void flexsea_send_serial_slave(unsigned char port, unsigned char *str, unsigned char length)
+void flexsea_send_serial_slave(uint8_t port, uint8_t *str, uint8_t length)
 {
-	//Test:
-	unsigned char stri[] = {"jfduval    "};
-
 	length = COMM_STR_BUF_LEN;    //Fixed length for now
 
 	if(port == PORT_SPI)
@@ -101,9 +90,12 @@ void flexsea_send_serial_slave(unsigned char port, unsigned char *str, unsigned 
 	return;
 }
 
-void flexsea_send_serial_master(unsigned char port, unsigned char *str, unsigned char length)
+void flexsea_send_serial_master(uint8_t port, uint8_t *str, uint8_t length)
 {
-	//...
+	//Not implemented for this board
+	(void)port;
+	(void)str;
+	(void)length;
 }
 
 #ifdef __cplusplus

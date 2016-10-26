@@ -49,8 +49,8 @@ extern "C" {
 // Prototype(s):
 //****************************************************************************
 
-void flexsea_send_serial_slave(unsigned char port, unsigned char *str, unsigned char length);
-void flexsea_send_serial_master(unsigned char port, unsigned char *str, unsigned char length);
+void flexsea_send_serial_slave(uint8_t port, uint8_t *str, uint8_t length);
+void flexsea_send_serial_master(uint8_t port, uint8_t *str, uint8_t length);
 
 //****************************************************************************
 // Definition(s):
@@ -72,9 +72,6 @@ void flexsea_send_serial_master(unsigned char port, unsigned char *str, unsigned
 #define SLAVE_BUS_1_CNT		1
 #define SLAVE_BUS_2_CNT		0
 //Note: only Manage can have a value different than 0 or 1
-
-//Slave Read Buffer Size:
-#define SLAVE_READ_BUFFER_LEN		32	//ToDo TBD
 
 //Enabled the required FlexSEA Buffers for this board:
 #define ENABLE_FLEXSEA_BUF_1        //USB
