@@ -17,9 +17,9 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *****************************************************************************
 	[Lead developper] Jean-Francois (JF) Duval, jfduval at dephy dot com.
-	[Origin] Based on Jean-Francois Duval's work at the MIT Media Lab 
+	[Origin] Based on Jean-Francois Duval's work at the MIT Media Lab
 	Biomechatronics research group <http://biomech.media.mit.edu/>
-	[Contributors] 
+	[Contributors]
 *****************************************************************************
 	[This file] w_battery.h: Battery View Window
 *****************************************************************************
@@ -44,20 +44,20 @@
 //****************************************************************************
 
 W_Battery::W_Battery(QWidget *parent) :
-    QWidget(parent),
-    ui(new Ui::W_Battery)
+	QWidget(parent),
+	ui(new Ui::W_Battery)
 {
-    ui->setupUi(this);
+	ui->setupUi(this);
 
-    setWindowTitle("Battery - Barebone");
-    setWindowIcon(QIcon(":icons/d_logo_small.png"));
+	setWindowTitle("Battery - Barebone");
+	setWindowIcon(QIcon(":icons/d_logo_small.png"));
 
-    init();
+	init();
 }
 
 W_Battery::~W_Battery()
 {
-    delete ui;
+	delete ui;
 }
 
 //****************************************************************************
@@ -67,10 +67,10 @@ W_Battery::~W_Battery()
 //Call this function to refresh the display
 void W_Battery::refresh(void)
 {
-    struct battery_s *baPtr;
-    myFlexSEA_Generic.assignBatteryPtr(&baPtr, SL_BASE_ALL, \
-                                       ui->comboBox_slave->currentIndex());
-    displayBattery(baPtr);
+	struct battery_s *baPtr;
+	myFlexSEA_Generic.assignBatteryPtr(&baPtr, SL_BASE_ALL, \
+									   ui->comboBox_slave->currentIndex());
+	displayBattery(baPtr);
 }
 
 //****************************************************************************
@@ -83,38 +83,36 @@ void W_Battery::refresh(void)
 
 void W_Battery::init(void)
 {
-    //Populates Slave list - active slave:
-    myFlexSEA_Generic.populateSlaveComboBox(ui->comboBox_slave, \
-                                            SL_BASE_BATT, SL_LEN_BATT);
+	//Populates Slave list - active slave:
+	myFlexSEA_Generic.populateSlaveComboBox(ui->comboBox_slave, \
+											SL_BASE_BATT, SL_LEN_BATT);
 
-    //Populates Slave list - connected to slave:
-    myFlexSEA_Generic.populateSlaveComboBox(ui->comboBox_slaveM, \
-                                            SL_BASE_ALL, SL_LEN_ALL);
+	//Populates Slave list - connected to slave:
+	myFlexSEA_Generic.populateSlaveComboBox(ui->comboBox_slaveM, \
+											SL_BASE_ALL, SL_LEN_ALL);
 
-    //Start with manage 1:
-    ui->comboBox_slaveM->setCurrentIndex(SL_BASE_MN);
+	//Start with manage 1:
+	ui->comboBox_slaveM->setCurrentIndex(SL_BASE_MN);
 }
 
 void W_Battery::displayBattery(struct battery_s *ba)
 {
-    int combined_status = 0;
+	//Raw values:
+	//===========
 
-    //Raw values:
-    //===========
+	ui->dispV->setText(QString::number(ba->voltage));
+	ui->dispI->setText(QString::number(ba->current));
+	ui->dispPB->setText(QString::number(ba->pushbutton));
+	ui->dispTemp->setText(QString::number(ba->temp));
+	ui->dispStatus1->setText(QString::number(ba->status));
 
-    ui->dispV->setText(QString::number(ba->voltage));
-    ui->dispI->setText(QString::number(ba->current));
-    ui->dispPB->setText(QString::number(ba->pushbutton));
-    ui->dispTemp->setText(QString::number(ba->temp));
-    ui->dispStatus1->setText(QString::number(ba->status));
+	//Decoded values:
+	//===============
 
-    //Decoded values:
-    //===============
-
-    ui->dispVd->setText(QString::number((float)ba->decoded.voltage/1000,'f',2));
-    ui->dispId->setText(QString::number((float)ba->decoded.current/1000,'f',2));
-    ui->dispVd->setText(QString::number((float)ba->decoded.temp/10,'f',1));
-    ui->dispPd->setText(QString::number((float)ba->decoded.power/1000,'f',2));
+	ui->dispVd->setText(QString::number((float)ba->decoded.voltage/1000,'f',2));
+	ui->dispId->setText(QString::number((float)ba->decoded.current/1000,'f',2));
+	ui->dispVd->setText(QString::number((float)ba->decoded.temp/10,'f',1));
+	ui->dispPd->setText(QString::number((float)ba->decoded.power/1000,'f',2));
 }
 
 //****************************************************************************

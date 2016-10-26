@@ -426,6 +426,8 @@ void W_Control::on_pushButton_CtrlMinMax_clicked()
 
 void W_Control::on_hSlider_Ctrl_valueChanged(int value)
 {
+	(void)value;	//Unused for now
+
 	uint val = 0;
 	val = ui->hSlider_Ctrl->value();
 	ctrl_setpoint = val;
@@ -511,6 +513,8 @@ void W_Control::on_pushButton_SetGains_clicked()
 
 void W_Control::on_comboBox_ctrl_list_currentIndexChanged(int index)
 {
+	(void)index;	//Unused for now
+
 	selected_controller = ui->comboBox_ctrl_list->currentIndex();
 
 	switch(selected_controller)
@@ -619,6 +623,8 @@ void W_Control::on_comboBox_ctrl_list_currentIndexChanged(int index)
 
 void W_Control::on_comboBox_slave_currentIndexChanged(int index)
 {
+	(void)index;	//Unused for now
+
 	qDebug() << "Changed active slave";
 	active_slave_index = ui->comboBox_slave->currentIndex();
 	active_slave = myFlexSEA_Generic.getSlaveID(SL_BASE_EX, active_slave_index);

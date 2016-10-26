@@ -78,7 +78,7 @@ void flexsea_send_serial_slave(unsigned char port, unsigned char *str, unsigned 
 	//Test:
 	unsigned char stri[] = {"jfduval    "};
 
-	length = COMM_STR_BUF_LEN;    //Fixed length for now	//Steven: without that line the success rate depends on the # of bytes
+	length = COMM_STR_BUF_LEN;    //Fixed length for now
 
 	if(port == PORT_SPI)
 	{

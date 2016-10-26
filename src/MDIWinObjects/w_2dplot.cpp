@@ -1489,6 +1489,8 @@ void W_2DPlot::on_pushButtonFreeze_clicked()
 
 void W_2DPlot::on_cBoxvar1slave_currentIndexChanged(int index)
 {
+	(void)index;	//Unused for now
+
 	if(initFlag == false)
 	{
 		saveCurrentSettings();
@@ -1529,6 +1531,8 @@ void W_2DPlot::on_cBoxvar1slave_currentIndexChanged(int index)
 
 void W_2DPlot::on_cBoxvar2slave_currentIndexChanged(int index)
 {
+	(void)index;	//Unused for now
+
 	if(initFlag == false)
 	{
 		saveCurrentSettings();
@@ -1539,6 +1543,8 @@ void W_2DPlot::on_cBoxvar2slave_currentIndexChanged(int index)
 
 void W_2DPlot::on_cBoxvar3slave_currentIndexChanged(int index)
 {
+	(void)index;	//Unused for now
+
 	if(initFlag == false)
 	{
 		saveCurrentSettings();
@@ -1549,6 +1555,8 @@ void W_2DPlot::on_cBoxvar3slave_currentIndexChanged(int index)
 
 void W_2DPlot::on_cBoxvar4slave_currentIndexChanged(int index)
 {
+	(void)index;	//Unused for now
+
 	if(initFlag == false)
 	{
 		saveCurrentSettings();
@@ -1559,6 +1567,8 @@ void W_2DPlot::on_cBoxvar4slave_currentIndexChanged(int index)
 
 void W_2DPlot::on_cBoxvar5slave_currentIndexChanged(int index)
 {
+	(void)index;	//Unused for now
+
 	if(initFlag == false)
 	{
 		saveCurrentSettings();
@@ -1569,6 +1579,8 @@ void W_2DPlot::on_cBoxvar5slave_currentIndexChanged(int index)
 
 void W_2DPlot::on_cBoxvar6slave_currentIndexChanged(int index)
 {
+	(void)index;	//Unused for now
+
 	if(initFlag == false)
 	{
 		saveCurrentSettings();
@@ -1581,6 +1593,8 @@ void W_2DPlot::on_cBoxvar6slave_currentIndexChanged(int index)
 
 void W_2DPlot::on_cBoxvar1_currentIndexChanged(int index)
 {
+	(void)index;	//Unused for now
+
 	if(initFlag == false)
 	{
 		saveCurrentSettings();
@@ -1590,6 +1604,8 @@ void W_2DPlot::on_cBoxvar1_currentIndexChanged(int index)
 
 void W_2DPlot::on_cBoxvar2_currentIndexChanged(int index)
 {
+	(void)index;	//Unused for now
+
 	if(initFlag == false)
 	{
 		saveCurrentSettings();
@@ -1599,6 +1615,8 @@ void W_2DPlot::on_cBoxvar2_currentIndexChanged(int index)
 
 void W_2DPlot::on_cBoxvar3_currentIndexChanged(int index)
 {
+	(void)index;	//Unused for now
+
 	if(initFlag == false)
 	{
 		saveCurrentSettings();
@@ -1608,6 +1626,8 @@ void W_2DPlot::on_cBoxvar3_currentIndexChanged(int index)
 
 void W_2DPlot::on_cBoxvar4_currentIndexChanged(int index)
 {
+	(void)index;	//Unused for now
+
 	if(initFlag == false)
 	{
 		saveCurrentSettings();
@@ -1617,6 +1637,8 @@ void W_2DPlot::on_cBoxvar4_currentIndexChanged(int index)
 
 void W_2DPlot::on_cBoxvar5_currentIndexChanged(int index)
 {
+	(void)index;	//Unused for now
+
 	if(initFlag == false)
 	{
 		saveCurrentSettings();
@@ -1626,6 +1648,8 @@ void W_2DPlot::on_cBoxvar5_currentIndexChanged(int index)
 
 void W_2DPlot::on_cBoxvar6_currentIndexChanged(int index)
 {
+	(void)index;	//Unused for now
+
 	if(initFlag == false)
 	{
 		saveCurrentSettings();
@@ -1637,6 +1661,8 @@ void W_2DPlot::on_cBoxvar6_currentIndexChanged(int index)
 
 void W_2DPlot::on_checkBoxD1_stateChanged(int arg1)
 {
+	(void)arg1;	//Unused for now
+
 	if(initFlag == false)
 	{
 		saveCurrentSettings();
@@ -1646,6 +1672,8 @@ void W_2DPlot::on_checkBoxD1_stateChanged(int arg1)
 
 void W_2DPlot::on_checkBoxD2_stateChanged(int arg1)
 {
+	(void)arg1;	//Unused for now
+
 	if(initFlag == false)
 	{
 		saveCurrentSettings();
@@ -1655,6 +1683,8 @@ void W_2DPlot::on_checkBoxD2_stateChanged(int arg1)
 
 void W_2DPlot::on_checkBoxD3_stateChanged(int arg1)
 {
+	(void)arg1;	//Unused for now
+
 	if(initFlag == false)
 	{
 		saveCurrentSettings();
@@ -1664,6 +1694,8 @@ void W_2DPlot::on_checkBoxD3_stateChanged(int arg1)
 
 void W_2DPlot::on_checkBoxD4_stateChanged(int arg1)
 {
+	(void)arg1;	//Unused for now
+
 	if(initFlag == false)
 	{
 		saveCurrentSettings();
@@ -1673,6 +1705,8 @@ void W_2DPlot::on_checkBoxD4_stateChanged(int arg1)
 
 void W_2DPlot::on_checkBoxD5_stateChanged(int arg1)
 {
+	(void)arg1;	//Unused for now
+
 	if(initFlag == false)
 	{
 		saveCurrentSettings();
@@ -1682,6 +1716,8 @@ void W_2DPlot::on_checkBoxD5_stateChanged(int arg1)
 
 void W_2DPlot::on_checkBoxD6_stateChanged(int arg1)
 {
+	(void)arg1;	//Unused for now
+
 	if(initFlag == false)
 	{
 		saveCurrentSettings();

@@ -717,60 +717,72 @@ void W_SlaveComm::on_pushButton4_clicked()
 
 void W_SlaveComm::on_comboBoxSlave1_currentIndexChanged(int index)
 {
+	(void)index;	//Unused for now
 	configSlaveComm(0);
 }
 
 void W_SlaveComm::on_comboBoxSlave2_currentIndexChanged(int index)
 {
+	(void)index;	//Unused for now
 	configSlaveComm(1);
 }
 
 void W_SlaveComm::on_comboBoxSlave3_currentIndexChanged(int index)
 {
+	(void)index;	//Unused for now
 	configSlaveComm(2);
 }
 
 void W_SlaveComm::on_comboBoxSlave4_currentIndexChanged(int index)
 {
+	(void)index;	//Unused for now
 	configSlaveComm(3);
 }
 
 void W_SlaveComm::on_comboBoxExp1_currentIndexChanged(int index)
 {
+	(void)index;	//Unused for now
 	configSlaveComm(0);
 }
 
 void W_SlaveComm::on_comboBoxExp2_currentIndexChanged(int index)
 {
+	(void)index;	//Unused for now
 	configSlaveComm(1);
 }
 
 void W_SlaveComm::on_comboBoxExp3_currentIndexChanged(int index)
 {
+	(void)index;	//Unused for now
 	configSlaveComm(2);
 }
 
 void W_SlaveComm::on_comboBoxExp4_currentIndexChanged(int index)
 {
+	(void)index;	//Unused for now
 	configSlaveComm(3);
 }
 
 void W_SlaveComm::on_comboBoxRefresh1_currentIndexChanged(int index)
 {
+	(void)index;	//Unused for now
 	configSlaveComm(0);
 }
 
 void W_SlaveComm::on_comboBoxRefresh2_currentIndexChanged(int index)
 {
+	(void)index;	//Unused for now
 	configSlaveComm(1);
 }
 
 void W_SlaveComm::on_comboBoxRefresh3_currentIndexChanged(int index)
 {
+	(void)index;	//Unused for now
 	configSlaveComm(2);
 }
 
 void W_SlaveComm::on_comboBoxRefresh4_currentIndexChanged(int index)
 {
+	(void)index;	//Unused for now
 	configSlaveComm(3);
 }

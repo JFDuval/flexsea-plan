@@ -55,7 +55,7 @@ extern "C" {
 uint8_t tmp_rx_command_usb[PACKAGED_PAYLOAD_LEN];
 uint8_t decode_usb_rx(unsigned char *newdata)
 {
-	int i = 0, result = 0, n = 0;
+	int i = 0, result = 0;
 	uint8_t cmd_ready_usb = 0;
 	//uint8_t tmp_rx_command_usb[PACKAGED_PAYLOAD_LEN];
 	uint8_t ret = 0;
