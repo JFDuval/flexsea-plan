@@ -37,7 +37,7 @@
 #include "WinSlaveComm.h"
 #include "w_config.h"
 #include "WinAnyCommand.h"
-#include "WinView2DPlot.h"
+#include "w_2dplot.h"
 #include "WinControlControl.h"
 #include "WinViewRicnu.h"
 #include "WinViewManage.h"
@@ -86,7 +86,7 @@ private:
 
     //Execute View:
     int exViewObjectCount;
-    W_Execute *myWiewExecute[EX_VIEW_WINDOWS_MAX];
+    W_Execute *myViewExecute[EX_VIEW_WINDOWS_MAX];
 
     //Manage View:
     int mnViewObjectCount;
@@ -118,7 +118,7 @@ private:
 
     //2D Plot:
     int plot2DObjectCount;
-    WinView2DPlot *my2DPlot[PLOT2D_WINDOWS_MAX];
+    W_2DPlot *myView2DPlot[PLOT2D_WINDOWS_MAX];
 
     //RIC/NU View:
     int ricnuViewObjectCount;
@@ -144,6 +144,9 @@ private:
 
     //DataLogger:
     DataLogger *myDataLogger;
+
+signals:
+    void connectorRefreshDataSlider(int index);
 
 public slots:
 
@@ -182,10 +185,6 @@ public slots:
     void displayDocumentation();
     void displayLicense();
     void setStatusBar(QString msg);
-
-signals:
-    void connectorRefreshDataSlider(int index);
-
 };
 
 #endif // MAINWINDOW_H

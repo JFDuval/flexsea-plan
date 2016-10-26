@@ -89,13 +89,12 @@ public:
 	//Constructor & Destructor:
     explicit W_2DPlot(QWidget *parent = 0, DisplayMode mode = DisplayLiveData);
     ~W_2DPlot();
-
-
 	
 	//Function(s):
-    void refresh2DPlot(void);
+
 
 public slots:
+    void refresh2DPlot(void);
 
 
 private slots:
@@ -130,6 +129,7 @@ private slots:
     void on_DataSlider_valueChanged(int value);
 
 signals:
+    void windowClosed(void);
     void dataSliderValueChanged(int index);
 
 private:

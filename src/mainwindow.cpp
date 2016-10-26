@@ -36,7 +36,6 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "WinControlControl.h"
-#include "WinView2DPlot.h"
 #include "WinSlaveComm.h"
 #include "WinViewRicnu.h"
 #include <QMessageBox>
@@ -119,9 +118,9 @@ void MainWindow::createViewExecute(void)
     //Limited number of windows:
     if(exViewObjectCount < (EX_VIEW_WINDOWS_MAX))
     {
-        myWiewExecute[exViewObjectCount] = new W_Execute(this);
-        ui->mdiArea->addSubWindow(myWiewExecute[exViewObjectCount]);
-        myWiewExecute[exViewObjectCount]->show();
+        myViewExecute[exViewObjectCount] = new W_Execute(this);
+        ui->mdiArea->addSubWindow(myViewExecute[exViewObjectCount]);
+        myViewExecute[exViewObjectCount]->show();
 
         msg = "Created 'Execute View' object index " + \
                 QString::number(exViewObjectCount) + " (max index = " \
@@ -130,17 +129,17 @@ void MainWindow::createViewExecute(void)
 
         //Link SerialDriver and Execute:
         connect(mySerialDriver, SIGNAL(newDataReady()), \
-                myWiewExecute[exViewObjectCount], SLOT(refresh()));
+                myViewExecute[exViewObjectCount], SLOT(refresh()));
 
         //Link to MainWindow for the close signal:
-        connect(myWiewExecute[exViewObjectCount], SIGNAL(windowClosed()), \
+        connect(myViewExecute[exViewObjectCount], SIGNAL(windowClosed()), \
                 this, SLOT(closeViewExecute()));
 
         // Link to the DataLogger
         connect(myDataLogger, SIGNAL(setNewLogFileLoaded(QList<struct execute_s> &)), \
-                myWiewExecute[exViewObjectCount], SLOT(loadLogFile(QList<struct execute_s> &)));
+                myViewExecute[exViewObjectCount], SLOT(loadLogFile(QList<struct execute_s> &)));
         connect(this, SIGNAL(connectorRefreshDataSlider(int)), \
-                myWiewExecute[exViewObjectCount], SLOT(refreshDataSlider(int)));
+                myViewExecute[exViewObjectCount], SLOT(refreshDataSlider(int)));
 
         exViewObjectCount++;
     }
@@ -334,24 +333,23 @@ void MainWindow::createView2DPlot(void)
     //Limited number of windows:
     if(plot2DObjectCount < (PLOT2D_WINDOWS_MAX))
     {
-        my2DPlot[plot2DObjectCount] = new WinView2DPlot(ui->mdiArea, W_2DPlot::DisplayLiveData);
-        my2DPlot[plot2DObjectCount]->setAttribute(Qt::WA_DeleteOnClose);
-        my2DPlot[plot2DObjectCount]->show();
-
-        //Link SerialDriver and 2DPlot:
-        connect(mySerialDriver, SIGNAL(newDataReady()), \
-                my2DPlot[plot2DObjectCount], SLOT(refresh2DPlot()));
+        myView2DPlot[plot2DObjectCount] = new W_2DPlot(this, W_2DPlot::DisplayLiveData);
+        ui->mdiArea->addSubWindow(myView2DPlot[plot2DObjectCount]);
+        myView2DPlot[plot2DObjectCount]->show();
 
         msg = "Created '2DPlot' object index " + QString::number(plot2DObjectCount) \
                 + " (max index = " + QString::number(PLOT2D_WINDOWS_MAX-1) + ").";
         qDebug() << msg;
         ui->statusBar->showMessage(msg);
 
+        //Link SerialDriver and 2DPlot:
+        connect(mySerialDriver, SIGNAL(newDataReady()), \
+                myView2DPlot[plot2DObjectCount], SLOT(refresh2DPlot()));
         //Link to MainWindow for the close signal:
-        connect(my2DPlot[plot2DObjectCount], SIGNAL(windowClosed()), \
+        connect(myView2DPlot[plot2DObjectCount], SIGNAL(windowClosed()), \
                 this, SLOT(closeView2DPlot()));
         // TODO ok for one 2dplot, but when a second 2d plot will open, it wont works or be meaningfull.
-        connect(my2DPlot[plot2DObjectCount], SIGNAL(winDataSliderValueChanged(int)), \
+        connect(myView2DPlot[plot2DObjectCount], SIGNAL(dataSliderValueChanged(int)), \
                 this, SIGNAL(connectorRefreshDataSlider(int)));
 
         plot2DObjectCount++;

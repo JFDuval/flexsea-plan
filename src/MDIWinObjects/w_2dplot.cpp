@@ -64,6 +64,7 @@ W_2DPlot::W_2DPlot(QWidget *parent, DisplayMode mode) :
 
 W_2DPlot::~W_2DPlot()
 {
+    emit windowClosed();
     delete ui;
 }
 

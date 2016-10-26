@@ -35,7 +35,6 @@ SOURCES += src/main.cpp \
     src/Wrappers/WinCalibration.cpp \
     src/Wrappers/WinControlControl.cpp \
     src/Wrappers/WinSlaveComm.cpp \
-    src/Wrappers/WinView2DPlot.cpp \
     src/Wrappers/WinViewBattery.cpp \
     src/Wrappers/WinViewGossip.cpp \
     src/Wrappers/WinViewManage.cpp \
@@ -82,7 +81,6 @@ HEADERS  += inc/main.h \
     inc/Wrappers/WinCalibration.h \
     inc/Wrappers/WinControlControl.h \
     inc/Wrappers/WinSlaveComm.h \
-    inc/Wrappers/WinView2DPlot.h \
     inc/Wrappers/WinViewBattery.h \
     inc/Wrappers/WinViewGossip.h \
     inc/Wrappers/WinViewManage.h \
