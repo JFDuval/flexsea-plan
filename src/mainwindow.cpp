@@ -118,7 +118,7 @@ void MainWindow::createViewExecute(void)
     //Limited number of windows:
     if(exViewObjectCount < (EX_VIEW_WINDOWS_MAX))
     {
-        myViewExecute[exViewObjectCount] = new W_Execute(this);
+        myViewExecute[exViewObjectCount] = new W_Execute(this, myDataLogger->getExecuteLogPtr());
         ui->mdiArea->addSubWindow(myViewExecute[exViewObjectCount]);
         myViewExecute[exViewObjectCount]->show();
 
@@ -135,9 +135,8 @@ void MainWindow::createViewExecute(void)
         connect(myViewExecute[exViewObjectCount], SIGNAL(windowClosed()), \
                 this, SLOT(closeViewExecute()));
 
-        // Link to the DataLogger
-        connect(myDataLogger, SIGNAL(setNewLogFileLoaded(QList<struct execute_s> &)), \
-                myViewExecute[exViewObjectCount], SLOT(loadLogFile(QList<struct execute_s> &)));
+        // Link to the slider of 2dplot. Intermediate signal (connector) to
+        // allow opening of window asynchroniously
         connect(this, SIGNAL(connectorRefreshDataSlider(int)), \
                 myViewExecute[exViewObjectCount], SLOT(refreshDataSlider(int)));
 
@@ -333,7 +332,7 @@ void MainWindow::createView2DPlot(void)
     //Limited number of windows:
     if(plot2DObjectCount < (PLOT2D_WINDOWS_MAX))
     {
-        myView2DPlot[plot2DObjectCount] = new W_2DPlot(this, W_2DPlot::DisplayLiveData);
+        myView2DPlot[plot2DObjectCount] = new W_2DPlot(this);
         ui->mdiArea->addSubWindow(myView2DPlot[plot2DObjectCount]);
         myView2DPlot[plot2DObjectCount]->show();
 

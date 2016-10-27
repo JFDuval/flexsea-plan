@@ -52,6 +52,13 @@
 #include "main.h"
 
 namespace Ui {
+
+typedef enum DisplayMode
+{
+    DisplayLiveData,
+    DisplayLogData
+}DisplayMode;
+
 class MainWindow;
 }
 

@@ -52,7 +52,7 @@ class W_Execute : public QWidget
 
 public:
 	//Constructor & Destructor:
-    explicit W_Execute(QWidget *parent = 0);
+    explicit W_Execute(QWidget *parent = 0, QList<struct execute_s> *logRef = nullptr);
     ~W_Execute();
 	
 	//Function(s):
@@ -60,15 +60,15 @@ public:
 
 public slots:
     void refresh(void);
-    void loadLogFile(QList<struct execute_s> &data);
     void refreshDataSlider(int index);
 
 private:
 	//Variables & Objects:
     Ui::W_Execute *ui;
 	FlexSEA_Generic myFlexSEA_Generic;
-    QList<struct execute_s> myExecute_s;
+    QList<struct execute_s> *myExecute_s;
     int active_slave, active_slave_index;
+    //DisplayMode displayMode;
 	
 	//Function(s):
 	void init(void);

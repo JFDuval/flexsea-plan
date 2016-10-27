@@ -44,12 +44,13 @@
 // Constructor & Destructor:
 //****************************************************************************
 
-W_Execute::W_Execute(QWidget *parent) :
+W_Execute::W_Execute(QWidget *parent, QList<struct execute_s> *logRef) :
     QWidget(parent),
     ui(new Ui::W_Execute)
 {
     ui->setupUi(this);
 
+    myExecute_s = logRef;
     setWindowTitle("Execute - Barebone");
     setWindowIcon(QIcon(":icons/d_logo_small.png"));
 
@@ -75,17 +76,11 @@ void W_Execute::refresh(void)
     displayExecute(exPtr);
 }
 
-void W_Execute::loadLogFile(QList<struct execute_s> &data)
-{
-    myExecute_s = data;
-    displayExecute(&myExecute_s[0]);
-}
-
 void W_Execute::refreshDataSlider(int index)
 {
-   if(myExecute_s.isEmpty() == false)
+   if(myExecute_s->isEmpty() == false)
    {
-        displayExecute(&myExecute_s[index]);
+        displayExecute(&(*myExecute_s)[index]);
    }
 }
 

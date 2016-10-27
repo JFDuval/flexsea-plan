@@ -32,7 +32,6 @@
 // Include(s)
 //****************************************************************************
 
-#include "main.h"
 #include "datalogger.h"
 #include <QDebug>
 #include <QString>
@@ -132,7 +131,6 @@ void DataLogger::openReadingFile(void)
         msg = tr("Successfully opened: '") + shortFileName + "'.";
         emit setLogFileStatus(msg);
         qDebug() << msg;
-        QList<struct execute_s> execlist;
 
         //Associate stream to file:
         QString line, slaveName, expName;
@@ -152,29 +150,29 @@ void DataLogger::openReadingFile(void)
             line = logReadingFile.readLine();
             splitLine = line.split(',', QString::KeepEmptyParts);
             struct execute_s newitem;
-            execlist.append(newitem);
+            myExecute_s.append(newitem);
 
-            execlist.last().accel.x   = splitLine[2].toInt();
-            execlist.last().accel.y   = splitLine[3].toInt();
-            execlist.last().accel.z   = splitLine[4].toInt();
-            execlist.last().gyro.x    = splitLine[5].toInt();
-            execlist.last().gyro.y    = splitLine[6].toInt();
-            execlist.last().gyro.z    = splitLine[7].toInt();
-            execlist.last().strain    = splitLine[8].toInt();
-            execlist.last().analog[0] = splitLine[9].toInt();
-            execlist.last().analog[1] = splitLine[10].toInt();
-            execlist.last().current   = splitLine[11].toInt();
-            execlist.last().enc_display = splitLine[12].toInt();
-            execlist.last().enc_control = splitLine[13].toInt();
-            execlist.last().enc_commut  = splitLine[14].toInt();
-            execlist.last().volt_batt = splitLine[15].toInt();
-            execlist.last().volt_int  = splitLine[16].toInt();
-            execlist.last().temp      = splitLine[17].toInt();
-            execlist.last().status1   = splitLine[18].toInt();
-            execlist.last().status2   = splitLine[19].toInt();
+            myExecute_s.last().accel.x   = splitLine[2].toInt();
+            myExecute_s.last().accel.y   = splitLine[3].toInt();
+            myExecute_s.last().accel.z   = splitLine[4].toInt();
+            myExecute_s.last().gyro.x    = splitLine[5].toInt();
+            myExecute_s.last().gyro.y    = splitLine[6].toInt();
+            myExecute_s.last().gyro.z    = splitLine[7].toInt();
+            myExecute_s.last().strain    = splitLine[8].toInt();
+            myExecute_s.last().analog[0] = splitLine[9].toInt();
+            myExecute_s.last().analog[1] = splitLine[10].toInt();
+            myExecute_s.last().current   = splitLine[11].toInt();
+            myExecute_s.last().enc_display = splitLine[12].toInt();
+            myExecute_s.last().enc_control = splitLine[13].toInt();
+            myExecute_s.last().enc_commut  = splitLine[14].toInt();
+            myExecute_s.last().volt_batt = splitLine[15].toInt();
+            myExecute_s.last().volt_int  = splitLine[16].toInt();
+            myExecute_s.last().temp      = splitLine[17].toInt();
+            myExecute_s.last().status1   = splitLine[18].toInt();
+            myExecute_s.last().status2   = splitLine[19].toInt();
         }
 
-        emit setNewLogFileLoaded(execlist);
+        //emit setNewLogFileLoaded(myExecute_s);
 
         msg = tr("Opened '") + filename + "'.";
         emit setStatusBarMessage(msg);
