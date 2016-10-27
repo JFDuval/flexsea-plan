@@ -67,24 +67,20 @@ uint8_t usb_rx[COMM_STR_BUF_LEN];
 //plateform independant (for example, we don't need need puts_rs485() for Plan)
 void flexsea_send_serial_slave(uint8_t port, uint8_t *str, uint8_t length)
 {
+	//The current implementation of FlexSEA-Plan doesn't require this function,
+	//the different windows simply emit a signal to the serial driver. We are
+	//Keeping this here for compatibility reasons.
+
 	length = COMM_STR_BUF_LEN;    //Fixed length for now
+	(void)str;
 
 	if(port == PORT_SPI)
 	{
-		#ifdef USE_PRINTF
-		//printf("Sending %i bytes.\n", length+1);
-		#endif
 
-		if(length > 0)
-		{
-			//flexsea_spi_transmit(length , str, 0);
-		}
 	}
 	else if(port == PORT_USB)
 	{
-		//flexsea_serial_transmit(length, str, 0);
-		#warning "Re-enable this!!!"
-		//***ToDo***
+
 	}
 
 	return;

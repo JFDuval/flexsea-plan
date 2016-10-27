@@ -32,7 +32,6 @@ SOURCES += src/main.cpp \
 	flexsea-comm/test/test-flexsea_buffers.c \
 	flexsea-comm/test/test-flexsea_comm.c \
 	flexsea-comm/test/test-flexsea_payload.c \
-	flexsea-system/src/flexsea_cmd_application.c \
 	flexsea-system/src/flexsea_cmd_control.c \
 	flexsea-system/src/flexsea_cmd_external.c \
 	flexsea-system/src/flexsea_cmd_sensors.c \
@@ -43,7 +42,6 @@ SOURCES += src/main.cpp \
 	flexsea-shared/unity/unity.c \
 	flexsea-system/test/flexsea-system_test-all.c \
 	flexsea-system/test/test-flexsea_cmd_control.c\
-	flexsea-system/test/test-flexsea_cmd_application.c \
 	flexsea-system/test/test-flexsea_cmd_data.c \
 	flexsea-system/test/test-flexsea_cmd_external.c \
 	flexsea-system/test/test-flexsea_cmd_sensors.c \
@@ -78,7 +76,10 @@ SOURCES += src/main.cpp \
 	src/serialdriver.cpp \
 	src/flexsea_board.c \
 	src/trapez.c \
-	src/peripherals.c
+	src/peripherals.c \
+	flexsea-user/src/flexsea_cmd_user.c \
+	flexsea-user/MIT_2DoF_Ankle_v1/src/cmd-MIT_2DoF_Ankle_v1.c \
+	flexsea-user/RICNU_Knee_v1/src/cmd-RICNU_Knee_v1.c
 
 HEADERS  += inc/main.h \
 	inc/mainwindow.h \
@@ -87,7 +88,6 @@ HEADERS  += inc/main.h \
 	flexsea-comm/inc/flexsea_comm.h \
 	flexsea-comm/inc/flexsea_payload.h \
 	flexsea-comm/test/flexsea-comm_test-all.h \
-	flexsea-system/inc/flexsea_cmd_application.h \
 	flexsea-system/inc/flexsea_cmd_control.h \
 	flexsea-system/inc/flexsea_cmd_external.h \
 	flexsea-system/inc/flexsea_cmd_sensors.h \
@@ -128,7 +128,10 @@ HEADERS  += inc/main.h \
 	inc/Wrappers/WinViewManage.h \
 	inc/Wrappers/WinViewRicnu.h \
 	inc/Wrappers/WinViewStrain.h \
-	inc/peripherals.h
+	inc/peripherals.h \
+	flexsea-user/inc/flexsea_cmd_user.h \
+	flexsea-user/MIT_2DoF_Ankle_v1/inc/cmd-MIT_2DoF_Ankle_v1.h \
+	flexsea-user/RICNU_Knee_v1/inc/cmd-RICNU_Knee_v1.h
 
 FORMS    += ui/mainwindow.ui \
 	ui/w_execute.ui \
