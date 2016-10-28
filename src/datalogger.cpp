@@ -170,6 +170,7 @@ void DataLogger::openReadingFile(void)
             myExecute_s.last().temp      = splitLine[17].toInt();
             myExecute_s.last().status1   = splitLine[18].toInt();
             myExecute_s.last().status2   = splitLine[19].toInt();
+            myFlexSEA_Generic.decodeExecute(&myExecute_s.last());
         }
 
         //emit setNewLogFileLoaded(myExecute_s);

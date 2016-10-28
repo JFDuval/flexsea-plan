@@ -273,7 +273,11 @@ void FlexSEA_Generic::decodeExecute(uint8_t base, uint8_t index)
 {
     struct execute_s *exPtr;
     assignExecutePtr(&exPtr, base, index);
+    decodeExecute(exPtr);
+}
 
+void FlexSEA_Generic::decodeExecute(struct execute_s *exPtr)
+{
     //Accel in mG
     exPtr->decoded.accel.x = (1000*exPtr->accel.x)/8192;
     exPtr->decoded.accel.y = (1000*exPtr->accel.y)/8192;
