@@ -45,6 +45,14 @@ namespace Ui {
 class W_Config;
 }
 
+typedef enum DataSource
+{
+    None,
+    LiveCOM,
+    LiveBluetooth,
+    LogFile
+}DataSource;
+
 class W_Config : public QWidget
 {
     Q_OBJECT
@@ -53,15 +61,8 @@ public:
 	//Constructor & Destructor:
     explicit W_Config(QWidget *parent = 0);
     ~W_Config();
-    enum DataSource
-    {
-        None,
-        LiveCOM,
-        LiveBluetooth,
-        LogFile
-    };
 
-    enum DataSource getDataSourceStatus(void);
+    DataSource getDataSourceStatus(void) {return dataSourceState;}
 
 
 private slots:
@@ -85,7 +86,7 @@ private:
     Ui::W_Config *ui;
 	QStringList comPortList;
 	int flagComInitDone, flagManualEntry;
-    enum DataSource dataSourceState;
+    DataSource dataSourceState;
 	
 	//Function(s):
 	void initCom(void);
@@ -100,6 +101,7 @@ private:
     void openReadingFile(void);
     void closeReadingFile(void);
     void windowClosed(void);
+    void updateDataSourceStatus(DataSource status);
 };
 
 #endif // W_CONFIG_H

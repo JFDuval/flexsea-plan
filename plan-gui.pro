@@ -97,7 +97,8 @@ HEADERS  += inc/main.h \
     flexsea-system/inc/flexsea_cmd_sensors.h \
     flexsea-system/inc/flexsea_system.h \
     inc/Wrappers/WinViewBattery.h \
-    inc/MDIWinObjects/w_config.h
+    inc/MDIWinObjects/w_config.h \
+    inc/define.h
 
 FORMS    += ui/mainwindow.ui \
     ui/w_execute.ui \

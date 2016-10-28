@@ -37,6 +37,7 @@
 
 #include <QWidget>
 #include "flexsea_generic.h"
+#include "define.h"
 
 //****************************************************************************
 // Namespace & Class Definition:
@@ -52,7 +53,8 @@ class W_Execute : public QWidget
 
 public:
 	//Constructor & Destructor:
-    explicit W_Execute(QWidget *parent = 0, QList<struct execute_s> *logRef = nullptr);
+    explicit W_Execute(QWidget *parent = 0, QList<struct execute_s> *logRef = nullptr,
+                       DisplayMode mode = DisplayLiveData);
     ~W_Execute();
 	
 	//Function(s):
@@ -60,7 +62,7 @@ public:
 
 public slots:
     void refresh(void);
-    void refreshDataSlider(int index);
+    void displayLogData(int index);
 
 private:
 	//Variables & Objects:
@@ -68,10 +70,11 @@ private:
 	FlexSEA_Generic myFlexSEA_Generic;
     QList<struct execute_s> *myExecute_s;
     int active_slave, active_slave_index;
-    //DisplayMode displayMode;
+    DisplayMode displayMode;
 	
 	//Function(s):
-	void init(void);
+    void initLive(void);
+    void initLog(void);
     void displayExecute(struct execute_s *ex);
 
 signals:

@@ -53,6 +53,7 @@ W_Config::W_Config(QWidget *parent) :
 
     //Init code:
     flagManualEntry = 0;
+    dataSourceState = None;
     initCom();
     initLog();
 }
@@ -66,10 +67,6 @@ W_Config::~W_Config()
 //****************************************************************************
 // Public function(s):
 //****************************************************************************
-W_Config::DataSource W_Config::getDataSourceStatus(void)
-{
-    return dataSourceState;
-}
 
 //****************************************************************************
 // Public slot(s):
@@ -105,6 +102,8 @@ void W_Config::initCom(void)
     ui->comProgressBar->setDisabled(true);
     ui->openComButton->setDisabled(false);
     ui->closeComButton->setDisabled(true);
+    ui->pbLoadLogFile->setDisabled(false);
+    ui->pbCloseLogFile->setDisabled(true);
 
     //COM port list and button:
     getComList();
@@ -217,8 +216,17 @@ void W_Config::on_openComButton_clicked()
     }
 
     //Emit signal:
+
     emit openCom(ui->comPortTxt->text(), 25, 100000);
-    ui->closeComButton->setDisabled(false);
+    emit updateDataSourceStatus(LiveCOM);
+    // TODO We Should have a way to know if the connection was successfull
+    if(1)//Connection is successfull.
+    {
+        dataSourceState = LiveCOM;
+        ui->pbLoadLogFile->setDisabled(true);
+        ui->pushButtonBTCon->setDisabled(true);
+        ui->closeComButton->setDisabled(false);
+    }
 }
 
 void W_Config::on_closeComButton_clicked()
@@ -238,11 +246,36 @@ void W_Config::on_closeComButton_clicked()
     ui->comProgressBar->setValue(0);
     ui->comProgressBar->setDisabled(true);
 
+    ui->pbLoadLogFile->setDisabled(false);
+    ui->pushButtonBTCon->setDisabled(false);
+
+    dataSourceState = None;
+
 }
 
 void W_Config::on_pushButtonRefresh_clicked()
 {
     getComList();
+}
+
+void W_Config::on_pbLoadLogFile_clicked()
+{
+    emit openReadingFile();
+    ui->pbLoadLogFile->setDisabled(true);
+    ui->pbCloseLogFile->setDisabled(false);
+    ui->openComButton->setDisabled(true);
+    ui->pushButtonBTCon->setDisabled(true);
+    dataSourceState = LogFile;
+}
+
+void W_Config::on_pbCloseLogFile_clicked()
+{
+    emit closeReadingFile();
+    ui->pbLoadLogFile->setDisabled(false);
+    ui->pbCloseLogFile->setDisabled(true);
+    ui->openComButton->setDisabled(false);
+    ui->pushButtonBTCon->setDisabled(false);
+    dataSourceState = None;
 }
 
 void W_Config::on_pbOpenLog1_clicked()
@@ -263,14 +296,4 @@ void W_Config::on_pbOpenLog3_clicked()
 void W_Config::on_pbOpenLog4_clicked()
 {
     emit openRecordingFile(3);
-}
-
-void W_Config::on_pbLoadLogFile_clicked()
-{
-    emit openReadingFile();
-}
-
-void W_Config::on_pbCloseLogFile_clicked()
-{
-    emit closeReadingFile();
 }

@@ -118,7 +118,16 @@ void MainWindow::createViewExecute(void)
     //Limited number of windows:
     if(exViewObjectCount < (EX_VIEW_WINDOWS_MAX))
     {
-        myViewExecute[exViewObjectCount] = new W_Execute(this, myDataLogger->getExecuteLogPtr());
+        DisplayMode status = DisplayLiveData;
+        if(configObjectCount > 0)
+        {
+            if(myViewConfig[0]->getDataSourceStatus() == LogFile)
+            {
+                status = DisplayLogData;
+            }
+        }
+
+        myViewExecute[exViewObjectCount] = new W_Execute(this, myDataLogger->getExecuteLogPtr(), status);
         ui->mdiArea->addSubWindow(myViewExecute[exViewObjectCount]);
         myViewExecute[exViewObjectCount]->show();
 
@@ -138,7 +147,7 @@ void MainWindow::createViewExecute(void)
         // Link to the slider of 2dplot. Intermediate signal (connector) to
         // allow opening of window asynchroniously
         connect(this, SIGNAL(connectorRefreshDataSlider(int)), \
-                myViewExecute[exViewObjectCount], SLOT(refreshDataSlider(int)));
+                myViewExecute[exViewObjectCount], SLOT(displayLogData(int)));
 
         exViewObjectCount++;
     }

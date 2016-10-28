@@ -58,7 +58,7 @@ class DataLogger : public QWidget
 	
 public:
     explicit DataLogger(QWidget *parent = 0);
-
+    QList<struct execute_s> * getExecuteLogPtr(void) {return &myExecute_s;}
 	
 public slots:
     void openRecordingFile(uint8_t item);
@@ -66,7 +66,6 @@ public slots:
     void openReadingFile(void);
     void closeReadingFile(void);
     void writeToFile(uint8_t item, uint8_t slaveIndex, uint8_t expIndex);
-    QList<struct execute_s> * getExecuteLogPtr(void) {return &myExecute_s;}
 
 private slots:	
 
