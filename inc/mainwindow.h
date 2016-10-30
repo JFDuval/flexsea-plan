@@ -147,9 +147,13 @@ private:
     DataLogger *myDataLogger;
 
 signals:
+    //Allow window to be independly opened in any order by providing a backbone connector
     void connectorRefreshDataSlider(int index);
+    void connectorUpdateDisplayMode(DisplayMode mode);
 
 public slots:
+
+    void translatorUpdateDataSourceStatus(DataSource status);
 
     //MDI Windows (create):
     void createViewExecute(void);

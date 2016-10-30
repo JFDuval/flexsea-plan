@@ -136,6 +136,8 @@ void DataLogger::openReadingFile(void)
         QString line, slaveName, expName;
         QStringList splitLine;
         //uint8_t item, slaveIndex, experimentIndex;
+
+        // Read the logfile informations.
         line = logReadingFile.readLine();
 
         //TODO : design a better way to parse the header.
@@ -144,6 +146,7 @@ void DataLogger::openReadingFile(void)
         //slaveName = line.section(' ', 9, 10).remove("(").remove(")");
         //experimentIndex = line.section(' ', 15, 15).toInt();
 
+        //Clear the column's header.
         line = logReadingFile.readLine();
 
         while (!logReadingFile.atEnd()) {
@@ -151,26 +154,28 @@ void DataLogger::openReadingFile(void)
             splitLine = line.split(',', QString::KeepEmptyParts);
             struct execute_s newitem;
             myExecute_s.append(newitem);
-
-            myExecute_s.last().accel.x   = splitLine[2].toInt();
-            myExecute_s.last().accel.y   = splitLine[3].toInt();
-            myExecute_s.last().accel.z   = splitLine[4].toInt();
-            myExecute_s.last().gyro.x    = splitLine[5].toInt();
-            myExecute_s.last().gyro.y    = splitLine[6].toInt();
-            myExecute_s.last().gyro.z    = splitLine[7].toInt();
-            myExecute_s.last().strain    = splitLine[8].toInt();
-            myExecute_s.last().analog[0] = splitLine[9].toInt();
-            myExecute_s.last().analog[1] = splitLine[10].toInt();
-            myExecute_s.last().current   = splitLine[11].toInt();
-            myExecute_s.last().enc_display = splitLine[12].toInt();
-            myExecute_s.last().enc_control = splitLine[13].toInt();
-            myExecute_s.last().enc_commut  = splitLine[14].toInt();
-            myExecute_s.last().volt_batt = splitLine[15].toInt();
-            myExecute_s.last().volt_int  = splitLine[16].toInt();
-            myExecute_s.last().temp      = splitLine[17].toInt();
-            myExecute_s.last().status1   = splitLine[18].toInt();
-            myExecute_s.last().status2   = splitLine[19].toInt();
-            myFlexSEA_Generic.decodeExecute(&myExecute_s.last());
+            if(splitLine.length() >= 20)
+            {
+                myExecute_s.last().accel.x   = splitLine[2].toInt();
+                myExecute_s.last().accel.y   = splitLine[3].toInt();
+                myExecute_s.last().accel.z   = splitLine[4].toInt();
+                myExecute_s.last().gyro.x    = splitLine[5].toInt();
+                myExecute_s.last().gyro.y    = splitLine[6].toInt();
+                myExecute_s.last().gyro.z    = splitLine[7].toInt();
+                myExecute_s.last().strain    = splitLine[8].toInt();
+                myExecute_s.last().analog[0] = splitLine[9].toInt();
+                myExecute_s.last().analog[1] = splitLine[10].toInt();
+                myExecute_s.last().current   = splitLine[11].toInt();
+                myExecute_s.last().enc_display = splitLine[12].toInt();
+                myExecute_s.last().enc_control = splitLine[13].toInt();
+                myExecute_s.last().enc_commut  = splitLine[14].toInt();
+                myExecute_s.last().volt_batt = splitLine[15].toInt();
+                myExecute_s.last().volt_int  = splitLine[16].toInt();
+                myExecute_s.last().temp      = splitLine[17].toInt();
+                myExecute_s.last().status1   = splitLine[18].toInt();
+                myExecute_s.last().status2   = splitLine[19].toInt();
+                myFlexSEA_Generic.decodeExecute(&myExecute_s.last());
+            }
         }
 
         //emit setNewLogFileLoaded(myExecute_s);

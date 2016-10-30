@@ -55,15 +55,7 @@ W_Execute::W_Execute(QWidget *parent, QList<struct execute_s> *logRef, DisplayMo
     setWindowIcon(QIcon(":icons/d_logo_small.png"));
 
     displayMode = mode;
-
-    if(displayMode == DisplayLogData)
-    {
-        initLog();
-    }
-    else
-    {
-        initLive();
-    }
+    updateDisplayMode(displayMode);
 }
 
 W_Execute::~W_Execute()
@@ -74,6 +66,10 @@ W_Execute::~W_Execute()
 
 //****************************************************************************
 // Public function(s):
+//****************************************************************************
+
+//****************************************************************************
+// Public slot(s):
 //****************************************************************************
 
 //Call this function to refresh the display
@@ -93,9 +89,17 @@ void W_Execute::displayLogData(int index)
    }
 }
 
-//****************************************************************************
-// Public slot(s):
-//****************************************************************************
+void W_Execute::updateDisplayMode(DisplayMode mode)
+{
+    if(mode == DisplayLogData)
+    {
+        initLog();
+    }
+    else
+    {
+        initLive();
+    }
+}
 
 //****************************************************************************
 // Private function(s):
@@ -104,6 +108,7 @@ void W_Execute::displayLogData(int index)
 void W_Execute::initLive(void)
 {
     //Populates Slave list:
+    ui->comboBox_slave->clear();
     myFlexSEA_Generic.populateSlaveComboBox(ui->comboBox_slave, \
                                             SL_BASE_EX, SL_LEN_EX);
 }
@@ -111,6 +116,7 @@ void W_Execute::initLive(void)
 void W_Execute::initLog(void)
 {
     //Populates Slave list:
+    ui->comboBox_slave->clear();
     ui->comboBox_slave->addItem("Log 1");
     displayLogData(0);
 }

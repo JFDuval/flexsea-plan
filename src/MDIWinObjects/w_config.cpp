@@ -218,11 +218,12 @@ void W_Config::on_openComButton_clicked()
     //Emit signal:
 
     emit openCom(ui->comPortTxt->text(), 25, 100000);
-    emit updateDataSourceStatus(LiveCOM);
+
     // TODO We Should have a way to know if the connection was successfull
     if(1)//Connection is successfull.
     {
         dataSourceState = LiveCOM;
+        emit updateDataSourceStatus(dataSourceState);
         ui->pbLoadLogFile->setDisabled(true);
         ui->pushButtonBTCon->setDisabled(true);
         ui->closeComButton->setDisabled(false);
@@ -250,6 +251,7 @@ void W_Config::on_closeComButton_clicked()
     ui->pushButtonBTCon->setDisabled(false);
 
     dataSourceState = None;
+    emit updateDataSourceStatus(dataSourceState);
 
 }
 
@@ -266,6 +268,7 @@ void W_Config::on_pbLoadLogFile_clicked()
     ui->openComButton->setDisabled(true);
     ui->pushButtonBTCon->setDisabled(true);
     dataSourceState = LogFile;
+    emit updateDataSourceStatus(dataSourceState);
 }
 
 void W_Config::on_pbCloseLogFile_clicked()
@@ -276,6 +279,7 @@ void W_Config::on_pbCloseLogFile_clicked()
     ui->openComButton->setDisabled(false);
     ui->pushButtonBTCon->setDisabled(false);
     dataSourceState = None;
+    emit updateDataSourceStatus(dataSourceState);
 }
 
 void W_Config::on_pbOpenLog1_clicked()

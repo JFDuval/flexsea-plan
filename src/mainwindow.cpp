@@ -110,6 +110,21 @@ MainWindow::~MainWindow()
 // Public slot(s):
 //****************************************************************************
 
+//Transfer the signal from config to the
+void MainWindow::translatorUpdateDataSourceStatus(DataSource status)
+{
+    if(status == LogFile)
+    {
+        emit connectorUpdateDisplayMode(DisplayLogData);
+    }
+    else
+    {
+        emit connectorUpdateDisplayMode(DisplayLiveData);
+    }
+
+}
+
+
 //Creates a new View Execute window
 void MainWindow::createViewExecute(void)
 {
@@ -148,6 +163,9 @@ void MainWindow::createViewExecute(void)
         // allow opening of window asynchroniously
         connect(this, SIGNAL(connectorRefreshDataSlider(int)), \
                 myViewExecute[exViewObjectCount], SLOT(displayLogData(int)));
+        connect(this, SIGNAL(connectorUpdateDisplayMode(DisplayMode)), \
+                myViewExecute[exViewObjectCount], SLOT(updateDisplayMode(DisplayMode)));
+
 
         exViewObjectCount++;
     }
@@ -260,7 +278,8 @@ void MainWindow::createConfig(void)
                 mySerialDriver, SLOT(close()));
         connect(mySerialDriver, SIGNAL(openProgress(int,int)), \
                 myViewConfig[0], SLOT(setComProgress(int,int)));
-
+        connect(myViewConfig[0], SIGNAL(updateDataSourceStatus(DataSource)),
+                this, SLOT(translatorUpdateDataSourceStatus(DataSource)));
 
         configObjectCount++;
     }
