@@ -63,6 +63,7 @@ public:
 public slots:
     void refresh(void);
     void displayLogData(int index);
+    void updateDisplayMode(DisplayMode mode);
 
 private:
 	//Variables & Objects:
