@@ -42,7 +42,7 @@
 #include "WinViewRicnu.h"
 #include "WinViewManage.h"
 #include "WinCalibration.h"
-#include "WinViewBattery.h"
+#include "w_battery.h"
 #include "WinViewStrain.h"
 #include "WinViewGossip.h"
 #include "w_converter.h"
@@ -127,7 +127,7 @@ private:
 
     //Battery:
     int battObjectCount;
-    WinViewBattery *myBatt[BATT_WINDOWS_MAX];
+    W_Battery *myViewBatt[BATT_WINDOWS_MAX];
 
     //Gossip:
     int gossipObjectCount;

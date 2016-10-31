@@ -35,7 +35,6 @@ SOURCES += src/main.cpp \
     src/Wrappers/WinCalibration.cpp \
     src/Wrappers/WinControlControl.cpp \
     src/Wrappers/WinSlaveComm.cpp \
-    src/Wrappers/WinViewBattery.cpp \
     src/Wrappers/WinViewGossip.cpp \
     src/Wrappers/WinViewManage.cpp \
     src/Wrappers/WinViewRicnu.cpp \
@@ -81,7 +80,6 @@ HEADERS  += inc/main.h \
     inc/Wrappers/WinCalibration.h \
     inc/Wrappers/WinControlControl.h \
     inc/Wrappers/WinSlaveComm.h \
-    inc/Wrappers/WinViewBattery.h \
     inc/Wrappers/WinViewGossip.h \
     inc/Wrappers/WinViewManage.h \
     inc/Wrappers/WinViewRicnu.h \
@@ -96,7 +94,6 @@ HEADERS  += inc/main.h \
     flexsea-system/inc/flexsea_cmd_external.h \
     flexsea-system/inc/flexsea_cmd_sensors.h \
     flexsea-system/inc/flexsea_system.h \
-    inc/Wrappers/WinViewBattery.h \
     inc/MDIWinObjects/w_config.h \
     inc/define.h
 

@@ -56,10 +56,14 @@ public:
     ~W_Battery();
 	
 	//Function(s):
-    void refresh(void);
+
 
 public slots:
 
+    void refreshDisplayBattery(void);
+
+signals:
+    void windowClosed(void);
 
 private:
 	//Variables & Objects:

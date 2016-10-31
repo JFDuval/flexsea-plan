@@ -313,6 +313,7 @@ void DataLogger::closeReadingFile(void)
     {
         logReadingFile.close();
     }
+    myExecute_s.clear();
 }
 
 void DataLogger::logReadAllExec(QTextStream *filePtr, uint8_t slaveIndex, \

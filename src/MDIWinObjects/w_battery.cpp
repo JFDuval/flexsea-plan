@@ -57,6 +57,7 @@ W_Battery::W_Battery(QWidget *parent) :
 
 W_Battery::~W_Battery()
 {
+    emit windowClosed();
     delete ui;
 }
 
@@ -64,18 +65,18 @@ W_Battery::~W_Battery()
 // Public function(s):
 //****************************************************************************
 
+//****************************************************************************
+// Public slot(s):
+//****************************************************************************
+
 //Call this function to refresh the display
-void W_Battery::refresh(void)
+void W_Battery::refreshDisplayBattery(void)
 {
     struct battery_s *baPtr;
     myFlexSEA_Generic.assignBatteryPtr(&baPtr, SL_BASE_ALL, \
                                        ui->comboBox_slave->currentIndex());
     displayBattery(baPtr);
 }
-
-//****************************************************************************
-// Public slot(s):
-//****************************************************************************
 
 //****************************************************************************
 // Private function(s):

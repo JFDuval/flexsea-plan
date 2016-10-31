@@ -746,9 +746,9 @@ void MainWindow::createViewBattery(void)
     //Limited number of windows:
     if(battObjectCount < (BATT_WINDOWS_MAX))
     {
-        myBatt[battObjectCount] = new WinViewBattery(ui->mdiArea);
-        myBatt[battObjectCount]->setAttribute(Qt::WA_DeleteOnClose);
-        myBatt[battObjectCount]->show();
+        myViewBatt[battObjectCount] = new W_Battery(this);
+        ui->mdiArea->addSubWindow(myViewBatt[battObjectCount]);
+        myViewBatt[battObjectCount]->show();
 
         msg = "Created 'Battery View' object index " + \
                 QString::number(battObjectCount) + " (max index = " \
@@ -757,10 +757,10 @@ void MainWindow::createViewBattery(void)
 
         //Link SerialDriver and Battery:
         connect(mySerialDriver, SIGNAL(newDataReady()), \
-                myBatt[battObjectCount], SLOT(refreshDisplayBattery()));
+                myViewBatt[battObjectCount], SLOT(refreshDisplayBattery()));
 
         //Link to MainWindow for the close signal:
-        connect(myBatt[battObjectCount], SIGNAL(windowClosed()), \
+        connect(myViewBatt[battObjectCount], SIGNAL(windowClosed()), \
                 this, SLOT(closeViewBattery()));
 
         battObjectCount++;
