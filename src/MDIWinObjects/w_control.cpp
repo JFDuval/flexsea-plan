@@ -174,23 +174,29 @@ void W_Control::controller_setpoint(int val)
 			break;
 		case 1: //Open
 			valid = 1;
-			numb = tx_cmd_ctrl_o(active_slave, CMD_WRITE, payload_str, PAYLOAD_BUF_LEN, val);
+			tx_cmd_ctrl_o_w(payload_str, &cmdCode, &cmdType, &len, val);
+			numb = tx_cmd(payload_str, cmdCode, cmdType, len, active_slave, \
+						  transferBuf);
 			qDebug() << "Open: " << val;
 			break;
 		case 2: //Position
 		case 4: //Impedance
 			valid = 1;
-			numb = tx_cmd_ctrl_p(active_slave, CMD_WRITE, payload_str, PAYLOAD_BUF_LEN, trap_pos, trap_posi, trap_posf, trap_spd, trap_acc);
-			trapez_steps = trapez_gen_motion_1(trap_posi, trap_posf, trap_spd, trap_acc);
-			qDebug() << "Pos/Z: posi = " << trap_posi << ", posf = " << trap_posf << ", spd = " << trap_spd << ", trap_acc = " << trap_acc;
+			tx_cmd_ctrl_p_w(payload_str, &cmdCode, &cmdType, &len,\
+							trap_pos, trap_posi, trap_posf, trap_spd, trap_acc);
+			numb = tx_cmd(payload_str, cmdCode, cmdType, len, active_slave, \
+						  transferBuf);
+			trapez_steps = trapez_gen_motion_1(trap_posi, trap_posf, trap_spd, \
+											   trap_acc);
+			qDebug() << "Pos/Z: posi = " << trap_posi << ", posf = " << \
+						trap_posf << ", spd = " << trap_spd << ", trap_acc = " \
+					 << trap_acc;
 			 break;
 		case 3: //Current
 			valid = 1;
-
 			tx_cmd_ctrl_i_w(payload_str, &cmdCode, &cmdType, &len, val);
-			numb = tx_cmd(payload_str, cmdCode, cmdType, len, active_slave, transferBuf);
-
-			//numb = tx_cmd_ctrl_i(active_slave, CMD_WRITE, payload_str, PAYLOAD_BUF_LEN, val, 0);
+			numb = tx_cmd(payload_str, cmdCode, cmdType, len, active_slave, \
+						  transferBuf);
 			qDebug() << "Current: " << val;
 			break;
 		//case 4: //Impedance
@@ -206,10 +212,7 @@ void W_Control::controller_setpoint(int val)
 	if(valid)
 	{
 		//Common for all gain functions:
-
 		numb = comm_gen_str(transferBuf, comm_str_usb, numb);
-		numb = COMM_STR_BUF_LEN;
-		//numb = comm_gen_str(payload_str, comm_str_usb, PAYLOAD_BUF_LEN);
 		numb = COMM_STR_BUF_LEN;
 		emit writeCommand(numb, comm_str_usb);
 	}
@@ -324,14 +327,7 @@ void W_Control::on_pushButton_SetController_clicked()
 			break;
 	}
 
-	//Prepare and send command: TODO update
-	/*
-	tx_cmd_ctrl_mode(active_slave, CMD_WRITE, payload_str, PAYLOAD_BUF_LEN, ctrl);
-	numb = comm_gen_str(payload_str, comm_str_usb, PAYLOAD_BUF_LEN);
-	numb = COMM_STR_BUF_LEN;
-	*/
-
-	//New version, under test:
+	//Prepare and send command:
 	tx_cmd_ctrl_mode_w(TX_N_DEFAULT, ctrl);
 	pack(P_AND_S_DEFAULT, active_slave, info, &numb, comm_str_usb);
 	emit writeCommand(numb, comm_str_usb);
@@ -452,6 +448,8 @@ void W_Control::on_pushButton_SetGains_clicked()
 	QString str;
 	int16_t gains[6] = {0,0,0,0,0,0};
 	int numb = 0, valid = 0;
+	uint8_t cmdCode = 0, cmdType = 0;
+	uint16_t len = 0;
 
 	//Save gains in temp variables:
 	gains[0] = ui->control_g0->text().toInt();
@@ -476,20 +474,26 @@ void W_Control::on_pushButton_SetGains_clicked()
 		case 2: //Position
 			valid = 1;
 			save_ctrl_gains(selected_controller, gains);
-			tx_cmd_ctrl_p_g(active_slave, CMD_WRITE, payload_str, PAYLOAD_BUF_LEN, \
-									gains[0], gains[1], gains[2]);
+			tx_cmd_ctrl_p_g_w(payload_str, &cmdCode, &cmdType, &len, \
+							gains[0], gains[1], gains[2]);
+			numb = tx_cmd(payload_str, cmdCode, cmdType, len, active_slave, \
+						  transferBuf);
 			 break;
 		case 3: //Current
 			valid = 1;
 			save_ctrl_gains(selected_controller, gains);
-			numb = tx_cmd_ctrl_i_g(active_slave, CMD_WRITE, payload_str, PAYLOAD_BUF_LEN, \
+			tx_cmd_ctrl_i_g_w(payload_str, &cmdCode, &cmdType, &len, \
 								gains[0], gains[1], gains[2]);
+			numb = tx_cmd(payload_str, cmdCode, cmdType, len, active_slave, \
+							transferBuf);
 			break;
 		case 4: //Impedance
 			valid = 1;
 			save_ctrl_gains(selected_controller, gains);
-			tx_cmd_ctrl_z_g(active_slave, CMD_WRITE, payload_str, PAYLOAD_BUF_LEN, \
-									gains[0], gains[1], gains[2]);
+			tx_cmd_ctrl_z_g_w(payload_str, &cmdCode, &cmdType, &len, \
+								gains[0], gains[1], gains[2]);
+			numb = tx_cmd(payload_str, cmdCode, cmdType, len, active_slave, \
+							transferBuf);
 			break;
 		case 5: //Custom/other
 			valid = 0;
