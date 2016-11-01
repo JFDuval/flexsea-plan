@@ -56,10 +56,12 @@ public:
     ~W_Ricnu();
 	
 	//Function(s):
-    void refresh(void);
 
 public slots:
+    void refreshDisplayRicnu(void);
 
+signals:
+    void windowClosed(void);
 
 private:
 	//Variables & Objects:

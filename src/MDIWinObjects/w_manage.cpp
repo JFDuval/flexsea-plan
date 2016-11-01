@@ -57,6 +57,7 @@ W_Manage::W_Manage(QWidget *parent) :
 
 W_Manage::~W_Manage()
 {
+    emit windowClosed();
     delete ui;
 }
 
@@ -64,20 +65,18 @@ W_Manage::~W_Manage()
 // Public function(s):
 //****************************************************************************
 
+//****************************************************************************
+// Public slot(s):
+//****************************************************************************
+
 //Call this function to refresh the display
-void W_Manage::refresh(void)
+void W_Manage::refreshDisplayManage(void)
 {
     struct manage_s *mnPtr;
     myFlexSEA_Generic.assignManagePtr(&mnPtr, SL_BASE_MN, \
                                       ui->comboBox_slave->currentIndex());
     displayManage(mnPtr);
 }
-
-
-
-//****************************************************************************
-// Public slot(s):
-//****************************************************************************
 
 //****************************************************************************
 // Private function(s):

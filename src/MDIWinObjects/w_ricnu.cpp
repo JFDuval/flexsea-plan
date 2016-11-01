@@ -55,6 +55,7 @@ W_Ricnu::W_Ricnu(QWidget *parent) :
 
 W_Ricnu::~W_Ricnu()
 {
+    emit windowClosed();
     delete ui;
 }
 
@@ -62,18 +63,18 @@ W_Ricnu::~W_Ricnu()
 // Public function(s):
 //****************************************************************************
 
+//****************************************************************************
+// Public slot(s):
+//****************************************************************************
+
 //Call this function to refresh the display
-void W_Ricnu::refresh(void)
+void W_Ricnu::refreshDisplayRicnu(void)
 {
     struct ricnu_s *ricnuPtr;
     myFlexSEA_Generic.assignRicnuPtr(&ricnuPtr, SL_BASE_EX, \
                                      ui->comboBox_slave->currentIndex());
     displayRicnu(ricnuPtr);
 }
-
-//****************************************************************************
-// Public slot(s):
-//****************************************************************************
 
 //****************************************************************************
 // Private function(s):

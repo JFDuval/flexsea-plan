@@ -56,10 +56,12 @@ public:
     ~W_Manage();
 	
 	//Function(s):
-    void refresh(void);
 
 public slots:
+    void refreshDisplayManage(void);
 
+signals:
+    void windowClosed(void);
 
 private:
 	//Variables & Objects:

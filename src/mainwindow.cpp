@@ -36,7 +36,6 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "WinSlaveComm.h"
-#include "WinViewRicnu.h"
 #include <QMessageBox>
 #include <QDebug>
 #include <QString>
@@ -198,9 +197,9 @@ void MainWindow::createViewManage(void)
     if(mnViewObjectCount < (MN_VIEW_WINDOWS_MAX))
     {
         //WinViewExecute *myViewEx = new WinViewExecute(ui->mdiArea);
-        myViewMn[mnViewObjectCount] = new WinViewManage(ui->mdiArea);
-        myViewMn[mnViewObjectCount]->setAttribute(Qt::WA_DeleteOnClose);
-        myViewMn[mnViewObjectCount]->show();
+        myViewManage[mnViewObjectCount] = new W_Manage(this);
+        ui->mdiArea->addSubWindow(myViewManage[mnViewObjectCount]);
+        myViewManage[mnViewObjectCount]->show();
 
         msg = "Created 'Manage View' object index " + \
                 QString::number(mnViewObjectCount) + " (max index = " \
@@ -209,10 +208,10 @@ void MainWindow::createViewManage(void)
 
         //Link SerialDriver and Manage:
         connect(mySerialDriver, SIGNAL(newDataReady()), \
-                myViewMn[mnViewObjectCount], SLOT(refreshDisplayManage()));
+                myViewManage[mnViewObjectCount], SLOT(refreshDisplayManage()));
 
         //Link to MainWindow for the close signal:
-        connect(myViewMn[mnViewObjectCount], SIGNAL(windowClosed()), \
+        connect(myViewManage[mnViewObjectCount], SIGNAL(windowClosed()), \
                 this, SLOT(closeViewManage()));
 
         mnViewObjectCount++;
@@ -516,8 +515,8 @@ void MainWindow::createViewRicnu(void)
     if(ricnuViewObjectCount < (RICNU_VIEW_WINDOWS_MAX))
     {
         //WinViewExecute *myViewEx = new WinViewExecute(ui->mdiArea);
-        myViewRicnu[ricnuViewObjectCount] = new WinViewRicnu(ui->mdiArea);
-        myViewRicnu[ricnuViewObjectCount]->setAttribute(Qt::WA_DeleteOnClose);
+        myViewRicnu[ricnuViewObjectCount] = new W_Ricnu(this);
+        ui->mdiArea->addSubWindow(myViewRicnu[ricnuViewObjectCount]);
         myViewRicnu[ricnuViewObjectCount]->show();
 
         msg = "Created 'RIC/NU View' object index " + \
@@ -698,9 +697,9 @@ void MainWindow::createViewStrain(void)
     //Limited number of windows:
     if(strainObjectCount < (STRAIN_WINDOWS_MAX))
     {
-        myStrain[strainObjectCount] = new WinViewStrain(ui->mdiArea);
-        myStrain[strainObjectCount]->setAttribute(Qt::WA_DeleteOnClose);
-        myStrain[strainObjectCount]->show();
+        myViewStrain[strainObjectCount] = new W_Strain(this);
+        ui->mdiArea->addSubWindow(myViewStrain[strainObjectCount]);
+        myViewStrain[strainObjectCount]->show();
 
         msg = "Created 'Strain View' object index " + \
                 QString::number(strainObjectCount) + " (max index = " \
@@ -709,10 +708,10 @@ void MainWindow::createViewStrain(void)
 
         //Link SerialDriver and Strain:
         connect(mySerialDriver, SIGNAL(newDataReady()), \
-                myStrain[strainObjectCount], SLOT(refreshDisplayStrain()));
+                myViewStrain[strainObjectCount], SLOT(refreshDisplayStrain()));
 
         //Link to MainWindow for the close signal:
-        connect(myStrain[strainObjectCount], SIGNAL(windowClosed()), \
+        connect(myViewStrain[strainObjectCount], SIGNAL(windowClosed()), \
                 this, SLOT(closeViewStrain()));
 
         strainObjectCount++;

@@ -39,11 +39,11 @@
 #include "w_anycommand.h"
 #include "w_2dplot.h"
 #include "w_control.h"
-#include "WinViewRicnu.h"
-#include "WinViewManage.h"
+#include "w_ricnu.h"
+#include "w_manage.h"
 #include "w_calibration.h"
 #include "w_battery.h"
-#include "WinViewStrain.h"
+#include "w_strain.h"
 #include "w_gossip.h"
 #include "w_converter.h"
 #include "flexsea_generic.h"
@@ -91,7 +91,7 @@ private:
 
     //Manage View:
     int mnViewObjectCount;
-    WinViewManage *myViewMn[MN_VIEW_WINDOWS_MAX];
+    W_Manage *myViewManage[MN_VIEW_WINDOWS_MAX];
 
     //Config objects:
     int configObjectCount;
@@ -123,7 +123,7 @@ private:
 
     //RIC/NU View:
     int ricnuViewObjectCount;
-    WinViewRicnu *myViewRicnu[RICNU_VIEW_WINDOWS_MAX];
+    W_Ricnu *myViewRicnu[RICNU_VIEW_WINDOWS_MAX];
 
     //Battery:
     int battObjectCount;
@@ -135,7 +135,7 @@ private:
 
     //Strain:
     int strainObjectCount;
-    WinViewStrain *myStrain[STRAIN_WINDOWS_MAX];
+    W_Strain *myViewStrain[STRAIN_WINDOWS_MAX];
 
     //FlexSEA Generic:
     FlexSEA_Generic myFlexSEA_Generic;

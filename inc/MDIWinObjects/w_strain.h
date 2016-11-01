@@ -56,10 +56,12 @@ public:
     ~W_Strain();
 	
 	//Function(s):
-    void refresh(void);
 
 public slots:
+    void refreshDisplayStrain(void);
 
+signals:
+    void windowClosed(void);
 
 private:
 	//Variables & Objects:
