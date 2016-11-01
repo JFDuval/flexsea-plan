@@ -66,8 +66,9 @@ public:
 
 public slots:
     void displayDataReceived(int idx, int status);
+    void receiveNewDataReady(void);
     void receiveComPortStatus(bool status);
-    void indicatorTimeout(bool rst);
+    void updateIndicatorTimeout(bool rst);
     void externalSlaveWrite(char numb, unsigned char *tx_data);
 
 private slots:
@@ -106,6 +107,7 @@ signals:
 	
     //Other:
     void refresh2DPlot(void);
+    void windowClosed(void);
     void writeToLogFile(uint8_t item, uint8_t slaveIndex, uint8_t expIndex);
     void closeLogFile(uint8_t item);
     void slaveReadWrite(uint numb, uint8_t *dataPacket, uint8_t r_w);

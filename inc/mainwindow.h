@@ -34,7 +34,7 @@
 
 #include <QMainWindow>
 #include "w_execute.h"
-#include "WinSlaveComm.h"
+#include "w_slavecomm.h"
 #include "w_config.h"
 #include "w_anycommand.h"
 #include "w_2dplot.h"
@@ -99,7 +99,7 @@ private:
 
     //Slave Comm:
     int slaveCommObjectCount;
-    WinSlaveComm *mySlaveComm[SLAVECOMM_WINDOWS_MAX];
+    W_SlaveComm *myViewSlaveComm[SLAVECOMM_WINDOWS_MAX];
 
     //AnyCommand:
     int anyCommandObjectCount;
@@ -150,6 +150,7 @@ signals:
     //Allow window to be independly opened in any order by providing a backbone connector
     void connectorRefreshDataSlider(int index);
     void connectorUpdateDisplayMode(DisplayMode mode);
+    void connectorWriteCommand(char ch,unsigned char* chPtr);
 
 public slots:
 

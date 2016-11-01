@@ -59,6 +59,7 @@ W_SlaveComm::W_SlaveComm(QWidget *parent) :
 
 W_SlaveComm::~W_SlaveComm()
 {
+    emit windowClosed();
     delete ui;
 }
 
@@ -581,7 +582,7 @@ void W_SlaveComm::sc_read_all_ricnu(uint8_t item)
 }
 
 //
-void W_SlaveComm::indicatorTimeout(bool rst)
+void W_SlaveComm::updateIndicatorTimeout(bool rst)
 {
     static uint32_t counter = 0;
 
@@ -595,6 +596,11 @@ void W_SlaveComm::indicatorTimeout(bool rst)
     {
         counter = 0;
     }
+}
+
+void W_SlaveComm::receiveNewDataReady(void)
+{
+    //my_w_slavecomm->
 }
 
 //****************************************************************************
@@ -645,7 +651,7 @@ void W_SlaveComm::masterTimerEvent(void)
     //Emit signals:
 
     emit masterTimer100Hz();
-    indicatorTimeout(false);
+    updateIndicatorTimeout(false);
 
     if(tb50Hz > 1)
     {

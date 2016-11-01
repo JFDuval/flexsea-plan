@@ -31,7 +31,6 @@ SOURCES += src/main.cpp \
     src/MDIWinObjects/w_ricnu.cpp \
     src/MDIWinObjects/w_slavecomm.cpp \
     src/MDIWinObjects/w_strain.cpp \
-    src/Wrappers/WinSlaveComm.cpp \
     src/datalogger.cpp \
     src/flexsea_generic.cpp \
     src/serialdriver.cpp \
@@ -69,7 +68,6 @@ HEADERS  += inc/main.h \
     inc/MDIWinObjects/w_ricnu.h \
     inc/MDIWinObjects/w_slavecomm.h \
     inc/MDIWinObjects/w_strain.h \
-    inc/Wrappers/WinSlaveComm.h \
     flexsea-comm/inc/flexsea.h \
     flexsea-comm/inc/flexsea_buffers.h \
     flexsea-comm/inc/flexsea_comm.h \

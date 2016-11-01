@@ -35,7 +35,6 @@
 
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
-#include "WinSlaveComm.h"
 #include <QMessageBox>
 #include <QDebug>
 #include <QString>
@@ -325,7 +324,7 @@ void MainWindow::createControlControl(void)
 
         //Link to SlaveComm to send commands:
         connect(myViewControl[controlObjectCount], SIGNAL(writeCommand(char,unsigned char*)), \
-                mySlaveComm[0], SLOT(receiveExternalSlaveWrite(char,unsigned char*)));
+                this, SIGNAL(connectorWriteCommand(char,unsigned char*)));
 
         controlObjectCount++;
     }
@@ -409,35 +408,39 @@ void MainWindow::createSlaveComm(void)
     if(slaveCommObjectCount < (SLAVECOMM_WINDOWS_MAX))
     {
         //WinViewExecute *myViewEx = new WinViewExecute(ui->mdiArea);
-        mySlaveComm[slaveCommObjectCount] = new WinSlaveComm(ui->mdiArea);
-        mySlaveComm[slaveCommObjectCount]->setAttribute(Qt::WA_DeleteOnClose);
-        mySlaveComm[slaveCommObjectCount]->show();
+        myViewSlaveComm[slaveCommObjectCount] = new W_SlaveComm(this);
+        ui->mdiArea->addSubWindow(myViewSlaveComm[slaveCommObjectCount]);
+        myViewSlaveComm[slaveCommObjectCount]->show();
 
         msg = "Created 'Slave Comm' object index " + QString::number(slaveCommObjectCount) \
                 + " (max index = " + QString::number(SLAVECOMM_WINDOWS_MAX-1) + ").";
         ui->statusBar->showMessage(msg);
 
         //Link to MainWindow for the close signal:
-        connect(mySlaveComm[slaveCommObjectCount], SIGNAL(windowClosed()), \
+        connect(myViewSlaveComm[slaveCommObjectCount], SIGNAL(windowClosed()), \
                 this, SLOT(closeSlaveComm()));
 
         //Link SlaveComm and SerialDriver:
         connect(mySerialDriver, SIGNAL(openStatus(bool)), \
-                mySlaveComm[0], SLOT(receiveComOpenStatus(bool)));
-        connect(mySlaveComm[0], SIGNAL(slaveReadWrite(uint, uint8_t*, uint8_t)), \
+                myViewSlaveComm[0], SLOT(receiveComPortStatus(bool)));
+        connect(myViewSlaveComm[0], SIGNAL(slaveReadWrite(uint, uint8_t*, uint8_t)), \
                 mySerialDriver, SLOT(readWrite(uint, uint8_t*, uint8_t)));
         connect(mySerialDriver, SIGNAL(newDataReady()), \
-                mySlaveComm[0], SLOT(receiveNewDataReady()));
+                myViewSlaveComm[0], SLOT(receiveNewDataReady()));
         connect(mySerialDriver, SIGNAL(dataStatus(int, int)), \
-                mySlaveComm[0], SLOT(receiveDataStatus(int, int)));
+                myViewSlaveComm[0], SLOT(displayDataReceived(int, int)));
         connect(mySerialDriver, SIGNAL(newDataTimeout(bool)), \
-                mySlaveComm[0], SLOT(receiveNewDataTimeout(bool)));
+                myViewSlaveComm[0], SLOT(updateIndicatorTimeout(bool)));
 
         //Link SlaveComm and DataLogger
-        connect(mySlaveComm[0], SIGNAL(writeToLogFile(uint8_t,uint8_t,uint8_t)), \
+        connect(myViewSlaveComm[0], SIGNAL(writeToLogFile(uint8_t,uint8_t,uint8_t)), \
                 myDataLogger, SLOT(writeToFile(uint8_t,uint8_t,uint8_t)));
-        connect(mySlaveComm[0], SIGNAL(closeLogFile(uint8_t)), \
+        connect(myViewSlaveComm[0], SIGNAL(closeLogFile(uint8_t)), \
                 myDataLogger, SLOT(closeRecordingFile(uint8_t)));
+
+        //Link SlaveComm and Control Trought connector
+        connect(this, SIGNAL(connectorWriteCommand(char,unsigned char*)), \
+                myViewSlaveComm[0], SLOT(externalSlaveWrite(char,unsigned char*)));
 
         slaveCommObjectCount++;
     }
