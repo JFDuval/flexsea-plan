@@ -57,6 +57,7 @@ W_Calibration::W_Calibration(QWidget *parent) :
 
 W_Calibration::~W_Calibration()
 {
+    emit windowClosed();
     delete ui;
 }
 

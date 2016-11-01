@@ -60,6 +60,9 @@ public:
 private slots:
     void on_comboBoxCmd_currentIndexChanged(int index);
 
+signals:
+    void windowClosed(void);
+
 private:
 	//Variables & Objects:
     Ui::W_AnyCommand *ui;

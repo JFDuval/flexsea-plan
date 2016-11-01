@@ -36,12 +36,12 @@
 #include "w_execute.h"
 #include "WinSlaveComm.h"
 #include "w_config.h"
-#include "WinAnyCommand.h"
+#include "w_anycommand.h"
 #include "w_2dplot.h"
 #include "WinControlControl.h"
 #include "WinViewRicnu.h"
 #include "WinViewManage.h"
-#include "WinCalibration.h"
+#include "w_calibration.h"
 #include "w_battery.h"
 #include "WinViewStrain.h"
 #include "WinViewGossip.h"
@@ -103,7 +103,7 @@ private:
 
     //AnyCommand:
     int anyCommandObjectCount;
-    WinAnyCommand *myAnyCommand[ANYCOMMAND_WINDOWS_MAX];
+    W_AnyCommand *myViewAnyCommand[ANYCOMMAND_WINDOWS_MAX];
 
     //Converter:
     int converterObjectCount;
@@ -111,7 +111,7 @@ private:
 
     //Calibration:
     int calibObjectCount;
-    WinCalibration *myCalib[CALIB_WINDOWS_MAX];
+    W_Calibration *myViewCalibration[CALIB_WINDOWS_MAX];
 
     //Control:
     int controlObjectCount;

@@ -59,6 +59,8 @@ public:
 
 public slots:
 
+signals:
+    void windowClosed(void);
 
 private:
 	//Variables & Objects:

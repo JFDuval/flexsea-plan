@@ -472,16 +472,17 @@ void MainWindow::createAnyCommand(void)
     //Limited number of windows:
     if(anyCommandObjectCount < (ANYCOMMAND_WINDOWS_MAX))
     {
-        myAnyCommand[anyCommandObjectCount] = new WinAnyCommand(ui->mdiArea);
-        myAnyCommand[anyCommandObjectCount]->setAttribute(Qt::WA_DeleteOnClose);
-        myAnyCommand[anyCommandObjectCount]->show();
+        myViewAnyCommand[anyCommandObjectCount] = new W_AnyCommand(this);
+        ui->mdiArea->addSubWindow(myViewAnyCommand[anyCommandObjectCount]);
+        myViewAnyCommand[anyCommandObjectCount]->show();
+
 
         msg = "Created 'AnyCommand' object index " + QString::number(anyCommandObjectCount) \
                 + " (max index = " + QString::number(ANYCOMMAND_WINDOWS_MAX-1) + ").";
         ui->statusBar->showMessage(msg);
 
         //Link to MainWindow for the close signal:
-        connect(myAnyCommand[anyCommandObjectCount], SIGNAL(windowClosed()), \
+        connect(myViewAnyCommand[anyCommandObjectCount], SIGNAL(windowClosed()), \
                 this, SLOT(closeAnyCommand()));
 
         anyCommandObjectCount++;
@@ -607,16 +608,16 @@ void MainWindow::createCalib(void)
     //Limited number of windows:
     if(calibObjectCount < (CALIB_WINDOWS_MAX))
     {
-        myCalib[calibObjectCount] = new WinCalibration(ui->mdiArea);
-        myCalib[calibObjectCount]->setAttribute(Qt::WA_DeleteOnClose);
-        myCalib[calibObjectCount]->show();
+        myViewCalibration[calibObjectCount] = new W_Calibration(this);
+        ui->mdiArea->addSubWindow(myViewCalibration[calibObjectCount]);
+        myViewCalibration[calibObjectCount]->show();
 
         msg = "Created 'Calibration' object index " + QString::number(calibObjectCount) \
                 + " (max index = " + QString::number(CALIB_WINDOWS_MAX-1) + ").";
         ui->statusBar->showMessage(msg);
 
         //Link to MainWindow for the close signal:
-        connect(myCalib[calibObjectCount], SIGNAL(windowClosed()), \
+        connect(myViewCalibration[calibObjectCount], SIGNAL(windowClosed()), \
                 this, SLOT(closeCalib()));
 
         calibObjectCount++;

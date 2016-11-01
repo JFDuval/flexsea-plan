@@ -54,6 +54,7 @@ W_AnyCommand::W_AnyCommand(QWidget *parent) :
 
 W_AnyCommand::~W_AnyCommand()
 {
+    emit windowClosed();
     delete ui;
 }
 
