@@ -31,9 +31,7 @@ SOURCES += src/main.cpp \
     src/MDIWinObjects/w_ricnu.cpp \
     src/MDIWinObjects/w_slavecomm.cpp \
     src/MDIWinObjects/w_strain.cpp \
-    src/Wrappers/WinControlControl.cpp \
     src/Wrappers/WinSlaveComm.cpp \
-    src/Wrappers/WinViewGossip.cpp \
     src/Wrappers/WinViewManage.cpp \
     src/Wrappers/WinViewRicnu.cpp \
     src/Wrappers/WinViewStrain.cpp \
@@ -74,9 +72,7 @@ HEADERS  += inc/main.h \
     inc/MDIWinObjects/w_ricnu.h \
     inc/MDIWinObjects/w_slavecomm.h \
     inc/MDIWinObjects/w_strain.h \
-    inc/Wrappers/WinControlControl.h \
     inc/Wrappers/WinSlaveComm.h \
-    inc/Wrappers/WinViewGossip.h \
     inc/Wrappers/WinViewManage.h \
     inc/Wrappers/WinViewRicnu.h \
     inc/Wrappers/WinViewStrain.h \

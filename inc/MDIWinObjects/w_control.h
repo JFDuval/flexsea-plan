@@ -58,6 +58,7 @@ public:
 public slots:
 
 signals:
+    void windowClosed(void);
     void writeCommand(char numb, unsigned char *tx_data);
 
 private slots:

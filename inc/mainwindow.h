@@ -38,13 +38,13 @@
 #include "w_config.h"
 #include "w_anycommand.h"
 #include "w_2dplot.h"
-#include "WinControlControl.h"
+#include "w_control.h"
 #include "WinViewRicnu.h"
 #include "WinViewManage.h"
 #include "w_calibration.h"
 #include "w_battery.h"
 #include "WinViewStrain.h"
-#include "WinViewGossip.h"
+#include "w_gossip.h"
 #include "w_converter.h"
 #include "flexsea_generic.h"
 #include "serialdriver.h"
@@ -115,7 +115,7 @@ private:
 
     //Control:
     int controlObjectCount;
-    WinControlControl *myControl[CONTROL_WINDOWS_MAX];
+    W_Control *myViewControl[CONTROL_WINDOWS_MAX];
 
     //2D Plot:
     int plot2DObjectCount;
@@ -131,7 +131,7 @@ private:
 
     //Gossip:
     int gossipObjectCount;
-    WinViewGossip *myGossip[GOSSIP_WINDOWS_MAX];
+    W_Gossip *myViewGossip[GOSSIP_WINDOWS_MAX];
 
     //Strain:
     int strainObjectCount;

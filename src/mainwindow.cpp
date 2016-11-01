@@ -35,7 +35,6 @@
 
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
-#include "WinControlControl.h"
 #include "WinSlaveComm.h"
 #include "WinViewRicnu.h"
 #include <QMessageBox>
@@ -312,9 +311,9 @@ void MainWindow::createControlControl(void)
     //Limited number of windows:
     if(controlObjectCount < (CONTROL_WINDOWS_MAX))
     {
-        myControl[controlObjectCount] = new WinControlControl(ui->mdiArea);
-        myControl[controlObjectCount]->setAttribute(Qt::WA_DeleteOnClose);
-        myControl[controlObjectCount]->show();
+        myViewControl[controlObjectCount] = new W_Control(this);
+        ui->mdiArea->addSubWindow(myViewControl[controlObjectCount]);
+        myViewControl[controlObjectCount]->show();
 
         msg = "Created 'Control' object index " + QString::number(controlObjectCount) \
                 + " (max index = " + QString::number(CONTROL_WINDOWS_MAX-1) + ").";
@@ -322,11 +321,11 @@ void MainWindow::createControlControl(void)
         ui->statusBar->showMessage(msg);
 
         //Link to MainWindow for the close signal:
-        connect(myControl[controlObjectCount], SIGNAL(windowClosed()), \
+        connect(myViewControl[controlObjectCount], SIGNAL(windowClosed()), \
                 this, SLOT(closeControlControl()));
 
         //Link to SlaveComm to send commands:
-        connect(myControl[controlObjectCount], SIGNAL(writeCommand(char,unsigned char*)), \
+        connect(myViewControl[controlObjectCount], SIGNAL(writeCommand(char,unsigned char*)), \
                 mySlaveComm[0], SLOT(receiveExternalSlaveWrite(char,unsigned char*)));
 
         controlObjectCount++;
@@ -651,9 +650,9 @@ void MainWindow::createViewGossip(void)
     //Limited number of windows:
     if(gossipObjectCount < (GOSSIP_WINDOWS_MAX))
     {
-        myGossip[gossipObjectCount] = new WinViewGossip(ui->mdiArea);
-        myGossip[gossipObjectCount]->setAttribute(Qt::WA_DeleteOnClose);
-        myGossip[gossipObjectCount]->show();
+        myViewGossip[gossipObjectCount] = new W_Gossip(this);
+        ui->mdiArea->addSubWindow(myViewGossip[gossipObjectCount]);
+        myViewGossip[gossipObjectCount]->show();
 
         msg = "Created 'Gossip View' object index " + \
                 QString::number(gossipObjectCount) + " (max index = " \
@@ -662,10 +661,10 @@ void MainWindow::createViewGossip(void)
 
         //Link SerialDriver and Gossip:
         connect(mySerialDriver, SIGNAL(newDataReady()), \
-                myGossip[gossipObjectCount], SLOT(refreshDisplayGossip()));
+                myViewGossip[gossipObjectCount], SLOT(refreshDisplayGossip()));
 
         //Link to MainWindow for the close signal:
-        connect(myGossip[gossipObjectCount], SIGNAL(windowClosed()), \
+        connect(myViewGossip[gossipObjectCount], SIGNAL(windowClosed()), \
                 this, SLOT(closeViewGossip()));
 
         gossipObjectCount++;

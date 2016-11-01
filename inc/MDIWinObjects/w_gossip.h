@@ -56,10 +56,12 @@ public:
     ~W_Gossip();
 	
 	//Function(s):
-    void refresh(void);
 
 public slots:
+    void refreshDisplayGossip(void);
 
+signals:
+    void windowClosed(void);
 
 private:
 	//Variables & Objects:

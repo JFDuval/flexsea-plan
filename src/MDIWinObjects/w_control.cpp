@@ -59,6 +59,7 @@ W_Control::W_Control(QWidget *parent) :
 
 W_Control::~W_Control()
 {
+    emit windowClosed();
     delete ui;
 }
 
