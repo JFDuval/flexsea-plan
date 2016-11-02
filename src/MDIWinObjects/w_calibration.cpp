@@ -77,12 +77,12 @@ W_Calibration::~W_Calibration()
 void W_Calibration::init(void)
 {
     //Populates Slave list:
-    myFlexSEA_Generic.populateSlaveComboBox(ui->comboBox_slave, SL_BASE_ALL, \
+    FlexSEA_Generic::populateSlaveComboBox(ui->comboBox_slave, SL_BASE_ALL, \
                                             SL_LEN_ALL);
 
     //Variables:
     active_slave_index = ui->comboBox_slave->currentIndex();
-    active_slave = myFlexSEA_Generic.getSlaveID(SL_BASE_ALL, active_slave_index);
+    active_slave = FlexSEA_Generic::getSlaveID(SL_BASE_ALL, active_slave_index);
 }
 
 //****************************************************************************

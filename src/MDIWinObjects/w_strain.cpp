@@ -74,7 +74,7 @@ W_Strain::~W_Strain()
 void W_Strain::refreshDisplayStrain(void)
 {
     struct strain_s *stPtr;
-    myFlexSEA_Generic.assignStrainPtr(&stPtr, SL_BASE_ALL, \
+    FlexSEA_Generic::assignStrainPtr(&stPtr, SL_BASE_ALL, \
                                        ui->comboBoxSlave->currentIndex());
     displayStrain(stPtr);
 }
@@ -86,7 +86,7 @@ void W_Strain::refreshDisplayStrain(void)
 void W_Strain::init(void)
 {
     //Populates Slave list:
-    myFlexSEA_Generic.populateSlaveComboBox(ui->comboBoxSlave, \
+    FlexSEA_Generic::populateSlaveComboBox(ui->comboBoxSlave, \
                                             SL_BASE_STRAIN, SL_LEN_STRAIN);
 }
 

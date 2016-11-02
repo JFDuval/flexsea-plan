@@ -74,7 +74,7 @@ W_Gossip::~W_Gossip()
 void W_Gossip::refreshDisplayGossip(void)
 {
     struct gossip_s *goPtr;
-    myFlexSEA_Generic.assignGossipPtr(&goPtr, SL_BASE_GOSSIP, \
+    FlexSEA_Generic::assignGossipPtr(&goPtr, SL_BASE_GOSSIP, \
                                       ui->comboBox_slave->currentIndex());
     displayGossip(goPtr);
 }
@@ -86,7 +86,7 @@ void W_Gossip::refreshDisplayGossip(void)
 void W_Gossip::init(void)
 {
     //Populates Slave list:
-    myFlexSEA_Generic.populateSlaveComboBox(ui->comboBox_slave, \
+    FlexSEA_Generic::populateSlaveComboBox(ui->comboBox_slave, \
                                             SL_BASE_GOSSIP, SL_LEN_GOSSIP);
 }
 

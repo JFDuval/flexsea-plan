@@ -73,7 +73,7 @@ W_Manage::~W_Manage()
 void W_Manage::refreshDisplayManage(void)
 {
     struct manage_s *mnPtr;
-    myFlexSEA_Generic.assignManagePtr(&mnPtr, SL_BASE_MN, \
+    FlexSEA_Generic::assignManagePtr(&mnPtr, SL_BASE_MN, \
                                       ui->comboBox_slave->currentIndex());
     displayManage(mnPtr);
 }
@@ -85,7 +85,7 @@ void W_Manage::refreshDisplayManage(void)
 void W_Manage::init(void)
 {
     //Populates Slave list:
-    myFlexSEA_Generic.populateSlaveComboBox(ui->comboBox_slave, SL_BASE_MN, \
+    FlexSEA_Generic::populateSlaveComboBox(ui->comboBox_slave, SL_BASE_MN, \
                                             SL_LEN_MN);
 }
 

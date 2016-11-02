@@ -112,7 +112,7 @@ void W_SlaveComm::externalSlaveWrite(char numb, unsigned char *tx_data)
 {
     //First test: send right away
     //***TODO Fix***
-    myFlexSEA_Generic.packetVisualizer(numb, tx_data);
+    FlexSEA_Generic::packetVisualizer(numb, tx_data);
     emit slaveReadWrite(numb, tx_data, WRITE);
 }
 
@@ -193,28 +193,28 @@ void W_SlaveComm::initSlaveCom(void)
 
     //Populates Slave list:
     //=====================
-    myFlexSEA_Generic.populateSlaveComboBox(ui->comboBoxSlave1, SL_BASE_ALL, SL_LEN_ALL);
-    myFlexSEA_Generic.populateSlaveComboBox(ui->comboBoxSlave2, SL_BASE_ALL, SL_LEN_ALL);
-    myFlexSEA_Generic.populateSlaveComboBox(ui->comboBoxSlave3, SL_BASE_ALL, SL_LEN_ALL);
-    myFlexSEA_Generic.populateSlaveComboBox(ui->comboBoxSlave4, SL_BASE_ALL, SL_LEN_ALL);
+    FlexSEA_Generic::populateSlaveComboBox(ui->comboBoxSlave1, SL_BASE_ALL, SL_LEN_ALL);
+    FlexSEA_Generic::populateSlaveComboBox(ui->comboBoxSlave2, SL_BASE_ALL, SL_LEN_ALL);
+    FlexSEA_Generic::populateSlaveComboBox(ui->comboBoxSlave3, SL_BASE_ALL, SL_LEN_ALL);
+    FlexSEA_Generic::populateSlaveComboBox(ui->comboBoxSlave4, SL_BASE_ALL, SL_LEN_ALL);
 
     //Variables:
     active_slave_index[0] = ui->comboBoxSlave1->currentIndex();
     active_slave_index[1] = ui->comboBoxSlave2->currentIndex();
     active_slave_index[2] = ui->comboBoxSlave3->currentIndex();
     active_slave_index[3] = ui->comboBoxSlave4->currentIndex();
-    active_slave[0] = myFlexSEA_Generic.getSlaveID(SL_BASE_ALL, active_slave_index[0]);
-    active_slave[1] = myFlexSEA_Generic.getSlaveID(SL_BASE_ALL, active_slave_index[1]);
-    active_slave[2] = myFlexSEA_Generic.getSlaveID(SL_BASE_ALL, active_slave_index[2]);
-    active_slave[3] = myFlexSEA_Generic.getSlaveID(SL_BASE_ALL, active_slave_index[3]);
+    active_slave[0] = FlexSEA_Generic::getSlaveID(SL_BASE_ALL, active_slave_index[0]);
+    active_slave[1] = FlexSEA_Generic::getSlaveID(SL_BASE_ALL, active_slave_index[1]);
+    active_slave[2] = FlexSEA_Generic::getSlaveID(SL_BASE_ALL, active_slave_index[2]);
+    active_slave[3] = FlexSEA_Generic::getSlaveID(SL_BASE_ALL, active_slave_index[3]);
 
     //Populates Experiment/Command list:
     //==================================
 
-    myFlexSEA_Generic.populateExpComboBox(ui->comboBoxExp1);
-    myFlexSEA_Generic.populateExpComboBox(ui->comboBoxExp2);
-    myFlexSEA_Generic.populateExpComboBox(ui->comboBoxExp3);
-    myFlexSEA_Generic.populateExpComboBox(ui->comboBoxExp4);
+    FlexSEA_Generic::populateExpComboBox(ui->comboBoxExp1);
+    FlexSEA_Generic::populateExpComboBox(ui->comboBoxExp2);
+    FlexSEA_Generic::populateExpComboBox(ui->comboBoxExp3);
+    FlexSEA_Generic::populateExpComboBox(ui->comboBoxExp4);
 
     //Refresh Rate:
     //==================================
@@ -483,7 +483,7 @@ void W_SlaveComm::configSlaveComm(int item)
         {
             //Refresh all fields:
             active_slave_index[0] = ui->comboBoxSlave1->currentIndex();
-            active_slave[0] = myFlexSEA_Generic.getSlaveID(SL_BASE_ALL, \
+            active_slave[0] = FlexSEA_Generic::getSlaveID(SL_BASE_ALL, \
                                                            active_slave_index[0]);
             selected_exp_index[0] = ui->comboBoxExp1->currentIndex();
             selected_refresh_index[0] = ui->comboBoxRefresh1->currentIndex();
@@ -544,7 +544,7 @@ void W_SlaveComm::sc_read_all(uint8_t item)
     emit slaveReadWrite(numb, comm_str_usb, READ);
 
     //2) Decode values
-    myFlexSEA_Generic.decodeSlave(SL_BASE_ALL, slaveIndex);
+    FlexSEA_Generic::decodeSlave(SL_BASE_ALL, slaveIndex);
     //(Uncertain about timings, probably delayed by 1 sample)
 
     //3) Log
@@ -571,7 +571,7 @@ void W_SlaveComm::sc_read_all_ricnu(uint8_t item)
     emit slaveReadWrite(numb, comm_str_usb, READ);
 
     //2) Decode values
-    myFlexSEA_Generic.decodeSlave(SL_BASE_ALL, slaveIndex);
+    FlexSEA_Generic::decodeSlave(SL_BASE_ALL, slaveIndex);
     //(Uncertain about timings, probably delayed by 1 sample)
 
     //3) Log

@@ -115,33 +115,32 @@ class FlexSEA_Generic : public QWidget
 public:
     explicit FlexSEA_Generic(QWidget *parent = 0);
 
-	void init(void);
-
     //Pointer assignements - raw structures:
-    void assignExecutePtr(struct execute_s **myPtr, uint8_t base, uint8_t slave);
-    void assignManagePtr(struct manage_s **myPtr, uint8_t base, uint8_t slave);
-    void assignRicnuPtr(struct ricnu_s **myPtr, uint8_t base, uint8_t slave);
-    void assignStrainPtr(struct strain_s **myPtr, uint8_t base, uint8_t slave);
-    void assignGossipPtr(struct gossip_s **myPtr, uint8_t base, uint8_t slave);
-    void assignBatteryPtr(struct battery_s **myPtr, uint8_t base, uint8_t slave);
+    static void assignExecutePtr(struct execute_s **myPtr, uint8_t base, uint8_t slave);
+    static void assignManagePtr(struct manage_s **myPtr, uint8_t base, uint8_t slave);
+    static void assignRicnuPtr(struct ricnu_s **myPtr, uint8_t base, uint8_t slave);
+    static void assignStrainPtr(struct strain_s **myPtr, uint8_t base, uint8_t slave);
+    static void assignGossipPtr(struct gossip_s **myPtr, uint8_t base, uint8_t slave);
+    static void assignBatteryPtr(struct battery_s **myPtr, uint8_t base, uint8_t slave);
 
-    void populateSlaveComboBox(QComboBox *cbox, uint8_t base, uint8_t len);
-    void populateExpComboBox(QComboBox *cbox);
-    uint8_t getSlaveBoardType(uint8_t base, uint8_t index);
-    void getSlaveName(uint8_t base, uint8_t index, QString *slaveName);
-    void getExpName(uint8_t index, QString *expName);
-    uint8_t getSlaveID(uint8_t base, uint8_t index);
-    void decodeStatus(uint8_t base, uint8_t index, uint8_t stat1, \
+    static void populateSlaveComboBox(QComboBox *cbox, uint8_t base, uint8_t len);
+    static void populateExpComboBox(QComboBox *cbox);
+    static uint8_t getSlaveBoardType(uint8_t base, uint8_t index);
+    static void getSlaveName(uint8_t base, uint8_t index, QString *slaveName);
+    static void getExpName(uint8_t index, QString *expName);
+    static uint8_t getSlaveID(uint8_t base, uint8_t index);
+    static void decodeStatus(uint8_t base, uint8_t index, uint8_t stat1, \
                         uint8_t stat2, QString *str1);
-    void packetVisualizer(uint numb, uint8_t *packet);
-    void decodeSlave(uint8_t base, uint8_t index);
-    void decodeExecute(uint8_t base, uint8_t index);
-    void decodeExecute(struct execute_s *exPtr);
-    void decodeRicnu(uint8_t base, uint8_t index);
-    void decodeManage(uint8_t base, uint8_t index);
-    void decodeGossip(uint8_t base, uint8_t index);
-    void decodeBattery(uint8_t base, uint8_t index);
-    void decodeStrain(uint8_t base, uint8_t index);
+    static void packetVisualizer(uint numb, uint8_t *packet);
+    static void decodeSlave(uint8_t base, uint8_t index);
+    static void decodeExecute(uint8_t base, uint8_t index);
+    static void decodeExecute(struct execute_s *exPtr);
+    static void decodeRicnu(uint8_t base, uint8_t index);
+    static void decodeManage(uint8_t base, uint8_t index);
+    static void decodeGossip(uint8_t base, uint8_t index);
+    static void decodeBattery(uint8_t base, uint8_t index);
+    static void decodeStrain(uint8_t base, uint8_t index);
+
 	
 public slots:
 
@@ -149,8 +148,8 @@ private slots:
 
 private:
     //Lookup from list to actual slave number (FlexSEA convention):
-    uint8_t list_to_slave[SL_LEN_ALL];
-    QStringList var_list_slave, var_list_exp;
+    static uint8_t list_to_slave[SL_LEN_ALL];
+    static QStringList var_list_slave, var_list_exp;
 };
 
 #endif // FLEXSEA_GENERIC_H

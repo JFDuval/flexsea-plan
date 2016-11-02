@@ -39,6 +39,47 @@
 #include <QDebug>
 
 //****************************************************************************
+// Static Variable initialization
+//****************************************************************************
+
+//Lookup from list to actual slave number (FlexSEA convention):
+uint8_t FlexSEA_Generic::list_to_slave[SL_LEN_ALL] = {FLEXSEA_EXECUTE_1,
+                                                      FLEXSEA_EXECUTE_2,
+                                                      FLEXSEA_EXECUTE_3,
+                                                      FLEXSEA_EXECUTE_4,
+                                                      FLEXSEA_MANAGE_1,
+                                                      FLEXSEA_MANAGE_2,
+                                                      FLEXSEA_PLAN_1,
+                                                      FLEXSEA_GOSSIP_1,
+                                                      FLEXSEA_GOSSIP_2,
+                                                      FLEXSEA_BATTERY_1,
+                                                      FLEXSEA_STRAIN_1,
+                                                      FLEXSEA_VIRTUAL_1};
+//Slaves:
+QStringList FlexSEA_Generic::var_list_slave =    QStringList()
+                                                 << "Execute 1"
+                                                 << "Execute 2"
+                                                 << "Execute 3"
+                                                 << "Execute 4"
+                                                 << "Manage 1"
+                                                 << "Manage 2"
+                                                 << "Plan 1"
+                                                 << "Gossip 1"
+                                                 << "Gossip 2"
+                                                 << "Battery 1"
+                                                 << "Strain 1"
+                                                 << "RIC/NU 1";
+
+//Experiments:
+QStringList FlexSEA_Generic::var_list_exp = QStringList()
+                                            << "Read All (Barebone)"
+                                            << "In Control"
+                                            << "RIC/NU Knee"
+                                            << "CSEA Knee"
+                                            << "2DOF Ankle"
+                                            << "[Your project]";
+
+//****************************************************************************
 // Constructor & Destructor:
 //****************************************************************************
 
@@ -51,47 +92,11 @@ FlexSEA_Generic::FlexSEA_Generic(QWidget *parent) : QWidget(parent)
 // Public function(s):
 //****************************************************************************
 
-void FlexSEA_Generic::init(void)
-{
-    //Slaves:
-    //=======
-
-    var_list_slave.clear();
-    var_list_slave << "Execute 1" << "Execute 2" << "Execute 3" << \
-                      "Execute 4" << "Manage 1" << "Manage 2" << "Plan 1" << \
-                      "Gossip 1" << "Gossip 2" <<"Battery 1" << "Strain 1" << \
-					  "RIC/NU 1";
-
-    //Lookup from list to actual slave number (FlexSEA convention):
-    list_to_slave[0] = FLEXSEA_EXECUTE_1;
-    list_to_slave[1] = FLEXSEA_EXECUTE_2;
-    list_to_slave[2] = FLEXSEA_EXECUTE_3;
-    list_to_slave[3] = FLEXSEA_EXECUTE_4;
-    list_to_slave[4] = FLEXSEA_MANAGE_1;
-    list_to_slave[5] = FLEXSEA_MANAGE_2;
-    list_to_slave[6] = FLEXSEA_PLAN_1;
-    list_to_slave[7] = FLEXSEA_GOSSIP_1;
-    list_to_slave[8] = FLEXSEA_GOSSIP_2;
-    list_to_slave[9] = FLEXSEA_BATTERY_1;
-    list_to_slave[10] = FLEXSEA_STRAIN_1;
-    list_to_slave[11] = FLEXSEA_VIRTUAL_1;	//RIC/NU
-
-    //Experiments:
-    //============
-
-    var_list_exp.clear();
-    var_list_exp << "Read All (Barebone)" << "In Control" \
-                    << "RIC/NU Knee" << "CSEA Knee" \
-                    << "2DOF Ankle" << "[Your project]";
-}
-
 //Populates a Slave List ComboBox
 void FlexSEA_Generic::populateSlaveComboBox(QComboBox *cbox, uint8_t base, \
                                             uint8_t len)
 {
     QString slave_name;
-
-    init();
 
     for(int index = base; index < (base+len); index++)
     {
@@ -104,8 +109,6 @@ void FlexSEA_Generic::populateSlaveComboBox(QComboBox *cbox, uint8_t base, \
 void FlexSEA_Generic::populateExpComboBox(QComboBox *cbox)
 {
     QString exp_name;
-
-    init();
 
     for(int index = 0; index < var_list_exp.length(); index++)
     {

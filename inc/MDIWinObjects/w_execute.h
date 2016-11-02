@@ -68,7 +68,6 @@ public slots:
 private:
 	//Variables & Objects:
     Ui::W_Execute *ui;
-	FlexSEA_Generic myFlexSEA_Generic;
     QList<struct execute_s> *myExecute_s;
     int active_slave, active_slave_index;
     DisplayMode displayMode;

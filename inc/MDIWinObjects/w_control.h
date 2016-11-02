@@ -76,7 +76,6 @@ private slots:
 private:
 	//Variables & Objects:
     Ui::W_Control *ui;
-	FlexSEA_Generic myFlexSEA_Generic;
     int active_slave, active_slave_index;
     int wanted_controller = 0, selected_controller = 0, active_controller = 0;
     int trap_pos = 0, trap_posi = 0, trap_posf = 0, trap_spd = 0, trap_acc = 0;

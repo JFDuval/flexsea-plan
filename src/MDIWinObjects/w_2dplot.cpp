@@ -288,17 +288,17 @@ void W_2DPlot::initUserInput(void)
     ui->label_t6->setStyleSheet("QLabel { background-color: black; color: white;}");
 
     //Slave combo box:
-    myFlexSEA_Generic.populateSlaveComboBox(ui->cBoxvar1slave, SL_BASE_ALL, \
+    FlexSEA_Generic::populateSlaveComboBox(ui->cBoxvar1slave, SL_BASE_ALL, \
                                             SL_LEN_ALL);
-    myFlexSEA_Generic.populateSlaveComboBox(ui->cBoxvar2slave, SL_BASE_ALL, \
+    FlexSEA_Generic::populateSlaveComboBox(ui->cBoxvar2slave, SL_BASE_ALL, \
                                           SL_LEN_ALL);
-    myFlexSEA_Generic.populateSlaveComboBox(ui->cBoxvar3slave, SL_BASE_ALL, \
+    FlexSEA_Generic::populateSlaveComboBox(ui->cBoxvar3slave, SL_BASE_ALL, \
                                           SL_LEN_ALL);
-    myFlexSEA_Generic.populateSlaveComboBox(ui->cBoxvar4slave, SL_BASE_ALL, \
+    FlexSEA_Generic::populateSlaveComboBox(ui->cBoxvar4slave, SL_BASE_ALL, \
                                           SL_LEN_ALL);
-    myFlexSEA_Generic.populateSlaveComboBox(ui->cBoxvar5slave, SL_BASE_ALL, \
+    FlexSEA_Generic::populateSlaveComboBox(ui->cBoxvar5slave, SL_BASE_ALL, \
                                           SL_LEN_ALL);
-    myFlexSEA_Generic.populateSlaveComboBox(ui->cBoxvar6slave, SL_BASE_ALL, \
+    FlexSEA_Generic::populateSlaveComboBox(ui->cBoxvar6slave, SL_BASE_ALL, \
                                           SL_LEN_ALL);
 
     //Variable comboBoxes:
@@ -438,38 +438,38 @@ void W_2DPlot::assignVariable(uint8_t var)
             break;
         case FLEXSEA_MANAGE_BASE:
             struct manage_s *mnPtr;
-            myFlexSEA_Generic.assignManagePtr(&mnPtr, SL_BASE_ALL, \
+            FlexSEA_Generic::assignManagePtr(&mnPtr, SL_BASE_ALL, \
                                                slaveIndex[var]);
             assignVariableMn(var, mnPtr);
             break;
         case FLEXSEA_EXECUTE_BASE:
             struct execute_s *exPtr;
-            myFlexSEA_Generic.assignExecutePtr(&exPtr, SL_BASE_ALL, \
+            FlexSEA_Generic::assignExecutePtr(&exPtr, SL_BASE_ALL, \
                                                slaveIndex[var]);
             assignVariableEx(var, exPtr);
             break;
         case FLEXSEA_BATTERY_BASE:
             struct battery_s *baPtr;
-            myFlexSEA_Generic.assignBatteryPtr(&baPtr, SL_BASE_ALL, \
+            FlexSEA_Generic::assignBatteryPtr(&baPtr, SL_BASE_ALL, \
                                                slaveIndex[var]);
             assignVariableBa(var, baPtr);
             break;
         case FLEXSEA_STRAIN_BASE:
             struct strain_s *stPtr;
-            myFlexSEA_Generic.assignStrainPtr(&stPtr, SL_BASE_ALL, \
+            FlexSEA_Generic::assignStrainPtr(&stPtr, SL_BASE_ALL, \
                                                slaveIndex[var]);
             assignVariableSt(var, stPtr);
             break;
         case FLEXSEA_GOSSIP_BASE:
             struct gossip_s *goPtr;
-            myFlexSEA_Generic.assignGossipPtr(&goPtr, SL_BASE_ALL, \
+            FlexSEA_Generic::assignGossipPtr(&goPtr, SL_BASE_ALL, \
                                                slaveIndex[var]);
             assignVariableGo(var, goPtr);
             break;
         case FLEXSEA_VIRTUAL_BASE:
             //TODO Generalize for other projects than RIC/NU
             struct ricnu_s *myPtr;
-            myFlexSEA_Generic.assignRicnuPtr(&myPtr, SL_BASE_ALL, \
+            FlexSEA_Generic::assignRicnuPtr(&myPtr, SL_BASE_ALL, \
                                                slaveIndex[var]);
             assignVariableRicnu(var, myPtr);
             break;
@@ -1082,8 +1082,8 @@ void W_2DPlot::saveCurrentSettings(void)
 
     for(int i = 0; i < VAR_NUM; i++)
     {
-        slaveAddr[i] = myFlexSEA_Generic.getSlaveID(SL_BASE_ALL, slaveIndex[i]);
-        slaveBType[i] = myFlexSEA_Generic.getSlaveBoardType(SL_BASE_ALL, \
+        slaveAddr[i] = FlexSEA_Generic::getSlaveID(SL_BASE_ALL, slaveIndex[i]);
+        slaveBType[i] = FlexSEA_Generic::getSlaveBoardType(SL_BASE_ALL, \
                                                            slaveIndex[i]);
     }
 

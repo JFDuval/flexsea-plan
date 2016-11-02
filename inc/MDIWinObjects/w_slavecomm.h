@@ -118,7 +118,6 @@ private:
 	bool allComboBoxesPopulated;
     //Store active connections:
     QMetaObject::Connection sc_connections[MAX_SC_ITEMS];
-	FlexSEA_Generic myFlexSEA_Generic;
     int active_slave[MAX_SC_ITEMS], active_slave_index[MAX_SC_ITEMS];
     int selected_exp_index[MAX_SC_ITEMS];
     int selected_refresh_index[MAX_SC_ITEMS], previous_refresh_index[MAX_SC_ITEMS];

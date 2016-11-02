@@ -76,7 +76,7 @@ W_Execute::~W_Execute()
 void W_Execute::refresh(void)
 {
     struct execute_s *exPtr;
-    myFlexSEA_Generic.assignExecutePtr(&exPtr, SL_BASE_ALL, \
+    FlexSEA_Generic::assignExecutePtr(&exPtr, SL_BASE_ALL, \
                                        ui->comboBox_slave->currentIndex());
     displayExecute(exPtr);
 }
@@ -109,7 +109,7 @@ void W_Execute::initLive(void)
 {
     //Populates Slave list:
     ui->comboBox_slave->clear();
-    myFlexSEA_Generic.populateSlaveComboBox(ui->comboBox_slave, \
+    FlexSEA_Generic::populateSlaveComboBox(ui->comboBox_slave, \
                                             SL_BASE_EX, SL_LEN_EX);
 }
 
@@ -172,7 +172,7 @@ void W_Execute::displayExecute(struct execute_s *ex)
     ui->disp_strain_d->setText(QString::number(ex->decoded.strain,'i', 0));
 
     QString myStr;
-    myFlexSEA_Generic.decodeStatus(SL_BASE_EX, ui->comboBox_slave->currentIndex(), \
+    FlexSEA_Generic::decodeStatus(SL_BASE_EX, ui->comboBox_slave->currentIndex(), \
                                       ex->status1, ex->status2, &myStr);
     ui->label_status1->setText(myStr);
 

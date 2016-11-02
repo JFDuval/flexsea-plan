@@ -77,7 +77,6 @@ private:
     QTextStream logFileStream;
 	QDateTime *myTime;
 
-    FlexSEA_Generic myFlexSEA_Generic;
     bool fileOpened[4];
 
     QList<struct execute_s> myExecute_s;

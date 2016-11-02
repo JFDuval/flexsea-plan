@@ -132,7 +132,6 @@ private:
     Ui::W_2DPlot *ui;
 	QChart *chart;
 	QChartView *chartView;
-	FlexSEA_Generic myFlexSEA_Generic;
     QLineSeries *qlsData[VAR_NUM];
     QLineSeries *mySeriesTest;
 	int graph_xarray[PLOT_BUF_LEN];

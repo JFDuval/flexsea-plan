@@ -73,9 +73,9 @@ W_AnyCommand::~W_AnyCommand()
 void W_AnyCommand::init(void)
 {
     //Slave lists:
-    myFlexSEA_Generic.populateSlaveComboBox(ui->comboBoxSlaveR, SL_BASE_ALL, \
+    FlexSEA_Generic::populateSlaveComboBox(ui->comboBoxSlaveR, SL_BASE_ALL, \
                                             SL_LEN_ALL);
-    myFlexSEA_Generic.populateSlaveComboBox(ui->comboBoxSlaveX, SL_BASE_ALL, \
+    FlexSEA_Generic::populateSlaveComboBox(ui->comboBoxSlaveX, SL_BASE_ALL, \
                                           SL_LEN_ALL);
     ui->comboBoxSlaveX->setCurrentIndex((ui->comboBoxSlaveX->count()) - 1);
 

@@ -174,7 +174,7 @@ void DataLogger::openReadingFile(void)
                 myExecute_s.last().temp      = splitLine[17].toInt();
                 myExecute_s.last().status1   = splitLine[18].toInt();
                 myExecute_s.last().status2   = splitLine[19].toInt();
-                myFlexSEA_Generic.decodeExecute(&myExecute_s.last());
+                FlexSEA_Generic::decodeExecute(&myExecute_s.last());
             }
         }
 
@@ -248,7 +248,7 @@ void DataLogger::getFctPtrs(uint8_t slaveIndex, uint8_t expIndex, \
                                                char term, qint64 t_ms, QString t_text))
 {
     //Board type? Extract base via address&integer trick
-    uint8_t bType = myFlexSEA_Generic.getSlaveBoardType(SL_BASE_ALL, slaveIndex);
+    uint8_t bType = FlexSEA_Generic::getSlaveBoardType(SL_BASE_ALL, slaveIndex);
 
     //And now, experiment per experiment:
     switch(expIndex)
@@ -320,7 +320,7 @@ void DataLogger::logReadAllExec(QTextStream *filePtr, uint8_t slaveIndex, \
                                 char term, qint64 t_ms, QString t_text)
 {
     struct execute_s *exPtr;
-    myFlexSEA_Generic.assignExecutePtr(&exPtr, SL_BASE_ALL, slaveIndex);
+    FlexSEA_Generic::assignExecutePtr(&exPtr, SL_BASE_ALL, slaveIndex);
 
     (*filePtr) << t_text << ',' << \
                         t_ms << ',' << \
@@ -349,7 +349,7 @@ void DataLogger::logReadAllStrain(QTextStream *filePtr, uint8_t slaveIndex, \
                                 char term, qint64 t_ms, QString t_text)
 {
     struct strain_s *stPtr;
-    myFlexSEA_Generic.assignStrainPtr(&stPtr, SL_BASE_ALL, slaveIndex);
+    FlexSEA_Generic::assignStrainPtr(&stPtr, SL_BASE_ALL, slaveIndex);
 
     (*filePtr) << t_text << ',' << \
                         t_ms << ',' << \
@@ -366,7 +366,7 @@ void DataLogger::logReadAllGossip(QTextStream *filePtr, uint8_t slaveIndex, \
                                 char term, qint64 t_ms, QString t_text)
 {
     struct gossip_s *goPtr;
-    myFlexSEA_Generic.assignGossipPtr(&goPtr, SL_BASE_ALL, slaveIndex);
+    FlexSEA_Generic::assignGossipPtr(&goPtr, SL_BASE_ALL, slaveIndex);
 
     (*filePtr) << t_text << ',' << \
                         t_ms << ',' << \
@@ -393,7 +393,7 @@ void DataLogger::logReadAllRicnu(QTextStream *filePtr, uint8_t slaveIndex, \
                                  char term, qint64 t_ms, QString t_text)
 {
     struct ricnu_s *myPtr;
-    myFlexSEA_Generic.assignRicnuPtr(&myPtr, SL_BASE_ALL, slaveIndex);
+    FlexSEA_Generic::assignRicnuPtr(&myPtr, SL_BASE_ALL, slaveIndex);
 
     logFileStream << t_text << ',' << \
                         t_ms << ',' << \
@@ -419,7 +419,7 @@ void DataLogger::logReadAllManage(QTextStream *filePtr, uint8_t slaveIndex, \
                                 char term, qint64 t_ms, QString t_text)
 {
     struct manage_s *mnPtr;
-    myFlexSEA_Generic.assignManagePtr(&mnPtr, SL_BASE_MN, slaveIndex);
+    FlexSEA_Generic::assignManagePtr(&mnPtr, SL_BASE_MN, slaveIndex);
 
     (*filePtr) << t_text << ',' << \
                         t_ms << ',' << \
@@ -450,7 +450,6 @@ void DataLogger::logReadAllManage(QTextStream *filePtr, uint8_t slaveIndex, \
 void DataLogger::init(void)
 {
     myTime = new QDateTime;
-    myFlexSEA_Generic.init();
 }
 
 void DataLogger::logDirectory(void)
@@ -479,8 +478,8 @@ void DataLogger::logTimestamp(qint64 *t_ms, QString *t_text)
 void DataLogger::writeIdentifier(uint8_t item, uint8_t slaveIndex, uint8_t expIndex)
 {
     QString msg, slaveName, expName;
-    myFlexSEA_Generic.getSlaveName(SL_BASE_ALL, slaveIndex, &slaveName);
-    myFlexSEA_Generic.getExpName(expIndex, &expName);
+    FlexSEA_Generic::getSlaveName(SL_BASE_ALL, slaveIndex, &slaveName);
+    FlexSEA_Generic::getExpName(expIndex, &expName);
 
     //Top of the file description:
     msg = "[Datalogging: Item = " + QString::number(item) + " | Slave index = " + \

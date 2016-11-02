@@ -137,9 +137,6 @@ private:
     int strainObjectCount;
     W_Strain *myViewStrain[STRAIN_WINDOWS_MAX];
 
-    //FlexSEA Generic:
-    FlexSEA_Generic myFlexSEA_Generic;
-
     //Serial Port Driver:
     SerialDriver *mySerialDriver;
 
