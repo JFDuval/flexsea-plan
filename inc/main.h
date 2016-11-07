@@ -58,13 +58,9 @@ extern "C" {
 // Shared variable(s)
 //****************************************************************************
 
-//extern char *fake_argv[];
-//extern const char *delims;
-
 //****************************************************************************
 // Public Function Prototype(s):
 //****************************************************************************
-
 
 
 //****************************************************************************
@@ -90,14 +86,14 @@ extern "C" {
 //Timers:
 //======
 
-#define TIM_FREQ_TO_P(f)        (1000/f)    //f in Hz, return in ms
+#define TIM_FREQ_TO_P(f)		(1000/f)	//f in Hz, return in ms
 
 //Stream:
 //======
 
-#define STREAM_MIN_FREQ         1
-#define STREAM_MAX_FREQ         1000
-#define STREAM_DEFAULT_FREQ     35
+#define STREAM_MIN_FREQ			1
+#define STREAM_MAX_FREQ			1000
+#define STREAM_DEFAULT_FREQ		35
 
 #ifdef __cplusplus
 }

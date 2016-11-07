@@ -17,9 +17,9 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *****************************************************************************
 	[Lead developper] Jean-Francois (JF) Duval, jfduval at dephy dot com.
-	[Origin] Based on Jean-Francois Duval's work at the MIT Media Lab 
+	[Origin] Based on Jean-Francois Duval's work at the MIT Media Lab
 	Biomechatronics research group <http://biomech.media.mit.edu/>
-	[Contributors] 
+	[Contributors]
 *****************************************************************************
 	[This file] w_converter.h: Converter Window
 *****************************************************************************
@@ -47,36 +47,36 @@ class W_Converter;
 
 class W_Converter : public QWidget
 {
-    Q_OBJECT
+	Q_OBJECT
 
 public:
 	//Constructor & Destructor:
-    explicit W_Converter(QWidget *parent = 0);
-    ~W_Converter();
+	explicit W_Converter(QWidget *parent = 0);
+	~W_Converter();
 
 private slots:
-    void on_lineEdituint32_returnPressed();
-    void on_lineEdituint16_returnPressed();
-    void on_lineEdituint32_textChanged(const QString &arg1);
-    void on_lineEdituint16_textChanged(const QString &arg1);
+	void on_lineEdituint32_returnPressed();
+	void on_lineEdituint16_returnPressed();
+	void on_lineEdituint32_textChanged(const QString &arg1);
+	void on_lineEdituint16_textChanged(const QString &arg1);
 
 private:
 	//Variables & Objects:
-    Ui::W_Converter *ui;
-	
+	Ui::W_Converter *ui;
+
 	//Function(s):
-    void init(void);
-    void zero16bitsBytes(void);
-    void zero32bitsBytes(void);
+	void init(void);
+	void zero16bitsBytes(void);
+	void zero32bitsBytes(void);
 };
 
 //****************************************************************************
 // Definition(s)
 //****************************************************************************
 
-#define MAX_16BITS  	65536
-#define MIN_16BITS  	-32768
-#define MAX_32BITS  	4294967295
-#define MIN_32BITS  	-2147483648
+#define MAX_16BITS		65536
+#define MIN_16BITS		-32768
+#define MAX_32BITS		4294967295
+#define MIN_32BITS		-2147483648
 
 #endif // W_CONVERTER_H

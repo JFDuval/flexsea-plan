@@ -17,15 +17,15 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *****************************************************************************
 	[Lead developper] Jean-Francois (JF) Duval, jfduval at dephy dot com.
-	[Origin] Based on Jean-Francois Duval's work at the MIT Media Lab 
+	[Origin] Based on Jean-Francois Duval's work at the MIT Media Lab
 	Biomechatronics research group <http://biomech.media.mit.edu/>
-	[Contributors] 
+	[Contributors]
 *****************************************************************************
 	[This file] WinViewRicnu: RIC/NU Kneww View Window
 *****************************************************************************
 	[Change log] (Convention: YYYY-MM-DD | author | comment)
 	* 2016-09-12 | jfduval | New file
-    * 2016-09-12 | jfduval | Enabling stream
+	* 2016-09-12 | jfduval | Enabling stream
 ****************************************************************************/
 
 #ifndef W_RICNU_H
@@ -48,30 +48,31 @@ class W_Ricnu;
 
 class W_Ricnu : public QWidget
 {
-    Q_OBJECT
+	Q_OBJECT
 
 public:
 	//Constructor & Destructor:
-    explicit W_Ricnu(QWidget *parent = 0);
-    ~W_Ricnu();
-	
+	explicit W_Ricnu(QWidget *parent = 0);
+	~W_Ricnu();
+
 	//Function(s):
-    void refresh(void);
+	void refresh(void);
 
 public slots:
 
 
 private:
 	//Variables & Objects:
-    Ui::W_Ricnu *ui;
+	Ui::W_Ricnu *ui;
 	FlexSEA_Generic myFlexSEA_Generic;
-    int active_slave, active_slave_index;
-	
+	int active_slave, active_slave_index;
+
 	//Function(s):
 	void init(void);
-    void displayRicnu(struct ricnu_s *ricnu);
-    void unpackCompressed6ch(uint8_t *buf, uint16_t *v0, uint16_t *v1, uint16_t *v2, \
-                                uint16_t *v3, uint16_t *v4, uint16_t *v5);
+	void displayRicnu(struct ricnu_s *ricnu);
+	void unpackCompressed6ch(uint8_t *buf, uint16_t *v0, uint16_t *v1, \
+							 uint16_t *v2, uint16_t *v3, uint16_t *v4, \
+							 uint16_t *v5);
 };
 
 //****************************************************************************

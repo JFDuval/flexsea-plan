@@ -17,9 +17,9 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *****************************************************************************
 	[Lead developper] Jean-Francois (JF) Duval, jfduval at dephy dot com.
-	[Origin] Based on Jean-Francois Duval's work at the MIT Media Lab 
+	[Origin] Based on Jean-Francois Duval's work at the MIT Media Lab
 	Biomechatronics research group <http://biomech.media.mit.edu/>
-	[Contributors] 
+	[Contributors]
 *****************************************************************************
 	[This file] w_manage.h: Manage View Window
 *****************************************************************************
@@ -48,28 +48,28 @@ class W_Manage;
 
 class W_Manage : public QWidget
 {
-    Q_OBJECT
+	Q_OBJECT
 
 public:
 	//Constructor & Destructor:
-    explicit W_Manage(QWidget *parent = 0);
-    ~W_Manage();
-	
+	explicit W_Manage(QWidget *parent = 0);
+	~W_Manage();
+
 	//Function(s):
-    void refresh(void);
+	void refresh(void);
 
 public slots:
 
 
 private:
 	//Variables & Objects:
-    Ui::W_Manage *ui;
+	Ui::W_Manage *ui;
 	FlexSEA_Generic myFlexSEA_Generic;
-    int active_slave, active_slave_index;
-	
+	int active_slave, active_slave_index;
+
 	//Function(s):
 	void init(void);
-    void displayManage(struct manage_s *mn);
+	void displayManage(struct manage_s *mn);
 };
 
 //****************************************************************************
