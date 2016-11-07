@@ -32,7 +32,6 @@ SOURCES += src/main.cpp \
 	flexsea-comm/test/test-flexsea_buffers.c \
 	flexsea-comm/test/test-flexsea_comm.c \
 	flexsea-comm/test/test-flexsea_payload.c \
-	flexsea-system/src/flexsea_cmd_control.c \
 	flexsea-system/src/flexsea_cmd_external.c \
 	flexsea-system/src/flexsea_cmd_sensors.c \
 	flexsea-system/src/flexsea_system.c \
@@ -79,7 +78,9 @@ SOURCES += src/main.cpp \
 	src/peripherals.c \
 	flexsea-user/src/flexsea_cmd_user.c \
 	flexsea-user/MIT_2DoF_Ankle_v1/src/cmd-MIT_2DoF_Ankle_v1.c \
-	flexsea-user/RICNU_Knee_v1/src/cmd-RICNU_Knee_v1.c
+	flexsea-user/RICNU_Knee_v1/src/cmd-RICNU_Knee_v1.c \
+    flexsea-system/src/flexsea_cmd_control_1.c \
+    flexsea-system/src/flexsea_cmd_control_2.c
 
 HEADERS  += inc/main.h \
 	inc/mainwindow.h \
