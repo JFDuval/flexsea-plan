@@ -200,7 +200,6 @@ void DataLogger::writeToFile(uint8_t item, uint8_t slaveIndex, uint8_t expIndex)
 {
 	qint64 t_ms = 0;
 	static qint64 t_ms_initial[4] = {0,0,0,0};
-	static bool isFirstTime[4] = {true,true,true,true};
 
 	void (DataLogger::*headerFctPtr) (uint8_t item);
 	void (DataLogger::*logFctPtr) (QTextStream *filePtr, uint8_t slaveIndex, \
@@ -209,21 +208,6 @@ void DataLogger::writeToFile(uint8_t item, uint8_t slaveIndex, uint8_t expIndex)
 	QString t_text = "";
 
 	getFctPtrs(slaveIndex, expIndex, &headerFctPtr, &logFctPtr);
-	//headerFctPtr = &
-	//logFctPtr = &DataLogger::logReadAllExec;
-
-	//Writting for the first time?
-	if(isFirstTime[item] == true)
-	{
-		//Init timestamp ms:
-		isFirstTime[item] = false;
-		logTimestamp(&t_ms, &t_text);
-		t_ms_initial[item] = t_ms;
-
-		//Header:
-		writeIdentifier(item, slaveIndex, expIndex);
-		(this->*headerFctPtr)(item);
-	}
 
 	//Timestamps:
 	logTimestamp(&t_ms, &t_text);
@@ -231,6 +215,19 @@ void DataLogger::writeToFile(uint8_t item, uint8_t slaveIndex, uint8_t expIndex)
 
 	if(logRecordingFile[item].isOpen())
 	{
+		//Writting for the first time?
+		if(isFirstTime[item] == true)
+		{
+			//Init timestamp ms:
+			isFirstTime[item] = false;
+			logTimestamp(&t_ms, &t_text);
+			t_ms_initial[item] = t_ms;
+
+			//Header:
+			writeIdentifier(item, slaveIndex, expIndex);
+			(this->*headerFctPtr)(item);
+		}
+
 		//And we add to the text file:
 		(this->*logFctPtr)(&logFileStream, slaveIndex, '\n', t_ms, t_text);
 	}
@@ -304,6 +301,7 @@ void DataLogger::closeRecordingFile(uint8_t item)
 	{
 		logFileStream << endl;
 		logRecordingFile[item].close();
+		isFirstTime[item] = true;
 	}
 }
 

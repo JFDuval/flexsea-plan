@@ -73,6 +73,7 @@ private:
 	//Variables & Objects:
 	QFile logRecordingFile[4];
 	QFile logReadingFile;
+	bool isFirstTime[4] = {true,true,true,true};
 
 	QTextStream logFileStream;
 	QDateTime *myTime;
