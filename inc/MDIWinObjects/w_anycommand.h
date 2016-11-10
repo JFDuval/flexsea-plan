@@ -17,9 +17,9 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *****************************************************************************
 	[Lead developper] Jean-Francois (JF) Duval, jfduval at dephy dot com.
-	[Origin] Based on Jean-Francois Duval's work at the MIT Media Lab 
+	[Origin] Based on Jean-Francois Duval's work at the MIT Media Lab
 	Biomechatronics research group <http://biomech.media.mit.edu/>
-	[Contributors] 
+	[Contributors]
 *****************************************************************************
 	[This file] w_anycommand.h: Any Command Window
 *****************************************************************************
@@ -50,25 +50,25 @@ class W_AnyCommand;
 
 class W_AnyCommand : public QWidget
 {
-    Q_OBJECT
+	Q_OBJECT
 
 public:
 	//Constructor & Destructor:
-    explicit W_AnyCommand(QWidget *parent = 0);
-    ~W_AnyCommand();
+	explicit W_AnyCommand(QWidget *parent = 0);
+	~W_AnyCommand();
 
 private slots:
-    void on_comboBoxCmd_currentIndexChanged(int index);
+	void on_comboBoxCmd_currentIndexChanged(int index);
 
 signals:
-    void windowClosed(void);
+	void windowClosed(void);
 
 private:
 	//Variables & Objects:
-    Ui::W_AnyCommand *ui;
-    QStringList var_list_commands;
-    QList<uint8_t> var_list_codes;
-	
+	Ui::W_AnyCommand *ui;
+	QStringList var_list_commands;
+	QList<uint8_t> var_list_codes;
+
 	//Function(s):
 	void init(void);
 };

@@ -17,16 +17,16 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *****************************************************************************
 	[Lead developper] Jean-Francois (JF) Duval, jfduval at dephy dot com.
-	[Origin] Based on Jean-Francois Duval's work at the MIT Media Lab 
+	[Origin] Based on Jean-Francois Duval's work at the MIT Media Lab
 	Biomechatronics research group <http://biomech.media.mit.edu/>
-	[Contributors] 
+	[Contributors]
 *****************************************************************************
 	[This file] mainwindow.h: Main GUI Window - connects all the modules
 	together
 *****************************************************************************
 	[Change log] (Convention: YYYY-MM-DD | author | comment)
 	* 2016-09-09 | jfduval | Initial GPL-3.0 release
-    * 2016-09-12 | jfduval | create() RIC/NU view
+	* 2016-09-12 | jfduval | create() RIC/NU view
 ****************************************************************************/
 
 #ifndef MAINWINDOW_H
@@ -73,121 +73,121 @@ class MainWindow;
 
 class MainWindow : public QMainWindow
 {
-    Q_OBJECT
+	Q_OBJECT
 
 public:
-    explicit MainWindow(QWidget *parent = 0);
-    ~MainWindow();
+	explicit MainWindow(QWidget *parent = 0);
+	~MainWindow();
 
 private:
-    Ui::MainWindow *ui;
+	Ui::MainWindow *ui;
 
-    //Objects & Windows:
-    //==================
+	//Objects & Windows:
+	//==================
 
-    //Execute View:
-    int exViewObjectCount;
-    W_Execute *myViewExecute[EX_VIEW_WINDOWS_MAX];
+	//Execute View:
+	int exViewObjectCount;
+	W_Execute *myViewExecute[EX_VIEW_WINDOWS_MAX];
 
-    //Manage View:
-    int mnViewObjectCount;
-    W_Manage *myViewManage[MN_VIEW_WINDOWS_MAX];
+	//Manage View:
+	int mnViewObjectCount;
+	W_Manage *myViewManage[MN_VIEW_WINDOWS_MAX];
 
-    //Config objects:
-    int configObjectCount;
-    W_Config *myViewConfig[CONFIG_WINDOWS_MAX];
+	//Config objects:
+	int configObjectCount;
+	W_Config *myViewConfig[CONFIG_WINDOWS_MAX];
 
-    //Slave Comm:
-    int slaveCommObjectCount;
-    W_SlaveComm *myViewSlaveComm[SLAVECOMM_WINDOWS_MAX];
+	//Slave Comm:
+	int slaveCommObjectCount;
+	W_SlaveComm *myViewSlaveComm[SLAVECOMM_WINDOWS_MAX];
 
-    //AnyCommand:
-    int anyCommandObjectCount;
-    W_AnyCommand *myViewAnyCommand[ANYCOMMAND_WINDOWS_MAX];
+	//AnyCommand:
+	int anyCommandObjectCount;
+	W_AnyCommand *myViewAnyCommand[ANYCOMMAND_WINDOWS_MAX];
 
-    //Converter:
-    int converterObjectCount;
-    W_Converter *my_w_converter[CONVERTER_WINDOWS_MAX];
+	//Converter:
+	int converterObjectCount;
+	W_Converter *my_w_converter[CONVERTER_WINDOWS_MAX];
 
-    //Calibration:
-    int calibObjectCount;
-    W_Calibration *myViewCalibration[CALIB_WINDOWS_MAX];
+	//Calibration:
+	int calibObjectCount;
+	W_Calibration *myViewCalibration[CALIB_WINDOWS_MAX];
 
-    //Control:
-    int controlObjectCount;
-    W_Control *myViewControl[CONTROL_WINDOWS_MAX];
+	//Control:
+	int controlObjectCount;
+	W_Control *myViewControl[CONTROL_WINDOWS_MAX];
 
-    //2D Plot:
-    int plot2DObjectCount;
-    W_2DPlot *myView2DPlot[PLOT2D_WINDOWS_MAX];
+	//2D Plot:
+	int plot2DObjectCount;
+	W_2DPlot *myView2DPlot[PLOT2D_WINDOWS_MAX];
 
-    //RIC/NU View:
-    int ricnuViewObjectCount;
-    W_Ricnu *myViewRicnu[RICNU_VIEW_WINDOWS_MAX];
+	//RIC/NU View:
+	int ricnuViewObjectCount;
+	W_Ricnu *myViewRicnu[RICNU_VIEW_WINDOWS_MAX];
 
-    //Battery:
-    int battObjectCount;
-    W_Battery *myViewBatt[BATT_WINDOWS_MAX];
+	//Battery:
+	int battObjectCount;
+	W_Battery *myViewBatt[BATT_WINDOWS_MAX];
 
-    //Gossip:
-    int gossipObjectCount;
-    W_Gossip *myViewGossip[GOSSIP_WINDOWS_MAX];
+	//Gossip:
+	int gossipObjectCount;
+	W_Gossip *myViewGossip[GOSSIP_WINDOWS_MAX];
 
-    //Strain:
-    int strainObjectCount;
-    W_Strain *myViewStrain[STRAIN_WINDOWS_MAX];
+	//Strain:
+	int strainObjectCount;
+	W_Strain *myViewStrain[STRAIN_WINDOWS_MAX];
 
-    //Serial Port Driver:
-    SerialDriver *mySerialDriver;
+	//Serial Port Driver:
+	SerialDriver *mySerialDriver;
 
-    //DataLogger:
-    DataLogger *myDataLogger;
+	//DataLogger:
+	DataLogger *myDataLogger;
 
 signals:
-    //Allow window to be independly opened in any order by providing a backbone connector
-    void connectorRefreshDataSlider(int index);
-    void connectorUpdateDisplayMode(DisplayMode mode);
-    void connectorWriteCommand(char ch,unsigned char* chPtr);
+	//Allow window to be independly opened in any order by providing a backbone connector
+	void connectorRefreshDataSlider(int index);
+	void connectorUpdateDisplayMode(DisplayMode mode);
+	void connectorWriteCommand(char ch,unsigned char* chPtr);
 
 public slots:
 
-    void translatorUpdateDataSourceStatus(DataSource status);
+	void translatorUpdateDataSourceStatus(DataSource status);
 
-    //MDI Windows (create):
-    void createViewExecute(void);
-    void createViewManage(void);
-    void createView2DPlot(void);
-    void createControlControl(void);
-    void createConfig(void);
-    void createCalib(void);
-    void createSlaveComm(void);
-    void createAnyCommand(void);
-    void createViewRicnu(void);
-    void createConverter(void);    
-    void createViewStrain(void);
-    void createViewGossip(void);
-    void createViewBattery(void);
+	//MDI Windows (create):
+	void createViewExecute(void);
+	void createViewManage(void);
+	void createView2DPlot(void);
+	void createControlControl(void);
+	void createConfig(void);
+	void createCalib(void);
+	void createSlaveComm(void);
+	void createAnyCommand(void);
+	void createViewRicnu(void);
+	void createConverter(void);
+	void createViewStrain(void);
+	void createViewGossip(void);
+	void createViewBattery(void);
 
-    //MDI Windows (closed):
-    void closeViewExecute(void);
-    void closeViewManage(void);
-    void closeView2DPlot(void);
-    void closeControlControl(void);
-    void closeConfig(void);
-    void closeCalib(void);
-    void closeSlaveComm(void);
-    void closeAnyCommand(void);
-    void closeViewRicnu(void);
-    void closeConverter(void);
-    void closeViewStrain(void);
-    void closeViewGossip(void);
-    void closeViewBattery(void);
+	//MDI Windows (closed):
+	void closeViewExecute(void);
+	void closeViewManage(void);
+	void closeView2DPlot(void);
+	void closeControlControl(void);
+	void closeConfig(void);
+	void closeCalib(void);
+	void closeSlaveComm(void);
+	void closeAnyCommand(void);
+	void closeViewRicnu(void);
+	void closeConverter(void);
+	void closeViewStrain(void);
+	void closeViewGossip(void);
+	void closeViewBattery(void);
 
-    //Message boxes:
-    void displayAbout();
-    void displayDocumentation();
-    void displayLicense();
-    void setStatusBar(QString msg);
+	//Message boxes:
+	void displayAbout();
+	void displayDocumentation();
+	void displayLicense();
+	void setStatusBar(QString msg);
 };
 
 #endif // MAINWINDOW_H

@@ -17,9 +17,9 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *****************************************************************************
 	[Lead developper] Jean-Francois (JF) Duval, jfduval at dephy dot com.
-	[Origin] Based on Jean-Francois Duval's work at the MIT Media Lab 
+	[Origin] Based on Jean-Francois Duval's work at the MIT Media Lab
 	Biomechatronics research group <http://biomech.media.mit.edu/>
-	[Contributors] 
+	[Contributors]
 *****************************************************************************
 	[This file] w_execute.h: Execute View Window
 *****************************************************************************
@@ -49,36 +49,36 @@ class W_Execute;
 
 class W_Execute : public QWidget
 {
-    Q_OBJECT
+	Q_OBJECT
 
 public:
 	//Constructor & Destructor:
-    explicit W_Execute(QWidget *parent = 0, QList<struct execute_s> *logRef = nullptr,
-                       DisplayMode mode = DisplayLiveData);
-    ~W_Execute();
-	
+	explicit W_Execute(QWidget *parent = 0, QList<struct execute_s> *logRef = nullptr,
+					   DisplayMode mode = DisplayLiveData);
+	~W_Execute();
+
 	//Function(s):
 
 
 public slots:
-    void refresh(void);
-    void displayLogData(int index);
-    void updateDisplayMode(DisplayMode mode);
+	void refresh(void);
+	void displayLogData(int index);
+	void updateDisplayMode(DisplayMode mode);
 
 private:
 	//Variables & Objects:
-    Ui::W_Execute *ui;
-    QList<struct execute_s> *myExecute_s;
-    int active_slave, active_slave_index;
-    DisplayMode displayMode;
-	
+	Ui::W_Execute *ui;
+	QList<struct execute_s> *myExecute_s;
+	int active_slave, active_slave_index;
+	DisplayMode displayMode;
+
 	//Function(s):
-    void initLive(void);
-    void initLog(void);
-    void displayExecute(struct execute_s *ex);
+	void initLive(void);
+	void initLog(void);
+	void displayExecute(struct execute_s *ex);
 
 signals:
-    void windowClosed(void);
+	void windowClosed(void);
 };
 
 //****************************************************************************

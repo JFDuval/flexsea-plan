@@ -17,9 +17,9 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *****************************************************************************
 	[Lead developper] Jean-Francois (JF) Duval, jfduval at dephy dot com.
-	[Origin] Based on Jean-Francois Duval's work at the MIT Media Lab 
+	[Origin] Based on Jean-Francois Duval's work at the MIT Media Lab
 	Biomechatronics research group <http://biomech.media.mit.edu/>
-	[Contributors] 
+	[Contributors]
 *****************************************************************************
 	[This file] w_calibration.h: Calibration View Window
 *****************************************************************************
@@ -44,21 +44,21 @@
 //****************************************************************************
 
 W_Calibration::W_Calibration(QWidget *parent) :
-    QWidget(parent),
-    ui(new Ui::W_Calibration)
+	QWidget(parent),
+	ui(new Ui::W_Calibration)
 {
-    ui->setupUi(this);
+	ui->setupUi(this);
 
-    setWindowTitle("Hardware Calibration Tool");
-    setWindowIcon(QIcon(":icons/d_logo_small.png"));
+	setWindowTitle("Hardware Calibration Tool");
+	setWindowIcon(QIcon(":icons/d_logo_small.png"));
 
-    init();
+	init();
 }
 
 W_Calibration::~W_Calibration()
 {
-    emit windowClosed();
-    delete ui;
+	emit windowClosed();
+	delete ui;
 }
 
 //****************************************************************************
@@ -76,13 +76,13 @@ W_Calibration::~W_Calibration()
 
 void W_Calibration::init(void)
 {
-    //Populates Slave list:
-    FlexSEA_Generic::populateSlaveComboBox(ui->comboBox_slave, SL_BASE_ALL, \
-                                            SL_LEN_ALL);
+	//Populates Slave list:
+	FlexSEA_Generic::populateSlaveComboBox(ui->comboBox_slave, SL_BASE_ALL, \
+											SL_LEN_ALL);
 
-    //Variables:
-    active_slave_index = ui->comboBox_slave->currentIndex();
-    active_slave = FlexSEA_Generic::getSlaveID(SL_BASE_ALL, active_slave_index);
+	//Variables:
+	active_slave_index = ui->comboBox_slave->currentIndex();
+	active_slave = FlexSEA_Generic::getSlaveID(SL_BASE_ALL, active_slave_index);
 }
 
 //****************************************************************************

@@ -17,11 +17,11 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *****************************************************************************
 	[Lead developper] Jean-Francois (JF) Duval, jfduval at dephy dot com.
-	[Origin] Based on Jean-Francois Duval's work at the MIT Media Lab 
+	[Origin] Based on Jean-Francois Duval's work at the MIT Media Lab
 	Biomechatronics research group <http://biomech.media.mit.edu/>
-	[Contributors] 
+	[Contributors]
 *****************************************************************************
-    [This file] w_config.h: Configuration Window
+	[This file] w_config.h: Configuration Window
 *****************************************************************************
 	[Change log] (Convention: YYYY-MM-DD | author | comment)
 	* 2016-09-09 | jfduval | Initial GPL-3.0 release
@@ -43,25 +43,25 @@
 //****************************************************************************
 
 W_Config::W_Config(QWidget *parent) :
-    QWidget(parent),
-    ui(new Ui::W_Config)
+	QWidget(parent),
+	ui(new Ui::W_Config)
 {
-    ui->setupUi(this);
+	ui->setupUi(this);
 
-    setWindowTitle("Configuration");
-    setWindowIcon(QIcon(":icons/d_logo_small.png"));
+	setWindowTitle("Configuration");
+	setWindowIcon(QIcon(":icons/d_logo_small.png"));
 
-    //Init code:
-    flagManualEntry = 0;
-    dataSourceState = None;
-    initCom();
-    initLog();
+	//Init code:
+	flagManualEntry = 0;
+	dataSourceState = None;
+	initCom();
+	initLog();
 }
 
 W_Config::~W_Config()
 {
-    emit windowClosed();
-    delete ui;
+	emit windowClosed();
+	delete ui;
 }
 
 //****************************************************************************
@@ -74,16 +74,16 @@ W_Config::~W_Config()
 
 void W_Config::setComProgress(int val, int rst)
 {
-    ui->comProgressBar->setValue(val);
-    if(rst)
-    {
-        defaultComOffUi();
-    }
+	ui->comProgressBar->setValue(val);
+	if(rst)
+	{
+		defaultComOffUi();
+	}
 }
 
 void W_Config::setLogFileStatus(QString status)
 {
-    ui->logFileStatus1->setText(status);
+	ui->logFileStatus1->setText(status);
 }
 
 //****************************************************************************
@@ -92,78 +92,78 @@ void W_Config::setLogFileStatus(QString status)
 
 void W_Config::initCom(void)
 {
-    //Flags:
-    flagComInitDone = 0;
+	//Flags:
+	flagComInitDone = 0;
 
-    //No manual entry, 0% progress, etc.:
-    ui->comPortTxt->setText("");
-    ui->comPortTxt->setDisabled(true);
-    ui->comProgressBar->setValue(0);
-    ui->comProgressBar->setDisabled(true);
-    ui->openComButton->setDisabled(false);
-    ui->closeComButton->setDisabled(true);
-    ui->pbLoadLogFile->setDisabled(false);
-    ui->pbCloseLogFile->setDisabled(true);
+	//No manual entry, 0% progress, etc.:
+	ui->comPortTxt->setText("");
+	ui->comPortTxt->setDisabled(true);
+	ui->comProgressBar->setValue(0);
+	ui->comProgressBar->setDisabled(true);
+	ui->openComButton->setDisabled(false);
+	ui->closeComButton->setDisabled(true);
+	ui->pbLoadLogFile->setDisabled(false);
+	ui->pbCloseLogFile->setDisabled(true);
 
-    //COM port list and button:
-    getComList();
-    ui->pushButtonRefresh->setText(QChar(0x21BB));
+	//COM port list and button:
+	getComList();
+	ui->pushButtonRefresh->setText(QChar(0x21BB));
 
-    //Flag for other functions:
-    flagComInitDone = 1;
+	//Flag for other functions:
+	flagComInitDone = 1;
 }
 
 void W_Config::initLog(void)
 {
-    ui->logFileStatus1->setText("No log file selected.");
+	ui->logFileStatus1->setText("No log file selected.");
 
-    //Items 2-4 are disabled for now:
-    ui->logFileStatus2->setText("No log file selected.");
-    ui->logFileStatus3->setText("No log file selected.");
-    ui->logFileStatus4->setText("No log file selected.");
-    ui->logFileStatus2->setDisabled(true);
-    ui->logFileStatus3->setDisabled(true);
-    ui->logFileStatus4->setDisabled(true);
-    ui->pbOpenLog2->setDisabled(true);
-    ui->pbOpenLog3->setDisabled(true);
-    ui->pbOpenLog4->setDisabled(true);
+	//Items 2-4 are disabled for now:
+	ui->logFileStatus2->setText("No log file selected.");
+	ui->logFileStatus3->setText("No log file selected.");
+	ui->logFileStatus4->setText("No log file selected.");
+	ui->logFileStatus2->setDisabled(true);
+	ui->logFileStatus3->setDisabled(true);
+	ui->logFileStatus4->setDisabled(true);
+	ui->pbOpenLog2->setDisabled(true);
+	ui->pbOpenLog3->setDisabled(true);
+	ui->pbOpenLog4->setDisabled(true);
 }
 
 void W_Config::getComList(void)
 {
-    //First, clear lists:
-    comPortList.clear();
-    ui->comPortComboBox->clear();
+	//First, clear lists:
+	comPortList.clear();
+	ui->comPortComboBox->clear();
 
-    //Available ports?
-    const auto infos = QSerialPortInfo::availablePorts();
-    for(const QSerialPortInfo &info : infos)
-    {
-        //qDebug() << info.portName();
-        comPortList << info.portName();
-        ui->comPortComboBox->addItem(comPortList.last());
-    }
-    //Add an option for manual entry:
-    comPortList << "Manual Entry";
-    ui->comPortComboBox->addItem(comPortList.last());
+	//Available ports?
+	const auto infos = QSerialPortInfo::availablePorts();
+	for(const QSerialPortInfo &info : infos)
+	{
+		//qDebug() << info.portName();
+		comPortList << info.portName();
+		ui->comPortComboBox->addItem(comPortList.last());
+	}
+	//Add an option for manual entry:
+	comPortList << "Manual Entry";
+	ui->comPortComboBox->addItem(comPortList.last());
 
-    //Enable lideEdit when we only have Manual Entry
-    if(comPortList.length() == 1)
-    {
-        ui->comPortTxt->setDisabled(false);
-        ui->comPortTxt->setText("");
-    }
+	//Enable lideEdit when we only have Manual Entry
+	if(comPortList.length() == 1)
+	{
+		ui->comPortTxt->setDisabled(false);
+		ui->comPortTxt->setText("");
+	}
 
-    //LineEdit mimics combobox:
-    ui->comPortTxt->setText(ui->comPortComboBox->currentText());
+	//LineEdit mimics combobox:
+	ui->comPortTxt->setText(ui->comPortComboBox->currentText());
 }
 
 void W_Config::defaultComOffUi(void)
 {
-    ui->openComButton->setDisabled(false);
-    ui->comProgressBar->setDisabled(false);
-    ui->comProgressBar->setValue(0);
-    ui->closeComButton->setDisabled(true);
+	ui->openComButton->setDisabled(false);
+	ui->comProgressBar->setDisabled(false);
+	ui->comProgressBar->setValue(0);
+	ui->closeComButton->setDisabled(true);
 }
 
 //****************************************************************************
@@ -172,132 +172,132 @@ void W_Config::defaultComOffUi(void)
 
 void W_Config::on_comPortComboBox_currentIndexChanged(int index)
 {
-    //LineEdit mimics combobox:
-    ui->comPortTxt->setText(ui->comPortComboBox->currentText());
+	//LineEdit mimics combobox:
+	ui->comPortTxt->setText(ui->comPortComboBox->currentText());
 
-    //Monitor combobox after init is completed:
-    if(flagComInitDone != 0)
-    {
-        if(index == (comPortList.length() - 1))
-        {
-            flagManualEntry = 1;
-            //qDebug() << "Manual entry";
-            ui->comPortTxt->setDisabled(false);
-            ui->comPortTxt->setText("");
-        }
-        else
-        {
-            flagManualEntry = 0;
-            ui->comPortTxt->setDisabled(true);
-        }
-    }
+	//Monitor combobox after init is completed:
+	if(flagComInitDone != 0)
+	{
+		if(index == (comPortList.length() - 1))
+		{
+			flagManualEntry = 1;
+			//qDebug() << "Manual entry";
+			ui->comPortTxt->setDisabled(false);
+			ui->comPortTxt->setText("");
+		}
+		else
+		{
+			flagManualEntry = 0;
+			ui->comPortTxt->setDisabled(true);
+		}
+	}
 }
 
 void W_Config::on_openComButton_clicked()
 {
-    //Deal with display elements:
-    defaultComOffUi();
-    ui->openComButton->setDisabled(true);
+	//Deal with display elements:
+	defaultComOffUi();
+	ui->openComButton->setDisabled(true);
 
-    //Some checks:
-    if(ui->comPortComboBox->currentIndex() == (comPortList.length() - 1))
-    {
-        //Last item is Manual Entry. Do we have text?
-        if(ui->comPortTxt->text().length() > 0)
-        {
-            //qDebug() << "More than 0 char, valid.";
-        }
-        else
-        {
-            qDebug() << "0 char, invalid.";
-            defaultComOffUi();
-            return;
-        }
-    }
+	//Some checks:
+	if(ui->comPortComboBox->currentIndex() == (comPortList.length() - 1))
+	{
+		//Last item is Manual Entry. Do we have text?
+		if(ui->comPortTxt->text().length() > 0)
+		{
+			//qDebug() << "More than 0 char, valid.";
+		}
+		else
+		{
+			qDebug() << "0 char, invalid.";
+			defaultComOffUi();
+			return;
+		}
+	}
 
-    //Emit signal:
+	//Emit signal:
 
-    emit openCom(ui->comPortTxt->text(), 25, 100000);
+	emit openCom(ui->comPortTxt->text(), 25, 100000);
 
-    // TODO We Should have a way to know if the connection was successfull
-    if(1)//Connection is successfull.
-    {
-        dataSourceState = LiveCOM;
-        emit updateDataSourceStatus(dataSourceState);
-        ui->pbLoadLogFile->setDisabled(true);
-        ui->pushButtonBTCon->setDisabled(true);
-        ui->closeComButton->setDisabled(false);
-    }
+	// TODO We Should have a way to know if the connection was successfull
+	if(1)//Connection is successfull.
+	{
+		dataSourceState = LiveCOM;
+		emit updateDataSourceStatus(dataSourceState);
+		ui->pbLoadLogFile->setDisabled(true);
+		ui->pushButtonBTCon->setDisabled(true);
+		ui->closeComButton->setDisabled(false);
+	}
 }
 
 void W_Config::on_closeComButton_clicked()
 {
-    //Emit signal:
-    emit closeCom();
+	//Emit signal:
+	emit closeCom();
 
-    //Enable Open COM button:
-    ui->openComButton->setEnabled(true);
-    ui->openComButton->repaint();
+	//Enable Open COM button:
+	ui->openComButton->setEnabled(true);
+	ui->openComButton->repaint();
 
-    //Disable Close COM button:
-    ui->closeComButton->setDisabled(true);
-    ui->closeComButton->repaint();
+	//Disable Close COM button:
+	ui->closeComButton->setDisabled(true);
+	ui->closeComButton->repaint();
 
-    //ui->comStatusTxt->setText("COM Port closed.");
-    ui->comProgressBar->setValue(0);
-    ui->comProgressBar->setDisabled(true);
+	//ui->comStatusTxt->setText("COM Port closed.");
+	ui->comProgressBar->setValue(0);
+	ui->comProgressBar->setDisabled(true);
 
-    ui->pbLoadLogFile->setDisabled(false);
-    ui->pushButtonBTCon->setDisabled(false);
+	ui->pbLoadLogFile->setDisabled(false);
+	ui->pushButtonBTCon->setDisabled(false);
 
-    dataSourceState = None;
-    emit updateDataSourceStatus(dataSourceState);
+	dataSourceState = None;
+	emit updateDataSourceStatus(dataSourceState);
 
 }
 
 void W_Config::on_pushButtonRefresh_clicked()
 {
-    getComList();
+	getComList();
 }
 
 void W_Config::on_pbLoadLogFile_clicked()
 {
-    emit openReadingFile();
-    ui->pbLoadLogFile->setDisabled(true);
-    ui->pbCloseLogFile->setDisabled(false);
-    ui->openComButton->setDisabled(true);
-    ui->pushButtonBTCon->setDisabled(true);
-    dataSourceState = LogFile;
-    emit updateDataSourceStatus(dataSourceState);
+	emit openReadingFile();
+	ui->pbLoadLogFile->setDisabled(true);
+	ui->pbCloseLogFile->setDisabled(false);
+	ui->openComButton->setDisabled(true);
+	ui->pushButtonBTCon->setDisabled(true);
+	dataSourceState = LogFile;
+	emit updateDataSourceStatus(dataSourceState);
 }
 
 void W_Config::on_pbCloseLogFile_clicked()
 {
-    emit closeReadingFile();
-    ui->pbLoadLogFile->setDisabled(false);
-    ui->pbCloseLogFile->setDisabled(true);
-    ui->openComButton->setDisabled(false);
-    ui->pushButtonBTCon->setDisabled(false);
-    dataSourceState = None;
-    emit updateDataSourceStatus(dataSourceState);
+	emit closeReadingFile();
+	ui->pbLoadLogFile->setDisabled(false);
+	ui->pbCloseLogFile->setDisabled(true);
+	ui->openComButton->setDisabled(false);
+	ui->pushButtonBTCon->setDisabled(false);
+	dataSourceState = None;
+	emit updateDataSourceStatus(dataSourceState);
 }
 
 void W_Config::on_pbOpenLog1_clicked()
 {
-    emit openRecordingFile(0);
+	emit openRecordingFile(0);
 }
 
 void W_Config::on_pbOpenLog2_clicked()
 {
-    emit openRecordingFile(1);
+	emit openRecordingFile(1);
 }
 
 void W_Config::on_pbOpenLog3_clicked()
 {
-    emit openRecordingFile(2);
+	emit openRecordingFile(2);
 }
 
 void W_Config::on_pbOpenLog4_clicked()
 {
-    emit openRecordingFile(3);
+	emit openRecordingFile(3);
 }

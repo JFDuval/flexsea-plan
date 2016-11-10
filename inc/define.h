@@ -9,8 +9,8 @@ class Define;
 
 typedef enum DisplayMode
 {
-    DisplayLiveData,
-    DisplayLogData
+	DisplayLiveData,
+	DisplayLogData
 }DisplayMode;
 
 class Define

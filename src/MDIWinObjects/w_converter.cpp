@@ -17,9 +17,9 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *****************************************************************************
 	[Lead developper] Jean-Francois (JF) Duval, jfduval at dephy dot com.
-	[Origin] Based on Jean-Francois Duval's work at the MIT Media Lab 
+	[Origin] Based on Jean-Francois Duval's work at the MIT Media Lab
 	Biomechatronics research group <http://biomech.media.mit.edu/>
-	[Contributors] 
+	[Contributors]
 *****************************************************************************
 	[This file] w_converter.h: Converter Window
 *****************************************************************************
@@ -41,21 +41,21 @@
 //****************************************************************************
 
 W_Converter::W_Converter(QWidget *parent) :
-    QWidget(parent),
-    ui(new Ui::W_Converter)
+	QWidget(parent),
+	ui(new Ui::W_Converter)
 {
-    ui->setupUi(this);
+	ui->setupUi(this);
 
-    setWindowTitle("Converter");
-    setWindowIcon(QIcon(":icons/d_logo_small.png"));
+	setWindowTitle("Converter");
+	setWindowIcon(QIcon(":icons/d_logo_small.png"));
 
-    init();
+	init();
 }
 
 W_Converter::~W_Converter()
 {
-    emit windowClosed();
-    delete ui;
+	emit windowClosed();
+	delete ui;
 }
 
 //****************************************************************************
@@ -85,18 +85,18 @@ void W_Converter::init(void)
 
 void W_Converter::zero16bitsBytes(void)
 {
-    //All values at 0:
-    ui->label_16b0->setText("0");
-    ui->label_16b1->setText("0");
+	//All values at 0:
+	ui->label_16b0->setText("0");
+	ui->label_16b1->setText("0");
 }
 
 void W_Converter::zero32bitsBytes(void)
 {
-    //All values at 0:
-    ui->label_32b0->setText("0");
-    ui->label_32b1->setText("0");
-    ui->label_32b2->setText("0");
-    ui->label_32b3->setText("0");
+	//All values at 0:
+	ui->label_32b0->setText("0");
+	ui->label_32b1->setText("0");
+	ui->label_32b2->setText("0");
+	ui->label_32b3->setText("0");
 }
 
 //****************************************************************************
@@ -105,56 +105,56 @@ void W_Converter::zero32bitsBytes(void)
 
 void W_Converter::on_lineEdituint32_returnPressed()
 {
-    uint8_t tmp0 = 0, tmp1 = 0, tmp2, tmp3;
-    int val_entered = ui->lineEdituint32->text().toInt();
-    uint32_t val = 0;
+	uint8_t tmp0 = 0, tmp1 = 0, tmp2, tmp3;
+	int val_entered = ui->lineEdituint32->text().toInt();
+	uint32_t val = 0;
 
-    //Not in range?
-    if((val_entered < MIN_32BITS) || (val_entered > MAX_32BITS))
-    {
-        ui->label_32b0->setText("-");
-        ui->label_32b1->setText("-");
-        ui->label_32b2->setText("-");
-        ui->label_32b3->setText("-");
-        return;
-    }
+	//Not in range?
+	if((val_entered < MIN_32BITS) || (val_entered > MAX_32BITS))
+	{
+		ui->label_32b0->setText("-");
+		ui->label_32b1->setText("-");
+		ui->label_32b2->setText("-");
+		ui->label_32b3->setText("-");
+		return;
+	}
 
-    //Convert and display
-    val = (uint32_t)val_entered;
-    uint32_to_bytes(val_entered, &tmp0, &tmp1, &tmp2, &tmp3);
-    ui->label_32b0->setText(QString::number(tmp0));
-    ui->label_32b1->setText(QString::number(tmp1));
-    ui->label_32b2->setText(QString::number(tmp2));
-    ui->label_32b3->setText(QString::number(tmp3));
+	//Convert and display
+	val = (uint32_t)val_entered;
+	uint32_to_bytes(val_entered, &tmp0, &tmp1, &tmp2, &tmp3);
+	ui->label_32b0->setText(QString::number(tmp0));
+	ui->label_32b1->setText(QString::number(tmp1));
+	ui->label_32b2->setText(QString::number(tmp2));
+	ui->label_32b3->setText(QString::number(tmp3));
 }
 
 void W_Converter::on_lineEdituint16_returnPressed()
 {
-    uint8_t tmp0 = 0, tmp1 = 0;
-    int val_entered = ui->lineEdituint16->text().toInt();
-    uint16_t val = 0;
+	uint8_t tmp0 = 0, tmp1 = 0;
+	int val_entered = ui->lineEdituint16->text().toInt();
+	uint16_t val = 0;
 
-    //Not in range?
-    if((val_entered < MIN_16BITS) || (val_entered > MAX_16BITS))
-    {
-        ui->label_16b0->setText("-");
-        ui->label_16b1->setText("-");
-        return;
-    }
+	//Not in range?
+	if((val_entered < MIN_16BITS) || (val_entered > MAX_16BITS))
+	{
+		ui->label_16b0->setText("-");
+		ui->label_16b1->setText("-");
+		return;
+	}
 
-    //Convert and display
-    val = (uint16_t)val_entered;
-    uint16_to_bytes(val_entered, &tmp0, &tmp1);
-    ui->label_16b0->setText(QString::number(tmp0));
-    ui->label_16b1->setText(QString::number(tmp1));
+	//Convert and display
+	val = (uint16_t)val_entered;
+	uint16_to_bytes(val_entered, &tmp0, &tmp1);
+	ui->label_16b0->setText(QString::number(tmp0));
+	ui->label_16b1->setText(QString::number(tmp1));
 }
 
 void W_Converter::on_lineEdituint32_textChanged(const QString &arg1)
 {
-    zero32bitsBytes();
+	zero32bitsBytes();
 }
 
 void W_Converter::on_lineEdituint16_textChanged(const QString &arg1)
 {
-    zero16bitsBytes();
+	zero16bitsBytes();
 }

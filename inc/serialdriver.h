@@ -17,9 +17,9 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *****************************************************************************
 	[Lead developper] Jean-Francois (JF) Duval, jfduval at dephy dot com.
-	[Origin] Based on Jean-Francois Duval's work at the MIT Media Lab 
+	[Origin] Based on Jean-Francois Duval's work at the MIT Media Lab
 	Biomechatronics research group <http://biomech.media.mit.edu/>
-	[Contributors] 
+	[Contributors]
 *****************************************************************************
 	[This file] serialdriver: Serial Port Driver
 *****************************************************************************
@@ -50,35 +50,35 @@ class SerialDriver;
 class SerialDriver : public QWidget
 {
 	Q_OBJECT
-	
-public:
-    explicit SerialDriver(QWidget *parent = 0);
-	void init(void);
-	
-public slots:
-    int open(QString name, int tries, int delay);
-    void close(void);
-    int read(unsigned char *buf);
-    int write(char bytes_to_send, unsigned char *serial_tx_data);
-    void readWrite(uint numb, uint8_t *dataPacket, uint8_t r_w);
 
-private slots:	
+public:
+	explicit SerialDriver(QWidget *parent = 0);
+	void init(void);
+
+public slots:
+	int open(QString name, int tries, int delay);
+	void close(void);
+	int read(unsigned char *buf);
+	int write(char bytes_to_send, unsigned char *serial_tx_data);
+	void readWrite(uint numb, uint8_t *dataPacket, uint8_t r_w);
+
+private slots:
 
 private:
 	//Variables & Objects:
 	QSerialPort USBSerialPort;
 	bool comPortOpen;
 	unsigned char usb_rx[256];
-		
+
 	//Function(s):
 
 signals:
-    void openProgress(int val, int rst);
-    void openStatus(bool status);
-    void newDataReady(void);
-    void dataStatus(int idx, int status);
-    void newDataTimeout(bool rst);
-    void setStatusBarMessage(QString msg);
+	void openProgress(int val, int rst);
+	void openStatus(bool status);
+	void newDataReady(void);
+	void dataStatus(int idx, int status);
+	void newDataTimeout(bool rst);
+	void setStatusBarMessage(QString msg);
 };
 
 //****************************************************************************

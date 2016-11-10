@@ -17,9 +17,9 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *****************************************************************************
 	[Lead developper] Jean-Francois (JF) Duval, jfduval at dephy dot com.
-	[Origin] Based on Jean-Francois Duval's work at the MIT Media Lab 
+	[Origin] Based on Jean-Francois Duval's work at the MIT Media Lab
 	Biomechatronics research group <http://biomech.media.mit.edu/>
-	[Contributors] 
+	[Contributors]
 *****************************************************************************
 	[This file] main: FlexSEA Plan project: GUI app to control FlexSEA slaves
 *****************************************************************************
@@ -87,14 +87,14 @@ extern "C" {
 //Timers:
 //======
 
-#define TIM_FREQ_TO_P(f)        (1000/f)    //f in Hz, return in ms
+#define TIM_FREQ_TO_P(f)		(1000/f)	//f in Hz, return in ms
 
 //Stream:
 //======
 
-#define STREAM_MIN_FREQ         1
-#define STREAM_MAX_FREQ         1000
-#define STREAM_DEFAULT_FREQ     35
+#define STREAM_MIN_FREQ			1
+#define STREAM_MAX_FREQ			1000
+#define STREAM_DEFAULT_FREQ		35
 
 #ifdef __cplusplus
 }
