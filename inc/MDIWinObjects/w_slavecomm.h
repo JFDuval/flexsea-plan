@@ -136,6 +136,7 @@ private:
 
 	void sc_read_all(uint8_t item);
 	void sc_read_all_ricnu(uint8_t item);
+	void sc_ankle2dof(uint8_t item);
 
 	void configSlaveComm(int item);
 	void updateStatusBar(QString txt);

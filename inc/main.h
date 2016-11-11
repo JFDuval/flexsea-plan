@@ -53,6 +53,7 @@ extern "C" {
 #include "../flexsea-comm/inc/flexsea.h"
 #include "../flexsea-system/test/flexsea-system_test-all.h"
 #include "../flexsea-comm/test/flexsea-comm_test-all.h"
+#include "../flexsea-user/test/flexsea-user_test-all.h"
 
 //****************************************************************************
 // Shared variable(s)

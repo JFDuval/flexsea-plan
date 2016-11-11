@@ -594,6 +594,45 @@ void W_SlaveComm::sc_read_all_ricnu(uint8_t item)
 	}
 }
 
+//Argument is the item line (0-3)
+//Read All should be programmed for all boards - it returns all the onboard
+//sensor values
+void W_SlaveComm::sc_ankle2dof(uint8_t item)
+{
+	uint16_t numb = 0;
+	uint8_t info[2] = {PORT_USB, PORT_USB};
+	uint8_t slaveId = active_slave[item];
+	uint8_t slaveIndex = active_slave_index[item];
+	uint8_t expIndex = selected_exp_index[item];
+	static uint8_t sel_slave = 0;
+
+	//1) Stream
+	tx_cmd_ankle2dof_r(TX_N_DEFAULT, sel_slave, 0, 0, 0);
+	pack(P_AND_S_DEFAULT, slaveId, info, &numb, comm_str_usb);
+	emit slaveReadWrite(numb, comm_str_usb, READ);
+
+	//***ToDo: update for multiple slaves!***
+	if(sel_slave == 0)
+	{
+		sel_slave = 1;
+	}
+	else
+	{
+		sel_slave = 0;
+	}
+
+	//2) Decode values
+	//myFlexSEA_Generic.decodeSlave(SL_BASE_ALL, slaveIndex);
+	myFlexSEA_Generic.decodeSlave(SL_BASE_EX, sel_slave);
+	//(Uncertain about timings, probably delayed by 1 sample)
+
+	//3) Log
+	if(logThisItem[item] == true)
+	{
+		emit writeToLogFile(item, slaveIndex, expIndex);
+	}
+}
+
 //
 void W_SlaveComm::indicatorTimeout(bool rst)
 {
@@ -635,7 +674,7 @@ void W_SlaveComm::sc_item1_slot(void)
 				qDebug() << "Not programmed!";
 				break;
 			case 4: //2DOF Ankle
-				qDebug() << "Not programmed!";
+				sc_ankle2dof(0);
 				break;
 			default:
 				break;

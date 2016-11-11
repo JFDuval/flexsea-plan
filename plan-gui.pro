@@ -19,7 +19,8 @@ INCLUDEPATH += inc \
 	flexsea-system/inc \
 	flexsea-system/test \
 	flexsea-shared/unity \
-	flexsea-shared/inc
+	flexsea-shared/inc \
+	flexsea-user/inc
 
 SOURCES += src/main.cpp \
 	src/mainwindow.cpp \
@@ -40,7 +41,6 @@ SOURCES += src/main.cpp \
 	flexsea-system/test/test-flexsea_system.c  \
 	flexsea-shared/unity/unity.c \
 	flexsea-system/test/flexsea-system_test-all.c \
-	flexsea-system/test/test-flexsea_cmd_control.c\
 	flexsea-system/test/test-flexsea_cmd_data.c \
 	flexsea-system/test/test-flexsea_cmd_external.c \
 	flexsea-system/test/test-flexsea_cmd_sensors.c \
@@ -79,8 +79,12 @@ SOURCES += src/main.cpp \
 	flexsea-user/src/flexsea_cmd_user.c \
 	flexsea-user/MIT_2DoF_Ankle_v1/src/cmd-MIT_2DoF_Ankle_v1.c \
 	flexsea-user/RICNU_Knee_v1/src/cmd-RICNU_Knee_v1.c \
-    flexsea-system/src/flexsea_cmd_control_1.c \
-    flexsea-system/src/flexsea_cmd_control_2.c
+	flexsea-system/src/flexsea_cmd_control_1.c \
+	flexsea-system/src/flexsea_cmd_control_2.c \
+	flexsea-system/test/test-flexsea_cmd_control_1.c \
+	flexsea-system/test/test-flexsea_cmd_control_2.c \
+	flexsea-user/test/flexsea-user_test-all.c \
+	flexsea-user/test/test-cmd_user.c
 
 HEADERS  += inc/main.h \
 	inc/mainwindow.h \
@@ -132,7 +136,8 @@ HEADERS  += inc/main.h \
 	inc/peripherals.h \
 	flexsea-user/inc/flexsea_cmd_user.h \
 	flexsea-user/MIT_2DoF_Ankle_v1/inc/cmd-MIT_2DoF_Ankle_v1.h \
-	flexsea-user/RICNU_Knee_v1/inc/cmd-RICNU_Knee_v1.h
+	flexsea-user/RICNU_Knee_v1/inc/cmd-RICNU_Knee_v1.h \
+	flexsea-user/test/flexsea-user_test-all.h
 
 FORMS    += ui/mainwindow.ui \
 	ui/w_execute.ui \

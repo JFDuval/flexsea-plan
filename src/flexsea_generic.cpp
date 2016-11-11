@@ -308,6 +308,9 @@ void FlexSEA_Generic::decodeExecute(uint8_t base, uint8_t index)
 //TODO think about a better way to do this
 void FlexSEA_Generic::decodeRicnu(uint8_t base, uint8_t index)
 {
+	(void)base;
+	(void)index;
+
 	ricnu_1.ex = exec1;
 	ricnu_1.st = strain1;
 }
@@ -427,6 +430,7 @@ void FlexSEA_Generic::decodeSlave(uint8_t base, uint8_t index)
 }
 
 //Assign pointer
+//TODO: should we use flexsea_system's executePtrXid instead?
 void FlexSEA_Generic::assignExecutePtr(struct execute_s **myPtr, uint8_t base, \
 									   uint8_t slave)
 {

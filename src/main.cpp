@@ -45,6 +45,7 @@ int main(int argc, char *argv[])
 	//Unit tests, FlexSEA stack:
 	flexsea_comm_test();
 	flexsea_system_test();
+	flexsea_user_test();
 
 	QApplication a(argc, argv);
 	MainWindow w;

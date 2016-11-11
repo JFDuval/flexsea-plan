@@ -73,6 +73,7 @@ void flexsea_send_serial_slave(uint8_t port, uint8_t *str, uint8_t length)
 
 	length = COMM_STR_BUF_LEN;    //Fixed length for now
 	(void)str;
+	(void)length;
 
 	if(port == PORT_SPI)
 	{

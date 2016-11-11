@@ -102,7 +102,15 @@ void W_Manage::displayManage(struct manage_s *mn)
 	ui->disp_gyroy->setText(QString::number(mn->gyro.y));
 	ui->disp_gyroz->setText(QString::number(mn->gyro.z));
 
-	ui->dispUserButton->setText("ToDo");
+	if(mn->sw1 == 0)
+	{
+		ui->dispUserButton->setText("Pressed");
+	}
+	else
+	{
+		ui->dispUserButton->setText("Released");
+	}
+
 	ui->dispDI->setText("ToDo");
 
 	ui->dispAna0->setText(QString::number(mn->analog[0]));
