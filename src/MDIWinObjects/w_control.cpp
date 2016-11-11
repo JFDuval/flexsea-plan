@@ -161,9 +161,10 @@ void W_Control::save_ctrl_gains(int controller, int16_t *gains)
 
 void W_Control::controller_setpoint(int val)
 {
-	uint numb = 0, valid = 0;
+	uint16_t numb = 0, valid = 0;
 	uint8_t cmdCode = 0, cmdType = 0;
 	uint16_t len = 0;
+	uint8_t info[2] = {PORT_USB, PORT_USB};
 
 	qDebug() << "Entered controller_setpoint()";
 
@@ -174,18 +175,25 @@ void W_Control::controller_setpoint(int val)
 			break;
 		case 1: //Open
 			valid = 1;
+			/*
 			tx_cmd_ctrl_o_w(payload_str, &cmdCode, &cmdType, &len, val);
 			numb = tx_cmd(payload_str, cmdCode, cmdType, len, active_slave, \
 						  transferBuf);
+			*/
+			tx_cmd_ctrl_o_w(TX_N_DEFAULT, val);
 			qDebug() << "Open: " << val;
 			break;
 		case 2: //Position
 		case 4: //Impedance
 			valid = 1;
+			/*
 			tx_cmd_ctrl_p_w(payload_str, &cmdCode, &cmdType, &len,\
 							trap_pos, trap_posi, trap_posf, trap_spd, trap_acc);
 			numb = tx_cmd(payload_str, cmdCode, cmdType, len, active_slave, \
 						  transferBuf);
+			*/
+			tx_cmd_ctrl_p_w(TX_N_DEFAULT, trap_pos, trap_posi, trap_posf, \
+							trap_spd, trap_acc);
 			trapez_steps = trapez_gen_motion_1(trap_posi, trap_posf, trap_spd, \
 											   trap_acc);
 			qDebug() << "Pos/Z: posi = " << trap_posi << ", posf = " << \
@@ -194,9 +202,12 @@ void W_Control::controller_setpoint(int val)
 			 break;
 		case 3: //Current
 			valid = 1;
+			/*
 			tx_cmd_ctrl_i_w(payload_str, &cmdCode, &cmdType, &len, val);
 			numb = tx_cmd(payload_str, cmdCode, cmdType, len, active_slave, \
 						  transferBuf);
+			*/
+			tx_cmd_ctrl_i_w(TX_N_DEFAULT, val);
 			qDebug() << "Current: " << val;
 			break;
 		//case 4: //Impedance
@@ -212,8 +223,13 @@ void W_Control::controller_setpoint(int val)
 	if(valid)
 	{
 		//Common for all gain functions:
+		/*
 		numb = comm_gen_str(transferBuf, comm_str_usb, numb);
 		numb = COMM_STR_BUF_LEN;
+		emit writeCommand(numb, comm_str_usb);
+		*/
+
+		pack(P_AND_S_DEFAULT, active_slave, info, &numb, comm_str_usb);
 		emit writeCommand(numb, comm_str_usb);
 	}
 	else
@@ -447,9 +463,10 @@ void W_Control::on_pushButton_SetGains_clicked()
 {
 	QString str;
 	int16_t gains[6] = {0,0,0,0,0,0};
-	int numb = 0, valid = 0;
+	uint16_t numb = 0, valid = 0;
 	uint8_t cmdCode = 0, cmdType = 0;
 	uint16_t len = 0;
+	uint8_t info[2] = {PORT_USB, PORT_USB};
 
 	//Save gains in temp variables:
 	gains[0] = ui->control_g0->text().toInt();
@@ -474,26 +491,35 @@ void W_Control::on_pushButton_SetGains_clicked()
 		case 2: //Position
 			valid = 1;
 			save_ctrl_gains(selected_controller, gains);
+			/*
 			tx_cmd_ctrl_p_g_w(payload_str, &cmdCode, &cmdType, &len, \
 							gains[0], gains[1], gains[2]);
 			numb = tx_cmd(payload_str, cmdCode, cmdType, len, active_slave, \
 						  transferBuf);
+			*/
+			tx_cmd_ctrl_p_g_w(TX_N_DEFAULT, gains[0], gains[1], gains[2]);
 			 break;
 		case 3: //Current
 			valid = 1;
 			save_ctrl_gains(selected_controller, gains);
+			/*
 			tx_cmd_ctrl_i_g_w(payload_str, &cmdCode, &cmdType, &len, \
 								gains[0], gains[1], gains[2]);
 			numb = tx_cmd(payload_str, cmdCode, cmdType, len, active_slave, \
 							transferBuf);
+			*/
+			tx_cmd_ctrl_i_g_w(TX_N_DEFAULT, gains[0], gains[1], gains[2]);
 			break;
 		case 4: //Impedance
 			valid = 1;
 			save_ctrl_gains(selected_controller, gains);
+			/*
 			tx_cmd_ctrl_z_g_w(payload_str, &cmdCode, &cmdType, &len, \
 								gains[0], gains[1], gains[2]);
 			numb = tx_cmd(payload_str, cmdCode, cmdType, len, active_slave, \
 							transferBuf);
+			*/
+			tx_cmd_ctrl_z_g_w(TX_N_DEFAULT, gains[0], gains[1], gains[2]);
 			break;
 		case 5: //Custom/other
 			valid = 0;
@@ -510,8 +536,12 @@ void W_Control::on_pushButton_SetGains_clicked()
 		qDebug() << "Valid controller.";
 
 		//Common for all gain functions:
+		/*
 		numb = comm_gen_str(payload_str, comm_str_usb, PAYLOAD_BUF_LEN);
 		numb = COMM_STR_BUF_LEN;
+		emit writeCommand(numb, comm_str_usb);
+		*/
+		pack(P_AND_S_DEFAULT, active_slave, info, &numb, comm_str_usb);
 		emit writeCommand(numb, comm_str_usb);
 	}
 	else
