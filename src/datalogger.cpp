@@ -59,35 +59,93 @@ DataLogger::DataLogger(QWidget *parent) : QWidget(parent)
 
 void DataLogger::openRecordingFile(uint8_t item)
 {
+	if(logRecordingFile[item].isOpen())
+	{
+		qDebug() << "File already open. Close it before opening a new one";
+	}
+	else
+	{
+		//File Dialog (returns the selected file name):
+		QDir::setCurrent("Plan-GUI-Logs");
+		QString filename = QFileDialog::getSaveFileName( \
+					this,
+					tr("Open Log File"),
+					QDir::currentPath() + "\\.csv" ,
+					tr("Log files (*.txt *.csv);;All files (*.*)"));
+
+		//Extract filename to simplify UI:
+		QString path = QDir::currentPath();
+		int pathLen = path.length();
+		QString shortFileName = filename.mid(pathLen+1);
+
+		//Now we open it:
+		logRecordingFile[item].setFileName(filename);
+
+		openfile(item, filename, shortFileName);
+	}
+}
+
+void DataLogger::openRecordingFile(uint8_t item, QString shortFileName)
+{
+	if(logRecordingFile[item].isOpen())
+	{
+		qDebug() << "File already open. Close it before opening a new one";
+	}
+
+	else
+	{
+		//Add .csv extension if not present
+		if(shortFileName.mid(shortFileName.length() - 4) != ".csv")
+		{
+			shortFileName.append(".csv");
+		}
+
+		//File Dialog
+		QDir::setCurrent("Plan-GUI-Logs");
+		QString fileName = QDir::currentPath() + "/" + shortFileName;
+		QString numberedFileName = fileName;
+
+		//Now we open it:
+		int fileNameLen = fileName.length();
+		numberedFileName.insert(fileNameLen	- 4,"_0");
+		logRecordingFile[item].setFileName(numberedFileName);
+
+		// Search for the next unused numbered file.
+		uint16_t i = 0;
+		while(logRecordingFile[item].exists() ||
+			  i >= 10000)
+		{
+			++i;
+			numberedFileName = fileName;
+			numberedFileName.insert(fileNameLen - 4,
+									"_" + QString::number(i));
+			logRecordingFile[item].setFileName(numberedFileName);
+
+		}
+
+		QString numberedShortFileName = shortFileName + "_" + QString::number(i);
+
+		openfile(item, numberedFileName, numberedShortFileName);
+	}
+}
+
+void DataLogger::openfile(uint8_t item, QString fileName, QString shortFileName)
+{
 	QString msg = "";
 
-
-	//File Dialog (returns the selected file name):
-	QDir::setCurrent("Plan-GUI-Logs");
-	QString filename = QFileDialog::getSaveFileName( \
-				this,
-				tr("Open Log File"),
-				QDir::currentPath() + "\\.csv" ,
-				tr("Log files (*.txt *.csv);;All files (*.*)"));
-
-	//Extract filename to simplify UI:
-	QString path = QDir::currentPath();
-	int pathLen = path.length();
-	QString shortFileName = filename.mid(pathLen+1);
-
-
-	//Now we open it:
-	logRecordingFile[item].setFileName(filename);
+	// Try to open the file.
 	if(logRecordingFile[item].open(QIODevice::ReadWrite))
 	{
 		msg = tr("Successfully opened: '") + shortFileName + "'.";
-		//TODO Datalogger should not know that there's a logFile and bar status. Abstraction principle is not respected here. Is there a way to use some sort of return value instead of signal slot?
+		// TODO Datalogger should not know that there's a logFile and bar
+		// status. Abstraction principle is not respected here. Is there a way
+		// to use some sort of return value instead of signal slot?
 		emit setLogFileStatus(msg);
 		qDebug() << msg;
 
 		//Associate stream to file:
 		logFileStream.setDevice(&logRecordingFile[item]);
-		msg = tr("Opened '") + filename + "'.";
+		msg = tr("Opened '") + fileName + "'.";
 		emit setStatusBarMessage(msg);
 	}
 
@@ -103,7 +161,6 @@ void DataLogger::openRecordingFile(uint8_t item)
 	}
 }
 
-// TODO To excerpt in another method the common part between reading and recording file
 void DataLogger::openReadingFile(void)
 {
 	QString msg = "";
@@ -216,10 +273,9 @@ void DataLogger::writeToFile(uint8_t item, uint8_t slaveIndex, uint8_t expIndex)
 	if(logRecordingFile[item].isOpen())
 	{
 		//Writting for the first time?
-		if(isFirstTime[item] == true)
+		if(logRecordingFile[item].pos() == 0)
 		{
 			//Init timestamp ms:
-			isFirstTime[item] = false;
 			logTimestamp(&t_ms, &t_text);
 			t_ms_initial[item] = t_ms;
 
@@ -301,7 +357,6 @@ void DataLogger::closeRecordingFile(uint8_t item)
 	{
 		logFileStream << endl;
 		logRecordingFile[item].close();
-		isFirstTime[item] = true;
 	}
 }
 

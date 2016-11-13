@@ -94,6 +94,14 @@ private slots:
 	void on_comboBoxRefresh3_currentIndexChanged(int index);
 	void on_comboBoxRefresh4_currentIndexChanged(int index);
 
+	void on_checkBoxLog1_stateChanged(int arg1);
+
+	void on_checkBoxLog2_stateChanged(int arg1);
+
+	void on_checkBoxLog3_stateChanged(int arg1);
+
+	void on_checkBoxLog4_stateChanged(int arg1);
+
 signals:
 
 	//Timers:
@@ -109,6 +117,7 @@ signals:
 	void refresh2DPlot(void);
 	void windowClosed(void);
 	void writeToLogFile(uint8_t item, uint8_t slaveIndex, uint8_t expIndex);
+	void openRecordingFile(uint8_t item, QString fileName);
 	void closeLogFile(uint8_t item);
 	void slaveReadWrite(uint numb, uint8_t *dataPacket, uint8_t r_w);
 

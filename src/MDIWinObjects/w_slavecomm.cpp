@@ -345,6 +345,7 @@ void W_SlaveComm::managePushButton(int idx, bool forceOff)
 			//Logging?
 			if((*cb_ptr)->isChecked() == true)
 			{
+				emit openRecordingFile(idx, "testing.csv");
 				logThisItem[idx] = true;
 			}
 			else
@@ -361,10 +362,10 @@ void W_SlaveComm::managePushButton(int idx, bool forceOff)
 			(*pb_ptr)->setStyleSheet("background-color: rgb(127, 127, 127); \
 											color: rgb(0, 0, 0)");
 
-			 if(logThisItem[0] == true)
+			 if(logThisItem[idx] == true)
 			 {
-				 logThisItem[0] = false;
-				 emit closeLogFile(0);   //TODO support multiple files
+				 logThisItem[idx] = false;
+				 emit closeLogFile(idx);
 			 }
 		}
 	}
@@ -769,4 +770,24 @@ void W_SlaveComm::on_comboBoxRefresh3_currentIndexChanged(int index)
 void W_SlaveComm::on_comboBoxRefresh4_currentIndexChanged(int index)
 {
 	configSlaveComm(3);
+}
+
+void W_SlaveComm::on_checkBoxLog1_stateChanged(int arg1)
+{
+
+}
+
+void W_SlaveComm::on_checkBoxLog2_stateChanged(int arg1)
+{
+
+}
+
+void W_SlaveComm::on_checkBoxLog3_stateChanged(int arg1)
+{
+
+}
+
+void W_SlaveComm::on_checkBoxLog4_stateChanged(int arg1)
+{
+
 }

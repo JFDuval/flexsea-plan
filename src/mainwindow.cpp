@@ -433,6 +433,8 @@ void MainWindow::createSlaveComm(void)
 				myViewSlaveComm[0], SLOT(updateIndicatorTimeout(bool)));
 
 		//Link SlaveComm and DataLogger
+		connect(myViewSlaveComm[0], SIGNAL(openRecordingFile(uint8_t,QString)), \
+				myDataLogger, SLOT(openRecordingFile(uint8_t,QString)));
 		connect(myViewSlaveComm[0], SIGNAL(writeToLogFile(uint8_t,uint8_t,uint8_t)), \
 				myDataLogger, SLOT(writeToFile(uint8_t,uint8_t,uint8_t)));
 		connect(myViewSlaveComm[0], SIGNAL(closeLogFile(uint8_t)), \

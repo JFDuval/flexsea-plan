@@ -62,6 +62,7 @@ public:
 
 public slots:
 	void openRecordingFile(uint8_t item);
+	void openRecordingFile(uint8_t item, QString fileName);
 	void closeRecordingFile(uint8_t item);
 	void openReadingFile(void);
 	void closeReadingFile(void);
@@ -73,7 +74,6 @@ private:
 	//Variables & Objects:
 	QFile logRecordingFile[4];
 	QFile logReadingFile;
-	bool isFirstTime[4] = {true,true,true,true};
 
 	QTextStream logFileStream;
 	QDateTime *myTime;
@@ -91,6 +91,7 @@ private:
 	void writeManageReadAllHeader(uint8_t item);
 	void writeStrainReadAllHeader(uint8_t item);
 	void writeGossipReadAllHeader(uint8_t item);
+	void openfile(uint8_t item, QString fileName, QString shortFileName);
 	void logDirectory(void);
 	void logReadAllExec(QTextStream *filePtr, uint8_t slaveIndex, \
 							char term, qint64 t_ms, QString t_text);
