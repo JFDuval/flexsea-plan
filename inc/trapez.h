@@ -17,9 +17,9 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *****************************************************************************
 	[Lead developper] Jean-Francois (JF) Duval, jfduval at dephy dot com.
-	[Origin] Based on Jean-Francois Duval's work at the MIT Media Lab 
+	[Origin] Based on Jean-Francois Duval's work at the MIT Media Lab
 	Biomechatronics research group <http://biomech.media.mit.edu/>
-	[Contributors] 
+	[Contributors]
 *****************************************************************************
 	[This file] trapez: trapezoidal trajectory generation
 *****************************************************************************
@@ -50,10 +50,10 @@ long long trapez_get_pos(long long max_steps);
 // Definition(s):
 //****************************************************************************
 
-#define TRAPEZ_DT           	0.001		//Trapezoidal timebase. Has to match hardware!
-#define TRAPEZ_ONE_OVER_DT  	1000
-#define SPD_FACTOR          	10000		//Scaling for integer
-#define ACC_FACTOR          	10000
+#define TRAPEZ_DT				0.001		//Trapezoidal timebase. Has to match hardware!
+#define TRAPEZ_ONE_OVER_DT		1000
+#define SPD_FACTOR				10000		//Scaling for integer
+#define ACC_FACTOR				10000
 
 #ifdef __cplusplus
 }

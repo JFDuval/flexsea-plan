@@ -86,10 +86,10 @@ signals:
 //****************************************************************************
 
 //Data in status indicator:
-#define DATAIN_STATUS_GREY      0
-#define DATAIN_STATUS_GREEN     1
-#define DATAIN_STATUS_YELLOW    2
-#define DATAIN_STATUS_RED       3
-#define INDICATOR_TIMEOUT       110
+#define DATAIN_STATUS_GREY		0
+#define DATAIN_STATUS_GREEN		1
+#define DATAIN_STATUS_YELLOW	2
+#define DATAIN_STATUS_RED		3
+#define INDICATOR_TIMEOUT		110
 
 #endif // SERIALDRIVER_H

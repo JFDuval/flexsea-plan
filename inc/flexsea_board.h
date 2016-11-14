@@ -17,11 +17,11 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *****************************************************************************
 	[Lead developper] Jean-Francois (JF) Duval, jfduval at dephy dot com.
-	[Origin] Based on Jean-Francois Duval's work at the MIT Media Lab 
+	[Origin] Based on Jean-Francois Duval's work at the MIT Media Lab
 	Biomechatronics research group <http://biomech.media.mit.edu/>
-	[Contributors] 
+	[Contributors]
 *****************************************************************************
-	[This file] flexsea_board: configuration and functions for this 
+	[This file] flexsea_board: configuration and functions for this
 	particular board
 *****************************************************************************
 	[Change log] (Convention: YYYY-MM-DD | author | comment)
@@ -36,8 +36,8 @@
 extern "C" {
 #endif
 
-// Although it's a part of the FlexSEA stack that file doesn't live in /common/
-// as it needs to be unique to each board.
+// Although it's a part of the FlexSEA stack that file doesn't live in
+// flexsea-comm or flexsea-system, as it needs to be unique to each board.
 
 //****************************************************************************
 // Include(s)
@@ -49,12 +49,8 @@ extern "C" {
 // Prototype(s):
 //****************************************************************************
 
-void flexsea_send_serial_slave(unsigned char port, unsigned char *str, unsigned char length);
-void flexsea_send_serial_master(unsigned char port, unsigned char *str, unsigned char length);
-uint8_t decode_spi_rx(void);
-uint8_t decode_usb_rx(unsigned char *newdata);
-void console_reset(unsigned char slaveid);
-void reset_manage(void);
+void flexsea_send_serial_slave(uint8_t port, uint8_t *str, uint8_t length);
+void flexsea_send_serial_master(uint8_t port, uint8_t *str, uint8_t length);
 
 //****************************************************************************
 // Definition(s):
@@ -76,9 +72,6 @@ void reset_manage(void);
 #define SLAVE_BUS_1_CNT		1
 #define SLAVE_BUS_2_CNT		0
 //Note: only Manage can have a value different than 0 or 1
-
-//Slave Read Buffer Size:
-#define SLAVE_READ_BUFFER_LEN		32	//ToDo TBD
 
 //Enabled the required FlexSEA Buffers for this board:
 #define ENABLE_FLEXSEA_BUF_1        //USB
@@ -111,9 +104,6 @@ extern uint8_t board_id;
 extern uint8_t board_up_id;
 extern uint8_t board_sub1_id[SLAVE_BUS_1_CNT ? SLAVE_BUS_1_CNT : 1];
 extern uint8_t board_sub2_id[SLAVE_BUS_2_CNT ? SLAVE_BUS_2_CNT : 1];
-
-//extern uint8_t bytes_ready_spi;
-//extern uint8_t cmd_ready_spi;
 
 #ifdef __cplusplus
 }

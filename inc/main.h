@@ -47,21 +47,21 @@ extern "C" {
 #include <fcntl.h>  //ToDo useful?
 #include <time.h>
 #include "trapez.h"
+#include "peripherals.h"
 #include "flexsea_board.h"
-#include "flexsea_system.h"
-#include "flexsea.h"
+#include "../flexsea-system/inc/flexsea_system.h"
+#include "../flexsea-comm/inc/flexsea.h"
+#include "../flexsea-system/test/flexsea-system_test-all.h"
+#include "../flexsea-comm/test/flexsea-comm_test-all.h"
+#include "../flexsea-user/test/flexsea-user_test-all.h"
 
 //****************************************************************************
 // Shared variable(s)
 //****************************************************************************
 
-//extern char *fake_argv[];
-//extern const char *delims;
-
 //****************************************************************************
 // Public Function Prototype(s):
 //****************************************************************************
-
 
 
 //****************************************************************************
