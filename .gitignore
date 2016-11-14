@@ -1,3 +1,7 @@
 *.user
 build/
 *.autosave
+*~
+*.bak
+*.o
+*.a
