@@ -36,6 +36,8 @@
 //****************************************************************************
 
 #include <QWidget>
+#include <QtWidgets/QCheckBox>
+#include <QtWidgets/QPushButton>
 #include "flexsea_generic.h"
 
 //****************************************************************************
@@ -131,16 +133,20 @@ private:
 	int selected_exp_index[MAX_SC_ITEMS];
 	int selected_refresh_index[MAX_SC_ITEMS], previous_refresh_index[MAX_SC_ITEMS];
 	QStringList var_list_refresh;
-	uint8_t pb_state[MAX_SC_ITEMS];
 	bool logThisItem[MAX_SC_ITEMS];
+	QPushButton **on_off_pb_ptr[MAX_SC_ITEMS];
+	QCheckBox **log_cb_ptr[MAX_SC_ITEMS];
 	QTimer *master_timer;
 	bool sc_comPortOpen;
+
+
 
 	//Function(s):
 	void initSlaveCom(void);
 	void initTimers(void);
 	void initDisplayDataReceived(void);
 	void managePushButton(int idx, bool forceOff);
+	void manageLogStatus(uint8_t idx);
 
 	void sc_read_all(uint8_t item);
 	void sc_read_all_ricnu(uint8_t item);

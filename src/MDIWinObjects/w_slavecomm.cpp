@@ -136,14 +136,18 @@ void W_SlaveComm::initSlaveCom(void)
 	//State variables:
 	//================
 	sc_comPortOpen = false;
-	pb_state[0] = 0;
-	pb_state[1] = 0;
-	pb_state[2] = 0;
-	pb_state[3] = 0;
 	logThisItem[0] = false;
 	logThisItem[1] = false;
 	logThisItem[2] = false;
 	logThisItem[3] = false;
+	on_off_pb_ptr[0] = &ui->pushButton1;
+	on_off_pb_ptr[1] = &ui->pushButton2;
+	on_off_pb_ptr[2] = &ui->pushButton3;
+	on_off_pb_ptr[3] = &ui->pushButton4;
+	log_cb_ptr[0] = &ui->checkBoxLog1;
+	log_cb_ptr[1] = &ui->checkBoxLog2;
+	log_cb_ptr[2] = &ui->checkBoxLog3;
+	log_cb_ptr[3] = &ui->checkBoxLog4;
 
 	//On/Off Button:
 	//==============
@@ -300,78 +304,49 @@ void W_SlaveComm::initDisplayDataReceived(void)
 //The 4 PB slots call this function:
 void W_SlaveComm::managePushButton(int idx, bool forceOff)
 {
-	QPushButton **pb_ptr = &ui->pushButton1;
-	QCheckBox **cb_ptr = &ui->checkBoxLog1;
-	switch(idx)
+	if((*on_off_pb_ptr[idx])->isChecked() == true &&
+		forceOff == false)
 	{
-		case 0:
-			pb_ptr = &ui->pushButton1;
-			cb_ptr = &ui->checkBoxLog1;
-			break;
-		case 1:
-			pb_ptr = &ui->pushButton2;
-			cb_ptr = &ui->checkBoxLog2;
-			break;
-		case 2:
-			pb_ptr = &ui->pushButton3;
-			cb_ptr = &ui->checkBoxLog3;
-			break;
-		case 3:
-			pb_ptr = &ui->pushButton4;
-			cb_ptr = &ui->checkBoxLog4;
-			break;
-	}
-
-	if(forceOff == true)
-	{
-		pb_state[idx] = 0;
-		(*pb_ptr)->setText(QChar(0x2718));
-		(*pb_ptr)->setStyleSheet("background-color: rgb(127, 127, 127); \
+		// set button appearance
+		(*on_off_pb_ptr[idx])->setChecked(true);
+		(*on_off_pb_ptr[idx])->setText(QChar(0x2714));
+		(*on_off_pb_ptr[idx])->setStyleSheet("background-color: rgb(0, 255, 0); \
 										color: rgb(0, 0, 0)");
-		logThisItem[idx] = false;
 	}
 	else
 	{
-		//qDebug() << "PB[" << idx << "] clicked.";
-		if(pb_state[idx] == 0)
-		{
-			//Turn ON:
-
-			pb_state[idx] = 1;
-			(*pb_ptr)->setText(QChar(0x2714));
-			(*pb_ptr)->setStyleSheet("background-color: rgb(0, 255, 0); \
-											color: rgb(0, 0, 0)");
-
-			//Logging?
-			if((*cb_ptr)->isChecked() == true)
-			{
-				emit openRecordingFile(idx, "testing.csv");
-				logThisItem[idx] = true;
-			}
-			else
-			{
-				logThisItem[idx] = false;
-			}
-		}
-		else
-		{
-			//Turn OFF:
-
-			pb_state[idx] = 0;
-			(*pb_ptr)->setText(QChar(0x2718));
-			(*pb_ptr)->setStyleSheet("background-color: rgb(127, 127, 127); \
-											color: rgb(0, 0, 0)");
-
-			 if(logThisItem[idx] == true)
-			 {
-				 logThisItem[idx] = false;
-				 emit closeLogFile(idx);
-			 }
-		}
+		// set button appearance
+		(*on_off_pb_ptr[idx])->setChecked(false);
+		(*on_off_pb_ptr[idx])->setText(QChar(0x2718));
+		(*on_off_pb_ptr[idx])->setStyleSheet("background-color: rgb(127, 127, 127); \
+									 color: rgb(0, 0, 0)");
 	}
+
+	// Logging?
+	manageLogStatus(idx);
 
 	//All GUI events call configSlaveComm():
 	configSlaveComm(idx);
+}
+
+void W_SlaveComm::manageLogStatus(uint8_t idx)
+{
+	//Logging?
+	if((*log_cb_ptr[idx])->isChecked() &&
+		(*on_off_pb_ptr[idx])->isChecked())
+	{
+		emit openRecordingFile(idx, "testing.csv");
+		logThisItem[idx] = true;
+	}
+
+	else
+	{
+		if(logThisItem[idx] == true)
+		{
+			logThisItem[idx] = false;
+			emit closeLogFile(idx);
+		}
+	}
 }
 
 void W_SlaveComm::updateStatusBar(QString txt)
@@ -514,7 +489,7 @@ void W_SlaveComm::configSlaveComm(int item)
 				+ QString::number(active_slave_index[item]) + ", " \
 				+ QString::number(selected_exp_index[item]) + ", " \
 				+ QString::number(selected_refresh_index[item]) + "). ";
-		if(pb_state[item] == 1)
+		if((*on_off_pb_ptr[0])->isChecked() == true)
 		{
 			msg += "Stream ON. ";
 		}
@@ -611,7 +586,8 @@ void W_SlaveComm::receiveNewDataReady(void)
 //This is what gets connected to a timer slot.
 void W_SlaveComm::sc_item1_slot(void)
 {
-	if(pb_state[0] == 1 && sc_comPortOpen == true) //TODO: add slot, and private variable
+	if((*on_off_pb_ptr[0])->isChecked() == true
+		&& sc_comPortOpen == true) //TODO: add slot, and private variable
 	{
 		switch(selected_exp_index[0])
 		{
@@ -774,20 +750,20 @@ void W_SlaveComm::on_comboBoxRefresh4_currentIndexChanged(int index)
 
 void W_SlaveComm::on_checkBoxLog1_stateChanged(int arg1)
 {
-
+	manageLogStatus(0);
 }
 
 void W_SlaveComm::on_checkBoxLog2_stateChanged(int arg1)
 {
-
+	manageLogStatus(1);
 }
 
 void W_SlaveComm::on_checkBoxLog3_stateChanged(int arg1)
 {
-
+	manageLogStatus(2);
 }
 
 void W_SlaveComm::on_checkBoxLog4_stateChanged(int arg1)
 {
-
+	manageLogStatus(3);
 }
