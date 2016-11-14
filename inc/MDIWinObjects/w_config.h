@@ -66,10 +66,10 @@ public:
 
 
 private slots:
+	void getComList(void);
 	void on_comPortComboBox_currentIndexChanged(int index);
 	void on_openComButton_clicked();
 	void on_closeComButton_clicked();
-	void on_pushButtonRefresh_clicked();
 	void on_pbLoadLogFile_clicked();
 	void on_pbCloseLogFile_clicked();
 
@@ -85,7 +85,6 @@ private:
 
 	//Function(s):
 	void initCom(void);
-	void getComList(void);
 	void defaultComOffUi(void);
 
  signals:

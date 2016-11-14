@@ -37,6 +37,7 @@
 #include <QSerialPort>
 #include <QSerialPortInfo>
 #include <QDebug>
+#include <QTimer>
 
 //****************************************************************************
 // Constructor & Destructor:
@@ -55,6 +56,10 @@ W_Config::W_Config(QWidget *parent) :
 	flagManualEntry = 0;
 	dataSourceState = None;
 	initCom();
+
+	QTimer *comPortRefreshTimer = new QTimer(this);
+	connect(comPortRefreshTimer, SIGNAL(timeout()), this, SLOT(getComList()));
+	comPortRefreshTimer->start(1000); //1000ms = 1S
 }
 
 W_Config::~W_Config()
@@ -98,10 +103,6 @@ void W_Config::initCom(void)
 	ui->closeComButton->setDisabled(true);
 	ui->pbLoadLogFile->setDisabled(false);
 	ui->pbCloseLogFile->setDisabled(true);
-
-	//COM port list and button:
-	getComList();
-	ui->pushButtonRefresh->setText(QChar(0x21BB));
 
 	//Flag for other functions:
 	flagComInitDone = 1;
@@ -231,11 +232,6 @@ void W_Config::on_closeComButton_clicked()
 	dataSourceState = None;
 	emit updateDataSourceStatus(dataSourceState);
 
-}
-
-void W_Config::on_pushButtonRefresh_clicked()
-{
-	getComList();
 }
 
 void W_Config::on_pbLoadLogFile_clicked()
