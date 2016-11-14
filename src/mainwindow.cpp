@@ -51,7 +51,7 @@ MainWindow::MainWindow(QWidget *parent) :
 {
 	ui->setupUi(this);
 
-	setWindowTitle("FlexSEA Plan GUI v2.0 (Alpha Release - 10/2016)");
+	setWindowTitle("FlexSEA Plan GUI v2.0 (Alpha Release - 11/2016)");
 	ui->statusBar->showMessage("Program launched. COM: Not Connected. \
 								Stream status: N/A", 0);
 	setWindowIcon(QIcon(":icons/d_logo_small.png"));

@@ -79,7 +79,8 @@ int SerialDriver::open(QString name, int tries, int delay)
 		//When false, print error code:
 		if(fd == false)
 		{
-			qDebug() << "Try #" << cnt << " failed. Error: " << USBSerialPort.errorString() << ".\n";
+			qDebug() << "Try #" << cnt << " failed. Error: " << \
+						USBSerialPort.errorString() << ".\n";
 			emit openProgress(100*cnt/tries, 0);
 		}
 
@@ -139,7 +140,7 @@ int SerialDriver::read(unsigned char *buf)
 	{
 		baData = USBSerialPort.readAll();
 
-		//We check to see if we are getting reasonnable packets, or a bunch of crap:
+		//We check to see if we are getting good packets, or a bunch of crap:
 		int len = baData.length();
 		if(len > 256)
 		{
