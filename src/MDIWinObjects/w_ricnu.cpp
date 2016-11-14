@@ -55,6 +55,7 @@ W_Ricnu::W_Ricnu(QWidget *parent) :
 
 W_Ricnu::~W_Ricnu()
 {
+	emit windowClosed();
 	delete ui;
 }
 
@@ -62,18 +63,18 @@ W_Ricnu::~W_Ricnu()
 // Public function(s):
 //****************************************************************************
 
-//Call this function to refresh the display
-void W_Ricnu::refresh(void)
-{
-	struct ricnu_s *ricnuPtr;
-	myFlexSEA_Generic.assignRicnuPtr(&ricnuPtr, SL_BASE_EX, \
-									 ui->comboBox_slave->currentIndex());
-	displayRicnu(ricnuPtr);
-}
-
 //****************************************************************************
 // Public slot(s):
 //****************************************************************************
+
+//Call this function to refresh the display
+void W_Ricnu::refreshDisplayRicnu(void)
+{
+	struct ricnu_s *ricnuPtr;
+	FlexSEA_Generic::assignRicnuPtr(&ricnuPtr, SL_BASE_EX, \
+									 ui->comboBox_slave->currentIndex());
+	displayRicnu(ricnuPtr);
+}
 
 //****************************************************************************
 // Private function(s):
@@ -82,12 +83,12 @@ void W_Ricnu::refresh(void)
 void W_Ricnu::init(void)
 {
 	//Populates Slave list:
-	myFlexSEA_Generic.populateSlaveComboBox(ui->comboBox_slave, SL_BASE_EX, \
+	FlexSEA_Generic::populateSlaveComboBox(ui->comboBox_slave, SL_BASE_EX, \
 											SL_LEN_EX);
 
 	//Variables:
 	active_slave_index = ui->comboBox_slave->currentIndex();
-	active_slave = myFlexSEA_Generic.getSlaveID(SL_BASE_EX, active_slave_index);
+	active_slave = FlexSEA_Generic::getSlaveID(SL_BASE_EX, active_slave_index);
 }
 
 //TODO: lots of copy&paste from w_strain.

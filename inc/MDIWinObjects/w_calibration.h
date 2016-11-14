@@ -59,11 +59,12 @@ public:
 
 public slots:
 
+signals:
+	void windowClosed(void);
 
 private:
 	//Variables & Objects:
 	Ui::W_Calibration *ui;
-	FlexSEA_Generic myFlexSEA_Generic;
 	int active_slave, active_slave_index;
 
 	//Function(s):

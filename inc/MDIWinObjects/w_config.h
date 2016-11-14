@@ -17,38 +17,84 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *****************************************************************************
 	[Lead developper] Jean-Francois (JF) Duval, jfduval at dephy dot com.
-	[Origin] Based on Jean-Francois Duval's work at the MIT Media Lab 
+	[Origin] Based on Jean-Francois Duval's work at the MIT Media Lab
 	Biomechatronics research group <http://biomech.media.mit.edu/>
-	[Contributors] 
+	[Contributors]
 *****************************************************************************
-	[This file] WinAnyCommand: Any Command Window (Wrapper)
+	[This file] w_config.h: Configuration Window
 *****************************************************************************
 	[Change log] (Convention: YYYY-MM-DD | author | comment)
 	* 2016-09-09 | jfduval | Initial GPL-3.0 release
 	*
 ****************************************************************************/
 
+#ifndef W_CONFIG_H
+#define W_CONFIG_H
+
 //****************************************************************************
 // Include(s)
 //****************************************************************************
 
-#include "WinAnyCommand.h"
-#include <QMdiSubWindow>
-#include "w_anycommand.h"
+#include <QWidget>
 
 //****************************************************************************
-// Constructor & Destructor:
+// Namespace & Class Definition:
 //****************************************************************************
 
-WinAnyCommand::WinAnyCommand(QWidget *parent) :
-  QMdiSubWindow(parent)
-{
-    my_w_anycommand = new W_AnyCommand(this);
-    this->setWidget(my_w_anycommand);
+namespace Ui {
+class W_Config;
 }
 
-WinAnyCommand::~WinAnyCommand()
+typedef enum DataSource
 {
-    emit windowClosed();
-    my_w_anycommand->~W_AnyCommand();
-}
+	None,
+	LiveCOM,
+	LiveBluetooth,
+	LogFile
+}DataSource;
+
+class W_Config : public QWidget
+{
+	Q_OBJECT
+
+public:
+	//Constructor & Destructor:
+	explicit W_Config(QWidget *parent = 0);
+	~W_Config();
+
+	DataSource getDataSourceStatus(void) {return dataSourceState;}
+
+
+private slots:
+	void getComList(void);
+	void on_comPortComboBox_currentIndexChanged(int index);
+	void on_openComButton_clicked();
+	void on_closeComButton_clicked();
+	void on_pbLoadLogFile_clicked();
+	void on_pbCloseLogFile_clicked();
+
+public slots:
+	void setComProgress(int val, int rst);
+
+private:
+	//Variables & Objects:
+	Ui::W_Config *ui;
+	QStringList comPortList;
+	int flagComInitDone, flagManualEntry;
+	DataSource dataSourceState;
+
+	//Function(s):
+	void initCom(void);
+	void defaultComOffUi(void);
+
+ signals:
+	void openCom(QString name, int tries, int delay);
+	void closeCom(void);
+	void openReadingFile(void);
+	void closeReadingFile(void);
+	void updateDataSourceStatus(DataSource status);
+	void windowClosed(void);
+
+};
+
+#endif // W_CONFIG_H

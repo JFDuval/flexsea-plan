@@ -56,15 +56,16 @@ public:
 	~W_Manage();
 
 	//Function(s):
-	void refresh(void);
 
 public slots:
+	void refreshDisplayManage(void);
 
+signals:
+	void windowClosed(void);
 
 private:
 	//Variables & Objects:
 	Ui::W_Manage *ui;
-	FlexSEA_Generic myFlexSEA_Generic;
 	int active_slave, active_slave_index;
 
 	//Function(s):

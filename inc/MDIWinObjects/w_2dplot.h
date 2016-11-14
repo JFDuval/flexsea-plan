@@ -80,14 +80,17 @@ class W_2DPlot : public QWidget
 	Q_OBJECT
 
 public:
+
 	//Constructor & Destructor:
 	explicit W_2DPlot(QWidget *parent = 0);
 	~W_2DPlot();
 
 	//Function(s):
-	void refresh2DPlot(void);
+
 
 public slots:
+	void refresh2DPlot(void);
+
 
 private slots:
 	void on_radioButtonXA_clicked();
@@ -118,14 +121,17 @@ private slots:
 	void on_checkBoxD5_stateChanged(int arg1);
 	void on_checkBoxD6_stateChanged(int arg1);
 	void on_pushButtonClear_clicked();
-	void on_pbReset_clicked();
+	void on_DataSlider_valueChanged(int value);
+
+signals:
+	void windowClosed(void);
+	void dataSliderValueChanged(int index);
 
 private:
 	//Variables & Objects:
 	Ui::W_2DPlot *ui;
 	QChart *chart;
 	QChartView *chartView;
-	FlexSEA_Generic myFlexSEA_Generic;
 	QLineSeries *qlsData[VAR_NUM];
 	QLineSeries *mySeriesTest;
 	int graph_xarray[PLOT_BUF_LEN];

@@ -58,6 +58,7 @@ W_Strain::W_Strain(QWidget *parent) :
 
 W_Strain::~W_Strain()
 {
+	emit windowClosed();
 	delete ui;
 }
 
@@ -65,18 +66,18 @@ W_Strain::~W_Strain()
 // Public function(s):
 //****************************************************************************
 
-//Call this function to refresh the display
-void W_Strain::refresh(void)
-{
-	struct strain_s *stPtr;
-	myFlexSEA_Generic.assignStrainPtr(&stPtr, SL_BASE_ALL, \
-									   ui->comboBoxSlave->currentIndex());
-	displayStrain(stPtr);
-}
-
 //****************************************************************************
 // Public slot(s):
 //****************************************************************************
+
+//Call this function to refresh the display
+void W_Strain::refreshDisplayStrain(void)
+{
+	struct strain_s *stPtr;
+	FlexSEA_Generic::assignStrainPtr(&stPtr, SL_BASE_ALL, \
+									   ui->comboBoxSlave->currentIndex());
+	displayStrain(stPtr);
+}
 
 //****************************************************************************
 // Private function(s):
@@ -85,7 +86,7 @@ void W_Strain::refresh(void)
 void W_Strain::init(void)
 {
 	//Populates Slave list:
-	myFlexSEA_Generic.populateSlaveComboBox(ui->comboBoxSlave, \
+	FlexSEA_Generic::populateSlaveComboBox(ui->comboBoxSlave, \
 											SL_BASE_STRAIN, SL_LEN_STRAIN);
 }
 

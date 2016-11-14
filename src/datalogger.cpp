@@ -32,7 +32,6 @@
 // Include(s)
 //****************************************************************************
 
-#include "main.h"
 #include "datalogger.h"
 #include <QDebug>
 #include <QString>
@@ -46,10 +45,13 @@
 
 DataLogger::DataLogger(QWidget *parent) : QWidget(parent)
 {
+<<<<<<< HEAD
 	fileOpened[0] = false;
 	fileOpened[1] = false;
 	fileOpened[2] = false;
 	fileOpened[3] = false;
+=======
+>>>>>>> origin/Dev_Seb
 	logDirectory();
 	init();
 }
@@ -62,13 +64,122 @@ DataLogger::DataLogger(QWidget *parent) : QWidget(parent)
 // Public slot(s):
 //****************************************************************************
 
-void DataLogger::openFile(uint8_t item)
+void DataLogger::openRecordingFile(uint8_t item)
 {
+<<<<<<< HEAD
 	QString msg = "";
 
 	//File Dialog (returns the selected file name):
 	QDir::setCurrent("Plan-GUI-Logs");
 	filename = QFileDialog::getSaveFileName( \
+=======
+	if(logRecordingFile[item].isOpen())
+	{
+		qDebug() << "File already open. Close it before opening a new one";
+	}
+	else
+	{
+		//File Dialog (returns the selected file name):
+		QDir::setCurrent("Plan-GUI-Logs");
+		QString filename = QFileDialog::getSaveFileName( \
+					this,
+					tr("Open Log File"),
+					QDir::currentPath() + "\\.csv" ,
+					tr("Log files (*.txt *.csv);;All files (*.*)"));
+
+		//Extract filename to simplify UI:
+		QString path = QDir::currentPath();
+		int pathLen = path.length();
+		QString shortFileName = filename.mid(pathLen+1);
+
+		//Now we open it:
+		logRecordingFile[item].setFileName(filename);
+
+		openfile(item, filename, shortFileName);
+	}
+}
+
+void DataLogger::openRecordingFile(uint8_t item, QString shortFileName)
+{
+	if(logRecordingFile[item].isOpen())
+	{
+		qDebug() << "File already open. Close it before opening a new one";
+	}
+
+	else
+	{
+		//Add .csv extension if not present
+		if(shortFileName.mid(shortFileName.length() - 4) != ".csv")
+		{
+			shortFileName.append(".csv");
+		}
+
+		//File Dialog
+		QDir::setCurrent("Plan-GUI-Logs");
+		QString fileName = QDir::currentPath() + "/" + shortFileName;
+		QString numberedFileName = fileName;
+
+		//Now we open it:
+		int fileNameLen = fileName.length();
+		numberedFileName.insert(fileNameLen	- 4,"_0");
+		logRecordingFile[item].setFileName(numberedFileName);
+
+		// Search for the next unused numbered file.
+		uint16_t i = 0;
+		while(logRecordingFile[item].exists() ||
+			  i >= 10000)
+		{
+			++i;
+			numberedFileName = fileName;
+			numberedFileName.insert(fileNameLen - 4,
+									"_" + QString::number(i));
+			logRecordingFile[item].setFileName(numberedFileName);
+
+		}
+
+		QString numberedShortFileName = shortFileName + "_" + QString::number(i);
+
+		openfile(item, numberedFileName, numberedShortFileName);
+	}
+}
+
+void DataLogger::openfile(uint8_t item, QString fileName, QString shortFileName)
+{
+	QString msg = "";
+
+	// Try to open the file.
+	if(logRecordingFile[item].open(QIODevice::ReadWrite))
+	{
+		// TODO Datalogger should not know that there's a logFile and bar
+		// status. Abstraction principle is not respected here. Is there a way
+		// to use some sort of return value instead of signal slot?
+
+		//Associate stream to file:
+		logFileStream.setDevice(&logRecordingFile[item]);
+		msg = tr("Opened '") + fileName + "'.";
+		emit setStatusBarMessage(msg);
+	}
+
+	//If no file selected
+	else
+	{
+		msg = tr("No log file selected.");
+		qDebug() << msg;
+
+		msg = tr("No log file selected or the file couldn't be opened.");
+		emit setStatusBarMessage(msg);
+	}
+}
+
+void DataLogger::openReadingFile(void)
+{
+	QString msg = "";
+
+
+	//File Dialog (returns the selected file name):
+	QDir::setCurrent("Plan-GUI-Logs");
+	QString filename = QFileDialog::getOpenFileName( \
+>>>>>>> origin/Dev_Seb
 				this,
 				tr("Open Log File"),
 				QDir::currentPath() + "\\.csv" ,
@@ -81,6 +192,7 @@ void DataLogger::openFile(uint8_t item)
 
 
 	//Now we open it:
+<<<<<<< HEAD
 	logFile.setFileName(filename);
 	if(logFile.open(QIODevice::ReadWrite))
 	{
@@ -96,19 +208,83 @@ void DataLogger::openFile(uint8_t item)
 		//TODO Will it be the best way to handle the file status since another function can close it?
 		fileOpened[item] = true;
 
+=======
+	logReadingFile.setFileName(filename);
+	logReadingFile.size();
+	if(logReadingFile.open(QIODevice::ReadOnly))
+	{
+		qDebug() << msg;
+
+		//Associate stream to file:
+		QString line, slaveName, expName;
+		QStringList splitLine;
+		//uint8_t item, slaveIndex, experimentIndex;
+
+		// Read the logfile informations.
+		line = logReadingFile.readLine();
+
+		//TODO : design a better way to parse the header.
+		//item = line.section(' ', 3, 3).toInt();
+		//slaveIndex = line.section(' ', 8, 8).toInt();
+		//slaveName = line.section(' ', 9, 10).remove("(").remove(")");
+		//experimentIndex = line.section(' ', 15, 15).toInt();
+
+		//Clear the column's header.
+		line = logReadingFile.readLine();
+
+		while (!logReadingFile.atEnd()) {
+			line = logReadingFile.readLine();
+			splitLine = line.split(',', QString::KeepEmptyParts);
+			struct execute_s newitem;
+			myExecute_s.append(newitem);
+			if(splitLine.length() >= 20)
+			{
+				myExecute_s.last().accel.x   = splitLine[2].toInt();
+				myExecute_s.last().accel.y   = splitLine[3].toInt();
+				myExecute_s.last().accel.z   = splitLine[4].toInt();
+				myExecute_s.last().gyro.x    = splitLine[5].toInt();
+				myExecute_s.last().gyro.y    = splitLine[6].toInt();
+				myExecute_s.last().gyro.z    = splitLine[7].toInt();
+				myExecute_s.last().strain    = splitLine[8].toInt();
+				myExecute_s.last().analog[0] = splitLine[9].toInt();
+				myExecute_s.last().analog[1] = splitLine[10].toInt();
+				myExecute_s.last().current   = splitLine[11].toInt();
+				myExecute_s.last().enc_display = splitLine[12].toInt();
+				myExecute_s.last().enc_control = splitLine[13].toInt();
+				myExecute_s.last().enc_commut  = splitLine[14].toInt();
+				myExecute_s.last().volt_batt = splitLine[15].toInt();
+				myExecute_s.last().volt_int  = splitLine[16].toInt();
+				myExecute_s.last().temp      = splitLine[17].toInt();
+				myExecute_s.last().status1   = splitLine[18].toInt();
+				myExecute_s.last().status2   = splitLine[19].toInt();
+				FlexSEA_Generic::decodeExecute(&myExecute_s.last());
+			}
+		}
+
+		//emit setNewLogFileLoaded(myExecute_s);
+
+		msg = tr("Opened '") + filename + "'.";
+		emit setStatusBarMessage(msg);
+>>>>>>> origin/Dev_Seb
 	}
 
 	//If no file selected
 	else
 	{
+<<<<<<< HEAD
 		msg = tr("No log file selected.");
 		emit setLogFileStatus(msg);
+=======
+>>>>>>> origin/Dev_Seb
 		qDebug() << msg;
 
 		msg = tr("No log file selected or the file couldn't be opened.");
 		emit setStatusBarMessage(msg);
+<<<<<<< HEAD
 		fileOpened[item] = false;
 		//todo
+=======
+>>>>>>> origin/Dev_Seb
 	}
 }
 
@@ -116,7 +292,10 @@ void DataLogger::writeToFile(uint8_t item, uint8_t slaveIndex, uint8_t expIndex)
 {
 	qint64 t_ms = 0;
 	static qint64 t_ms_initial[4] = {0,0,0,0};
+<<<<<<< HEAD
 	static bool isFirstTime[4] = {true,true,true,true};
+=======
+>>>>>>> origin/Dev_Seb
 
 	void (DataLogger::*headerFctPtr) (uint8_t item);
 	void (DataLogger::*logFctPtr) (QTextStream *filePtr, uint8_t slaveIndex, \
@@ -125,6 +304,7 @@ void DataLogger::writeToFile(uint8_t item, uint8_t slaveIndex, uint8_t expIndex)
 	QString t_text = "";
 
 	getFctPtrs(slaveIndex, expIndex, &headerFctPtr, &logFctPtr);
+<<<<<<< HEAD
 	//headerFctPtr = &
 	//logFctPtr = &DataLogger::logReadAllExec;
 
@@ -140,13 +320,32 @@ void DataLogger::writeToFile(uint8_t item, uint8_t slaveIndex, uint8_t expIndex)
 		writeIdentifier(item, slaveIndex, expIndex);
 		(this->*headerFctPtr)(item);
 	}
+=======
+>>>>>>> origin/Dev_Seb
 
 	//Timestamps:
 	logTimestamp(&t_ms, &t_text);
 	t_ms -= t_ms_initial[item];
 
+<<<<<<< HEAD
 	if(fileOpened[item] == true)
 	{
+=======
+	if(logRecordingFile[item].isOpen())
+	{
+		//Writting for the first time?
+		if(logRecordingFile[item].pos() == 0)
+		{
+			//Init timestamp ms:
+			logTimestamp(&t_ms, &t_text);
+			t_ms_initial[item] = t_ms;
+
+			//Header:
+			writeIdentifier(item, slaveIndex, expIndex);
+			(this->*headerFctPtr)(item);
+		}
+
+>>>>>>> origin/Dev_Seb
 		//And we add to the text file:
 		(this->*logFctPtr)(&logFileStream, slaveIndex, '\n', t_ms, t_text);
 	}
@@ -162,6 +361,7 @@ void DataLogger::getFctPtrs(uint8_t slaveIndex, uint8_t expIndex, \
 							void (DataLogger::**myHeaderFctPtr) (uint8_t item), \
 							void (DataLogger::**myLogFctPtr) (QTextStream *filePtr, uint8_t slaveIndex, \
 											   char term, qint64 t_ms, QString t_text))
+<<<<<<< HEAD
 {
 	//Board type? Extract base via address&integer trick
 	uint8_t bType = myFlexSEA_Generic.getSlaveBoardType(SL_BASE_ALL, slaveIndex);
@@ -211,24 +411,96 @@ void DataLogger::getFctPtrs(uint8_t slaveIndex, uint8_t expIndex, \
 		default:
 			qDebug() << "Invalid Experiment - can't write Log Header";
 			break;
+=======
+{
+	//Board type? Extract base via address&integer trick
+	uint8_t bType = FlexSEA_Generic::getSlaveBoardType(SL_BASE_ALL, slaveIndex);
+
+	//And now, experiment per experiment:
+	switch(expIndex)
+	{
+		case 0: //Read All (barebone)
+			switch(bType)
+			{
+				case FLEXSEA_PLAN_BASE:
+					break;
+				case FLEXSEA_MANAGE_BASE:
+					//(*myHeaderFctPtr) = &writeManageReadAllHeader;
+					*myHeaderFctPtr = &DataLogger::writeManageReadAllHeader;
+					(*myLogFctPtr) = &logReadAllManage;
+					break;
+				case FLEXSEA_EXECUTE_BASE:
+					(*myHeaderFctPtr) = &writeExecuteReadAllHeader;
+					(*myLogFctPtr) = &logReadAllExec;
+					break;
+				case FLEXSEA_BATTERY_BASE:
+					break;
+				case FLEXSEA_STRAIN_BASE:
+					(*myHeaderFctPtr) = &writeStrainReadAllHeader;
+					(*myLogFctPtr) = &logReadAllStrain;
+					break;
+				case FLEXSEA_GOSSIP_BASE:
+					(*myHeaderFctPtr) = &writeGossipReadAllHeader;
+					(*myLogFctPtr) = &logReadAllGossip;
+					break;
+			}
+			break;
+		case 1: //In Control
+			qDebug() << "Not programmed!";
+			break;
+		case 2: //RIC/NU Knee
+			(*myHeaderFctPtr) = &writeReadAllRicnuHeader;
+			(*myLogFctPtr) = &logReadAllRicnu;
+			break;
+		case 3: //CSEA Knee
+			qDebug() << "Not programmed!";
+			break;
+		case 4: //2DOF Ankle
+			qDebug() << "Not programmed!";
+			break;
+		default:
+			qDebug() << "Invalid Experiment - can't write Log Header";
+			break;
 	}
 }
 
-void DataLogger::closeFile(uint8_t item)
+void DataLogger::closeRecordingFile(uint8_t item)
 {
+	if(logRecordingFile[item].isOpen())
+	{
+		logFileStream << endl;
+		logRecordingFile[item].close();
+>>>>>>> origin/Dev_Seb
+	}
+}
+
+void DataLogger::closeReadingFile(void)
+{
+<<<<<<< HEAD
 	if(fileOpened[item] == true)
 	{
 		logFileStream << endl;
 		logFile.close();
 		fileOpened[item] = false;
 	}
+=======
+	if(logReadingFile.isOpen())
+	{
+		logReadingFile.close();
+	}
+	myExecute_s.clear();
+>>>>>>> origin/Dev_Seb
 }
 
 void DataLogger::logReadAllExec(QTextStream *filePtr, uint8_t slaveIndex, \
 								char term, qint64 t_ms, QString t_text)
 {
 	struct execute_s *exPtr;
+<<<<<<< HEAD
 	myFlexSEA_Generic.assignExecutePtr(&exPtr, SL_BASE_ALL, slaveIndex);
+=======
+	FlexSEA_Generic::assignExecutePtr(&exPtr, SL_BASE_ALL, slaveIndex);
+>>>>>>> origin/Dev_Seb
 
 	(*filePtr) << t_text << ',' << \
 						t_ms << ',' << \
@@ -257,7 +529,11 @@ void DataLogger::logReadAllStrain(QTextStream *filePtr, uint8_t slaveIndex, \
 								char term, qint64 t_ms, QString t_text)
 {
 	struct strain_s *stPtr;
+<<<<<<< HEAD
 	myFlexSEA_Generic.assignStrainPtr(&stPtr, SL_BASE_ALL, slaveIndex);
+=======
+	FlexSEA_Generic::assignStrainPtr(&stPtr, SL_BASE_ALL, slaveIndex);
+>>>>>>> origin/Dev_Seb
 
 	(*filePtr) << t_text << ',' << \
 						t_ms << ',' << \
@@ -274,7 +550,11 @@ void DataLogger::logReadAllGossip(QTextStream *filePtr, uint8_t slaveIndex, \
 								char term, qint64 t_ms, QString t_text)
 {
 	struct gossip_s *goPtr;
+<<<<<<< HEAD
 	myFlexSEA_Generic.assignGossipPtr(&goPtr, SL_BASE_ALL, slaveIndex);
+=======
+	FlexSEA_Generic::assignGossipPtr(&goPtr, SL_BASE_ALL, slaveIndex);
+>>>>>>> origin/Dev_Seb
 
 	(*filePtr) << t_text << ',' << \
 						t_ms << ',' << \
@@ -301,7 +581,11 @@ void DataLogger::logReadAllRicnu(QTextStream *filePtr, uint8_t slaveIndex, \
 								 char term, qint64 t_ms, QString t_text)
 {
 	struct ricnu_s *myPtr;
+<<<<<<< HEAD
 	myFlexSEA_Generic.assignRicnuPtr(&myPtr, SL_BASE_ALL, slaveIndex);
+=======
+	FlexSEA_Generic::assignRicnuPtr(&myPtr, SL_BASE_ALL, slaveIndex);
+>>>>>>> origin/Dev_Seb
 
 	logFileStream << t_text << ',' << \
 						t_ms << ',' << \
@@ -313,7 +597,11 @@ void DataLogger::logReadAllRicnu(QTextStream *filePtr, uint8_t slaveIndex, \
 						myPtr->ex.gyro.z << ',' << \
 						myPtr->ex.current << ',' << \
 						myPtr->ex.enc_motor << ',' << \
+<<<<<<< HEAD
 						myPtr->ex.enc_joint << ',' << \
+=======
+						myPtr->ex.enc_control << ',' << \
+>>>>>>> origin/Dev_Seb
 						myPtr->st.ch[0].strain_filtered << ',' << \
 						myPtr->st.ch[1].strain_filtered << ',' << \
 						myPtr->st.ch[2].strain_filtered << ',' << \
@@ -327,7 +615,11 @@ void DataLogger::logReadAllManage(QTextStream *filePtr, uint8_t slaveIndex, \
 								char term, qint64 t_ms, QString t_text)
 {
 	struct manage_s *mnPtr;
+<<<<<<< HEAD
 	myFlexSEA_Generic.assignManagePtr(&mnPtr, SL_BASE_MN, slaveIndex);
+=======
+	FlexSEA_Generic::assignManagePtr(&mnPtr, SL_BASE_MN, slaveIndex);
+>>>>>>> origin/Dev_Seb
 
 	(*filePtr) << t_text << ',' << \
 						t_ms << ',' << \
@@ -358,7 +650,10 @@ void DataLogger::logReadAllManage(QTextStream *filePtr, uint8_t slaveIndex, \
 void DataLogger::init(void)
 {
 	myTime = new QDateTime;
+<<<<<<< HEAD
 	myFlexSEA_Generic.init();
+=======
+>>>>>>> origin/Dev_Seb
 }
 
 void DataLogger::logDirectory(void)
@@ -387,8 +682,13 @@ void DataLogger::logTimestamp(qint64 *t_ms, QString *t_text)
 void DataLogger::writeIdentifier(uint8_t item, uint8_t slaveIndex, uint8_t expIndex)
 {
 	QString msg, slaveName, expName;
+<<<<<<< HEAD
 	myFlexSEA_Generic.getSlaveName(SL_BASE_ALL, slaveIndex, &slaveName);
 	myFlexSEA_Generic.getExpName(expIndex, &expName);
+=======
+	FlexSEA_Generic::getSlaveName(SL_BASE_ALL, slaveIndex, &slaveName);
+	FlexSEA_Generic::getExpName(expIndex, &expName);
+>>>>>>> origin/Dev_Seb
 
 	//Top of the file description:
 	msg = "[Datalogging: Item = " + QString::number(item) + " | Slave index = " + \
@@ -396,7 +696,11 @@ void DataLogger::writeIdentifier(uint8_t item, uint8_t slaveIndex, uint8_t expIn
 						"Experiment index = " + QString::number(expIndex) + " (" + \
 						expName + ")]\n";
 	qDebug() << msg;
+<<<<<<< HEAD
 	if(fileOpened[item] == true)
+=======
+	if(logRecordingFile[item].isOpen())
+>>>>>>> origin/Dev_Seb
 	{
 		logFileStream << msg;
 	}
@@ -404,7 +708,11 @@ void DataLogger::writeIdentifier(uint8_t item, uint8_t slaveIndex, uint8_t expIn
 
 void DataLogger::writeExecuteReadAllHeader(uint8_t item)
 {
+<<<<<<< HEAD
 	if(fileOpened[item] == true)
+=======
+	if(logRecordingFile[item].isOpen())
+>>>>>>> origin/Dev_Seb
 	{
 		//Print header:
 		logFileStream << "Timestamp," << \
@@ -433,7 +741,11 @@ void DataLogger::writeExecuteReadAllHeader(uint8_t item)
 
 void DataLogger::writeManageReadAllHeader(uint8_t item)
 {
+<<<<<<< HEAD
 	if(fileOpened[item] == true)
+=======
+	if(logRecordingFile[item].isOpen())
+>>>>>>> origin/Dev_Seb
 	{
 		//Print header:
 		logFileStream << "Timestamp," << \
@@ -461,7 +773,11 @@ void DataLogger::writeManageReadAllHeader(uint8_t item)
 
 void DataLogger::writeStrainReadAllHeader(uint8_t item)
 {
+<<<<<<< HEAD
 	if(fileOpened[item] == true)
+=======
+	if(logRecordingFile[item].isOpen())
+>>>>>>> origin/Dev_Seb
 	{
 		//Print header:
 		logFileStream << "Timestamp," << \
@@ -478,7 +794,11 @@ void DataLogger::writeStrainReadAllHeader(uint8_t item)
 
 void DataLogger::writeGossipReadAllHeader(uint8_t item)
 {
+<<<<<<< HEAD
 	if(fileOpened[item] == true)
+=======
+	if(logRecordingFile[item].isOpen())
+>>>>>>> origin/Dev_Seb
 	{
 		//Print header:
 		logFileStream << "Timestamp," << \
@@ -505,7 +825,11 @@ void DataLogger::writeGossipReadAllHeader(uint8_t item)
 
 void DataLogger::writeReadAllRicnuHeader(uint8_t item)
 {
+<<<<<<< HEAD
 	if(fileOpened[item] == true)
+=======
+	if(logRecordingFile[item].isOpen())
+>>>>>>> origin/Dev_Seb
 	{
 		//Print header:
 		logFileStream << "Timestamp," << \

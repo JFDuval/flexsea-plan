@@ -44,20 +44,23 @@
 // Constructor & Destructor:
 //****************************************************************************
 
-W_Execute::W_Execute(QWidget *parent) :
+W_Execute::W_Execute(QWidget *parent, QList<struct execute_s> *logRef, DisplayMode mode) :
 	QWidget(parent),
 	ui(new Ui::W_Execute)
 {
 	ui->setupUi(this);
 
+	myExecute_s = logRef;
 	setWindowTitle("Execute - Barebone");
 	setWindowIcon(QIcon(":icons/d_logo_small.png"));
 
-	init();
+	displayMode = mode;
+	updateDisplayMode(displayMode);
 }
 
 W_Execute::~W_Execute()
 {
+	emit windowClosed();
 	delete ui;
 }
 
@@ -65,28 +68,57 @@ W_Execute::~W_Execute()
 // Public function(s):
 //****************************************************************************
 
+//****************************************************************************
+// Public slot(s):
+//****************************************************************************
+
 //Call this function to refresh the display
 void W_Execute::refresh(void)
 {
 	struct execute_s *exPtr;
-	myFlexSEA_Generic.assignExecutePtr(&exPtr, SL_BASE_ALL, \
+	FlexSEA_Generic::assignExecutePtr(&exPtr, SL_BASE_ALL, \
 									   ui->comboBox_slave->currentIndex());
 	displayExecute(exPtr);
 }
 
-//****************************************************************************
-// Public slot(s):
-//****************************************************************************
+void W_Execute::displayLogData(int index)
+{
+   if(myExecute_s->isEmpty() == false)
+   {
+		displayExecute(&(*myExecute_s)[index]);
+   }
+}
+
+void W_Execute::updateDisplayMode(DisplayMode mode)
+{
+	if(mode == DisplayLogData)
+	{
+		initLog();
+	}
+	else
+	{
+		initLive();
+	}
+}
 
 //****************************************************************************
 // Private function(s):
 //****************************************************************************
 
-void W_Execute::init(void)
+void W_Execute::initLive(void)
 {
 	//Populates Slave list:
-	myFlexSEA_Generic.populateSlaveComboBox(ui->comboBox_slave, \
+	ui->comboBox_slave->clear();
+	FlexSEA_Generic::populateSlaveComboBox(ui->comboBox_slave, \
 											SL_BASE_EX, SL_LEN_EX);
+}
+
+void W_Execute::initLog(void)
+{
+	//Populates Slave list:
+	ui->comboBox_slave->clear();
+	ui->comboBox_slave->addItem("Log 1");
+	displayLogData(0);
 }
 
 void W_Execute::displayExecute(struct execute_s *ex)
@@ -140,7 +172,7 @@ void W_Execute::displayExecute(struct execute_s *ex)
 	ui->disp_strain_d->setText(QString::number(ex->decoded.strain,'i', 0));
 
 	QString myStr;
-	myFlexSEA_Generic.decodeStatus(SL_BASE_EX, ui->comboBox_slave->currentIndex(), \
+	FlexSEA_Generic::decodeStatus(SL_BASE_EX, ui->comboBox_slave->currentIndex(), \
 									  ex->status1, ex->status2, &myStr);
 	ui->label_status1->setText(myStr);
 

@@ -58,6 +58,7 @@ W_Gossip::W_Gossip(QWidget *parent) :
 
 W_Gossip::~W_Gossip()
 {
+	emit windowClosed();
 	delete ui;
 }
 
@@ -65,18 +66,18 @@ W_Gossip::~W_Gossip()
 // Public function(s):
 //****************************************************************************
 
-//Call this function to refresh the display
-void W_Gossip::refresh(void)
-{
-	struct gossip_s *goPtr;
-	myFlexSEA_Generic.assignGossipPtr(&goPtr, SL_BASE_GOSSIP, \
-									  ui->comboBox_slave->currentIndex());
-	displayGossip(goPtr);
-}
-
 //****************************************************************************
 // Public slot(s):
 //****************************************************************************
+
+//Call this function to refresh the display
+void W_Gossip::refreshDisplayGossip(void)
+{
+	struct gossip_s *goPtr;
+	FlexSEA_Generic::assignGossipPtr(&goPtr, SL_BASE_GOSSIP, \
+									  ui->comboBox_slave->currentIndex());
+	displayGossip(goPtr);
+}
 
 //****************************************************************************
 // Private function(s):
@@ -85,7 +86,7 @@ void W_Gossip::refresh(void)
 void W_Gossip::init(void)
 {
 	//Populates Slave list:
-	myFlexSEA_Generic.populateSlaveComboBox(ui->comboBox_slave, \
+	FlexSEA_Generic::populateSlaveComboBox(ui->comboBox_slave, \
 											SL_BASE_GOSSIP, SL_LEN_GOSSIP);
 }
 

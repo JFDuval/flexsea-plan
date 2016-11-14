@@ -60,10 +60,12 @@ public:
 private slots:
 	void on_comboBoxCmd_currentIndexChanged(int index);
 
+signals:
+	void windowClosed(void);
+
 private:
 	//Variables & Objects:
 	Ui::W_AnyCommand *ui;
-	FlexSEA_Generic myFlexSEA_Generic;
 	QStringList var_list_commands;
 	QList<uint8_t> var_list_codes;
 

@@ -57,6 +57,7 @@ W_Battery::W_Battery(QWidget *parent) :
 
 W_Battery::~W_Battery()
 {
+	emit windowClosed();
 	delete ui;
 }
 
@@ -64,18 +65,18 @@ W_Battery::~W_Battery()
 // Public function(s):
 //****************************************************************************
 
-//Call this function to refresh the display
-void W_Battery::refresh(void)
-{
-	struct battery_s *baPtr;
-	myFlexSEA_Generic.assignBatteryPtr(&baPtr, SL_BASE_ALL, \
-									   ui->comboBox_slave->currentIndex());
-	displayBattery(baPtr);
-}
-
 //****************************************************************************
 // Public slot(s):
 //****************************************************************************
+
+//Call this function to refresh the display
+void W_Battery::refreshDisplayBattery(void)
+{
+	struct battery_s *baPtr;
+	FlexSEA_Generic::assignBatteryPtr(&baPtr, SL_BASE_ALL, \
+									   ui->comboBox_slave->currentIndex());
+	displayBattery(baPtr);
+}
 
 //****************************************************************************
 // Private function(s):
@@ -84,11 +85,11 @@ void W_Battery::refresh(void)
 void W_Battery::init(void)
 {
 	//Populates Slave list - active slave:
-	myFlexSEA_Generic.populateSlaveComboBox(ui->comboBox_slave, \
+	FlexSEA_Generic::populateSlaveComboBox(ui->comboBox_slave, \
 											SL_BASE_BATT, SL_LEN_BATT);
 
 	//Populates Slave list - connected to slave:
-	myFlexSEA_Generic.populateSlaveComboBox(ui->comboBox_slaveM, \
+	FlexSEA_Generic::populateSlaveComboBox(ui->comboBox_slaveM, \
 											SL_BASE_ALL, SL_LEN_ALL);
 
 	//Start with manage 1:

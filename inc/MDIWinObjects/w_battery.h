@@ -56,15 +56,18 @@ public:
 	~W_Battery();
 
 	//Function(s):
-	void refresh(void);
+
 
 public slots:
 
+	void refreshDisplayBattery(void);
+
+signals:
+	void windowClosed(void);
 
 private:
 	//Variables & Objects:
 	Ui::W_Battery *ui;
-	FlexSEA_Generic myFlexSEA_Generic;
 	int active_slave, active_slave_index;
 
 	//Function(s):

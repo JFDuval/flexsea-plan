@@ -39,6 +39,47 @@
 #include <QDebug>
 
 //****************************************************************************
+// Static Variable initialization
+//****************************************************************************
+
+//Lookup from list to actual slave number (FlexSEA convention):
+uint8_t FlexSEA_Generic::list_to_slave[SL_LEN_ALL] = {FLEXSEA_EXECUTE_1,
+														FLEXSEA_EXECUTE_2,
+														FLEXSEA_EXECUTE_3,
+														FLEXSEA_EXECUTE_4,
+														FLEXSEA_MANAGE_1,
+														FLEXSEA_MANAGE_2,
+														FLEXSEA_PLAN_1,
+														FLEXSEA_GOSSIP_1,
+														FLEXSEA_GOSSIP_2,
+														FLEXSEA_BATTERY_1,
+														FLEXSEA_STRAIN_1,
+														FLEXSEA_VIRTUAL_1};
+//Slaves:
+QStringList FlexSEA_Generic::var_list_slave =    QStringList()
+												 << "Execute 1"
+												 << "Execute 2"
+												 << "Execute 3"
+												 << "Execute 4"
+												 << "Manage 1"
+												 << "Manage 2"
+												 << "Plan 1"
+												 << "Gossip 1"
+												 << "Gossip 2"
+												 << "Battery 1"
+												 << "Strain 1"
+												 << "RIC/NU 1";
+
+//Experiments:
+QStringList FlexSEA_Generic::var_list_exp = QStringList()
+											<< "Read All (Barebone)"
+											<< "In Control"
+											<< "RIC/NU Knee"
+											<< "CSEA Knee"
+											<< "2DOF Ankle"
+											<< "[Your project]";
+
+//****************************************************************************
 // Constructor & Destructor:
 //****************************************************************************
 
@@ -51,6 +92,7 @@ FlexSEA_Generic::FlexSEA_Generic(QWidget *parent) : QWidget(parent)
 // Public function(s):
 //****************************************************************************
 
+<<<<<<< HEAD
 void FlexSEA_Generic::init(void)
 {
 	//Slaves:
@@ -85,13 +127,18 @@ void FlexSEA_Generic::init(void)
 					<< "2DOF Ankle" << "[Your project]";
 }
 
+=======
+>>>>>>> origin/Dev_Seb
 //Populates a Slave List ComboBox
 void FlexSEA_Generic::populateSlaveComboBox(QComboBox *cbox, uint8_t base, \
 											uint8_t len)
 {
 	QString slave_name;
+<<<<<<< HEAD
 
 	init();
+=======
+>>>>>>> origin/Dev_Seb
 
 	for(int index = base; index < (base+len); index++)
 	{
@@ -104,8 +151,11 @@ void FlexSEA_Generic::populateSlaveComboBox(QComboBox *cbox, uint8_t base, \
 void FlexSEA_Generic::populateExpComboBox(QComboBox *cbox)
 {
 	QString exp_name;
+<<<<<<< HEAD
 
 	init();
+=======
+>>>>>>> origin/Dev_Seb
 
 	for(int index = 0; index < var_list_exp.length(); index++)
 	{
@@ -195,8 +245,11 @@ void FlexSEA_Generic::decodeStatus(uint8_t base, uint8_t index, uint8_t stat1, \
 	uint8_t mod = 0, bType = getSlaveBoardType(base, index);
 	(*str1) = "";
 
+<<<<<<< HEAD
 	(void)stat2;	//Unused at this point
 
+=======
+>>>>>>> origin/Dev_Seb
 	if(bType == FLEXSEA_EXECUTE_BASE)
 	{
 		//WDCLK:
@@ -275,7 +328,15 @@ void FlexSEA_Generic::decodeExecute(uint8_t base, uint8_t index)
 {
 	struct execute_s *exPtr;
 	assignExecutePtr(&exPtr, base, index);
+<<<<<<< HEAD
 
+=======
+	decodeExecute(exPtr);
+}
+
+void FlexSEA_Generic::decodeExecute(struct execute_s *exPtr)
+{
+>>>>>>> origin/Dev_Seb
 	//Accel in mG
 	exPtr->decoded.accel.x = (1000*exPtr->accel.x)/8192;
 	exPtr->decoded.accel.y = (1000*exPtr->accel.y)/8192;
@@ -308,9 +369,12 @@ void FlexSEA_Generic::decodeExecute(uint8_t base, uint8_t index)
 //TODO think about a better way to do this
 void FlexSEA_Generic::decodeRicnu(uint8_t base, uint8_t index)
 {
+<<<<<<< HEAD
 	(void)base;
 	(void)index;
 
+=======
+>>>>>>> origin/Dev_Seb
 	ricnu_1.ex = exec1;
 	ricnu_1.st = strain1;
 }

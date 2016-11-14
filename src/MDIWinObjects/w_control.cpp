@@ -59,6 +59,7 @@ W_Control::W_Control(QWidget *parent) :
 
 W_Control::~W_Control()
 {
+	emit windowClosed();
 	delete ui;
 }
 
@@ -91,11 +92,11 @@ void W_Control::initControl(void)
 	ui->control_trapeze_acc->setText("10000");
 
 	//Populates Slave list:
-	myFlexSEA_Generic.populateSlaveComboBox(ui->comboBox_slave, SL_BASE_EX, \
+	FlexSEA_Generic::populateSlaveComboBox(ui->comboBox_slave, SL_BASE_EX, \
 											SL_LEN_EX);
 	//Variables:
 	active_slave_index = ui->comboBox_slave->currentIndex();
-	active_slave = myFlexSEA_Generic.getSlaveID(SL_BASE_EX, active_slave_index);
+	active_slave = FlexSEA_Generic::getSlaveID(SL_BASE_EX, active_slave_index);
 
 
 	//Variable option lists:
@@ -241,7 +242,7 @@ void W_Control::controller_setpoint(int val)
 void W_Control::stream_ctrl(void)
 {
 	struct execute_s *ex_ptr;
-	myFlexSEA_Generic.assignExecutePtr(&ex_ptr, SL_BASE_EX, active_slave_index);
+	FlexSEA_Generic::assignExecutePtr(&ex_ptr, SL_BASE_EX, active_slave_index);
 
 	if(ui->comboBoxDispSel->currentIndex() == 0)    //Execute's
 	{
@@ -666,7 +667,7 @@ void W_Control::on_comboBox_slave_currentIndexChanged(int index)
 
 	qDebug() << "Changed active slave";
 	active_slave_index = ui->comboBox_slave->currentIndex();
-	active_slave = myFlexSEA_Generic.getSlaveID(SL_BASE_EX, active_slave_index);
+	active_slave = FlexSEA_Generic::getSlaveID(SL_BASE_EX, active_slave_index);
 }
 
 void W_Control::refreshStatusGain(void)

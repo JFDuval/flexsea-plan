@@ -35,13 +35,6 @@
 
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
-#include "WinViewExecute.h"
-#include "WinControlControl.h"
-#include "WinView2DPlot.h"
-#include "WinConfig.h"
-#include "WinSlaveComm.h"
-#include "WinViewRicnu.h"
-#include "WinConverter.h"
 #include <QMessageBox>
 #include <QDebug>
 #include <QString>
@@ -57,7 +50,10 @@ MainWindow::MainWindow(QWidget *parent) :
 	ui(new Ui::MainWindow)
 {
 	ui->setupUi(this);
+<<<<<<< HEAD
 	QMainWindow::showMaximized();
+=======
+>>>>>>> origin/Dev_Seb
 
 	setWindowTitle("FlexSEA Plan GUI v2.0 (Alpha Release - 11/2016)");
 	ui->statusBar->showMessage("Program launched. COM: Not Connected. \
@@ -82,16 +78,20 @@ MainWindow::MainWindow(QWidget *parent) :
 	battObjectCount = 0;
 	strainObjectCount = 0;
 
+<<<<<<< HEAD
 	//Create default objects:
 	createConfig();
 	createSlaveComm();
 
+=======
+>>>>>>> origin/Dev_Seb
 	//SerialDriver:
 	mySerialDriver = new SerialDriver;
 
 	//Datalogger:
 	myDataLogger = new DataLogger;
 
+<<<<<<< HEAD
 	//Link Config and SerialDriver:
 
 	connect(myConfig[0], SIGNAL(transmitOpenCom(QString,int,int)), \
@@ -127,6 +127,18 @@ MainWindow::MainWindow(QWidget *parent) :
 			this, SLOT(setStatusBar(QString)));
 
 	//SerialDriver message:
+=======
+	//Create default objects:
+	createConfig();
+	createSlaveComm();
+
+
+	//Log and MainWindow
+	connect(myDataLogger, SIGNAL(setStatusBarMessage(QString)), \
+			this, SLOT(setStatusBar(QString)));
+
+	//SerialDriver and MainWindow
+>>>>>>> origin/Dev_Seb
 	connect(mySerialDriver, SIGNAL(setStatusBarMessage(QString)), \
 			this, SLOT(setStatusBar(QString)));
 }
@@ -144,9 +156,10 @@ MainWindow::~MainWindow()
 // Public slot(s):
 //****************************************************************************
 
-//Creates a new View Execute window
-void MainWindow::createViewExecute(void)
+//Transfer the signal from config to the
+void MainWindow::translatorUpdateDataSourceStatus(DataSource status)
 {
+<<<<<<< HEAD
 	QString msg = "";
 
 	//Limited number of windows:
@@ -169,6 +182,62 @@ void MainWindow::createViewExecute(void)
 		connect(myViewEx[exViewObjectCount], SIGNAL(windowClosed()), \
 				this, SLOT(closeViewExecute()));
 
+=======
+	if(status == LogFile)
+	{
+		emit connectorUpdateDisplayMode(DisplayLogData);
+	}
+	else
+	{
+		emit connectorUpdateDisplayMode(DisplayLiveData);
+	}
+
+}
+
+
+//Creates a new View Execute window
+void MainWindow::createViewExecute(void)
+{
+	QString msg = "";
+
+	//Limited number of windows:
+	if(exViewObjectCount < (EX_VIEW_WINDOWS_MAX))
+	{
+		DisplayMode status = DisplayLiveData;
+		if(configObjectCount > 0)
+		{
+			if(myViewConfig[0]->getDataSourceStatus() == LogFile)
+			{
+				status = DisplayLogData;
+			}
+		}
+
+		myViewExecute[exViewObjectCount] = new W_Execute(this, myDataLogger->getExecuteLogPtr(), status);
+		ui->mdiArea->addSubWindow(myViewExecute[exViewObjectCount]);
+		myViewExecute[exViewObjectCount]->show();
+
+		msg = "Created 'Execute View' object index " + \
+				QString::number(exViewObjectCount) + " (max index = " \
+				+ QString::number(EX_VIEW_WINDOWS_MAX-1) + ").";
+		ui->statusBar->showMessage(msg);
+
+		//Link SerialDriver and Execute:
+		connect(mySerialDriver, SIGNAL(newDataReady()), \
+				myViewExecute[exViewObjectCount], SLOT(refresh()));
+
+		//Link to MainWindow for the close signal:
+		connect(myViewExecute[exViewObjectCount], SIGNAL(windowClosed()), \
+				this, SLOT(closeViewExecute()));
+
+		// Link to the slider of 2dplot. Intermediate signal (connector) to
+		// allow opening of window asynchroniously
+		connect(this, SIGNAL(connectorRefreshDataSlider(int)), \
+				myViewExecute[exViewObjectCount], SLOT(displayLogData(int)));
+		connect(this, SIGNAL(connectorUpdateDisplayMode(DisplayMode)), \
+				myViewExecute[exViewObjectCount], SLOT(updateDisplayMode(DisplayMode)));
+
+
+>>>>>>> origin/Dev_Seb
 		exViewObjectCount++;
 	}
 	else
@@ -201,9 +270,15 @@ void MainWindow::createViewManage(void)
 	if(mnViewObjectCount < (MN_VIEW_WINDOWS_MAX))
 	{
 		//WinViewExecute *myViewEx = new WinViewExecute(ui->mdiArea);
+<<<<<<< HEAD
 		myViewMn[mnViewObjectCount] = new WinViewManage(ui->mdiArea);
 		myViewMn[mnViewObjectCount]->setAttribute(Qt::WA_DeleteOnClose);
 		myViewMn[mnViewObjectCount]->show();
+=======
+		myViewManage[mnViewObjectCount] = new W_Manage(this);
+		ui->mdiArea->addSubWindow(myViewManage[mnViewObjectCount]);
+		myViewManage[mnViewObjectCount]->show();
+>>>>>>> origin/Dev_Seb
 
 		msg = "Created 'Manage View' object index " + \
 				QString::number(mnViewObjectCount) + " (max index = " \
@@ -212,10 +287,17 @@ void MainWindow::createViewManage(void)
 
 		//Link SerialDriver and Manage:
 		connect(mySerialDriver, SIGNAL(newDataReady()), \
+<<<<<<< HEAD
 				myViewMn[mnViewObjectCount], SLOT(refreshDisplayManage()));
 
 		//Link to MainWindow for the close signal:
 		connect(myViewMn[mnViewObjectCount], SIGNAL(windowClosed()), \
+=======
+				myViewManage[mnViewObjectCount], SLOT(refreshDisplayManage()));
+
+		//Link to MainWindow for the close signal:
+		connect(myViewManage[mnViewObjectCount], SIGNAL(windowClosed()), \
+>>>>>>> origin/Dev_Seb
 				this, SLOT(closeViewManage()));
 
 		mnViewObjectCount++;
@@ -249,9 +331,16 @@ void MainWindow::createConfig(void)
 	//Limited number of windows:
 	if(configObjectCount < (CONFIG_WINDOWS_MAX))
 	{
+<<<<<<< HEAD
 		myConfig[configObjectCount] = new WinConfig(ui->mdiArea);
 		myConfig[configObjectCount]->setAttribute(Qt::WA_DeleteOnClose);
 		myConfig[configObjectCount]->show();
+=======
+
+		myViewConfig[configObjectCount] = new W_Config(this);
+		ui->mdiArea->addSubWindow(myViewConfig[configObjectCount]);
+		myViewConfig[configObjectCount]->show();
+>>>>>>> origin/Dev_Seb
 
 		msg = "Created 'Config' object index " + QString::number(configObjectCount) \
 				+ " (max index = " + QString::number(CONFIG_WINDOWS_MAX-1) + ").";
@@ -259,9 +348,33 @@ void MainWindow::createConfig(void)
 		ui->statusBar->showMessage(msg);
 
 		//Link to MainWindow for the close signal:
+<<<<<<< HEAD
 		connect(myConfig[configObjectCount], SIGNAL(windowClosed()), \
 				this, SLOT(closeConfig()));
 
+=======
+		connect(myViewConfig[configObjectCount], SIGNAL(windowClosed()), \
+				this, SLOT(closeConfig()));
+
+		//Link to DataLogger
+		connect(myViewConfig[0], SIGNAL(openRecordingFile(uint8_t)), \
+				myDataLogger, SLOT(openRecordingFile(uint8_t)));
+		connect(myViewConfig[0], SIGNAL(openReadingFile()), \
+				myDataLogger, SLOT(openReadingFile()));
+		connect(myViewConfig[0], SIGNAL(closeReadingFile()), \
+				myDataLogger, SLOT(closeReadingFile()));
+
+		// Link to SerialDriver
+		connect(myViewConfig[0], SIGNAL(openCom(QString,int,int)), \
+				mySerialDriver, SLOT(open(QString,int,int)));
+		connect(myViewConfig[0], SIGNAL(closeCom()), \
+				mySerialDriver, SLOT(close()));
+		connect(mySerialDriver, SIGNAL(openProgress(int,int)), \
+				myViewConfig[0], SLOT(setComProgress(int,int)));
+		connect(myViewConfig[0], SIGNAL(updateDataSourceStatus(DataSource)),
+				this, SLOT(translatorUpdateDataSourceStatus(DataSource)));
+
+>>>>>>> origin/Dev_Seb
 		configObjectCount++;
 	}
 	else
@@ -293,9 +406,15 @@ void MainWindow::createControlControl(void)
 	//Limited number of windows:
 	if(controlObjectCount < (CONTROL_WINDOWS_MAX))
 	{
+<<<<<<< HEAD
 		myControl[controlObjectCount] = new WinControlControl(ui->mdiArea);
 		myControl[controlObjectCount]->setAttribute(Qt::WA_DeleteOnClose);
 		myControl[controlObjectCount]->show();
+=======
+		myViewControl[controlObjectCount] = new W_Control(this);
+		ui->mdiArea->addSubWindow(myViewControl[controlObjectCount]);
+		myViewControl[controlObjectCount]->show();
+>>>>>>> origin/Dev_Seb
 
 		msg = "Created 'Control' object index " + QString::number(controlObjectCount) \
 				+ " (max index = " + QString::number(CONTROL_WINDOWS_MAX-1) + ").";
@@ -303,6 +422,7 @@ void MainWindow::createControlControl(void)
 		ui->statusBar->showMessage(msg);
 
 		//Link to MainWindow for the close signal:
+<<<<<<< HEAD
 		connect(myControl[controlObjectCount], SIGNAL(windowClosed()), \
 				this, SLOT(closeControlControl()));
 
@@ -314,6 +434,15 @@ void MainWindow::createControlControl(void)
 		connect(mySerialDriver, SIGNAL(newDataReady()), \
 				myControl[controlObjectCount], SLOT(refreshDisplay()));
 
+=======
+		connect(myViewControl[controlObjectCount], SIGNAL(windowClosed()), \
+				this, SLOT(closeControlControl()));
+
+		//Link to SlaveComm to send commands:
+		connect(myViewControl[controlObjectCount], SIGNAL(writeCommand(char,unsigned char*)), \
+				this, SIGNAL(connectorWriteCommand(char,unsigned char*)));
+
+>>>>>>> origin/Dev_Seb
 		controlObjectCount++;
 	}
 	else
@@ -345,6 +474,7 @@ void MainWindow::createView2DPlot(void)
 	//Limited number of windows:
 	if(plot2DObjectCount < (PLOT2D_WINDOWS_MAX))
 	{
+<<<<<<< HEAD
 		my2DPlot[plot2DObjectCount] = new WinView2DPlot(ui->mdiArea);
 		my2DPlot[plot2DObjectCount]->setAttribute(Qt::WA_DeleteOnClose);
 		my2DPlot[plot2DObjectCount]->show();
@@ -352,15 +482,32 @@ void MainWindow::createView2DPlot(void)
 		//Link SerialDriver and 2DPlot:
 		connect(mySerialDriver, SIGNAL(newDataReady()), \
 				my2DPlot[plot2DObjectCount], SLOT(refresh2DPlot()));
+=======
+		myView2DPlot[plot2DObjectCount] = new W_2DPlot(this);
+		ui->mdiArea->addSubWindow(myView2DPlot[plot2DObjectCount]);
+		myView2DPlot[plot2DObjectCount]->show();
+>>>>>>> origin/Dev_Seb
 
 		msg = "Created '2DPlot' object index " + QString::number(plot2DObjectCount) \
 				+ " (max index = " + QString::number(PLOT2D_WINDOWS_MAX-1) + ").";
 		qDebug() << msg;
 		ui->statusBar->showMessage(msg);
 
+<<<<<<< HEAD
 		//Link to MainWindow for the close signal:
 		connect(my2DPlot[plot2DObjectCount], SIGNAL(windowClosed()), \
 				this, SLOT(closeView2DPlot()));
+=======
+		//Link SerialDriver and 2DPlot:
+		connect(mySerialDriver, SIGNAL(newDataReady()), \
+				myView2DPlot[plot2DObjectCount], SLOT(refresh2DPlot()));
+		//Link to MainWindow for the close signal:
+		connect(myView2DPlot[plot2DObjectCount], SIGNAL(windowClosed()), \
+				this, SLOT(closeView2DPlot()));
+		// TODO ok for one 2dplot, but when a second 2d plot will open, it wont works or be meaningfull.
+		connect(myView2DPlot[plot2DObjectCount], SIGNAL(dataSliderValueChanged(int)), \
+				this, SIGNAL(connectorRefreshDataSlider(int)));
+>>>>>>> origin/Dev_Seb
 
 		plot2DObjectCount++;
 	}
@@ -394,18 +541,54 @@ void MainWindow::createSlaveComm(void)
 	if(slaveCommObjectCount < (SLAVECOMM_WINDOWS_MAX))
 	{
 		//WinViewExecute *myViewEx = new WinViewExecute(ui->mdiArea);
+<<<<<<< HEAD
 		mySlaveComm[slaveCommObjectCount] = new WinSlaveComm(ui->mdiArea);
 		mySlaveComm[slaveCommObjectCount]->setAttribute(Qt::WA_DeleteOnClose);
 		mySlaveComm[slaveCommObjectCount]->show();
+=======
+		myViewSlaveComm[slaveCommObjectCount] = new W_SlaveComm(this);
+		ui->mdiArea->addSubWindow(myViewSlaveComm[slaveCommObjectCount]);
+		myViewSlaveComm[slaveCommObjectCount]->show();
+>>>>>>> origin/Dev_Seb
 
 		msg = "Created 'Slave Comm' object index " + QString::number(slaveCommObjectCount) \
 				+ " (max index = " + QString::number(SLAVECOMM_WINDOWS_MAX-1) + ").";
 		ui->statusBar->showMessage(msg);
 
 		//Link to MainWindow for the close signal:
+<<<<<<< HEAD
 		connect(mySlaveComm[slaveCommObjectCount], SIGNAL(windowClosed()), \
 				this, SLOT(closeSlaveComm()));
 
+=======
+		connect(myViewSlaveComm[slaveCommObjectCount], SIGNAL(windowClosed()), \
+				this, SLOT(closeSlaveComm()));
+
+		//Link SlaveComm and SerialDriver:
+		connect(mySerialDriver, SIGNAL(openStatus(bool)), \
+				myViewSlaveComm[0], SLOT(receiveComPortStatus(bool)));
+		connect(myViewSlaveComm[0], SIGNAL(slaveReadWrite(uint, uint8_t*, uint8_t)), \
+				mySerialDriver, SLOT(readWrite(uint, uint8_t*, uint8_t)));
+		connect(mySerialDriver, SIGNAL(newDataReady()), \
+				myViewSlaveComm[0], SLOT(receiveNewDataReady()));
+		connect(mySerialDriver, SIGNAL(dataStatus(int, int)), \
+				myViewSlaveComm[0], SLOT(displayDataReceived(int, int)));
+		connect(mySerialDriver, SIGNAL(newDataTimeout(bool)), \
+				myViewSlaveComm[0], SLOT(updateIndicatorTimeout(bool)));
+
+		//Link SlaveComm and DataLogger
+		connect(myViewSlaveComm[0], SIGNAL(openRecordingFile(uint8_t,QString)), \
+				myDataLogger, SLOT(openRecordingFile(uint8_t,QString)));
+		connect(myViewSlaveComm[0], SIGNAL(writeToLogFile(uint8_t,uint8_t,uint8_t)), \
+				myDataLogger, SLOT(writeToFile(uint8_t,uint8_t,uint8_t)));
+		connect(myViewSlaveComm[0], SIGNAL(closeLogFile(uint8_t)), \
+				myDataLogger, SLOT(closeRecordingFile(uint8_t)));
+
+		//Link SlaveComm and Control Trought connector
+		connect(this, SIGNAL(connectorWriteCommand(char,unsigned char*)), \
+				myViewSlaveComm[0], SLOT(externalSlaveWrite(char,unsigned char*)));
+
+>>>>>>> origin/Dev_Seb
 		slaveCommObjectCount++;
 	}
 	else
@@ -433,6 +616,7 @@ void MainWindow::closeSlaveComm(void)
 void MainWindow::createAnyCommand(void)
 {
 	QString msg = "";
+<<<<<<< HEAD
 
 	//Limited number of windows:
 	if(anyCommandObjectCount < (ANYCOMMAND_WINDOWS_MAX))
@@ -440,13 +624,27 @@ void MainWindow::createAnyCommand(void)
 		myAnyCommand[anyCommandObjectCount] = new WinAnyCommand(ui->mdiArea);
 		myAnyCommand[anyCommandObjectCount]->setAttribute(Qt::WA_DeleteOnClose);
 		myAnyCommand[anyCommandObjectCount]->show();
+=======
+
+	//Limited number of windows:
+	if(anyCommandObjectCount < (ANYCOMMAND_WINDOWS_MAX))
+	{
+		myViewAnyCommand[anyCommandObjectCount] = new W_AnyCommand(this);
+		ui->mdiArea->addSubWindow(myViewAnyCommand[anyCommandObjectCount]);
+		myViewAnyCommand[anyCommandObjectCount]->show();
+
+>>>>>>> origin/Dev_Seb
 
 		msg = "Created 'AnyCommand' object index " + QString::number(anyCommandObjectCount) \
 				+ " (max index = " + QString::number(ANYCOMMAND_WINDOWS_MAX-1) + ").";
 		ui->statusBar->showMessage(msg);
 
 		//Link to MainWindow for the close signal:
+<<<<<<< HEAD
 		connect(myAnyCommand[anyCommandObjectCount], SIGNAL(windowClosed()), \
+=======
+		connect(myViewAnyCommand[anyCommandObjectCount], SIGNAL(windowClosed()), \
+>>>>>>> origin/Dev_Seb
 				this, SLOT(closeAnyCommand()));
 
 		anyCommandObjectCount++;
@@ -481,8 +679,13 @@ void MainWindow::createViewRicnu(void)
 	if(ricnuViewObjectCount < (RICNU_VIEW_WINDOWS_MAX))
 	{
 		//WinViewExecute *myViewEx = new WinViewExecute(ui->mdiArea);
+<<<<<<< HEAD
 		myViewRicnu[ricnuViewObjectCount] = new WinViewRicnu(ui->mdiArea);
 		myViewRicnu[ricnuViewObjectCount]->setAttribute(Qt::WA_DeleteOnClose);
+=======
+		myViewRicnu[ricnuViewObjectCount] = new W_Ricnu(this);
+		ui->mdiArea->addSubWindow(myViewRicnu[ricnuViewObjectCount]);
+>>>>>>> origin/Dev_Seb
 		myViewRicnu[ricnuViewObjectCount]->show();
 
 		msg = "Created 'RIC/NU View' object index " + \
@@ -529,16 +732,26 @@ void MainWindow::createConverter(void)
 	//Limited number of windows:
 	if(converterObjectCount < (CONVERTER_WINDOWS_MAX))
 	{
+<<<<<<< HEAD
 		myConverter[converterObjectCount] = new WinConverter(ui->mdiArea);
 		myConverter[converterObjectCount]->setAttribute(Qt::WA_DeleteOnClose);
 		myConverter[converterObjectCount]->show();
+=======
+		my_w_converter[converterObjectCount] = new W_Converter(this);
+		ui->mdiArea->addSubWindow(my_w_converter[converterObjectCount]);
+		my_w_converter[converterObjectCount]->show();
+>>>>>>> origin/Dev_Seb
 
 		msg = "Created 'Converter' object index " + QString::number(converterObjectCount) \
 				+ " (max index = " + QString::number(CONVERTER_WINDOWS_MAX-1) + ").";
 		ui->statusBar->showMessage(msg);
 
 		//Link to MainWindow for the close signal:
+<<<<<<< HEAD
 		connect(myConverter[converterObjectCount], SIGNAL(windowClosed()), \
+=======
+		connect(my_w_converter[converterObjectCount], SIGNAL(windowClosed()), \
+>>>>>>> origin/Dev_Seb
 				this, SLOT(closeConverter()));
 
 		converterObjectCount++;
@@ -572,16 +785,26 @@ void MainWindow::createCalib(void)
 	//Limited number of windows:
 	if(calibObjectCount < (CALIB_WINDOWS_MAX))
 	{
+<<<<<<< HEAD
 		myCalib[calibObjectCount] = new WinCalibration(ui->mdiArea);
 		myCalib[calibObjectCount]->setAttribute(Qt::WA_DeleteOnClose);
 		myCalib[calibObjectCount]->show();
+=======
+		myViewCalibration[calibObjectCount] = new W_Calibration(this);
+		ui->mdiArea->addSubWindow(myViewCalibration[calibObjectCount]);
+		myViewCalibration[calibObjectCount]->show();
+>>>>>>> origin/Dev_Seb
 
 		msg = "Created 'Calibration' object index " + QString::number(calibObjectCount) \
 				+ " (max index = " + QString::number(CALIB_WINDOWS_MAX-1) + ").";
 		ui->statusBar->showMessage(msg);
 
 		//Link to MainWindow for the close signal:
+<<<<<<< HEAD
 		connect(myCalib[calibObjectCount], SIGNAL(windowClosed()), \
+=======
+		connect(myViewCalibration[calibObjectCount], SIGNAL(windowClosed()), \
+>>>>>>> origin/Dev_Seb
 				this, SLOT(closeCalib()));
 
 		calibObjectCount++;
@@ -615,9 +838,15 @@ void MainWindow::createViewGossip(void)
 	//Limited number of windows:
 	if(gossipObjectCount < (GOSSIP_WINDOWS_MAX))
 	{
+<<<<<<< HEAD
 		myGossip[gossipObjectCount] = new WinViewGossip(ui->mdiArea);
 		myGossip[gossipObjectCount]->setAttribute(Qt::WA_DeleteOnClose);
 		myGossip[gossipObjectCount]->show();
+=======
+		myViewGossip[gossipObjectCount] = new W_Gossip(this);
+		ui->mdiArea->addSubWindow(myViewGossip[gossipObjectCount]);
+		myViewGossip[gossipObjectCount]->show();
+>>>>>>> origin/Dev_Seb
 
 		msg = "Created 'Gossip View' object index " + \
 				QString::number(gossipObjectCount) + " (max index = " \
@@ -626,10 +855,17 @@ void MainWindow::createViewGossip(void)
 
 		//Link SerialDriver and Gossip:
 		connect(mySerialDriver, SIGNAL(newDataReady()), \
+<<<<<<< HEAD
 				myGossip[gossipObjectCount], SLOT(refreshDisplayGossip()));
 
 		//Link to MainWindow for the close signal:
 		connect(myGossip[gossipObjectCount], SIGNAL(windowClosed()), \
+=======
+				myViewGossip[gossipObjectCount], SLOT(refreshDisplayGossip()));
+
+		//Link to MainWindow for the close signal:
+		connect(myViewGossip[gossipObjectCount], SIGNAL(windowClosed()), \
+>>>>>>> origin/Dev_Seb
 				this, SLOT(closeViewGossip()));
 
 		gossipObjectCount++;
@@ -663,9 +899,15 @@ void MainWindow::createViewStrain(void)
 	//Limited number of windows:
 	if(strainObjectCount < (STRAIN_WINDOWS_MAX))
 	{
+<<<<<<< HEAD
 		myStrain[strainObjectCount] = new WinViewStrain(ui->mdiArea);
 		myStrain[strainObjectCount]->setAttribute(Qt::WA_DeleteOnClose);
 		myStrain[strainObjectCount]->show();
+=======
+		myViewStrain[strainObjectCount] = new W_Strain(this);
+		ui->mdiArea->addSubWindow(myViewStrain[strainObjectCount]);
+		myViewStrain[strainObjectCount]->show();
+>>>>>>> origin/Dev_Seb
 
 		msg = "Created 'Strain View' object index " + \
 				QString::number(strainObjectCount) + " (max index = " \
@@ -674,10 +916,17 @@ void MainWindow::createViewStrain(void)
 
 		//Link SerialDriver and Strain:
 		connect(mySerialDriver, SIGNAL(newDataReady()), \
+<<<<<<< HEAD
 				myStrain[strainObjectCount], SLOT(refreshDisplayStrain()));
 
 		//Link to MainWindow for the close signal:
 		connect(myStrain[strainObjectCount], SIGNAL(windowClosed()), \
+=======
+				myViewStrain[strainObjectCount], SLOT(refreshDisplayStrain()));
+
+		//Link to MainWindow for the close signal:
+		connect(myViewStrain[strainObjectCount], SIGNAL(windowClosed()), \
+>>>>>>> origin/Dev_Seb
 				this, SLOT(closeViewStrain()));
 
 		strainObjectCount++;
@@ -711,9 +960,15 @@ void MainWindow::createViewBattery(void)
 	//Limited number of windows:
 	if(battObjectCount < (BATT_WINDOWS_MAX))
 	{
+<<<<<<< HEAD
 		myBatt[battObjectCount] = new WinViewBattery(ui->mdiArea);
 		myBatt[battObjectCount]->setAttribute(Qt::WA_DeleteOnClose);
 		myBatt[battObjectCount]->show();
+=======
+		myViewBatt[battObjectCount] = new W_Battery(this);
+		ui->mdiArea->addSubWindow(myViewBatt[battObjectCount]);
+		myViewBatt[battObjectCount]->show();
+>>>>>>> origin/Dev_Seb
 
 		msg = "Created 'Battery View' object index " + \
 				QString::number(battObjectCount) + " (max index = " \
@@ -722,10 +977,17 @@ void MainWindow::createViewBattery(void)
 
 		//Link SerialDriver and Battery:
 		connect(mySerialDriver, SIGNAL(newDataReady()), \
+<<<<<<< HEAD
 				myBatt[battObjectCount], SLOT(refreshDisplayBattery()));
 
 		//Link to MainWindow for the close signal:
 		connect(myBatt[battObjectCount], SIGNAL(windowClosed()), \
+=======
+				myViewBatt[battObjectCount], SLOT(refreshDisplayBattery()));
+
+		//Link to MainWindow for the close signal:
+		connect(myViewBatt[battObjectCount], SIGNAL(windowClosed()), \
+>>>>>>> origin/Dev_Seb
 				this, SLOT(closeViewBattery()));
 
 		battObjectCount++;

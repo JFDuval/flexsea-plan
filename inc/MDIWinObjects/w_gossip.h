@@ -56,15 +56,16 @@ public:
 	~W_Gossip();
 
 	//Function(s):
-	void refresh(void);
 
 public slots:
+	void refreshDisplayGossip(void);
 
+signals:
+	void windowClosed(void);
 
 private:
 	//Variables & Objects:
 	Ui::W_Gossip *ui;
-	FlexSEA_Generic myFlexSEA_Generic;
 	int active_slave, active_slave_index;
 
 	//Function(s):

@@ -33,19 +33,19 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-#include "WinViewExecute.h"
-#include "WinSlaveComm.h"
-#include "WinConfig.h"
-#include "WinAnyCommand.h"
-#include "WinConverter.h"
-#include "WinView2DPlot.h"
-#include "WinControlControl.h"
-#include "WinViewRicnu.h"
-#include "WinViewManage.h"
-#include "WinCalibration.h"
-#include "WinViewBattery.h"
-#include "WinViewStrain.h"
-#include "WinViewGossip.h"
+#include "w_execute.h"
+#include "w_slavecomm.h"
+#include "w_config.h"
+#include "w_anycommand.h"
+#include "w_2dplot.h"
+#include "w_control.h"
+#include "w_ricnu.h"
+#include "w_manage.h"
+#include "w_calibration.h"
+#include "w_battery.h"
+#include "w_strain.h"
+#include "w_gossip.h"
+#include "w_converter.h"
 #include "flexsea_generic.h"
 #include "serialdriver.h"
 #include "datalogger.h"
@@ -86,58 +86,55 @@ private:
 
 	//Execute View:
 	int exViewObjectCount;
-	WinViewExecute *myViewEx[EX_VIEW_WINDOWS_MAX];
+	W_Execute *myViewExecute[EX_VIEW_WINDOWS_MAX];
 
 	//Manage View:
 	int mnViewObjectCount;
-	WinViewManage *myViewMn[MN_VIEW_WINDOWS_MAX];
+	W_Manage *myViewManage[MN_VIEW_WINDOWS_MAX];
 
 	//Config objects:
 	int configObjectCount;
-	WinConfig *myConfig[CONFIG_WINDOWS_MAX];
+	W_Config *myViewConfig[CONFIG_WINDOWS_MAX];
 
 	//Slave Comm:
 	int slaveCommObjectCount;
-	WinSlaveComm *mySlaveComm[SLAVECOMM_WINDOWS_MAX];
+	W_SlaveComm *myViewSlaveComm[SLAVECOMM_WINDOWS_MAX];
 
 	//AnyCommand:
 	int anyCommandObjectCount;
-	WinAnyCommand *myAnyCommand[ANYCOMMAND_WINDOWS_MAX];
+	W_AnyCommand *myViewAnyCommand[ANYCOMMAND_WINDOWS_MAX];
 
 	//Converter:
 	int converterObjectCount;
-	WinConverter *myConverter[CONVERTER_WINDOWS_MAX];
+	W_Converter *my_w_converter[CONVERTER_WINDOWS_MAX];
 
 	//Calibration:
 	int calibObjectCount;
-	WinCalibration *myCalib[CALIB_WINDOWS_MAX];
+	W_Calibration *myViewCalibration[CALIB_WINDOWS_MAX];
 
 	//Control:
 	int controlObjectCount;
-	WinControlControl *myControl[CONTROL_WINDOWS_MAX];
+	W_Control *myViewControl[CONTROL_WINDOWS_MAX];
 
 	//2D Plot:
 	int plot2DObjectCount;
-	WinView2DPlot *my2DPlot[PLOT2D_WINDOWS_MAX];
+	W_2DPlot *myView2DPlot[PLOT2D_WINDOWS_MAX];
 
 	//RIC/NU View:
 	int ricnuViewObjectCount;
-	WinViewRicnu *myViewRicnu[RICNU_VIEW_WINDOWS_MAX];
+	W_Ricnu *myViewRicnu[RICNU_VIEW_WINDOWS_MAX];
 
 	//Battery:
 	int battObjectCount;
-	WinViewBattery *myBatt[BATT_WINDOWS_MAX];
+	W_Battery *myViewBatt[BATT_WINDOWS_MAX];
 
 	//Gossip:
 	int gossipObjectCount;
-	WinViewGossip *myGossip[GOSSIP_WINDOWS_MAX];
+	W_Gossip *myViewGossip[GOSSIP_WINDOWS_MAX];
 
 	//Strain:
 	int strainObjectCount;
-	WinViewStrain *myStrain[STRAIN_WINDOWS_MAX];
-
-	//FlexSEA Generic:
-	FlexSEA_Generic myFlexSEA_Generic;
+	W_Strain *myViewStrain[STRAIN_WINDOWS_MAX];
 
 	//Serial Port Driver:
 	SerialDriver *mySerialDriver;
@@ -145,7 +142,15 @@ private:
 	//DataLogger:
 	DataLogger *myDataLogger;
 
+signals:
+	//Allow window to be independly opened in any order by providing a backbone connector
+	void connectorRefreshDataSlider(int index);
+	void connectorUpdateDisplayMode(DisplayMode mode);
+	void connectorWriteCommand(char ch,unsigned char* chPtr);
+
 public slots:
+
+	void translatorUpdateDataSourceStatus(DataSource status);
 
 	//MDI Windows (create):
 	void createViewExecute(void);
@@ -182,9 +187,6 @@ public slots:
 	void displayDocumentation();
 	void displayLicense();
 	void setStatusBar(QString msg);
-
-signals:
-
 };
 
 #endif // MAINWINDOW_H

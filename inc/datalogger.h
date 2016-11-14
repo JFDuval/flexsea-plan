@@ -40,7 +40,9 @@
 #include <QFileDialog>
 #include <QTextStream>
 #include <QDateTime>
+#include <QList>
 #include "flexsea_generic.h"
+#include "main.h"
 
 //****************************************************************************
 // Namespace & Class
@@ -56,23 +58,29 @@ class DataLogger : public QWidget
 
 public:
 	explicit DataLogger(QWidget *parent = 0);
+	QList<struct execute_s> * getExecuteLogPtr(void) {return &myExecute_s;}
 
 public slots:
-	void openFile(uint8_t item);
-	void closeFile(uint8_t item);
+	void openRecordingFile(uint8_t item);
+	void openRecordingFile(uint8_t item, QString fileName);
+	void closeRecordingFile(uint8_t item);
+	void openReadingFile(void);
+	void closeReadingFile(void);
 	void writeToFile(uint8_t item, uint8_t slaveIndex, uint8_t expIndex);
 
 private slots:
 
 private:
 	//Variables & Objects:
-	QString filename;
-	QString logdir_path;
-	QFile logFile;
+	QFile logRecordingFile[4];
+	QFile logReadingFile;
+
 	QTextStream logFileStream;
 	QDateTime *myTime;
-	FlexSEA_Generic myFlexSEA_Generic;
+
 	bool fileOpened[4];
+
+	QList<struct execute_s> myExecute_s;
 
 	//Function(s):
 	void init(void);
@@ -83,6 +91,7 @@ private:
 	void writeManageReadAllHeader(uint8_t item);
 	void writeStrainReadAllHeader(uint8_t item);
 	void writeGossipReadAllHeader(uint8_t item);
+	void openfile(uint8_t item, QString fileName, QString shortFileName);
 	void logDirectory(void);
 	void logReadAllExec(QTextStream *filePtr, uint8_t slaveIndex, \
 							char term, qint64 t_ms, QString t_text);
@@ -100,8 +109,8 @@ private:
 					char term, qint64 t_ms, QString t_text));
 
 signals:
-	void setLogFileStatus(QString msg);
 	void setStatusBarMessage(QString msg);
+	void setNewLogFileLoaded(QList<struct execute_s> &data);
 };
 
 //****************************************************************************

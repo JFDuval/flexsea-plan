@@ -59,6 +59,7 @@ W_SlaveComm::W_SlaveComm(QWidget *parent) :
 
 W_SlaveComm::~W_SlaveComm()
 {
+	emit windowClosed();
 	delete ui;
 }
 
@@ -111,7 +112,7 @@ void W_SlaveComm::externalSlaveWrite(char numb, unsigned char *tx_data)
 {
 	//First test: send right away
 	//***TODO Fix***
-	myFlexSEA_Generic.packetVisualizer(numb, tx_data);
+	FlexSEA_Generic::packetVisualizer(numb, tx_data);
 	emit slaveReadWrite(numb, tx_data, WRITE);
 }
 
@@ -135,14 +136,18 @@ void W_SlaveComm::initSlaveCom(void)
 	//State variables:
 	//================
 	sc_comPortOpen = false;
-	pb_state[0] = 0;
-	pb_state[1] = 0;
-	pb_state[2] = 0;
-	pb_state[3] = 0;
 	logThisItem[0] = false;
 	logThisItem[1] = false;
 	logThisItem[2] = false;
 	logThisItem[3] = false;
+	on_off_pb_ptr[0] = &ui->pushButton1;
+	on_off_pb_ptr[1] = &ui->pushButton2;
+	on_off_pb_ptr[2] = &ui->pushButton3;
+	on_off_pb_ptr[3] = &ui->pushButton4;
+	log_cb_ptr[0] = &ui->checkBoxLog1;
+	log_cb_ptr[1] = &ui->checkBoxLog2;
+	log_cb_ptr[2] = &ui->checkBoxLog3;
+	log_cb_ptr[3] = &ui->checkBoxLog4;
 
 	//On/Off Button:
 	//==============
@@ -192,36 +197,28 @@ void W_SlaveComm::initSlaveCom(void)
 
 	//Populates Slave list:
 	//=====================
-	myFlexSEA_Generic.populateSlaveComboBox(ui->comboBoxSlave1, SL_BASE_ALL, \
-											SL_LEN_ALL);
-	myFlexSEA_Generic.populateSlaveComboBox(ui->comboBoxSlave2, SL_BASE_ALL, \
-											SL_LEN_ALL);
-	myFlexSEA_Generic.populateSlaveComboBox(ui->comboBoxSlave3, SL_BASE_ALL, \
-											SL_LEN_ALL);
-	myFlexSEA_Generic.populateSlaveComboBox(ui->comboBoxSlave4, SL_BASE_ALL, \
-											SL_LEN_ALL);
+	FlexSEA_Generic::populateSlaveComboBox(ui->comboBoxSlave1, SL_BASE_ALL, SL_LEN_ALL);
+	FlexSEA_Generic::populateSlaveComboBox(ui->comboBoxSlave2, SL_BASE_ALL, SL_LEN_ALL);
+	FlexSEA_Generic::populateSlaveComboBox(ui->comboBoxSlave3, SL_BASE_ALL, SL_LEN_ALL);
+	FlexSEA_Generic::populateSlaveComboBox(ui->comboBoxSlave4, SL_BASE_ALL, SL_LEN_ALL);
 
 	//Variables:
 	active_slave_index[0] = ui->comboBoxSlave1->currentIndex();
 	active_slave_index[1] = ui->comboBoxSlave2->currentIndex();
 	active_slave_index[2] = ui->comboBoxSlave3->currentIndex();
 	active_slave_index[3] = ui->comboBoxSlave4->currentIndex();
-	active_slave[0] = myFlexSEA_Generic.getSlaveID(SL_BASE_ALL, \
-												   active_slave_index[0]);
-	active_slave[1] = myFlexSEA_Generic.getSlaveID(SL_BASE_ALL, \
-												   active_slave_index[1]);
-	active_slave[2] = myFlexSEA_Generic.getSlaveID(SL_BASE_ALL, \
-												   active_slave_index[2]);
-	active_slave[3] = myFlexSEA_Generic.getSlaveID(SL_BASE_ALL, \
-												   active_slave_index[3]);
+	active_slave[0] = FlexSEA_Generic::getSlaveID(SL_BASE_ALL, active_slave_index[0]);
+	active_slave[1] = FlexSEA_Generic::getSlaveID(SL_BASE_ALL, active_slave_index[1]);
+	active_slave[2] = FlexSEA_Generic::getSlaveID(SL_BASE_ALL, active_slave_index[2]);
+	active_slave[3] = FlexSEA_Generic::getSlaveID(SL_BASE_ALL, active_slave_index[3]);
 
 	//Populates Experiment/Command list:
 	//==================================
 
-	myFlexSEA_Generic.populateExpComboBox(ui->comboBoxExp1);
-	myFlexSEA_Generic.populateExpComboBox(ui->comboBoxExp2);
-	myFlexSEA_Generic.populateExpComboBox(ui->comboBoxExp3);
-	myFlexSEA_Generic.populateExpComboBox(ui->comboBoxExp4);
+	FlexSEA_Generic::populateExpComboBox(ui->comboBoxExp1);
+	FlexSEA_Generic::populateExpComboBox(ui->comboBoxExp2);
+	FlexSEA_Generic::populateExpComboBox(ui->comboBoxExp3);
+	FlexSEA_Generic::populateExpComboBox(ui->comboBoxExp4);
 
 	//Refresh Rate:
 	//==================================
@@ -307,77 +304,63 @@ void W_SlaveComm::initDisplayDataReceived(void)
 //The 4 PB slots call this function:
 void W_SlaveComm::managePushButton(int idx, bool forceOff)
 {
-	QPushButton **pb_ptr = &ui->pushButton1;
-	QCheckBox **cb_ptr = &ui->checkBoxLog1;
-	switch(idx)
+	if((*on_off_pb_ptr[idx])->isChecked() == true &&
+		forceOff == false)
 	{
-		case 0:
-			pb_ptr = &ui->pushButton1;
-			cb_ptr = &ui->checkBoxLog1;
-			break;
-		case 1:
-			pb_ptr = &ui->pushButton2;
-			cb_ptr = &ui->checkBoxLog2;
-			break;
-		case 2:
-			pb_ptr = &ui->pushButton3;
-			cb_ptr = &ui->checkBoxLog3;
-			break;
-		case 3:
-			pb_ptr = &ui->pushButton4;
-			cb_ptr = &ui->checkBoxLog4;
-			break;
-	}
-
-	if(forceOff == true)
-	{
-		pb_state[idx] = 0;
-		(*pb_ptr)->setText(QChar(0x2718));
-		(*pb_ptr)->setStyleSheet("background-color: rgb(127, 127, 127); \
+		// set button appearance
+		(*on_off_pb_ptr[idx])->setChecked(true);
+		(*on_off_pb_ptr[idx])->setText(QChar(0x2714));
+		(*on_off_pb_ptr[idx])->setStyleSheet("background-color: rgb(0, 255, 0); \
 										color: rgb(0, 0, 0)");
-		logThisItem[idx] = false;
 	}
 	else
 	{
-		//qDebug() << "PB[" << idx << "] clicked.";
-		if(pb_state[idx] == 0)
-		{
-			//Turn ON:
-
-			pb_state[idx] = 1;
-			(*pb_ptr)->setText(QChar(0x2714));
-			(*pb_ptr)->setStyleSheet("background-color: rgb(0, 255, 0); \
-											color: rgb(0, 0, 0)");
-
-			//Logging?
-			if((*cb_ptr)->isChecked() == true)
-			{
-				logThisItem[idx] = true;
-			}
-			else
-			{
-				logThisItem[idx] = false;
-			}
-		}
-		else
-		{
-			//Turn OFF:
-
-			pb_state[idx] = 0;
-			(*pb_ptr)->setText(QChar(0x2718));
-			(*pb_ptr)->setStyleSheet("background-color: rgb(127, 127, 127); \
-											color: rgb(0, 0, 0)");
-
-			 if(logThisItem[0] == true)
-			 {
-				 logThisItem[0] = false;
-				 emit closeLogFile(0);   //TODO support multiple files
-			 }
-		}
+		// set button appearance
+		(*on_off_pb_ptr[idx])->setChecked(false);
+		(*on_off_pb_ptr[idx])->setText(QChar(0x2718));
+		(*on_off_pb_ptr[idx])->setStyleSheet("background-color: rgb(127, 127, 127); \
+									 color: rgb(0, 0, 0)");
 	}
+
+	// Logging?
+	manageLogStatus(idx);
 
 	//All GUI events call configSlaveComm():
 	configSlaveComm(idx);
+}
+
+void W_SlaveComm::manageLogStatus(uint8_t idx)
+{
+	//Logging?
+	if((*log_cb_ptr[idx])->isChecked() &&
+		(*on_off_pb_ptr[idx])->isChecked())
+	{
+		QString slaveName, expName, refreshName;
+
+		//Get all feed information:
+		FlexSEA_Generic::getSlaveName(SL_BASE_ALL, \
+										ui->comboBoxSlave1->currentIndex(),
+										&slaveName);
+		FlexSEA_Generic::getExpName(ui->comboBoxExp1->currentIndex(),
+									&expName);
+		refreshName = var_list_refresh.at(ui->comboBoxRefresh1->currentIndex());
+
+
+		emit openRecordingFile(idx, slaveName + "_" +
+									expName + "_" +
+									refreshName +
+									".csv");
+		logThisItem[idx] = true;
+	}
+
+	else
+	{
+		if(logThisItem[idx] == true)
+		{
+			logThisItem[idx] = false;
+			emit closeLogFile(idx);
+		}
+	}
 }
 
 void W_SlaveComm::updateStatusBar(QString txt)
@@ -495,7 +478,7 @@ void W_SlaveComm::configSlaveComm(int item)
 		{
 			//Refresh all fields:
 			active_slave_index[0] = ui->comboBoxSlave1->currentIndex();
-			active_slave[0] = myFlexSEA_Generic.getSlaveID(SL_BASE_ALL, \
+			active_slave[0] = FlexSEA_Generic::getSlaveID(SL_BASE_ALL, \
 														   active_slave_index[0]);
 			selected_exp_index[0] = ui->comboBoxExp1->currentIndex();
 			selected_refresh_index[0] = ui->comboBoxRefresh1->currentIndex();
@@ -525,7 +508,7 @@ void W_SlaveComm::configSlaveComm(int item)
 				+ QString::number(active_slave_index[item]) + ", " \
 				+ QString::number(selected_exp_index[item]) + ", " \
 				+ QString::number(selected_refresh_index[item]) + "). ";
-		if(pb_state[item] == 1)
+		if((*on_off_pb_ptr[0])->isChecked() == true)
 		{
 			msg += "Stream ON. ";
 		}
@@ -556,7 +539,7 @@ void W_SlaveComm::sc_read_all(uint8_t item)
 	emit slaveReadWrite(numb, comm_str_usb, READ);
 
 	//2) Decode values
-	myFlexSEA_Generic.decodeSlave(SL_BASE_ALL, slaveIndex);
+	FlexSEA_Generic::decodeSlave(SL_BASE_ALL, slaveIndex);
 	//(Uncertain about timings, probably delayed by 1 sample)
 
 	//3) Log
@@ -634,7 +617,7 @@ void W_SlaveComm::sc_ankle2dof(uint8_t item)
 }
 
 //
-void W_SlaveComm::indicatorTimeout(bool rst)
+void W_SlaveComm::updateIndicatorTimeout(bool rst)
 {
 	static uint32_t counter = 0;
 
@@ -650,6 +633,11 @@ void W_SlaveComm::indicatorTimeout(bool rst)
 	}
 }
 
+void W_SlaveComm::receiveNewDataReady(void)
+{
+	//my_w_slavecomm->
+}
+
 //****************************************************************************
 // Private slot(s):
 //****************************************************************************
@@ -657,7 +645,8 @@ void W_SlaveComm::indicatorTimeout(bool rst)
 //This is what gets connected to a timer slot.
 void W_SlaveComm::sc_item1_slot(void)
 {
-	if(pb_state[0] == 1 && sc_comPortOpen == true) //TODO: add slot, and private variable
+	if((*on_off_pb_ptr[0])->isChecked() == true
+		&& sc_comPortOpen == true) //TODO: add slot, and private variable
 	{
 		switch(selected_exp_index[0])
 		{
@@ -698,7 +687,7 @@ void W_SlaveComm::masterTimerEvent(void)
 	//Emit signals:
 
 	emit masterTimer100Hz();
-	indicatorTimeout(false);
+	updateIndicatorTimeout(false);
 
 	if(tb50Hz > 1)
 	{
@@ -828,4 +817,24 @@ void W_SlaveComm::on_comboBoxRefresh4_currentIndexChanged(int index)
 {
 	(void)index;	//Unused for now
 	configSlaveComm(3);
+}
+
+void W_SlaveComm::on_checkBoxLog1_stateChanged(int arg1)
+{
+	manageLogStatus(0);
+}
+
+void W_SlaveComm::on_checkBoxLog2_stateChanged(int arg1)
+{
+	manageLogStatus(1);
+}
+
+void W_SlaveComm::on_checkBoxLog3_stateChanged(int arg1)
+{
+	manageLogStatus(2);
+}
+
+void W_SlaveComm::on_checkBoxLog4_stateChanged(int arg1)
+{
+	manageLogStatus(3);
 }

@@ -54,6 +54,9 @@ public:
 	explicit W_Converter(QWidget *parent = 0);
 	~W_Converter();
 
+signals:
+	void windowClosed(void);
+
 private slots:
 	void on_lineEdituint32_returnPressed();
 	void on_lineEdituint16_returnPressed();

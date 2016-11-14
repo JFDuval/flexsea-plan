@@ -36,6 +36,8 @@
 //****************************************************************************
 
 #include <QWidget>
+#include <QtWidgets/QCheckBox>
+#include <QtWidgets/QPushButton>
 #include "flexsea_generic.h"
 
 //****************************************************************************
@@ -66,8 +68,9 @@ public:
 
 public slots:
 	void displayDataReceived(int idx, int status);
+	void receiveNewDataReady(void);
 	void receiveComPortStatus(bool status);
-	void indicatorTimeout(bool rst);
+	void updateIndicatorTimeout(bool rst);
 	void externalSlaveWrite(char numb, unsigned char *tx_data);
 
 private slots:
@@ -92,6 +95,10 @@ private slots:
 	void on_comboBoxRefresh2_currentIndexChanged(int index);
 	void on_comboBoxRefresh3_currentIndexChanged(int index);
 	void on_comboBoxRefresh4_currentIndexChanged(int index);
+	void on_checkBoxLog1_stateChanged(int arg1);
+	void on_checkBoxLog2_stateChanged(int arg1);
+	void on_checkBoxLog3_stateChanged(int arg1);
+	void on_checkBoxLog4_stateChanged(int arg1);
 
 signals:
 
@@ -106,7 +113,9 @@ signals:
 
 	//Other:
 	void refresh2DPlot(void);
+	void windowClosed(void);
 	void writeToLogFile(uint8_t item, uint8_t slaveIndex, uint8_t expIndex);
+	void openRecordingFile(uint8_t item, QString fileName);
 	void closeLogFile(uint8_t item);
 	void slaveReadWrite(uint numb, uint8_t *dataPacket, uint8_t r_w);
 
@@ -116,13 +125,13 @@ private:
 	bool allComboBoxesPopulated;
 	//Store active connections:
 	QMetaObject::Connection sc_connections[MAX_SC_ITEMS];
-	FlexSEA_Generic myFlexSEA_Generic;
 	int active_slave[MAX_SC_ITEMS], active_slave_index[MAX_SC_ITEMS];
 	int selected_exp_index[MAX_SC_ITEMS];
 	int selected_refresh_index[MAX_SC_ITEMS], previous_refresh_index[MAX_SC_ITEMS];
 	QStringList var_list_refresh;
-	uint8_t pb_state[MAX_SC_ITEMS];
 	bool logThisItem[MAX_SC_ITEMS];
+	QPushButton **on_off_pb_ptr[MAX_SC_ITEMS];
+	QCheckBox **log_cb_ptr[MAX_SC_ITEMS];
 	QTimer *master_timer;
 	bool sc_comPortOpen;
 	//Will change this, but for now the payloads will be stored in:
@@ -133,6 +142,7 @@ private:
 	void initTimers(void);
 	void initDisplayDataReceived(void);
 	void managePushButton(int idx, bool forceOff);
+	void manageLogStatus(uint8_t idx);
 
 	void sc_read_all(uint8_t item);
 	void sc_read_all_ricnu(uint8_t item);
