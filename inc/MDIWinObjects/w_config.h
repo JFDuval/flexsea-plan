@@ -70,16 +70,11 @@ private slots:
 	void on_openComButton_clicked();
 	void on_closeComButton_clicked();
 	void on_pushButtonRefresh_clicked();
-	void on_pbOpenLog1_clicked();
-	void on_pbOpenLog2_clicked();
-	void on_pbOpenLog3_clicked();
-	void on_pbOpenLog4_clicked();
 	void on_pbLoadLogFile_clicked();
 	void on_pbCloseLogFile_clicked();
 
 public slots:
 	void setComProgress(int val, int rst);
-	void setLogFileStatus(QString status);
 
 private:
 	//Variables & Objects:
@@ -90,18 +85,17 @@ private:
 
 	//Function(s):
 	void initCom(void);
-	void initLog(void);
 	void getComList(void);
 	void defaultComOffUi(void);
 
  signals:
 	void openCom(QString name, int tries, int delay);
 	void closeCom(void);
-	void openRecordingFile(uint8_t);
 	void openReadingFile(void);
 	void closeReadingFile(void);
-	void windowClosed(void);
 	void updateDataSourceStatus(DataSource status);
+	void windowClosed(void);
+
 };
 
 #endif // W_CONFIG_H

@@ -265,10 +265,8 @@ void MainWindow::createConfig(void)
 				myDataLogger, SLOT(openReadingFile()));
 		connect(myViewConfig[0], SIGNAL(closeReadingFile()), \
 				myDataLogger, SLOT(closeReadingFile()));
-		connect(myDataLogger, SIGNAL(setLogFileStatus(QString)), \
-				myViewConfig[0], SLOT(setLogFileStatus(QString)));
-		// Link to SerialDriver
 
+		// Link to SerialDriver
 		connect(myViewConfig[0], SIGNAL(openCom(QString,int,int)), \
 				mySerialDriver, SLOT(open(QString,int,int)));
 		connect(myViewConfig[0], SIGNAL(closeCom()), \

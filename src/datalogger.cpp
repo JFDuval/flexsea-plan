@@ -136,12 +136,9 @@ void DataLogger::openfile(uint8_t item, QString fileName, QString shortFileName)
 	// Try to open the file.
 	if(logRecordingFile[item].open(QIODevice::ReadWrite))
 	{
-		msg = tr("Successfully opened: '") + shortFileName + "'.";
 		// TODO Datalogger should not know that there's a logFile and bar
 		// status. Abstraction principle is not respected here. Is there a way
 		// to use some sort of return value instead of signal slot?
-		emit setLogFileStatus(msg);
-		qDebug() << msg;
 
 		//Associate stream to file:
 		logFileStream.setDevice(&logRecordingFile[item]);
@@ -153,7 +150,6 @@ void DataLogger::openfile(uint8_t item, QString fileName, QString shortFileName)
 	else
 	{
 		msg = tr("No log file selected.");
-		emit setLogFileStatus(msg);
 		qDebug() << msg;
 
 		msg = tr("No log file selected or the file couldn't be opened.");
@@ -185,8 +181,6 @@ void DataLogger::openReadingFile(void)
 	logReadingFile.size();
 	if(logReadingFile.open(QIODevice::ReadOnly))
 	{
-		msg = tr("Successfully opened: '") + shortFileName + "'.";
-		emit setLogFileStatus(msg);
 		qDebug() << msg;
 
 		//Associate stream to file:
@@ -244,8 +238,6 @@ void DataLogger::openReadingFile(void)
 	//If no file selected
 	else
 	{
-		msg = tr("No log file selected.");
-		emit setLogFileStatus(msg);
 		qDebug() << msg;
 
 		msg = tr("No log file selected or the file couldn't be opened.");

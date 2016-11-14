@@ -109,7 +109,6 @@ private:
 					char term, qint64 t_ms, QString t_text));
 
 signals:
-	void setLogFileStatus(QString msg);
 	void setStatusBarMessage(QString msg);
 	void setNewLogFileLoaded(QList<struct execute_s> &data);
 };

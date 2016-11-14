@@ -335,7 +335,21 @@ void W_SlaveComm::manageLogStatus(uint8_t idx)
 	if((*log_cb_ptr[idx])->isChecked() &&
 		(*on_off_pb_ptr[idx])->isChecked())
 	{
-		emit openRecordingFile(idx, "testing.csv");
+		QString slaveName, expName, refreshName;
+
+		//Get all feed information:
+		FlexSEA_Generic::getSlaveName(SL_BASE_ALL, \
+										ui->comboBoxSlave1->currentIndex(),
+										&slaveName);
+		FlexSEA_Generic::getExpName(ui->comboBoxExp1->currentIndex(),
+									&expName);
+		refreshName = var_list_refresh.at(ui->comboBoxRefresh1->currentIndex());
+
+
+		emit openRecordingFile(idx, slaveName + "_" +
+									expName + "_" +
+									refreshName +
+									".csv");
 		logThisItem[idx] = true;
 	}
 

@@ -55,7 +55,6 @@ W_Config::W_Config(QWidget *parent) :
 	flagManualEntry = 0;
 	dataSourceState = None;
 	initCom();
-	initLog();
 }
 
 W_Config::~W_Config()
@@ -79,11 +78,6 @@ void W_Config::setComProgress(int val, int rst)
 	{
 		defaultComOffUi();
 	}
-}
-
-void W_Config::setLogFileStatus(QString status)
-{
-	ui->logFileStatus1->setText(status);
 }
 
 //****************************************************************************
@@ -111,22 +105,6 @@ void W_Config::initCom(void)
 
 	//Flag for other functions:
 	flagComInitDone = 1;
-}
-
-void W_Config::initLog(void)
-{
-	ui->logFileStatus1->setText("No log file selected.");
-
-	//Items 2-4 are disabled for now:
-	ui->logFileStatus2->setText("No log file selected.");
-	ui->logFileStatus3->setText("No log file selected.");
-	ui->logFileStatus4->setText("No log file selected.");
-	ui->logFileStatus2->setDisabled(true);
-	ui->logFileStatus3->setDisabled(true);
-	ui->logFileStatus4->setDisabled(true);
-	ui->pbOpenLog2->setDisabled(true);
-	ui->pbOpenLog3->setDisabled(true);
-	ui->pbOpenLog4->setDisabled(true);
 }
 
 void W_Config::getComList(void)
@@ -280,24 +258,4 @@ void W_Config::on_pbCloseLogFile_clicked()
 	ui->pushButtonBTCon->setDisabled(false);
 	dataSourceState = None;
 	emit updateDataSourceStatus(dataSourceState);
-}
-
-void W_Config::on_pbOpenLog1_clicked()
-{
-	emit openRecordingFile(0);
-}
-
-void W_Config::on_pbOpenLog2_clicked()
-{
-	emit openRecordingFile(1);
-}
-
-void W_Config::on_pbOpenLog3_clicked()
-{
-	emit openRecordingFile(2);
-}
-
-void W_Config::on_pbOpenLog4_clicked()
-{
-	emit openRecordingFile(3);
 }
