@@ -825,9 +825,6 @@
     </spacer>
    </item>
   </layout>
-  <zorder>horizontalSlider</zorder>
-  <zorder>labelDataSlider</zorder>
-  <zorder>DataSlider</zorder>
  </widget>
  <resources/>
  <connections/>

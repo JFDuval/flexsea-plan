@@ -121,6 +121,7 @@ private slots:
 	void on_checkBoxD5_stateChanged(int arg1);
 	void on_checkBoxD6_stateChanged(int arg1);
 	void on_pushButtonClear_clicked();
+	void on_pbReset_clicked();
 	void on_DataSlider_valueChanged(int value);
 
 signals:

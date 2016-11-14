@@ -567,7 +567,7 @@ void W_SlaveComm::sc_read_all_ricnu(uint8_t item)
 	emit slaveReadWrite(numb, comm_str_usb, READ);
 
 	//2) Decode values
-	myFlexSEA_Generic.decodeSlave(SL_BASE_ALL, slaveIndex);
+	FlexSEA_Generic::decodeSlave(SL_BASE_ALL, slaveIndex);
 	//(Uncertain about timings, probably delayed by 1 sample)
 
 	//3) Log
@@ -606,7 +606,7 @@ void W_SlaveComm::sc_ankle2dof(uint8_t item)
 
 	//2) Decode values
 	//myFlexSEA_Generic.decodeSlave(SL_BASE_ALL, slaveIndex);
-	myFlexSEA_Generic.decodeSlave(SL_BASE_EX, sel_slave);
+	FlexSEA_Generic::decodeSlave(SL_BASE_EX, sel_slave);
 	//(Uncertain about timings, probably delayed by 1 sample)
 
 	//3) Log

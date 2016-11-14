@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui charts serialport
+QT += core gui charts serialport
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -13,7 +13,6 @@ TEMPLATE = app
 
 INCLUDEPATH += inc \
 	inc/MDIWinObjects \
-	inc/Wrappers \
 	flexsea-comm/inc \
 	flexsea-comm/test \
 	flexsea-system/inc \
@@ -70,7 +69,8 @@ SOURCES += src/main.cpp \
 	flexsea-system/test/test-flexsea_cmd_control_1.c \
 	flexsea-system/test/test-flexsea_cmd_control_2.c \
 	flexsea-user/test/flexsea-user_test-all.c \
-	flexsea-user/test/test-cmd_user.c
+	flexsea-user/test/test-cmd_user.c \
+	src/MDIWinObjects/w_config.cpp
 
 HEADERS  += inc/main.h \
 	inc/mainwindow.h \
@@ -138,10 +138,10 @@ QMAKE_CFLAGS = $$QMAKE_CFLAGS -Wno-unused-but-set-variable
 #QMAKE_CFLAGS = $$QMAKE_CFLAGS -E
 #QMAKE_CXXFLAGS = $$QMAKE_CXXFLAGS -E
 
-DISTFILES += \
-	flexsea-comm/flexsea.gitignore \
-	flexsea-comm/GPL-3.0.txt \
-	flexsea-system/flexsea.gitignore \
-	flexsea-system/GPL-3.0.txt \
-	flexsea-comm/README.md \
-	flexsea-system/README.md
+#DISTFILES += \
+#	flexsea-comm/flexsea.gitignore \
+#	flexsea-comm/GPL-3.0.txt \
+#	flexsea-system/flexsea.gitignore \
+#	flexsea-system/GPL-3.0.txt \
+#	flexsea-comm/README.md \
+#	flexsea-system/README.md
