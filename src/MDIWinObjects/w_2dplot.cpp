@@ -77,6 +77,8 @@ void W_2DPlot::refresh2DPlot(void)
 {
 	uint8_t index = 0, used = 0;
 
+	genTestData();
+
 	//For every variable:
 	for(index = 0; index < VAR_NUM; index++)
 	{
@@ -607,12 +609,8 @@ void W_2DPlot::assignVariableEx(uint8_t var, struct execute_s *myPtr)
 			varToPlotPtrD32s[var] = &nullVar32s;
 			break;
 		case 21: //"Fake Data"
-		/*
-			phaseShift = (TWO_PI/VAR_NUM)*index;
-			update_graph_array(index, gen_test_data((phaseShift)));
-			*/
 			varToPlotFormat[var] = FORMAT_32S;
-			varToPlotPtr32s[var] = &nullVar32s;   //***ToDo***
+			varToPlotPtr32s[var] = &myFakeData;
 			varToPlotPtrD32s[var] = &nullVar32s;
 			break;
 		default:
@@ -1413,19 +1411,6 @@ void W_2DPlot::refreshData2DPlot(int *x, int *y, int len, uint8_t plot_index)
 	}
 }
 
-//Generates a sine wave. More channels = faster frequency
-//All channels have an offset so we can see them (not superposed)
-int W_2DPlot::gen_test_data(int phaseShift)
-{
-	static double phase = 0.0;
-	double res_f = 0;
-
-	phase += PHASE_INCREMENT;
-	res_f = A_GAIN * sin(phase + phaseShift);
-
-	return((int)res_f);
-}
-
 bool W_2DPlot::allChannelUnused(void)
 {
 	for(int i = 0; i < VAR_NUM; i++)
@@ -1504,6 +1489,19 @@ void W_2DPlot::refreshStats(void)
 //****************************************************************************
 // Private slot(s):
 //****************************************************************************
+
+//Generates a sine wave.
+void W_2DPlot::genTestData(void)
+{
+	static double phase = 0.0;
+	double res_f = 0;
+
+	phase += PHASE_INCREMENT;
+	res_f = A_GAIN * sin(phase + 0);
+
+	//Save to global:
+	myFakeData = (int32_t)res_f;
+}
 
 void W_2DPlot::on_radioButtonXA_clicked()
 {

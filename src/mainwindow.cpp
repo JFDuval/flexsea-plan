@@ -371,8 +371,13 @@ void MainWindow::createView2DPlot(void)
 		ui->statusBar->showMessage(msg);
 
 		//Link SerialDriver and 2DPlot:
-		connect(mySerialDriver, SIGNAL(newDataReady()), \
+		/*connect(mySerialDriver, SIGNAL(newDataReady()), \
+				myView2DPlot[plot2DObjectCount], SLOT(refresh2DPlot())); */
+
+		//New version: updates a fixed rate, not based on serial reply:
+		connect(myViewSlaveComm[0], SIGNAL(refresh2DPlot()), \
 				myView2DPlot[plot2DObjectCount], SLOT(refresh2DPlot()));
+
 		//Link to MainWindow for the close signal:
 		connect(myView2DPlot[plot2DObjectCount], SIGNAL(windowClosed()), \
 				this, SLOT(closeView2DPlot()));

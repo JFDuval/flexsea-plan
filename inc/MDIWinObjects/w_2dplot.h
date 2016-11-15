@@ -128,6 +128,7 @@ private slots:
 	void on_pushButtonClear_clicked();
 	void on_pbReset_clicked();
 	void on_DataSlider_valueChanged(int value);
+	void genTestData(void);
 
 signals:
 	void windowClosed(void);
@@ -167,6 +168,7 @@ private:
 	uint8_t varIndex[VAR_NUM];
 	bool varDecode[VAR_NUM], varUsed[VAR_NUM];
 	int64_t stats[VAR_NUM][STATS_FIELDS];
+	int32_t myFakeData;
 
 	//Function(s):
 	void initChart(void);
@@ -178,7 +180,6 @@ private:
 	void update_plot_buf_single(int *buf, int *idx, int new_data);
 	void update_graph_array(int graph, int new_data);
 	uint8_t select_plot_slave(uint8_t index);
-	int gen_test_data(int phaseShift);
 	void array_minmax(int *arr, int len, int *min, int *max);
 	void addMargins(int *ymin, int *ymax);
 	void updateVarList(uint8_t var, QComboBox *myCombo);
