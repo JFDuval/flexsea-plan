@@ -60,6 +60,7 @@ W_2DPlot::W_2DPlot(QWidget *parent) :
 	initFlag = true;
 	initUserInput();
 	initChart();
+	initStats();
 }
 
 W_2DPlot::~W_2DPlot()
@@ -74,7 +75,7 @@ W_2DPlot::~W_2DPlot()
 
 void W_2DPlot::refresh2DPlot(void)
 {
-	uint8_t index = 0;
+	uint8_t index = 0, used = 0;
 
 	//For every variable:
 	for(index = 0; index < VAR_NUM; index++)
@@ -83,10 +84,12 @@ void W_2DPlot::refresh2DPlot(void)
 		{
 			//This channel isn't used, we make it invisible
 			qlsData[index]->setVisible(false);
+			used = 0;
 		}
 		else
 		{
 			qlsData[index]->setVisible(true);
+			used = 1;
 		}
 
 		if(varDecode[index] == false)
@@ -118,13 +121,20 @@ void W_2DPlot::refresh2DPlot(void)
 		}
 		else
 		{
-			update_graph_array(index, (*varToPlotPtrD32s[index]));
+			if(used)
+			{
+				update_graph_array(index, (*varToPlotPtrD32s[index]));
+			}
 		}
 
-		//Plot it:
-		refreshData2DPlot(graph_xarray, graph_yarray[index], plot_len, index);
-		refreshStats();
+		if(used)
+		{
+			//Plot it:
+			refreshData2DPlot(graph_xarray, graph_yarray[index], plot_len, index);
+		}
 	}
+
+	refreshStats();
 }
 
 //****************************************************************************
@@ -202,9 +212,6 @@ void W_2DPlot::initChart(void)
 	chartView->setMinimumSize(500,300);
 	chartView->setMaximumSize(4000,2500);
 	chartView->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-
-	//Stats:
-	initStats();
 }
 
 //Fills the fields and combo boxes:
