@@ -131,6 +131,8 @@ void SerialDriver::close(void)
 //Read
 int SerialDriver::read(unsigned char *buf)
 {
+	(void)buf;
+
 	QByteArray baData;
 	baData.resize(256);
 	bool dataReady = false;

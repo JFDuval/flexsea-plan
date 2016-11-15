@@ -163,8 +163,6 @@ void W_Control::save_ctrl_gains(int controller, int16_t *gains)
 void W_Control::controller_setpoint(int val)
 {
 	uint16_t numb = 0, valid = 0;
-	uint8_t cmdCode = 0, cmdType = 0;
-	uint16_t len = 0;
 	uint8_t info[2] = {PORT_USB, PORT_USB};
 
 	qDebug() << "Entered controller_setpoint()";
@@ -630,22 +628,13 @@ void W_Control::refreshStatusGain(void)
 	str = "<i>Gains: I = [" + \
 			QString::number(ctrl_gains[3][0]) + ", " + \
 			QString::number(ctrl_gains[3][1]) + ", " + \
-			QString::number(ctrl_gains[3][2]) + ", " + \
-			QString::number(ctrl_gains[3][3]) + ", " + \
-			QString::number(ctrl_gains[3][4]) + ", " + \
-			QString::number(ctrl_gains[3][5]) + "]  P = [" + \
+			QString::number(ctrl_gains[3][2]) + "], P = [" + \
 			QString::number(ctrl_gains[2][0]) + ", " + \
 			QString::number(ctrl_gains[2][1]) + ", " + \
-			QString::number(ctrl_gains[2][2]) + ", " + \
-			QString::number(ctrl_gains[2][3]) + ", " + \
-			QString::number(ctrl_gains[2][4]) + ", " + \
-			QString::number(ctrl_gains[2][5]) + "]  Z = [" + \
+			QString::number(ctrl_gains[2][2]) + "], Z = [" + \
 			QString::number(ctrl_gains[4][0]) + ", " + \
 			QString::number(ctrl_gains[4][1]) + ", " + \
-			QString::number(ctrl_gains[4][2]) + ", " + \
-			QString::number(ctrl_gains[4][3]) + ", " + \
-			QString::number(ctrl_gains[4][4]) + ", " + \
-			QString::number(ctrl_gains[4][5]) + "].</i>";
+			QString::number(ctrl_gains[4][2]) + "].</i>";
 
 	ui->statusGains->setText(str);
 	qDebug() << str;

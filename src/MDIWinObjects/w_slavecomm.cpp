@@ -821,20 +821,24 @@ void W_SlaveComm::on_comboBoxRefresh4_currentIndexChanged(int index)
 
 void W_SlaveComm::on_checkBoxLog1_stateChanged(int arg1)
 {
+	(void)arg1;	//Unused for now
 	manageLogStatus(0);
 }
 
 void W_SlaveComm::on_checkBoxLog2_stateChanged(int arg1)
 {
+	(void)arg1;	//Unused for now
 	manageLogStatus(1);
 }
 
 void W_SlaveComm::on_checkBoxLog3_stateChanged(int arg1)
 {
+	(void)arg1;	//Unused for now
 	manageLogStatus(2);
 }
 
 void W_SlaveComm::on_checkBoxLog4_stateChanged(int arg1)
 {
+	(void)arg1;	//Unused for now
 	manageLogStatus(3);
 }
