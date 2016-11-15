@@ -94,6 +94,14 @@ void W_Config::initCom(void)
 	//Flags:
 	flagComInitDone = 0;
 
+	//Hiding Manual Entry box:
+	ui->comPortTxt->setVisible(false);
+	ui->label_ManEntry->setVisible(false);
+	//ToDo: decide if we want to 100% get rid of this
+
+	//Bluetooth disabled for now:
+	ui->pushButtonBTCon->setEnabled(false);
+
 	//No manual entry, 0% progress, etc.:
 	ui->comPortTxt->setText("");
 	ui->comPortTxt->setDisabled(true);
@@ -122,8 +130,8 @@ void W_Config::getComList(void)
 		comPortList << info.portName();
 		ui->comPortComboBox->addItem(comPortList.last());
 	}
-	//Add an option for manual entry:
-	comPortList << "Manual Entry";
+	//Add an option for manual entry, or for empty list:
+	comPortList << "Null";
 	ui->comPortComboBox->addItem(comPortList.last());
 
 	//Enable lideEdit when we only have Manual Entry

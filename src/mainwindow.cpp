@@ -85,6 +85,11 @@ MainWindow::MainWindow(QWidget *parent) :
 	createConfig();
 	createSlaveComm();
 
+	//Disable options that are not implemented:
+	ui->menuFile->actions().at(3)->setEnabled(false);		//Load configuration
+	ui->menuFile->actions().at(4)->setEnabled(false);		//Save configuration
+	ui->menuControl->actions().at(1)->setEnabled(false);	//In Control
+
 
 	//Log and MainWindow
 	connect(myDataLogger, SIGNAL(setStatusBarMessage(QString)), \

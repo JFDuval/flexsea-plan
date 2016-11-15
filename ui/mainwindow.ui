@@ -72,7 +72,7 @@
      <height>21</height>
     </rect>
    </property>
-   <widget class="QMenu" name="menuTest">
+   <widget class="QMenu" name="menuFile">
     <property name="title">
      <string>File</string>
     </property>
@@ -81,9 +81,8 @@
     <addaction name="separator"/>
     <addaction name="actionLoad_Configuration"/>
     <addaction name="actionSave_Configuration"/>
-    <addaction name="actionTest_Button"/>
    </widget>
-   <widget class="QMenu" name="menuTest2">
+   <widget class="QMenu" name="menuView">
     <property name="title">
      <string>Add View</string>
     </property>
@@ -97,7 +96,7 @@
     <addaction name="separator"/>
     <addaction name="action2D_Plot"/>
    </widget>
-   <widget class="QMenu" name="menuAdd_Control">
+   <widget class="QMenu" name="menuControl">
     <property name="title">
      <string>Add Control</string>
     </property>
@@ -120,9 +119,9 @@
     <addaction name="actionCalibration"/>
     <addaction name="actionConverter"/>
    </widget>
-   <addaction name="menuTest"/>
-   <addaction name="menuTest2"/>
-   <addaction name="menuAdd_Control"/>
+   <addaction name="menuFile"/>
+   <addaction name="menuView"/>
+   <addaction name="menuControl"/>
    <addaction name="menuTools"/>
    <addaction name="menuHelp"/>
   </widget>
