@@ -60,6 +60,7 @@ W_Config::W_Config(QWidget *parent) :
 	QTimer *comPortRefreshTimer = new QTimer(this);
 	connect(comPortRefreshTimer, SIGNAL(timeout()), this, SLOT(getComList()));
 	comPortRefreshTimer->start(1000); //1000ms = 1S
+	getComList();	//Call now to avoid lag when a new window is opened.
 }
 
 W_Config::~W_Config()
