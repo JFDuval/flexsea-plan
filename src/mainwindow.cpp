@@ -145,7 +145,8 @@ void MainWindow::createViewExecute(void)
 			}
 		}
 
-		myViewExecute[exViewObjectCount] = new W_Execute(this, myDataLogger->getExecuteLogPtr(), status);
+		myViewExecute[exViewObjectCount] = \
+				new W_Execute(this, myDataLogger->getExecuteLogPtr(), status);
 		ui->mdiArea->addSubWindow(myViewExecute[exViewObjectCount]);
 		myViewExecute[exViewObjectCount]->show();
 
@@ -162,13 +163,12 @@ void MainWindow::createViewExecute(void)
 		connect(myViewExecute[exViewObjectCount], SIGNAL(windowClosed()), \
 				this, SLOT(closeViewExecute()));
 
-		// Link to the slider of 2dplot. Intermediate signal (connector) to
+		// Link to the slider of 2DPlot. Intermediate signal (connector) to
 		// allow opening of window asynchroniously
 		connect(this, SIGNAL(connectorRefreshDataSlider(int)), \
 				myViewExecute[exViewObjectCount], SLOT(displayLogData(int)));
 		connect(this, SIGNAL(connectorUpdateDisplayMode(DisplayMode)), \
 				myViewExecute[exViewObjectCount], SLOT(updateDisplayMode(DisplayMode)));
-
 
 		exViewObjectCount++;
 	}
@@ -802,34 +802,38 @@ void MainWindow::closeViewBattery(void)
 void MainWindow::displayAbout()
 {
 	QMessageBox::about(this, tr("About FlexSEA"), \
-	tr("<center><u>FlexSEA: <b>Flex</b>ible, <b>S</b>calable <b>E</b>lectronics <b>A</b>rchitecture.</u><br><br> \
-	Project originaly developped at the <a href='http://biomech.media.mit.edu/'>MIT Media Lab Biomechatronics group</a>, now \
-	supported by <a href='http://dephy.com/'>Dephy, Inc.</a><br><br><b>Copyright &copy; Dephy, Inc. 2016</b> \
-	   <br><br>Software released under the GNU GPL-3.0 license</center>"));
+	tr("<center><u>FlexSEA: <b>Flex</b>ible, <b>S</b>calable <b>E</b>lectronics\
+	 <b>A</b>rchitecture.</u><br><br>Project originaly developped at the \
+	<a href='http://biomech.media.mit.edu/'>MIT Media Lab Biomechatronics \
+	group</a>, now supported by <a href='http://dephy.com/'>Dephy, Inc.</a>\
+	<br><br><b>Copyright &copy; Dephy, Inc. 2016</b><br><br>Software released \
+	under the GNU GPL-3.0 license</center>"));
 }
 
 void MainWindow::displayLicense()
 {
 	QMessageBox::information(this, tr("Software License Information"), \
 	tr("<center><b>Copyright &copy; Dephy, Inc. 2016</b>\
-	   <br><br>This program is free software: you can redistribute it and/or modify \
-		   it under the terms of the GNU General Public License as published by \
-		   the Free Software Foundation, either version 3 of the License, or \
-		   (at your option) any later version. <br><br>\
-		   This program is distributed in the hope that it will be useful,\
-		   but WITHOUT ANY WARRANTY; without even the implied warranty of \
-		   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the \
-		   GNU General Public License for more details. <br><br>\
-		   You should have received a copy of the GNU General Public License \
-		   along with this program.  If not, see \
-			<a href='http://www.gnu.org/licenses/'>http://www.gnu.org/licenses/</a>.</center>"));
+		<br><br>This program is free software: you can redistribute it and/or modify \
+		it under the terms of the GNU General Public License as published by \
+		the Free Software Foundation, either version 3 of the License, or \
+		(at your option) any later version. <br><br>\
+		This program is distributed in the hope that it will be useful,\
+		but WITHOUT ANY WARRANTY; without even the implied warranty of \
+		MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the \
+		GNU General Public License for more details. <br><br>\
+		You should have received a copy of the GNU General Public License \
+		along with this program.  If not, see \
+		<a href='http://www.gnu.org/licenses/'>\
+		http://www.gnu.org/licenses/</a>.</center>"));
 }
 
 void MainWindow::displayDocumentation()
 {
 	QMessageBox::information(this, tr("Documentation"), \
-	tr("<center>Documentation available online: <a href='http://flexsea.media.mit.edu/'>\
-	FlexSEA Documentation</a></center>"));
+	tr("<center>Documentation available online: \
+		<a href='http://flexsea.media.mit.edu/'>\
+		FlexSEA Documentation</a></center>"));
 }
 
 void MainWindow::setStatusBar(QString msg)

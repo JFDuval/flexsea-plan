@@ -190,7 +190,7 @@ void W_Config::on_openComButton_clicked()
 	//Some checks:
 	if(ui->comPortComboBox->currentIndex() == (comPortList.length() - 1))
 	{
-		//Last item is Manual Entry. Do we have text?
+		//Last item is Manual Entry / Null. Do we have text?
 		if(ui->comPortTxt->text().length() > 0)
 		{
 			//qDebug() << "More than 0 char, valid.";
@@ -207,8 +207,8 @@ void W_Config::on_openComButton_clicked()
 
 	emit openCom(ui->comPortTxt->text(), 25, 100000);
 
-	// TODO We Should have a way to know if the connection was successfull
-	if(1)//Connection is successfull.
+	// TODO We Should have a way to know if the connection was successful
+	if(1)//Connection is successful.
 	{
 		dataSourceState = LiveCOM;
 		emit updateDataSourceStatus(dataSourceState);

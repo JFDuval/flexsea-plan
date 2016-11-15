@@ -52,7 +52,8 @@ extern "C" {
 //****************************************************************************
 
 //Common variables - careful, do not change "manually"!
-long long d_pos = 0, d_spd = 0, a_t = 0, a_t_discrete = 0, spd_inc = 0, acc_pos = 0, acc = 0;
+long long d_pos = 0, d_spd = 0, a_t = 0, a_t_discrete = 0, spd_inc = 0;
+long long acc_pos = 0, acc = 0;
 long long init_pos = 0, cte_spd_pos = 0, cte_spd_pos_discrete = 0;
 long long skip_sspeed = 0;
 long long pos_step = 0;
@@ -63,7 +64,8 @@ long long sign = 0;
 // Private Function Prototype(s):
 //****************************************************************************
 
-static long long trapez_compute_params(long long pos_i, long long pos_f, long long spd_max, long long a);
+static long long trapez_compute_params(long long pos_i, long long pos_f, \
+										long long spd_max, long long a);
 
 //****************************************************************************
 // Public Function(s)
@@ -71,7 +73,8 @@ static long long trapez_compute_params(long long pos_i, long long pos_f, long lo
 
 //Based on trapez_motion_2.m
 //Assumes 0 initial speed
-long long trapez_gen_motion_1(long long pos_i, long long pos_f, long long spd_max, long long a)
+long long trapez_gen_motion_1(long long pos_i, long long pos_f, \
+							long long spd_max, long long a)
 {
 	long long abs_d_pos = 0, abs_acc_pos = 0, dual_abs_acc_pos = 0;
 
@@ -126,7 +129,8 @@ long long trapez_gen_motion_1(long long pos_i, long long pos_f, long long spd_ma
 	cte_spd_pos_discrete = (SPD_FACTOR*cte_spd_pos/spd_max)*TRAPEZ_ONE_OVER_DT;
 	cte_spd_pos_discrete = cte_spd_pos_discrete / SPD_FACTOR;
 	#ifdef DEBUGGING_OUTPUT
-	printf("cte_spd_pos = %lld, cte_spd_pos_discrete = %lld.\n", cte_spd_pos, cte_spd_pos_discrete);
+	printf("cte_spd_pos = %lld, cte_spd_pos_discrete = %lld.\n", cte_spd_pos,\
+		   cte_spd_pos_discrete);
 	#endif
 	if(cte_spd_pos_discrete < 0)
 	{
@@ -141,7 +145,8 @@ long long trapez_gen_motion_1(long long pos_i, long long pos_f, long long spd_ma
 	trapez_transitions[1] = a_t_discrete + cte_spd_pos_discrete;
 	trapez_transitions[2] = 2*a_t_discrete + cte_spd_pos_discrete;
 	#ifdef DEBUGGING_OUTPUT
-	printf("tr[0] = %lld, tr[1] = %lld, tr[2] = %lld.\n", trapez_transitions[0], trapez_transitions[1], trapez_transitions[2]);
+	printf("tr[0] = %lld, tr[1] = %lld, tr[2] = %lld.\n", trapez_transitions[0],\
+			trapez_transitions[1], trapez_transitions[2]);
 	#endif
 	pos_step = 0;   //Variable used to output the current position command
 
@@ -202,7 +207,8 @@ long long trapez_get_pos(long long max_steps)
 		position = tmp_pos + init_pos;
 		#ifdef DEBUGGING_OUTPUT
 		if(pos_step < 10)
-			printf("pos_step = %lld, pos_integral = %lld, position = %lld.\n", pos_step, pos_integral, position);
+			printf("pos_step = %lld, pos_integral = %lld, position = %lld.\n",\
+				   pos_step, pos_integral, position);
 		#endif
 	}
 	else
@@ -220,7 +226,8 @@ long long trapez_get_pos(long long max_steps)
 
 //Computes all the parameters for a new trapezoidal motion trajectory
 //Called by trapez_gen_motion_1()
-static long long trapez_compute_params(long long pos_i, long long pos_f, long long spd_max, long long a)
+static long long trapez_compute_params(long long pos_i, long long pos_f,\
+										long long spd_max, long long a)
 {
 	long long tmp = 0, i = 0;
 
@@ -232,14 +239,15 @@ static long long trapez_compute_params(long long pos_i, long long pos_f, long lo
 
 	acc = a;
 	init_pos = pos_i;
-	d_pos = pos_f - pos_i;                                  //Difference in position
-	d_spd = spd_max ;                                       //Difference in speed
-	a_t = (ACC_FACTOR*d_spd) / a;                                        //How long do we accelerate?
-	a_t_discrete = a_t * TRAPEZ_ONE_OVER_DT / ACC_FACTOR;                //   (in ticks)
+	d_pos = pos_f - pos_i;			//Difference in position
+	d_spd = spd_max ;				//Difference in speed
+	a_t = (ACC_FACTOR*d_spd) / a;	//How long do we accelerate?
+	a_t_discrete = a_t * TRAPEZ_ONE_OVER_DT / ACC_FACTOR;	//(in ticks)
 	//a_t_discrete = a_t; //Simplification of *100/100
-	spd_inc = (sign*SPD_FACTOR*d_spd) / a_t_discrete;       //Every tick, increase spd by
+	spd_inc = (sign*SPD_FACTOR*d_spd) / a_t_discrete;		//Every tick, increase spd by
 	#ifdef DEBUGGING_OUTPUT
-	printf("d_spd = %lld, a_t_discrete = %lld, spd_inc = %lld, d_pos = %lld.\n", d_spd, a_t_discrete, spd_inc, d_pos);
+	printf("d_spd = %lld, a_t_discrete = %lld, spd_inc = %lld, d_pos = %lld.\n", \
+		   d_spd, a_t_discrete, spd_inc, d_pos);
 	#endif
 
 	acc_pos = 0;
@@ -250,7 +258,8 @@ static long long trapez_compute_params(long long pos_i, long long pos_f, long lo
 	}
 	acc_pos = acc_pos / (SPD_FACTOR * TRAPEZ_ONE_OVER_DT); //Combine terms
 	#ifdef DEBUGGING_OUTPUT
-	printf("acc_pos = %lld (2x = %lld), %f%% of d_pos.\n", acc_pos, (2*acc_pos), (float)(2*acc_pos*100/d_pos));
+	printf("acc_pos = %lld (2x = %lld), %f%% of d_pos.\n", acc_pos, (2*acc_pos), \
+		   (float)(2*acc_pos*100/d_pos));
 	#endif
 
 	return 0;
