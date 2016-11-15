@@ -96,6 +96,7 @@ public:
 
 public slots:
 	void refresh2DPlot(void);
+	void refreshControl(void);
 
 private slots:
 	void on_radioButtonXA_clicked();

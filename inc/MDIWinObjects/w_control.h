@@ -54,6 +54,7 @@ public:
 	//Constructor & Destructor:
 	explicit W_Control(QWidget *parent = 0);
 	~W_Control();
+	static int getSetp(void);
 
 public slots:
 
@@ -87,6 +88,7 @@ private:
 	QStringList var_list_controllers, var_list_enc_disp;
 	QTimer *timerCtrl;
 	uint8_t transferBuf[48];
+	static int setp;
 
 	//Function(s):
 	void initControl(void);
@@ -95,8 +97,8 @@ private:
 	void controller_setpoint(int val);
 	void initTimers(void);
 	void stream_ctrl(void);
-	void control_trapeze(void);
 	void refreshStatusGain(void);
+	void control_trapeze(void);
 };
 
 #define CONTROLLERS         6

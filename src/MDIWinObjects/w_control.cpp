@@ -242,10 +242,8 @@ void W_Control::stream_ctrl(void)
 
 void W_Control::control_trapeze(void)
 {
-	int i = 0;
-
-	//Ugly trick to match the 1ms function and the plot refresh...
-	for(i = 0; i < 27; i++)
+	//Call 10x to match 1ms & 100Hz timebases:
+	for(int i = 0; i < 10; i++)
 	{
 		trapez_get_pos(trapez_steps);
 	}

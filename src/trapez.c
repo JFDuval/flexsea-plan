@@ -44,8 +44,6 @@ extern "C" {
 #include <stdlib.h>
 #include <math.h>
 #include "trapez.h"
-//#include "main.h"
-
 
 //****************************************************************************
 // Local variable(s)

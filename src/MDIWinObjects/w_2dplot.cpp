@@ -143,6 +143,12 @@ void W_2DPlot::refresh2DPlot(void)
 // Public slot(s):
 //****************************************************************************
 
+//We use this function for the trapeze setpoints. Refreshed at 100Hz.
+void W_2DPlot::refreshControl(void)
+{
+
+}
+
 //****************************************************************************
 // Private function(s):
 //****************************************************************************

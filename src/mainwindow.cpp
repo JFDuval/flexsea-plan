@@ -374,9 +374,13 @@ void MainWindow::createView2DPlot(void)
 		/*connect(mySerialDriver, SIGNAL(newDataReady()), \
 				myView2DPlot[plot2DObjectCount], SLOT(refresh2DPlot())); */
 
-		//New version: updates a fixed rate, not based on serial reply:
+		//New version: updates at fixed rate, not based on serial reply:
 		connect(myViewSlaveComm[0], SIGNAL(refresh2DPlot()), \
 				myView2DPlot[plot2DObjectCount], SLOT(refresh2DPlot()));
+
+		//For the trapeze/control tool:
+		connect(myViewSlaveComm[0], SIGNAL(masterTimer100Hz()), \
+				myView2DPlot[plot2DObjectCount], SLOT(refreshControl()));
 
 		//Link to MainWindow for the close signal:
 		connect(myView2DPlot[plot2DObjectCount], SIGNAL(windowClosed()), \

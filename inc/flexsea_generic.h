@@ -141,7 +141,6 @@ public:
 	static void decodeBattery(uint8_t base, uint8_t index);
 	static void decodeStrain(uint8_t base, uint8_t index);
 
-
 public slots:
 
 private slots:
