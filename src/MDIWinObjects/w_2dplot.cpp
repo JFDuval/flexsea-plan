@@ -1390,6 +1390,15 @@ void W_2DPlot::refreshData2DPlot(int *x, int *y, int len, uint8_t plot_index)
 			}
 		}
 
+		//Average value
+		long long sum = 0;
+		uint32_t qlen = plot_len;
+		for(uint32_t h = 0; h < qlen; h++)
+		{
+			sum += graph_yarray[plot_index][h];
+		}
+		stats[plot_index][STATS_AVG] = (sum/qlen);
+
 		plotting_len = len;
 
 		//Update axis:
@@ -1435,32 +1444,54 @@ void W_2DPlot::initStats(void)
 
 	ui->label_1_min->setText(QString::number(0));
 	ui->label_1_max->setText(QString::number(0));
+	ui->label_1_avg->setText(QString::number(0));
+
 	ui->label_2_min->setText(QString::number(0));
 	ui->label_2_max->setText(QString::number(0));
+	ui->label_2_avg->setText(QString::number(0));
+
 	ui->label_3_min->setText(QString::number(0));
 	ui->label_3_max->setText(QString::number(0));
+	ui->label_3_avg->setText(QString::number(0));
+
 	ui->label_4_min->setText(QString::number(0));
 	ui->label_4_max->setText(QString::number(0));
+	ui->label_4_avg->setText(QString::number(0));
+
 	ui->label_5_min->setText(QString::number(0));
 	ui->label_5_max->setText(QString::number(0));
+	ui->label_5_avg->setText(QString::number(0));
+
 	ui->label_6_min->setText(QString::number(0));
 	ui->label_6_max->setText(QString::number(0));
+	ui->label_6_avg->setText(QString::number(0));
 }
 
 void W_2DPlot::refreshStats(void)
 {
 	ui->label_1_min->setText(QString::number(stats[0][STATS_MIN]));
 	ui->label_1_max->setText(QString::number(stats[0][STATS_MAX]));
+	ui->label_1_avg->setText(QString::number(stats[0][STATS_AVG]));
+
 	ui->label_2_min->setText(QString::number(stats[1][STATS_MIN]));
 	ui->label_2_max->setText(QString::number(stats[1][STATS_MAX]));
+	ui->label_2_avg->setText(QString::number(stats[1][STATS_AVG]));
+
 	ui->label_3_min->setText(QString::number(stats[2][STATS_MIN]));
 	ui->label_3_max->setText(QString::number(stats[2][STATS_MAX]));
+	ui->label_3_avg->setText(QString::number(stats[2][STATS_AVG]));
+
 	ui->label_4_min->setText(QString::number(stats[3][STATS_MIN]));
 	ui->label_4_max->setText(QString::number(stats[3][STATS_MAX]));
+	ui->label_4_avg->setText(QString::number(stats[3][STATS_AVG]));
+
 	ui->label_5_min->setText(QString::number(stats[4][STATS_MIN]));
 	ui->label_5_max->setText(QString::number(stats[4][STATS_MAX]));
+	ui->label_5_avg->setText(QString::number(stats[4][STATS_AVG]));
+
 	ui->label_6_min->setText(QString::number(stats[5][STATS_MIN]));
 	ui->label_6_max->setText(QString::number(stats[5][STATS_MAX]));
+	ui->label_6_avg->setText(QString::number(stats[5][STATS_AVG]));
 }
 
 //****************************************************************************
@@ -1774,6 +1805,7 @@ void W_2DPlot::on_pushButtonClear_clicked()
 void W_2DPlot::on_pbReset_clicked()
 {
 	initUserInput();
+	initStats();
 }
 
 void W_2DPlot::on_DataSlider_valueChanged(int value)
