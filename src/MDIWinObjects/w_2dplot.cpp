@@ -123,6 +123,7 @@ void W_2DPlot::refresh2DPlot(void)
 
 		//Plot it:
 		refreshData2DPlot(graph_xarray, graph_yarray[index], plot_len, index);
+		refreshStats();
 	}
 }
 
@@ -201,6 +202,9 @@ void W_2DPlot::initChart(void)
 	chartView->setMinimumSize(500,300);
 	chartView->setMaximumSize(4000,2500);
 	chartView->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+
+	//Stats:
+	initStats();
 }
 
 //Fills the fields and combo boxes:
@@ -1314,8 +1318,6 @@ void W_2DPlot::setChartAxis(void)
 					//We found one, copy its values:
 					yValMin = graph_ylim[2*k];
 					yValMax = graph_ylim[(2*k)+1];
-					//qDebug() << "graph_ylim:"<< graph_ylim[0] << graph_ylim[1] <<graph_ylim[2] <<graph_ylim[3] ;
-					//qDebug() << "Getting values from ch" << k << "(" << yValMin << "," << yValMax << ")";
 					break;
 				}
 			}
@@ -1327,17 +1329,13 @@ void W_2DPlot::setChartAxis(void)
 					//Unused, replace its min/max:
 					graph_ylim[2*k] = yValMin;
 					graph_ylim[(2*k)+1] = yValMax;
-
-					//qDebug() << "Replaced values for ch" << k << "(" << yValMin << "," << yValMax << ")";
 				}
 			}
 
 			//Now we can find the min/max of all channels:
 			array_minmax(graph_ylim, 2*VAR_NUM, &plot_ymin, &plot_ymax);
 
-			//Apply a 5% margin:
-			//plot_ymin = (plot_ymin-(abs(plot_ymin)/20));
-			//plot_ymax = (plot_ymax+(abs(plot_ymax)/20));
+			//Apply a margin:
 			addMargins(&plot_ymin, &plot_ymax);
 		}
 
@@ -1383,17 +1381,16 @@ void W_2DPlot::refreshData2DPlot(int *x, int *y, int len, uint8_t plot_index)
 			if(y[i] < graph_ylim[2*plot_index])
 			{
 				graph_ylim[2*plot_index] = y[i];
+				stats[plot_index][STATS_MIN] = y[i];
 			}
 			if(y[i] > graph_ylim[(2*plot_index) + 1])
 			{
 				graph_ylim[(2*plot_index) + 1] = y[i];
+				stats[plot_index][STATS_MAX] = y[i];
 			}
 		}
 
 		plotting_len = len;
-
-		//qDebug() << "refreshData2DPlot ylim:" << graph_ylim[0] << graph_ylim[1] << \
-		//              graph_ylim[2] << graph_ylim[3];
 
 		//Update axis:
 		setChartAxis();
@@ -1423,6 +1420,47 @@ bool W_2DPlot::allChannelUnused(void)
 		}
 	}
 	return true;
+}
+
+//Init stats: all 0
+void W_2DPlot::initStats(void)
+{
+	for(int i = 0; i < VAR_NUM; i++)
+	{
+		for(int j = 0; j < STATS_FIELDS; j++)
+		{
+			stats[i][j] = 0;
+		}
+	}
+
+	ui->label_1_min->setText(QString::number(0));
+	ui->label_1_max->setText(QString::number(0));
+	ui->label_2_min->setText(QString::number(0));
+	ui->label_2_max->setText(QString::number(0));
+	ui->label_3_min->setText(QString::number(0));
+	ui->label_3_max->setText(QString::number(0));
+	ui->label_4_min->setText(QString::number(0));
+	ui->label_4_max->setText(QString::number(0));
+	ui->label_5_min->setText(QString::number(0));
+	ui->label_5_max->setText(QString::number(0));
+	ui->label_6_min->setText(QString::number(0));
+	ui->label_6_max->setText(QString::number(0));
+}
+
+void W_2DPlot::refreshStats(void)
+{
+	ui->label_1_min->setText(QString::number(stats[0][STATS_MIN]));
+	ui->label_1_max->setText(QString::number(stats[0][STATS_MAX]));
+	ui->label_2_min->setText(QString::number(stats[1][STATS_MIN]));
+	ui->label_2_max->setText(QString::number(stats[1][STATS_MAX]));
+	ui->label_3_min->setText(QString::number(stats[2][STATS_MIN]));
+	ui->label_3_max->setText(QString::number(stats[2][STATS_MAX]));
+	ui->label_4_min->setText(QString::number(stats[3][STATS_MIN]));
+	ui->label_4_max->setText(QString::number(stats[3][STATS_MAX]));
+	ui->label_5_min->setText(QString::number(stats[4][STATS_MIN]));
+	ui->label_5_max->setText(QString::number(stats[4][STATS_MAX]));
+	ui->label_6_min->setText(QString::number(stats[5][STATS_MIN]));
+	ui->label_6_max->setText(QString::number(stats[5][STATS_MAX]));
 }
 
 //****************************************************************************

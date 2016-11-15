@@ -45,25 +45,32 @@
 // Definition(s)
 //****************************************************************************
 
-#define INIT_PLOT_XMIN              0
-#define INIT_PLOT_XMAX              200
-#define INIT_PLOT_YMIN              -10000
-#define INIT_PLOT_YMAX              10000
-#define INIT_PLOT_LEN               ((INIT_PLOT_XMAX-INIT_PLOT_XMIN)+1)
-#define VAR_NUM                     6
-#define PLOT_BUF_LEN                1000
+#define INIT_PLOT_XMIN				0
+#define INIT_PLOT_XMAX				200
+#define INIT_PLOT_YMIN				-10000
+#define INIT_PLOT_YMAX				10000
+#define INIT_PLOT_LEN				((INIT_PLOT_XMAX-INIT_PLOT_XMIN)+1)
+#define VAR_NUM						6
+#define PLOT_BUF_LEN				1000
 
-#define TWO_PI                      (2*3.14159)
-#define PHASE_INCREMENT             (TWO_PI/75)
-#define A_GAIN                      1000
+#define TWO_PI						(2*3.14159)
+#define PHASE_INCREMENT				(TWO_PI/75)
+#define A_GAIN						1000
+
+//Stats:
+#define STATS_FIELDS				4
+#define STATS_MIN					0
+#define STATS_MAX					1
+#define STATS_AVG					2
+#define STATS_RMS					3
 
 //Variable formats:
-#define FORMAT_32U                  0
-#define FORMAT_32S                  1
-#define FORMAT_16U                  2
-#define FORMAT_16S                  3
-#define FORMAT_8U                   4
-#define FORMAT_8S                   5
+#define FORMAT_32U					0
+#define FORMAT_32S					1
+#define FORMAT_16U					2
+#define FORMAT_16S					3
+#define FORMAT_8U					4
+#define FORMAT_8S					5
 
 //****************************************************************************
 // Namespace & Class Definition:
@@ -87,10 +94,8 @@ public:
 
 	//Function(s):
 
-
 public slots:
 	void refresh2DPlot(void);
-
 
 private slots:
 	void on_radioButtonXA_clicked();
@@ -161,6 +166,7 @@ private:
 	uint8_t slaveIndex[VAR_NUM], slaveAddr[VAR_NUM], slaveBType[VAR_NUM];
 	uint8_t varIndex[VAR_NUM];
 	bool varDecode[VAR_NUM], varUsed[VAR_NUM];
+	int64_t stats[VAR_NUM][STATS_FIELDS];
 
 	//Function(s):
 	void initChart(void);
@@ -184,6 +190,8 @@ private:
 	void assignVariableBa(uint8_t var, struct battery_s *myPtr);
 	void assignVariableSt(uint8_t var, struct strain_s *myPtr);
 	void assignVariableRicnu(uint8_t var, struct ricnu_s *myPtr);
+	void initStats(void);
+	void refreshStats(void);
 };
 
 #endif // W_2DPLOT_H
