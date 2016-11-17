@@ -92,8 +92,6 @@
     <addaction name="actionManage_Barebone"/>
     <addaction name="actionStrain"/>
     <addaction name="separator"/>
-    <addaction name="actionRIC_NU_Knee"/>
-    <addaction name="separator"/>
     <addaction name="action2D_Plot"/>
    </widget>
    <widget class="QMenu" name="menuControl">
@@ -119,9 +117,16 @@
     <addaction name="actionCalibration"/>
     <addaction name="actionConverter"/>
    </widget>
+   <widget class="QMenu" name="menuUser">
+    <property name="title">
+     <string>User</string>
+    </property>
+    <addaction name="actionRIC_NU_Knee"/>
+   </widget>
    <addaction name="menuFile"/>
    <addaction name="menuView"/>
    <addaction name="menuControl"/>
+   <addaction name="menuUser"/>
    <addaction name="menuTools"/>
    <addaction name="menuHelp"/>
   </widget>
