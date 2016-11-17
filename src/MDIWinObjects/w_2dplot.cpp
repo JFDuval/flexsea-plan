@@ -1243,9 +1243,17 @@ void W_2DPlot::setChartAxis(void)
 		ui->lineEditXMin->setEnabled(true);
 		ui->lineEditXMax->setEnabled(true);
 
-		//Manual
+		//Manual:
+		//=======
+
+		//Protection against empty LineEdit
+		QString xText = ui->lineEditXMax->text();
+		if(xText.length() <= 0)
+		{
+			xText = "1";
+		}
 		plot_xmin = ui->lineEditXMin->text().toInt();
-		plot_xmax = ui->lineEditXMax->text().toInt();
+		plot_xmax = xText.toInt();
 
 		//Few safety checks on that number.
 		if(plot_xmax >= PLOT_BUF_LEN)
@@ -1375,6 +1383,14 @@ void W_2DPlot::array_minmax(int *arr, int len, int *min, int *max)
 	}
 }
 
+//ToDo Re-think this:
+/*
+ * Note 1: every time this function is called we clear the qlsData series,
+ * and we add new data one by one. This doesn't seem efficient.
+ * Note 2: in the current architecture we call this 0-6 times (depending on the
+ * variables used. Should we do a mass update?
+ * Note 3: setChart Axis only has to change once per cycle, not N times
+*/
 void W_2DPlot::refreshData2DPlot(int *x, int *y, int len, uint8_t plot_index)
 {
 	if(plotFreezed == false)
@@ -1383,6 +1399,7 @@ void W_2DPlot::refreshData2DPlot(int *x, int *y, int len, uint8_t plot_index)
 		graph_ylim[2*plot_index] = y[0];
 		graph_ylim[2*plot_index+1] = y[0];
 		qlsData[plot_index]->clear();
+
 		for(int i = 0; i < len; i++)
 		{
 			//Add datapoint to series:
@@ -1409,6 +1426,7 @@ void W_2DPlot::refreshData2DPlot(int *x, int *y, int len, uint8_t plot_index)
 			sum += graph_yarray[plot_index][h];
 		}
 		stats[plot_index][STATS_AVG] = (sum/qlen);
+		//ToDo: this stops refreshing once we click on Unused!
 
 		plotting_len = len;
 
