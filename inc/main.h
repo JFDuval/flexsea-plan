@@ -44,6 +44,7 @@ extern "C" {
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <fcntl.h>  //ToDo useful?
 #include <time.h>
 #include "trapez.h"
 #include "peripherals.h"
