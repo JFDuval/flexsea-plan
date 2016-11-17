@@ -1857,3 +1857,16 @@ void W_2DPlot::on_DataSlider_valueChanged(int value)
 {
 	emit dataSliderValueChanged(value);
 }
+
+//Sets all channels to the IMU:
+void W_2DPlot::on_pbIMU_clicked()
+{
+	initUserInput();
+	initStats();
+	ui->cBoxvar1->setCurrentIndex(1);
+	ui->cBoxvar2->setCurrentIndex(2);
+	ui->cBoxvar3->setCurrentIndex(3);
+	ui->cBoxvar4->setCurrentIndex(4);
+	ui->cBoxvar5->setCurrentIndex(5);
+	ui->cBoxvar6->setCurrentIndex(6);
+}

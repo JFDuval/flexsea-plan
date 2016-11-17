@@ -144,6 +144,8 @@ private slots:
 	void on_DataSlider_valueChanged(int value);
 	void genTestData(void);
 
+	void on_pbIMU_clicked();
+
 signals:
 	void windowClosed(void);
 	void dataSliderValueChanged(int index);

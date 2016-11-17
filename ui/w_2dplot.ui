@@ -1400,6 +1400,22 @@
    </item>
    <item>
     <layout class="QGridLayout" name="gridLayout_4">
+     <item row="0" column="5">
+      <spacer name="verticalSpacer_7">
+       <property name="orientation">
+        <enum>Qt::Vertical</enum>
+       </property>
+       <property name="sizeType">
+        <enum>QSizePolicy::Minimum</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>20</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
      <item row="0" column="0">
       <widget class="QPushButton" name="pushButtonFreeze">
        <property name="sizePolicy">
@@ -1463,28 +1479,31 @@
        </property>
       </widget>
      </item>
-     <item row="0" column="3">
+     <item row="0" column="4">
       <widget class="QCheckBox" name="checkBoxTrack">
        <property name="text">
         <string>All slaves track #1</string>
        </property>
       </widget>
      </item>
-     <item row="0" column="4">
-      <spacer name="verticalSpacer_7">
-       <property name="orientation">
-        <enum>Qt::Vertical</enum>
-       </property>
-       <property name="sizeType">
-        <enum>QSizePolicy::Minimum</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
+     <item row="0" column="3">
+      <widget class="QPushButton" name="pbIMU">
+       <property name="minimumSize">
         <size>
-         <width>20</width>
-         <height>20</height>
+         <width>75</width>
+         <height>23</height>
         </size>
        </property>
-      </spacer>
+       <property name="maximumSize">
+        <size>
+         <width>75</width>
+         <height>23</height>
+        </size>
+       </property>
+       <property name="text">
+        <string>IMU</string>
+       </property>
+      </widget>
      </item>
     </layout>
    </item>
