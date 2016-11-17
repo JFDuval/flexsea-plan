@@ -329,6 +329,16 @@ void W_2DPlot::initUserInput(void)
 	//Init flag:
 	initFlag = false;
 
+	//Decode Checkbox tooltips:
+	QString ttip = "<html><head/><body><p>Plot data in physical units (instead \
+					of ticks)</p></body></html>";
+	ui->checkBoxD1->setToolTip(ttip);
+	ui->checkBoxD2->setToolTip(ttip);
+	ui->checkBoxD3->setToolTip(ttip);
+	ui->checkBoxD4->setToolTip(ttip);
+	ui->checkBoxD5->setToolTip(ttip);
+	ui->checkBoxD6->setToolTip(ttip);
+
 	saveCurrentSettings();
 }
 

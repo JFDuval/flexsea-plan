@@ -179,7 +179,7 @@
             </size>
            </property>
            <property name="toolTip">
-            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Convert the data on a meaningfull scale related to the type of the sensor e.x.: Speed would be displayed in RPM is selected.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            <string/>
            </property>
            <property name="text">
             <string/>
