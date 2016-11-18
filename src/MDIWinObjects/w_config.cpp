@@ -117,33 +117,47 @@ void W_Config::initCom(void)
 	flagComInitDone = 1;
 }
 
+//This gets called by a timer (currently 1Hz)
 void W_Config::getComList(void)
 {
-	//First, clear lists:
-	comPortList.clear();
-	ui->comPortComboBox->clear();
+	static int lastComPortAvailable = 0;
+	int comPortAvailable = 0;
 
 	//Available ports?
-	const auto infos = QSerialPortInfo::availablePorts();
-	for(const QSerialPortInfo &info : infos)
+	QList<QSerialPortInfo> comPortInfo = QSerialPortInfo::availablePorts();
+	comPortAvailable = comPortInfo.length();
+
+	//Did it change?
+	if(comPortAvailable != lastComPortAvailable)
 	{
-		//qDebug() << info.portName();
-		comPortList << info.portName();
+		qDebug() << "COM Port list changed.";
+
+		//Yes. Clear list:
+		comPortList.clear();
+		ui->comPortComboBox->clear();
+
+		//Write new one:
+		for(const QSerialPortInfo &info : comPortInfo)
+		{
+			//qDebug() << info.portName();
+			comPortList << info.portName();
+			ui->comPortComboBox->addItem(comPortList.last());
+		}
+		//Add an option for manual entry, or for empty list:
+		comPortList << "No Port";
 		ui->comPortComboBox->addItem(comPortList.last());
 	}
-	//Add an option for manual entry, or for empty list:
-	comPortList << "No Port";
-	ui->comPortComboBox->addItem(comPortList.last());
-
-	//Enable lideEdit when we only have Manual Entry
-	if(comPortList.length() == 1)
+	else
 	{
-		ui->comPortTxt->setDisabled(false);
-		ui->comPortTxt->setText("");
+		if(comPortList.length() == 0)
+		{
+			//Empty, add the No Port option
+			comPortList << "No Port";
+			ui->comPortComboBox->addItem(comPortList.last());
+		}
 	}
 
-	//LineEdit mimics combobox:
-	ui->comPortTxt->setText(ui->comPortComboBox->currentText());
+	lastComPortAvailable = comPortAvailable;
 }
 
 void W_Config::defaultComOffUi(void)
