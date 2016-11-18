@@ -90,7 +90,7 @@ void W_SlaveComm::receiveComPortStatus(bool status)
 		if(logThisItem[0] == true)
 		{
 			logThisItem[0] = false;
-			emit closeLogFile(0);   //ToDo support multiple files
+			emit closeRecordingFile(0);   //ToDo support multiple files
 		}
 	}
 	else
@@ -358,7 +358,7 @@ void W_SlaveComm::manageLogStatus(uint8_t idx)
 		if(logThisItem[idx] == true)
 		{
 			logThisItem[idx] = false;
-			emit closeLogFile(idx);
+			emit closeRecordingFile(idx);
 		}
 	}
 }

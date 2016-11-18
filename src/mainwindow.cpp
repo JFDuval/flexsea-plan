@@ -265,8 +265,6 @@ void MainWindow::createConfig(void)
 				this, SLOT(closeConfig()));
 
 		//Link to DataLogger
-		connect(myViewConfig[0], SIGNAL(openRecordingFile(uint8_t)), \
-				myDataLogger, SLOT(openRecordingFile(uint8_t)));
 		connect(myViewConfig[0], SIGNAL(openReadingFile()), \
 				myDataLogger, SLOT(openReadingFile()));
 		connect(myViewConfig[0], SIGNAL(closeReadingFile()), \
@@ -450,7 +448,7 @@ void MainWindow::createSlaveComm(void)
 				myDataLogger, SLOT(openRecordingFile(uint8_t,QString)));
 		connect(myViewSlaveComm[0], SIGNAL(writeToLogFile(uint8_t,uint8_t,uint8_t)), \
 				myDataLogger, SLOT(writeToFile(uint8_t,uint8_t,uint8_t)));
-		connect(myViewSlaveComm[0], SIGNAL(closeLogFile(uint8_t)), \
+		connect(myViewSlaveComm[0], SIGNAL(closeRecordingFile(uint8_t)), \
 				myDataLogger, SLOT(closeRecordingFile(uint8_t)));
 
 		//Link SlaveComm and Control Trought connector

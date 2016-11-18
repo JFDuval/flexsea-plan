@@ -116,7 +116,7 @@ signals:
 	void windowClosed(void);
 	void writeToLogFile(uint8_t item, uint8_t slaveIndex, uint8_t expIndex);
 	void openRecordingFile(uint8_t item, QString fileName);
-	void closeLogFile(uint8_t item);
+	void closeRecordingFile(uint8_t item);
 	void slaveReadWrite(uint numb, uint8_t *dataPacket, uint8_t r_w);
 
 private:
