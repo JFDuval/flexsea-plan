@@ -258,10 +258,7 @@ void DataLogger::writeToFile(uint8_t item, uint8_t slaveIndex, uint8_t expIndex)
 
 	getFctPtrs(slaveIndex, expIndex, &headerFctPtr, &logFctPtr);
 
-	//Timestamps:
-	logTimestamp(&t_ms, &t_text);
-	t_ms -= t_ms_initial[item];
-
+	// Verify that the log file is properly opened.
 	if(logRecordingFile[item].isOpen())
 	{
 		//Writting for the first time?
@@ -275,6 +272,10 @@ void DataLogger::writeToFile(uint8_t item, uint8_t slaveIndex, uint8_t expIndex)
 			writeIdentifier(item, slaveIndex, expIndex);
 			(this->*headerFctPtr)(item);
 		}
+
+		//Timestamps:
+		logTimestamp(&t_ms, &t_text);
+		t_ms -= t_ms_initial[item];
 
 		//And we add to the text file:
 		(this->*logFctPtr)(&logFileStream, slaveIndex, '\n', t_ms, t_text);
