@@ -59,7 +59,7 @@ W_Config::W_Config(QWidget *parent) :
 
 	QTimer *comPortRefreshTimer = new QTimer(this);
 	connect(comPortRefreshTimer, SIGNAL(timeout()), this, SLOT(getComList()));
-	comPortRefreshTimer->start(1000); //1000ms = 1S
+	comPortRefreshTimer->start(750); //ms
 	getComList();	//Call now to avoid lag when a new window is opened.
 }
 
@@ -95,17 +95,10 @@ void W_Config::initCom(void)
 	//Flags:
 	flagComInitDone = 0;
 
-	//Hiding Manual Entry box:
-	ui->comPortTxt->setVisible(false);
-	ui->label_ManEntry->setVisible(false);
-	//ToDo: decide if we want to 100% get rid of this
-
 	//Bluetooth disabled for now:
 	ui->pushButtonBTCon->setEnabled(false);
 
 	//No manual entry, 0% progress, etc.:
-	ui->comPortTxt->setText("");
-	ui->comPortTxt->setDisabled(true);
 	ui->comProgressBar->setValue(0);
 	ui->comProgressBar->setDisabled(true);
 	ui->openComButton->setDisabled(false);
@@ -117,7 +110,9 @@ void W_Config::initCom(void)
 	flagComInitDone = 1;
 }
 
-//This gets called by a timer (currently 1Hz)
+//This gets called by a timer (currently every 750ms)
+/*Note: the list is always ordered by port number. If you connect to COM2 and
+ * then plug COM1, it will display COM1. That's confusing for the users.*/
 void W_Config::getComList(void)
 {
 	static int lastComPortAvailable = 0;
@@ -126,13 +121,27 @@ void W_Config::getComList(void)
 	//Available ports?
 	QList<QSerialPortInfo> comPortInfo = QSerialPortInfo::availablePorts();
 	comPortAvailable = comPortInfo.length();
+	//qDebug() << "Now: " << comPortAvailable << "Last: " << lastComPortAvailable;
+
+	//No port?
+	if(comPortAvailable == 0)
+	{
+		//Is the list empty?
+		if(comPortList.length() == 0)
+		{
+			//Empty, add the No Port option
+			comPortList << "No Port";
+			ui->comPortComboBox->addItem(comPortList.last());
+		}
+	}
 
 	//Did it change?
 	if(comPortAvailable != lastComPortAvailable)
 	{
+		//Yes.
 		qDebug() << "COM Port list changed.";
 
-		//Yes. Clear list:
+		//Clear list:
 		comPortList.clear();
 		ui->comPortComboBox->clear();
 
@@ -141,18 +150,6 @@ void W_Config::getComList(void)
 		{
 			//qDebug() << info.portName();
 			comPortList << info.portName();
-			ui->comPortComboBox->addItem(comPortList.last());
-		}
-		//Add an option for manual entry, or for empty list:
-		comPortList << "No Port";
-		ui->comPortComboBox->addItem(comPortList.last());
-	}
-	else
-	{
-		if(comPortList.length() == 0)
-		{
-			//Empty, add the No Port option
-			comPortList << "No Port";
 			ui->comPortComboBox->addItem(comPortList.last());
 		}
 	}
@@ -172,54 +169,14 @@ void W_Config::defaultComOffUi(void)
 // Private slot(s):
 //****************************************************************************
 
-void W_Config::on_comPortComboBox_currentIndexChanged(int index)
-{
-	//LineEdit mimics combobox:
-	ui->comPortTxt->setText(ui->comPortComboBox->currentText());
-
-	//Monitor combobox after init is completed:
-	if(flagComInitDone != 0)
-	{
-		if(index == (comPortList.length() - 1))
-		{
-			flagManualEntry = 1;
-			//qDebug() << "Manual entry";
-			ui->comPortTxt->setDisabled(false);
-			ui->comPortTxt->setText("");
-		}
-		else
-		{
-			flagManualEntry = 0;
-			ui->comPortTxt->setDisabled(true);
-		}
-	}
-}
-
 void W_Config::on_openComButton_clicked()
 {
 	//Deal with display elements:
 	defaultComOffUi();
 	ui->openComButton->setDisabled(true);
 
-	//Some checks:
-	if(ui->comPortComboBox->currentIndex() == (comPortList.length() - 1))
-	{
-		//Last item is Manual Entry / No Port. Do we have text?
-		if(ui->comPortTxt->text().length() > 0)
-		{
-			//qDebug() << "More than 0 char, valid.";
-		}
-		else
-		{
-			qDebug() << "0 char, invalid.";
-			defaultComOffUi();
-			return;
-		}
-	}
-
 	//Emit signal:
-
-	emit openCom(ui->comPortTxt->text(), 25, 100000);
+	emit openCom(ui->comPortComboBox->currentText(), 25, 100000);
 
 	// TODO We Should have a way to know if the connection was successful
 	if(1)//Connection is successful.
@@ -229,6 +186,7 @@ void W_Config::on_openComButton_clicked()
 		ui->pbLoadLogFile->setDisabled(true);
 		ui->pushButtonBTCon->setDisabled(true);
 		ui->closeComButton->setDisabled(false);
+		ui->comPortComboBox->setDisabled(true);
 	}
 }
 
@@ -251,6 +209,8 @@ void W_Config::on_closeComButton_clicked()
 
 	ui->pbLoadLogFile->setDisabled(false);
 	ui->pushButtonBTCon->setDisabled(false);
+
+	ui->comPortComboBox->setDisabled(false);
 
 	dataSourceState = None;
 	emit updateDataSourceStatus(dataSourceState);
