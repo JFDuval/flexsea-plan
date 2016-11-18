@@ -18,14 +18,8 @@
   </property>
   <property name="minimumSize">
    <size>
-    <width>413</width>
-    <height>188</height>
-   </size>
-  </property>
-  <property name="maximumSize">
-   <size>
-    <width>413</width>
-    <height>188</height>
+    <width>0</width>
+    <height>155</height>
    </size>
   </property>
   <property name="baseSize">
@@ -49,13 +43,13 @@
      <property name="minimumSize">
       <size>
        <width>20</width>
-       <height>23</height>
+       <height>0</height>
       </size>
      </property>
      <property name="maximumSize">
       <size>
        <width>20</width>
-       <height>23</height>
+       <height>16777215</height>
       </size>
      </property>
      <property name="baseSize">
@@ -90,37 +84,26 @@
    </item>
    <item row="1" column="2">
     <widget class="QComboBox" name="comboBoxExp1">
-     <property name="minimumSize">
-      <size>
-       <width>0</width>
-       <height>20</height>
-      </size>
-     </property>
-     <property name="maximumSize">
-      <size>
-       <width>16777215</width>
-       <height>20</height>
-      </size>
-     </property>
      <property name="currentText">
+      <string/>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="5">
+    <widget class="QCheckBox" name="checkBoxLog1">
+     <property name="toolTip">
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Check this box to log the stream. &lt;/p&gt;&lt;p&gt;It will log under the folder &amp;quot;Plan-GUI-Logs&amp;quot; when the stream is active.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     </property>
+     <property name="layoutDirection">
+      <enum>Qt::LeftToRight</enum>
+     </property>
+     <property name="text">
       <string/>
      </property>
     </widget>
    </item>
    <item row="4" column="1">
     <widget class="QComboBox" name="comboBoxSlave4">
-     <property name="minimumSize">
-      <size>
-       <width>0</width>
-       <height>20</height>
-      </size>
-     </property>
-     <property name="maximumSize">
-      <size>
-       <width>16777215</width>
-       <height>20</height>
-      </size>
-     </property>
      <property name="currentText">
       <string/>
      </property>
@@ -160,13 +143,13 @@
      <property name="minimumSize">
       <size>
        <width>20</width>
-       <height>23</height>
+       <height>0</height>
       </size>
      </property>
      <property name="maximumSize">
       <size>
        <width>20</width>
-       <height>23</height>
+       <height>16777215</height>
       </size>
      </property>
      <property name="baseSize">
@@ -188,18 +171,6 @@
    </item>
    <item row="1" column="1">
     <widget class="QComboBox" name="comboBoxSlave1">
-     <property name="minimumSize">
-      <size>
-       <width>0</width>
-       <height>20</height>
-      </size>
-     </property>
-     <property name="maximumSize">
-      <size>
-       <width>16777215</width>
-       <height>20</height>
-      </size>
-     </property>
      <property name="currentText">
       <string/>
      </property>
@@ -207,18 +178,6 @@
    </item>
    <item row="4" column="2">
     <widget class="QComboBox" name="comboBoxExp4">
-     <property name="minimumSize">
-      <size>
-       <width>0</width>
-       <height>20</height>
-      </size>
-     </property>
-     <property name="maximumSize">
-      <size>
-       <width>16777215</width>
-       <height>20</height>
-      </size>
-     </property>
      <property name="currentText">
       <string/>
      </property>
@@ -226,18 +185,6 @@
    </item>
    <item row="2" column="2">
     <widget class="QComboBox" name="comboBoxExp2">
-     <property name="minimumSize">
-      <size>
-       <width>0</width>
-       <height>20</height>
-      </size>
-     </property>
-     <property name="maximumSize">
-      <size>
-       <width>16777215</width>
-       <height>20</height>
-      </size>
-     </property>
      <property name="currentText">
       <string/>
      </property>
@@ -245,18 +192,6 @@
    </item>
    <item row="1" column="3">
     <widget class="QComboBox" name="comboBoxRefresh1">
-     <property name="minimumSize">
-      <size>
-       <width>0</width>
-       <height>20</height>
-      </size>
-     </property>
-     <property name="maximumSize">
-      <size>
-       <width>16777215</width>
-       <height>20</height>
-      </size>
-     </property>
      <property name="currentText">
       <string/>
      </property>
@@ -289,18 +224,6 @@
    </item>
    <item row="3" column="3">
     <widget class="QComboBox" name="comboBoxRefresh3">
-     <property name="minimumSize">
-      <size>
-       <width>0</width>
-       <height>20</height>
-      </size>
-     </property>
-     <property name="maximumSize">
-      <size>
-       <width>16777215</width>
-       <height>20</height>
-      </size>
-     </property>
      <property name="currentText">
       <string/>
      </property>
@@ -352,18 +275,6 @@
    </item>
    <item row="3" column="2">
     <widget class="QComboBox" name="comboBoxExp3">
-     <property name="minimumSize">
-      <size>
-       <width>0</width>
-       <height>20</height>
-      </size>
-     </property>
-     <property name="maximumSize">
-      <size>
-       <width>16777215</width>
-       <height>20</height>
-      </size>
-     </property>
      <property name="currentText">
       <string/>
      </property>
@@ -371,18 +282,6 @@
    </item>
    <item row="2" column="1">
     <widget class="QComboBox" name="comboBoxSlave2">
-     <property name="minimumSize">
-      <size>
-       <width>0</width>
-       <height>20</height>
-      </size>
-     </property>
-     <property name="maximumSize">
-      <size>
-       <width>16777215</width>
-       <height>20</height>
-      </size>
-     </property>
      <property name="currentText">
       <string/>
      </property>
@@ -399,13 +298,13 @@
      <property name="minimumSize">
       <size>
        <width>20</width>
-       <height>23</height>
+       <height>0</height>
       </size>
      </property>
      <property name="maximumSize">
       <size>
        <width>20</width>
-       <height>23</height>
+       <height>16777215</height>
       </size>
      </property>
      <property name="baseSize">
@@ -443,18 +342,6 @@
    </item>
    <item row="4" column="3">
     <widget class="QComboBox" name="comboBoxRefresh4">
-     <property name="minimumSize">
-      <size>
-       <width>0</width>
-       <height>20</height>
-      </size>
-     </property>
-     <property name="maximumSize">
-      <size>
-       <width>16777215</width>
-       <height>20</height>
-      </size>
-     </property>
      <property name="currentText">
       <string/>
      </property>
@@ -515,13 +402,13 @@
      <property name="minimumSize">
       <size>
        <width>20</width>
-       <height>23</height>
+       <height>0</height>
       </size>
      </property>
      <property name="maximumSize">
       <size>
        <width>20</width>
-       <height>23</height>
+       <height>16777215</height>
       </size>
      </property>
      <property name="baseSize">
@@ -565,18 +452,6 @@
    </item>
    <item row="3" column="1">
     <widget class="QComboBox" name="comboBoxSlave3">
-     <property name="minimumSize">
-      <size>
-       <width>0</width>
-       <height>20</height>
-      </size>
-     </property>
-     <property name="maximumSize">
-      <size>
-       <width>16777215</width>
-       <height>20</height>
-      </size>
-     </property>
      <property name="currentText">
       <string/>
      </property>
@@ -584,18 +459,6 @@
    </item>
    <item row="2" column="3">
     <widget class="QComboBox" name="comboBoxRefresh2">
-     <property name="minimumSize">
-      <size>
-       <width>0</width>
-       <height>20</height>
-      </size>
-     </property>
-     <property name="maximumSize">
-      <size>
-       <width>16777215</width>
-       <height>20</height>
-      </size>
-     </property>
      <property name="currentText">
       <string/>
      </property>
@@ -612,13 +475,13 @@
      <property name="minimumSize">
       <size>
        <width>20</width>
-       <height>23</height>
+       <height>0</height>
       </size>
      </property>
      <property name="maximumSize">
       <size>
        <width>20</width>
-       <height>23</height>
+       <height>16777215</height>
       </size>
      </property>
      <property name="baseSize">
@@ -646,13 +509,13 @@
      <property name="minimumSize">
       <size>
        <width>20</width>
-       <height>23</height>
+       <height>0</height>
       </size>
      </property>
      <property name="maximumSize">
       <size>
        <width>20</width>
-       <height>23</height>
+       <height>16777215</height>
       </size>
      </property>
      <property name="baseSize">
@@ -680,13 +543,13 @@
      <property name="minimumSize">
       <size>
        <width>20</width>
-       <height>23</height>
+       <height>0</height>
       </size>
      </property>
      <property name="maximumSize">
       <size>
        <width>20</width>
-       <height>23</height>
+       <height>16777215</height>
       </size>
      </property>
      <property name="baseSize">
@@ -696,7 +559,7 @@
       </size>
      </property>
      <property name="toolTip">
-      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Turn streaming on/off&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Activate the data stream for analysing window.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
      </property>
      <property name="text">
       <string>x</string>
@@ -778,13 +641,13 @@
      <property name="minimumSize">
       <size>
        <width>20</width>
-       <height>23</height>
+       <height>0</height>
       </size>
      </property>
      <property name="maximumSize">
       <size>
        <width>20</width>
-       <height>23</height>
+       <height>16777215</height>
       </size>
      </property>
      <property name="baseSize">
@@ -813,18 +676,6 @@
    </item>
    <item row="4" column="5">
     <widget class="QCheckBox" name="checkBoxLog4">
-     <property name="minimumSize">
-      <size>
-       <width>19</width>
-       <height>0</height>
-      </size>
-     </property>
-     <property name="maximumSize">
-      <size>
-       <width>19</width>
-       <height>16777215</height>
-      </size>
-     </property>
      <property name="toolTip">
       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Check this box to log the stream. &lt;/p&gt;&lt;p&gt;It will log under the folder &amp;quot;Plan-GUI-Logs&amp;quot; when the stream is active.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
      </property>
@@ -835,18 +686,6 @@
    </item>
    <item row="3" column="5">
     <widget class="QCheckBox" name="checkBoxLog3">
-     <property name="minimumSize">
-      <size>
-       <width>19</width>
-       <height>0</height>
-      </size>
-     </property>
-     <property name="maximumSize">
-      <size>
-       <width>19</width>
-       <height>16777215</height>
-      </size>
-     </property>
      <property name="toolTip">
       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Check this box to log the stream. &lt;/p&gt;&lt;p&gt;It will log under the folder &amp;quot;Plan-GUI-Logs&amp;quot; when the stream is active.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
      </property>
@@ -873,18 +712,6 @@
    </item>
    <item row="2" column="5">
     <widget class="QCheckBox" name="checkBoxLog2">
-     <property name="minimumSize">
-      <size>
-       <width>19</width>
-       <height>0</height>
-      </size>
-     </property>
-     <property name="maximumSize">
-      <size>
-       <width>19</width>
-       <height>16777215</height>
-      </size>
-     </property>
      <property name="toolTip">
       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Check this box to log the stream. &lt;/p&gt;&lt;p&gt;It will log under the folder &amp;quot;Plan-GUI-Logs&amp;quot; when the stream is active.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
      </property>
@@ -897,31 +724,6 @@
     <widget class="QLabel" name="statusbar">
      <property name="text">
       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; color:#7f7f7f;&quot;&gt;Status&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-     </property>
-    </widget>
-   </item>
-   <item row="1" column="5">
-    <widget class="QCheckBox" name="checkBoxLog1">
-     <property name="minimumSize">
-      <size>
-       <width>19</width>
-       <height>0</height>
-      </size>
-     </property>
-     <property name="maximumSize">
-      <size>
-       <width>19</width>
-       <height>16777215</height>
-      </size>
-     </property>
-     <property name="toolTip">
-      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Check this box to log the stream. &lt;/p&gt;&lt;p&gt;It will log under the folder &amp;quot;Plan-GUI-Logs&amp;quot; when the stream is active.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-     </property>
-     <property name="layoutDirection">
-      <enum>Qt::LeftToRight</enum>
-     </property>
-     <property name="text">
-      <string/>
      </property>
     </widget>
    </item>
