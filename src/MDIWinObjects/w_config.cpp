@@ -132,7 +132,7 @@ void W_Config::getComList(void)
 		ui->comPortComboBox->addItem(comPortList.last());
 	}
 	//Add an option for manual entry, or for empty list:
-	comPortList << "Null";
+	comPortList << "No Port";
 	ui->comPortComboBox->addItem(comPortList.last());
 
 	//Enable lideEdit when we only have Manual Entry
@@ -190,7 +190,7 @@ void W_Config::on_openComButton_clicked()
 	//Some checks:
 	if(ui->comPortComboBox->currentIndex() == (comPortList.length() - 1))
 	{
-		//Last item is Manual Entry / Null. Do we have text?
+		//Last item is Manual Entry / No Port. Do we have text?
 		if(ui->comPortTxt->text().length() > 0)
 		{
 			//qDebug() << "More than 0 char, valid.";
