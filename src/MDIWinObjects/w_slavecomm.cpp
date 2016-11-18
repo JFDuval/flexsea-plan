@@ -568,9 +568,11 @@ void W_SlaveComm::sc_read_all_ricnu(uint8_t item)
 	uint8_t slaveId = active_slave[item];
 	uint8_t slaveIndex = active_slave_index[item];
 	uint8_t expIndex = selected_exp_index[item];
+	static uint8_t offset = 0;
 
 	//1) Stream
-	tx_cmd_ricnu_r(TX_N_DEFAULT, 0);	//Fixed offset = 0
+	(!offset) ? offset = 1 : offset = 0;
+	tx_cmd_ricnu_r(TX_N_DEFAULT, offset);
 	pack(P_AND_S_DEFAULT, slaveId, info, &numb, comm_str_usb);
 	emit slaveReadWrite(numb, comm_str_usb, READ);
 
