@@ -53,7 +53,8 @@ class W_Execute : public QWidget
 
 public:
 	//Constructor & Destructor:
-	explicit W_Execute(QWidget *parent = 0, QList<struct execute_s> *logRef = nullptr,
+	explicit W_Execute(QWidget *parent = 0,
+					   QList<struct execute_s> *logRef = nullptr,
 					   DisplayMode mode = DisplayLiveData);
 	~W_Execute();
 

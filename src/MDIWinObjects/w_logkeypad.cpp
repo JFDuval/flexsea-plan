@@ -40,7 +40,7 @@
 // Constructor & Destructor:
 //****************************************************************************
 
-W_LogKeyPad::W_LogKeyPad(QWidget *parent) :
+W_LogKeyPad::W_LogKeyPad(QWidget *parent,  QList<struct execute_s> *logRef) :
 	QWidget(parent),
 	ui(new Ui::W_LogKeyPad)
 {
@@ -49,6 +49,8 @@ W_LogKeyPad::W_LogKeyPad(QWidget *parent) :
 	setWindowTitle("LogKeyPad");
 	setWindowIcon(QIcon(":icons/d_logo_small.png"));
 
+	myExecute_s = logRef;
+	ui->TimeSlider->setRange(0, myExecute_s->length()-1);
 	init();
 }
 

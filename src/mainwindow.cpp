@@ -828,7 +828,7 @@ void MainWindow::createLogKeyPad(void)
 	//Limited number of windows:
 	if(logKeyPadObjectCount < (LOGKEYPAD_WINDOWS_MAX))
 	{
-		myViewLogKeyPad[logKeyPadObjectCount] = new W_LogKeyPad(this);
+		myViewLogKeyPad[logKeyPadObjectCount] = new W_LogKeyPad(this, myDataLogger->getExecuteLogPtr());
 		ui->mdiArea->addSubWindow(myViewLogKeyPad[logKeyPadObjectCount]);
 		myViewLogKeyPad[logKeyPadObjectCount]->show();
 		myViewLogKeyPad[logKeyPadObjectCount]->parentWidget()->setWindowFlags(

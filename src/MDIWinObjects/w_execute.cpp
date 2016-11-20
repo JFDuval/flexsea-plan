@@ -44,16 +44,18 @@
 // Constructor & Destructor:
 //****************************************************************************
 
-W_Execute::W_Execute(QWidget *parent, QList<struct execute_s> *logRef, DisplayMode mode) :
+W_Execute::W_Execute(QWidget *parent,
+					 QList<struct execute_s> *logRef,
+					 DisplayMode mode) :
 	QWidget(parent),
 	ui(new Ui::W_Execute)
 {
 	ui->setupUi(this);
 
-	myExecute_s = logRef;
 	setWindowTitle("Execute - Barebone");
 	setWindowIcon(QIcon(":icons/d_logo_small.png"));
 
+	myExecute_s = logRef;
 	displayMode = mode;
 	updateDisplayMode(displayMode);
 }

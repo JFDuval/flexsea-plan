@@ -203,10 +203,12 @@ void DataLogger::openReadingFile(void)
 		while (!logReadingFile.atEnd()) {
 			line = logReadingFile.readLine();
 			splitLine = line.split(',', QString::KeepEmptyParts);
-			struct execute_s newitem;
-			myExecute_s.append(newitem);
+
+			// If data line contain expected data
 			if(splitLine.length() >= 20)
 			{
+				struct execute_s newitem;
+				myExecute_s.append(newitem);
 				myExecute_s.last().accel.x   = splitLine[2].toInt();
 				myExecute_s.last().accel.y   = splitLine[3].toInt();
 				myExecute_s.last().accel.z   = splitLine[4].toInt();
