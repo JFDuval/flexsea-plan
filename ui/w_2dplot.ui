@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>684</width>
-    <height>321</height>
+    <height>274</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -22,20 +22,6 @@
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
     <layout class="QGridLayout" name="gridLayout_test"/>
-   </item>
-   <item>
-    <widget class="QLabel" name="labelDataSlider">
-     <property name="text">
-      <string>Log Data Slider</string>
-     </property>
-    </widget>
-   </item>
-   <item>
-    <widget class="QSlider" name="DataSlider">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-    </widget>
    </item>
    <item>
     <spacer name="verticalSpacer">

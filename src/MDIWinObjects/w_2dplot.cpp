@@ -1818,8 +1818,3 @@ void W_2DPlot::on_pbReset_clicked()
 	initUserInput();
 	initStats();
 }
-
-void W_2DPlot::on_DataSlider_valueChanged(int value)
-{
-	emit dataSliderValueChanged(value);
-}

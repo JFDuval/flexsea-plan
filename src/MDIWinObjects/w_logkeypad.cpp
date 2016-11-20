@@ -82,3 +82,8 @@ void W_LogKeyPad::init(void)
 // Private slot(s):
 //****************************************************************************
 
+
+void W_LogKeyPad::on_TimeSlider_valueChanged(int value)
+{
+	emit logTimeSliderValueChanged(value);
+}

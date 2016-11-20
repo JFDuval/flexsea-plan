@@ -56,8 +56,11 @@ public:
 
 signals:
 	void windowClosed(void);
+	void logTimeSliderValueChanged(int value);
 
 private slots:
+
+	void on_TimeSlider_valueChanged(int value);
 
 private:
 	//Variables & Objects:

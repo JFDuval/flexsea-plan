@@ -179,7 +179,7 @@ void MainWindow::createViewExecute(void)
 
 		// Link to the slider of 2DPlot. Intermediate signal (connector) to
 		// allow opening of window asynchroniously
-		connect(this, SIGNAL(connectorRefreshDataSlider(int)), \
+		connect(this, SIGNAL(connectorRefreshLogTimeSlider(int)), \
 				myViewExecute[exViewObjectCount], SLOT(displayLogData(int)));
 		connect(this, SIGNAL(connectorUpdateDisplayMode(DisplayMode)), \
 				myViewExecute[exViewObjectCount], SLOT(updateDisplayMode(DisplayMode)));
@@ -405,9 +405,6 @@ void MainWindow::createView2DPlot(void)
 		//Link to MainWindow for the close signal:
 		connect(myView2DPlot[plot2DObjectCount], SIGNAL(windowClosed()), \
 				this, SLOT(closeView2DPlot()));
-		// TODO ok for one 2dplot, but when a second 2d plot will open, it wont works or be meaningfull.
-		connect(myView2DPlot[plot2DObjectCount], SIGNAL(dataSliderValueChanged(int)), \
-				this, SIGNAL(connectorRefreshDataSlider(int)));
 
 		plot2DObjectCount++;
 	}
@@ -834,11 +831,17 @@ void MainWindow::createLogKeyPad(void)
 		myViewLogKeyPad[logKeyPadObjectCount] = new W_LogKeyPad(this);
 		ui->mdiArea->addSubWindow(myViewLogKeyPad[logKeyPadObjectCount]);
 		myViewLogKeyPad[logKeyPadObjectCount]->show();
+		myViewLogKeyPad[logKeyPadObjectCount]->parentWidget()->setWindowFlags(
+					Qt::Window | Qt::WindowTitleHint | Qt::CustomizeWindowHint);
 
 		msg = "Created 'LogKeyPad View' object index " + \
 				QString::number(logKeyPadObjectCount) + " (max index = " \
 				+ QString::number(LOGKEYPAD_WINDOWS_MAX-1) + ").";
 		ui->statusBar->showMessage(msg);
+
+		// Link for the data slider
+		connect(myViewLogKeyPad[logKeyPadObjectCount], SIGNAL(logTimeSliderValueChanged(int)), \
+				this, SIGNAL(connectorRefreshLogTimeSlider(int)));
 
 		//Link to MainWindow for the close signal:
 		connect(myViewLogKeyPad[logKeyPadObjectCount], SIGNAL(windowClosed()), \

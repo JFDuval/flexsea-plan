@@ -150,7 +150,7 @@ private:
 
 signals:
 	//Allow window to be independly opened in any order by providing a backbone connector
-	void connectorRefreshDataSlider(int index);
+	void connectorRefreshLogTimeSlider(int index);
 	void connectorUpdateDisplayMode(DisplayMode mode);
 	void connectorWriteCommand(char ch,unsigned char* chPtr);
 
