@@ -73,6 +73,7 @@ MainWindow::MainWindow(QWidget *parent) :
 	calibObjectCount = 0;
 	gossipObjectCount = 0;
 	battObjectCount = 0;
+	logKeyPadObjectCount = 0;
 	strainObjectCount = 0;
 
 	//SerialDriver:
@@ -125,6 +126,19 @@ void MainWindow::translatorUpdateDataSourceStatus(DataSource status)
 		emit connectorUpdateDisplayMode(DisplayLiveData);
 	}
 
+}
+
+void MainWindow::manageLogKeyPad(DataSource status)
+{
+
+	if(status == LogFile)
+	{
+		createLogKeyPad();
+	}
+	else
+	{
+		myViewLogKeyPad[0]->parentWidget()->close();
+	}
 }
 
 
@@ -279,6 +293,8 @@ void MainWindow::createConfig(void)
 				myViewConfig[0], SLOT(setComProgress(int,int)));
 		connect(myViewConfig[0], SIGNAL(updateDataSourceStatus(DataSource)),
 				this, SLOT(translatorUpdateDataSourceStatus(DataSource)));
+		connect(myViewConfig[0], SIGNAL(updateDataSourceStatus(DataSource)),
+				this, SLOT(manageLogKeyPad(DataSource)));
 
 		configObjectCount++;
 	}
@@ -299,6 +315,12 @@ void MainWindow::closeConfig(void)
 	{
 		configObjectCount--;
 	}
+
+	if(logKeyPadObjectCount > 0)
+	{
+		myViewLogKeyPad[0]->parentWidget()->close();
+	}
+
 	qDebug() << msg;
 	ui->statusBar->showMessage(msg);
 }
@@ -796,6 +818,50 @@ void MainWindow::closeViewBattery(void)
 	if(battObjectCount > 0)
 	{
 		battObjectCount--;
+	}
+	qDebug() << msg;
+	ui->statusBar->showMessage(msg);
+}
+
+//Creates a new LogKeyPad
+void MainWindow::createLogKeyPad(void)
+{
+	QString msg = "";
+
+	//Limited number of windows:
+	if(logKeyPadObjectCount < (LOGKEYPAD_WINDOWS_MAX))
+	{
+		myViewLogKeyPad[logKeyPadObjectCount] = new W_LogKeyPad(this);
+		ui->mdiArea->addSubWindow(myViewLogKeyPad[logKeyPadObjectCount]);
+		myViewLogKeyPad[logKeyPadObjectCount]->show();
+
+		msg = "Created 'LogKeyPad View' object index " + \
+				QString::number(logKeyPadObjectCount) + " (max index = " \
+				+ QString::number(LOGKEYPAD_WINDOWS_MAX-1) + ").";
+		ui->statusBar->showMessage(msg);
+
+		//Link to MainWindow for the close signal:
+		connect(myViewLogKeyPad[logKeyPadObjectCount], SIGNAL(windowClosed()), \
+				this, SLOT(closeLogKeyPad()));
+
+		logKeyPadObjectCount++;
+	}
+	else
+	{
+		msg = "Maximum number of LogKeyPad View objects reached (" \
+				+ QString::number(LOGKEYPAD_WINDOWS_MAX) + ")";
+		qDebug() << msg;
+		ui->statusBar->showMessage(msg);
+	}
+}
+
+void MainWindow::closeLogKeyPad(void)
+{
+	QString msg = "View LogKeyPad window closed.";
+
+	if(logKeyPadObjectCount > 0)
+	{
+		logKeyPadObjectCount--;
 	}
 	qDebug() << msg;
 	ui->statusBar->showMessage(msg);

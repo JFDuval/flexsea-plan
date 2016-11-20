@@ -43,6 +43,7 @@
 #include "w_manage.h"
 #include "w_calibration.h"
 #include "w_battery.h"
+#include "w_logkeypad.h"
 #include "w_strain.h"
 #include "w_gossip.h"
 #include "w_converter.h"
@@ -67,6 +68,7 @@ class MainWindow;
 #define RICNU_VIEW_WINDOWS_MAX		1
 #define CALIB_WINDOWS_MAX			1
 #define BATT_WINDOWS_MAX			2
+#define LOGKEYPAD_WINDOWS_MAX		1
 #define GOSSIP_WINDOWS_MAX			2
 #define STRAIN_WINDOWS_MAX			2
 
@@ -128,6 +130,10 @@ private:
 	int battObjectCount;
 	W_Battery *myViewBatt[BATT_WINDOWS_MAX];
 
+	//LogKeyPad:
+	int logKeyPadObjectCount;
+	W_LogKeyPad *myViewLogKeyPad[LOGKEYPAD_WINDOWS_MAX];
+
 	//Gossip:
 	int gossipObjectCount;
 	W_Gossip *myViewGossip[GOSSIP_WINDOWS_MAX];
@@ -151,6 +157,7 @@ signals:
 public slots:
 
 	void translatorUpdateDataSourceStatus(DataSource status);
+	void manageLogKeyPad(DataSource status);
 
 	//MDI Windows (create):
 	void createViewExecute(void);
@@ -166,6 +173,7 @@ public slots:
 	void createViewStrain(void);
 	void createViewGossip(void);
 	void createViewBattery(void);
+	void createLogKeyPad(void);
 
 	//MDI Windows (closed):
 	void closeViewExecute(void);
@@ -181,6 +189,7 @@ public slots:
 	void closeViewStrain(void);
 	void closeViewGossip(void);
 	void closeViewBattery(void);
+	void closeLogKeyPad(void);
 
 	//Message boxes:
 	void displayAbout();
