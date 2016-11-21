@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>684</width>
-    <height>274</height>
+    <height>321</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -55,8 +55,14 @@
            </property>
            <property name="minimumSize">
             <size>
-             <width>125</width>
-             <height>0</height>
+             <width>80</width>
+             <height>20</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>80</width>
+             <height>20</height>
             </size>
            </property>
           </widget>
@@ -71,8 +77,14 @@
            </property>
            <property name="minimumSize">
             <size>
-             <width>125</width>
-             <height>0</height>
+             <width>80</width>
+             <height>20</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>80</width>
+             <height>20</height>
             </size>
            </property>
           </widget>
@@ -87,17 +99,49 @@
            </property>
            <property name="minimumSize">
             <size>
-             <width>125</width>
-             <height>0</height>
+             <width>80</width>
+             <height>20</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>80</width>
+             <height>20</height>
             </size>
            </property>
           </widget>
          </item>
          <item row="5" column="2">
-          <widget class="QComboBox" name="cBoxvar5"/>
+          <widget class="QComboBox" name="cBoxvar5">
+           <property name="minimumSize">
+            <size>
+             <width>125</width>
+             <height>20</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>125</width>
+             <height>20</height>
+            </size>
+           </property>
+          </widget>
          </item>
          <item row="3" column="2">
-          <widget class="QComboBox" name="cBoxvar3"/>
+          <widget class="QComboBox" name="cBoxvar3">
+           <property name="minimumSize">
+            <size>
+             <width>125</width>
+             <height>20</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>125</width>
+             <height>20</height>
+            </size>
+           </property>
+          </widget>
          </item>
          <item row="0" column="2">
           <widget class="QLabel" name="label">
@@ -108,8 +152,20 @@
          </item>
          <item row="1" column="4">
           <widget class="QCheckBox" name="checkBoxD1">
+           <property name="minimumSize">
+            <size>
+             <width>13</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>13</width>
+             <height>16777215</height>
+            </size>
+           </property>
            <property name="toolTip">
-            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Convert the data on a meaningfull scale related to the type of the sensor e.x.: Speed would be displayed in RPM is selected.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            <string/>
            </property>
            <property name="text">
             <string/>
@@ -124,7 +180,20 @@
           </widget>
          </item>
          <item row="1" column="2">
-          <widget class="QComboBox" name="cBoxvar1"/>
+          <widget class="QComboBox" name="cBoxvar1">
+           <property name="minimumSize">
+            <size>
+             <width>125</width>
+             <height>20</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>125</width>
+             <height>20</height>
+            </size>
+           </property>
+          </widget>
          </item>
          <item row="5" column="0">
           <widget class="QLabel" name="label_t5">
@@ -271,6 +340,18 @@
          </item>
          <item row="0" column="3" colspan="3">
           <widget class="QLabel" name="label_3">
+           <property name="minimumSize">
+            <size>
+             <width>36</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>36</width>
+             <height>16777215</height>
+            </size>
+           </property>
            <property name="text">
             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; text-decoration: underline;&quot;&gt;Decode&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
            </property>
@@ -293,8 +374,14 @@
            </property>
            <property name="minimumSize">
             <size>
-             <width>125</width>
-             <height>0</height>
+             <width>80</width>
+             <height>20</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>80</width>
+             <height>20</height>
             </size>
            </property>
           </widget>
@@ -368,10 +455,36 @@
           </widget>
          </item>
          <item row="2" column="2">
-          <widget class="QComboBox" name="cBoxvar2"/>
+          <widget class="QComboBox" name="cBoxvar2">
+           <property name="minimumSize">
+            <size>
+             <width>125</width>
+             <height>20</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>125</width>
+             <height>20</height>
+            </size>
+           </property>
+          </widget>
          </item>
          <item row="4" column="2">
-          <widget class="QComboBox" name="cBoxvar4"/>
+          <widget class="QComboBox" name="cBoxvar4">
+           <property name="minimumSize">
+            <size>
+             <width>125</width>
+             <height>20</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>125</width>
+             <height>20</height>
+            </size>
+           </property>
+          </widget>
          </item>
          <item row="4" column="1">
           <widget class="QComboBox" name="cBoxvar4slave">
@@ -383,14 +496,33 @@
            </property>
            <property name="minimumSize">
             <size>
-             <width>125</width>
-             <height>0</height>
+             <width>80</width>
+             <height>20</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>80</width>
+             <height>20</height>
             </size>
            </property>
           </widget>
          </item>
          <item row="6" column="2">
-          <widget class="QComboBox" name="cBoxvar6"/>
+          <widget class="QComboBox" name="cBoxvar6">
+           <property name="minimumSize">
+            <size>
+             <width>125</width>
+             <height>20</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>125</width>
+             <height>20</height>
+            </size>
+           </property>
+          </widget>
          </item>
          <item row="6" column="1">
           <widget class="QComboBox" name="cBoxvar6slave">
@@ -402,8 +534,14 @@
            </property>
            <property name="minimumSize">
             <size>
-             <width>125</width>
-             <height>0</height>
+             <width>80</width>
+             <height>20</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>80</width>
+             <height>20</height>
             </size>
            </property>
           </widget>
@@ -461,57 +599,6 @@
        <property name="sizeConstraint">
         <enum>QLayout::SetMinimumSize</enum>
        </property>
-       <item row="0" column="0">
-        <widget class="QGroupBox" name="groupBoxX">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="minimumSize">
-          <size>
-           <width>90</width>
-           <height>75</height>
-          </size>
-         </property>
-         <property name="maximumSize">
-          <size>
-           <width>90</width>
-           <height>75</height>
-          </size>
-         </property>
-         <property name="title">
-          <string>X Axis</string>
-         </property>
-         <widget class="QRadioButton" name="radioButtonXA">
-          <property name="geometry">
-           <rect>
-            <x>10</x>
-            <y>23</y>
-            <width>71</width>
-            <height>17</height>
-           </rect>
-          </property>
-          <property name="text">
-           <string>Automatic</string>
-          </property>
-         </widget>
-         <widget class="QRadioButton" name="radioButtonXM">
-          <property name="geometry">
-           <rect>
-            <x>10</x>
-            <y>46</y>
-            <width>57</width>
-            <height>17</height>
-           </rect>
-          </property>
-          <property name="text">
-           <string>Manual</string>
-          </property>
-         </widget>
-        </widget>
-       </item>
        <item row="0" column="1">
         <layout class="QVBoxLayout" name="verticalLayout_3">
          <item>
@@ -576,8 +663,8 @@
          </item>
         </layout>
        </item>
-       <item row="5" column="0">
-        <widget class="QGroupBox" name="groupBoxY">
+       <item row="0" column="0">
+        <widget class="QGroupBox" name="groupBoxX">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
            <horstretch>0</horstretch>
@@ -597,9 +684,9 @@
           </size>
          </property>
          <property name="title">
-          <string>Y Axis</string>
+          <string>X Axis</string>
          </property>
-         <widget class="QRadioButton" name="radioButtonYA">
+         <widget class="QRadioButton" name="radioButtonXA">
           <property name="geometry">
            <rect>
             <x>10</x>
@@ -612,7 +699,7 @@
            <string>Automatic</string>
           </property>
          </widget>
-         <widget class="QRadioButton" name="radioButtonYM">
+         <widget class="QRadioButton" name="radioButtonXM">
           <property name="geometry">
            <rect>
             <x>10</x>
@@ -666,6 +753,73 @@
          </item>
         </layout>
        </item>
+       <item row="5" column="0">
+        <widget class="QGroupBox" name="groupBoxY">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>90</width>
+           <height>75</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>90</width>
+           <height>75</height>
+          </size>
+         </property>
+         <property name="title">
+          <string>Y Axis</string>
+         </property>
+         <widget class="QRadioButton" name="radioButtonYA">
+          <property name="geometry">
+           <rect>
+            <x>10</x>
+            <y>23</y>
+            <width>71</width>
+            <height>17</height>
+           </rect>
+          </property>
+          <property name="text">
+           <string>Automatic</string>
+          </property>
+         </widget>
+         <widget class="QRadioButton" name="radioButtonYM">
+          <property name="geometry">
+           <rect>
+            <x>10</x>
+            <y>46</y>
+            <width>57</width>
+            <height>17</height>
+           </rect>
+          </property>
+          <property name="text">
+           <string>Manual</string>
+          </property>
+         </widget>
+        </widget>
+       </item>
+       <item row="6" column="1">
+        <spacer name="verticalSpacer_6">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeType">
+          <enum>QSizePolicy::Minimum</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>10</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
       </layout>
      </item>
      <item row="0" column="3">
@@ -690,6 +844,9 @@
         <spacer name="verticalSpacer_5">
          <property name="orientation">
           <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeType">
+          <enum>QSizePolicy::Minimum</enum>
          </property>
          <property name="sizeHint" stdset="0">
           <size>
@@ -1229,24 +1386,21 @@
    </item>
    <item>
     <layout class="QGridLayout" name="gridLayout_4">
-     <item row="0" column="2">
-      <widget class="QPushButton" name="pbReset">
-       <property name="minimumSize">
+     <item row="0" column="5">
+      <spacer name="verticalSpacer_7">
+       <property name="orientation">
+        <enum>Qt::Vertical</enum>
+       </property>
+       <property name="sizeType">
+        <enum>QSizePolicy::Minimum</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
         <size>
-         <width>75</width>
-         <height>0</height>
+         <width>20</width>
+         <height>20</height>
         </size>
        </property>
-       <property name="maximumSize">
-        <size>
-         <width>75</width>
-         <height>16777215</height>
-        </size>
-       </property>
-       <property name="text">
-        <string>Reset</string>
-       </property>
-      </widget>
+      </spacer>
      </item>
      <item row="0" column="0">
       <widget class="QPushButton" name="pushButtonFreeze">
@@ -1259,17 +1413,36 @@
        <property name="minimumSize">
         <size>
          <width>75</width>
-         <height>0</height>
+         <height>23</height>
         </size>
        </property>
        <property name="maximumSize">
         <size>
          <width>75</width>
-         <height>16777215</height>
+         <height>23</height>
         </size>
        </property>
        <property name="text">
         <string>Freeze</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="2">
+      <widget class="QPushButton" name="pbReset">
+       <property name="minimumSize">
+        <size>
+         <width>75</width>
+         <height>23</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>75</width>
+         <height>23</height>
+        </size>
+       </property>
+       <property name="text">
+        <string>Reset</string>
        </property>
       </widget>
      </item>
@@ -1278,13 +1451,13 @@
        <property name="minimumSize">
         <size>
          <width>75</width>
-         <height>0</height>
+         <height>23</height>
         </size>
        </property>
        <property name="maximumSize">
         <size>
          <width>75</width>
-         <height>16777215</height>
+         <height>23</height>
         </size>
        </property>
        <property name="text">
@@ -1292,10 +1465,29 @@
        </property>
       </widget>
      </item>
-     <item row="0" column="3">
+     <item row="0" column="4">
       <widget class="QCheckBox" name="checkBoxTrack">
        <property name="text">
         <string>All slaves track #1</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="3">
+      <widget class="QPushButton" name="pbIMU">
+       <property name="minimumSize">
+        <size>
+         <width>75</width>
+         <height>23</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>75</width>
+         <height>23</height>
+        </size>
+       </property>
+       <property name="text">
+        <string>IMU</string>
        </property>
       </widget>
      </item>
@@ -1307,7 +1499,7 @@
       <enum>Qt::Vertical</enum>
      </property>
      <property name="sizeType">
-      <enum>QSizePolicy::Fixed</enum>
+      <enum>QSizePolicy::Minimum</enum>
      </property>
      <property name="sizeHint" stdset="0">
       <size>

@@ -67,7 +67,6 @@ public:
 
 private slots:
 	void getComList(void);
-	void on_comPortComboBox_currentIndexChanged(int index);
 	void on_openComButton_clicked();
 	void on_closeComButton_clicked();
 	void on_pbLoadLogFile_clicked();
