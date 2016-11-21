@@ -53,7 +53,7 @@ class W_LogKeyPad : public QWidget
 public:
 	//Constructor & Destructor:
 	explicit W_LogKeyPad(QWidget *parent = 0,
-						 QList<struct execute_s> *logRef = nullptr);
+						struct logContainer_s *logRef = nullptr);
 	~W_LogKeyPad();
 
 signals:
@@ -68,7 +68,7 @@ private:
 	//Variables & Objects:
 	Ui::W_LogKeyPad *ui;
 
-	QList<struct execute_s> *myExecute_s;
+	struct logContainer_s *myLogRef;
 
 	//Function(s):
 	void init(void);

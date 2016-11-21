@@ -64,13 +64,13 @@ struct logContainer_s
 {
 	QString shortFileName;
 	QString fileName;
+	QString dataloggingItem;
 	QString SlaveName;
 	QString SlaveIndex;
 	QString experimentIndex;
 	QString experimentName;
-	QString item;
-	uint32_t frequency;
-	struct log_s *log;
+	uint16_t frequency;
+	QList<struct log_s> logList;
 };
 
 class DataLogger : public QWidget
@@ -79,7 +79,7 @@ class DataLogger : public QWidget
 
 public:
 	explicit DataLogger(QWidget *parent = 0);
-	QList<struct execute_s> * getExecuteLogPtr(void) {return &myExecute_s;}
+	struct logContainer_s * getLogPtr(void) {return &myLog;}
 
 public slots:
 	void openRecordingFile(uint8_t item);
@@ -102,7 +102,7 @@ private:
 
 	bool fileOpened[4];
 
-	QList<struct execute_s> myExecute_s;
+	struct logContainer_s myLog;
 
 	//Function(s):
 	void init(void);

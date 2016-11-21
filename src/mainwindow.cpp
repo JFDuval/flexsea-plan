@@ -163,7 +163,7 @@ void MainWindow::createViewExecute(void)
 		}
 
 		myViewExecute[exViewObjectCount] = \
-				new W_Execute(this, myDataLogger->getExecuteLogPtr(), status);
+				new W_Execute(this, myDataLogger->getLogPtr(), status);
 		ui->mdiArea->addSubWindow(myViewExecute[exViewObjectCount]);
 		myViewExecute[exViewObjectCount]->show();
 
@@ -832,7 +832,7 @@ void MainWindow::createLogKeyPad(void)
 	//Limited number of windows:
 	if(logKeyPadObjectCount < (LOGKEYPAD_WINDOWS_MAX))
 	{
-		myViewLogKeyPad[logKeyPadObjectCount] = new W_LogKeyPad(this, myDataLogger->getExecuteLogPtr());
+		myViewLogKeyPad[logKeyPadObjectCount] = new W_LogKeyPad(this, myDataLogger->getLogPtr());
 		ui->mdiArea->addSubWindow(myViewLogKeyPad[logKeyPadObjectCount]);
 		myViewLogKeyPad[logKeyPadObjectCount]->show();
 		myViewLogKeyPad[logKeyPadObjectCount]->parentWidget()->setWindowFlags(

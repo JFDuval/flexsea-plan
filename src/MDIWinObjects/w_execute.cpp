@@ -45,7 +45,7 @@
 //****************************************************************************
 
 W_Execute::W_Execute(QWidget *parent,
-					 QList<struct execute_s> *logRef,
+					 struct logContainer_s *logRef,
 					 DisplayMode mode) :
 	QWidget(parent),
 	ui(new Ui::W_Execute)
@@ -55,7 +55,7 @@ W_Execute::W_Execute(QWidget *parent,
 	setWindowTitle("Execute - Barebone");
 	setWindowIcon(QIcon(":icons/d_logo_small.png"));
 
-	myExecute_s = logRef;
+	myLogRef  = logRef;
 	displayMode = mode;
 	updateDisplayMode(displayMode);
 }
@@ -85,9 +85,9 @@ void W_Execute::refresh(void)
 
 void W_Execute::displayLogData(int index)
 {
-   if(myExecute_s->isEmpty() == false)
+   if(myLogRef->logList.isEmpty() == false)
    {
-		displayExecute(&(*myExecute_s)[index]);
+		displayExecute(&(myLogRef->logList[index].execute));
    }
 }
 

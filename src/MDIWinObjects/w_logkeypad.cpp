@@ -34,13 +34,14 @@
 
 #include "w_logkeypad.h"
 #include "ui_w_logkeypad.h"
+#include "datalogger.h"
 #include "main.h"
 
 //****************************************************************************
 // Constructor & Destructor:
 //****************************************************************************
 
-W_LogKeyPad::W_LogKeyPad(QWidget *parent,  QList<struct execute_s> *logRef) :
+W_LogKeyPad::W_LogKeyPad(QWidget *parent,  struct logContainer_s *logRef) :
 	QWidget(parent),
 	ui(new Ui::W_LogKeyPad)
 {
@@ -49,8 +50,8 @@ W_LogKeyPad::W_LogKeyPad(QWidget *parent,  QList<struct execute_s> *logRef) :
 	setWindowTitle("LogKeyPad");
 	setWindowIcon(QIcon(":icons/d_logo_small.png"));
 
-	myExecute_s = logRef;
-	ui->TimeSlider->setRange(0, myExecute_s->length()-1);
+	myLogRef = logRef;
+	ui->TimeSlider->setRange(0, myLogRef->logList.length()-1);
 	init();
 }
 
@@ -75,8 +76,8 @@ W_LogKeyPad::~W_LogKeyPad()
 void W_LogKeyPad::init(void)
 {
 	//All values at 0:
-	ui->FileNameLabel->setText("0");
-	ui->TimeStampLabel->setText("0");
+	ui->FileNameLabel->setText(myLogRef->shortFileName);
+	ui->TimeStampLabel->setText(QString::number(myLogRef->logList.at(0).timeStamp_ms) + " ms");
 }
 
 
@@ -88,4 +89,5 @@ void W_LogKeyPad::init(void)
 void W_LogKeyPad::on_TimeSlider_valueChanged(int value)
 {
 	emit logTimeSliderValueChanged(value);
+	ui->TimeStampLabel->setText(QString::number(myLogRef->logList.at(value).timeStamp_ms));
 }

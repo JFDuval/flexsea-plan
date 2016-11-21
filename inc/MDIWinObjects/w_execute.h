@@ -37,6 +37,7 @@
 
 #include <QWidget>
 #include "flexsea_generic.h"
+#include "datalogger.h"
 #include "define.h"
 
 //****************************************************************************
@@ -54,7 +55,7 @@ class W_Execute : public QWidget
 public:
 	//Constructor & Destructor:
 	explicit W_Execute(QWidget *parent = 0,
-					   QList<struct execute_s> *logRef = nullptr,
+					   struct logContainer_s *logRef = nullptr,
 					   DisplayMode mode = DisplayLiveData);
 	~W_Execute();
 
@@ -69,7 +70,7 @@ public slots:
 private:
 	//Variables & Objects:
 	Ui::W_Execute *ui;
-	QList<struct execute_s> *myExecute_s;
+	struct logContainer_s *myLogRef;
 	int active_slave, active_slave_index;
 	DisplayMode displayMode;
 
