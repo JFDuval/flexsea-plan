@@ -72,6 +72,19 @@
 #define FORMAT_8U					4
 #define FORMAT_8S					5
 
+//VTP = Variable To Plot
+struct vtp_s
+{
+	int32_t *ptr32s, *ptrD32s;
+	uint32_t *ptr32u;
+	int16_t *ptr16s;
+	uint16_t *ptr16u;
+	int8_t *ptr8s;
+	uint8_t *ptr8u;
+	uint8_t format, decode;
+	bool used;
+};
+
 //****************************************************************************
 // Namespace & Class Definition:
 //****************************************************************************
@@ -130,6 +143,8 @@ private slots:
 	void on_pbReset_clicked();
 	void genTestData(void);
 
+	void on_pbIMU_clicked();
+
 signals:
 	void windowClosed(void);
 
@@ -150,12 +165,7 @@ private:
 	QStringList var_list_margin;
 	bool plotFreezed, initFlag;
 
-	int32_t *varToPlotPtr32s[VAR_NUM], *varToPlotPtrD32s[VAR_NUM];
-	int16_t *varToPlotPtr16s[VAR_NUM];
-	int8_t *varToPlotPtr8s[VAR_NUM];
-	uint32_t *varToPlotPtr32u[VAR_NUM];
-	uint16_t *varToPlotPtr16u[VAR_NUM];
-	uint8_t *varToPlotPtr8u[VAR_NUM];
+	struct vtp_s vtp[6];
 	uint8_t varToPlotFormat[6];
 	int32_t nullVar32s;
 	uint32_t nullVar32u;
@@ -163,9 +173,9 @@ private:
 	uint16_t nullVar16u;
 	int8_t nullVar8s;
 	uint8_t nullVar8u;
+
 	uint8_t slaveIndex[VAR_NUM], slaveAddr[VAR_NUM], slaveBType[VAR_NUM];
 	uint8_t varIndex[VAR_NUM];
-	bool varDecode[VAR_NUM], varUsed[VAR_NUM];
 	int64_t stats[VAR_NUM][STATS_FIELDS];
 	int32_t myFakeData;
 
@@ -193,5 +203,7 @@ private:
 	void initStats(void);
 	void refreshStats(void);
 };
+
+
 
 #endif // W_2DPLOT_H
