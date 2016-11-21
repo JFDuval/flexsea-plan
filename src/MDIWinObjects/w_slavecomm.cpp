@@ -225,6 +225,8 @@ void W_SlaveComm::initSlaveCom(void)
 
 	var_list_refresh << "100Hz" << "50Hz" << "33Hz" << "20Hz" \
 					 << "10Hz" << "5Hz" << "1Hz";
+	refreshRate << 100 << 50 << 33 << 20
+				<< 10 << 5 << 1;
 	for(int index = 0; index < var_list_refresh.count(); index++)
 	{
 		ui->comboBoxRefresh1->addItem(var_list_refresh.at(index));
@@ -545,7 +547,8 @@ void W_SlaveComm::sc_read_all(uint8_t item)
 	//3) Log
 	if(logThisItem[item] == true)
 	{
-		emit writeToLogFile(item, slaveIndex, expIndex);
+		emit writeToLogFile(item, slaveIndex, expIndex,
+							refreshRate.at(ui->comboBoxRefresh1->currentIndex()));
 	}
 }
 
@@ -573,7 +576,8 @@ void W_SlaveComm::sc_read_all_ricnu(uint8_t item)
 	//3) Log
 	if(logThisItem[item] == true)
 	{
-		emit writeToLogFile(item, slaveIndex, expIndex);
+		emit writeToLogFile(item, slaveIndex, expIndex,
+							refreshRate.at(ui->comboBoxRefresh1->currentIndex()));
 	}
 }
 
@@ -612,7 +616,8 @@ void W_SlaveComm::sc_ankle2dof(uint8_t item)
 	//3) Log
 	if(logThisItem[item] == true)
 	{
-		emit writeToLogFile(item, slaveIndex, expIndex);
+		emit writeToLogFile(item, slaveIndex, expIndex,
+							refreshRate.at(ui->comboBoxRefresh1->currentIndex()));
 	}
 }
 

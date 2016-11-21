@@ -247,7 +247,8 @@ void DataLogger::openReadingFile(void)
 	}
 }
 
-void DataLogger::writeToFile(uint8_t item, uint8_t slaveIndex, uint8_t expIndex)
+void DataLogger::writeToFile(uint8_t item, uint8_t slaveIndex,
+							 uint8_t expIndex, uint16_t refreshRate)
 {
 	qint64 t_ms = 0;
 	static qint64 t_ms_initial[4] = {0,0,0,0};
@@ -271,7 +272,7 @@ void DataLogger::writeToFile(uint8_t item, uint8_t slaveIndex, uint8_t expIndex)
 			t_ms_initial[item] = t_ms;
 
 			//Header:
-			writeIdentifier(item, slaveIndex, expIndex);
+			writeIdentifier(item, slaveIndex, expIndex, refreshRate);
 			(this->*headerFctPtr)(item);
 		}
 
@@ -523,7 +524,8 @@ void DataLogger::logTimestamp(qint64 *t_ms, QString *t_text)
 	*t_text = myTime->currentDateTime().toString();
 }
 
-void DataLogger::writeIdentifier(uint8_t item, uint8_t slaveIndex, uint8_t expIndex)
+void DataLogger::writeIdentifier(uint8_t item, uint8_t slaveIndex,
+								 uint8_t expIndex, uint16_t refreshRate)
 {
 	QString msg, slaveName, expName;
 	FlexSEA_Generic::getSlaveName(SL_BASE_ALL, slaveIndex, &slaveName);
@@ -546,7 +548,7 @@ void DataLogger::writeIdentifier(uint8_t item, uint8_t slaveIndex, uint8_t expIn
 			expName							+ QString(',') +
 
 			QString("Aquisition Frequency ")+ QString(',') +
-			QString("33 Hz")				+ QString("\n");
+			QString::number(refreshRate)	+ QString("\n");
 
 	qDebug() << msg;
 	if(logRecordingFile[item].isOpen())

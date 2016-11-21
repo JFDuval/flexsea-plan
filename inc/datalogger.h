@@ -87,7 +87,8 @@ public slots:
 	void closeRecordingFile(uint8_t item);
 	void openReadingFile(void);
 	void closeReadingFile(void);
-	void writeToFile(uint8_t item, uint8_t slaveIndex, uint8_t expIndex);
+	void writeToFile(uint8_t item, uint8_t slaveIndex,
+					 uint8_t expIndex, uint16_t refreshRate);
 
 private slots:
 
@@ -106,7 +107,8 @@ private:
 	//Function(s):
 	void init(void);
 	void logTimestamp(qint64 *t_ms, QString *t_text);
-	void writeIdentifier(uint8_t item, uint8_t slaveIndex, uint8_t expIndex);
+	void writeIdentifier(uint8_t item, uint8_t slaveIndex,
+									 uint8_t expIndex, uint16_t refreshRate);
 	void writeExecuteReadAllHeader(uint8_t item);
 	void writeReadAllRicnuHeader(uint8_t item);
 	void writeManageReadAllHeader(uint8_t item);
