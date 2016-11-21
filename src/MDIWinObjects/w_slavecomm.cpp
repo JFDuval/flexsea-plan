@@ -197,20 +197,28 @@ void W_SlaveComm::initSlaveCom(void)
 
 	//Populates Slave list:
 	//=====================
-	FlexSEA_Generic::populateSlaveComboBox(ui->comboBoxSlave1, SL_BASE_ALL, SL_LEN_ALL);
-	FlexSEA_Generic::populateSlaveComboBox(ui->comboBoxSlave2, SL_BASE_ALL, SL_LEN_ALL);
-	FlexSEA_Generic::populateSlaveComboBox(ui->comboBoxSlave3, SL_BASE_ALL, SL_LEN_ALL);
-	FlexSEA_Generic::populateSlaveComboBox(ui->comboBoxSlave4, SL_BASE_ALL, SL_LEN_ALL);
+	FlexSEA_Generic::populateSlaveComboBox(ui->comboBoxSlave1, \
+										   SL_BASE_ALL, SL_LEN_ALL);
+	FlexSEA_Generic::populateSlaveComboBox(ui->comboBoxSlave2, \
+										   SL_BASE_ALL, SL_LEN_ALL);
+	FlexSEA_Generic::populateSlaveComboBox(ui->comboBoxSlave3, \
+										   SL_BASE_ALL, SL_LEN_ALL);
+	FlexSEA_Generic::populateSlaveComboBox(ui->comboBoxSlave4, \
+										   SL_BASE_ALL, SL_LEN_ALL);
 
 	//Variables:
 	active_slave_index[0] = ui->comboBoxSlave1->currentIndex();
 	active_slave_index[1] = ui->comboBoxSlave2->currentIndex();
 	active_slave_index[2] = ui->comboBoxSlave3->currentIndex();
 	active_slave_index[3] = ui->comboBoxSlave4->currentIndex();
-	active_slave[0] = FlexSEA_Generic::getSlaveID(SL_BASE_ALL, active_slave_index[0]);
-	active_slave[1] = FlexSEA_Generic::getSlaveID(SL_BASE_ALL, active_slave_index[1]);
-	active_slave[2] = FlexSEA_Generic::getSlaveID(SL_BASE_ALL, active_slave_index[2]);
-	active_slave[3] = FlexSEA_Generic::getSlaveID(SL_BASE_ALL, active_slave_index[3]);
+	active_slave[0] = FlexSEA_Generic::getSlaveID(SL_BASE_ALL, \
+												  active_slave_index[0]);
+	active_slave[1] = FlexSEA_Generic::getSlaveID(SL_BASE_ALL, \
+												  active_slave_index[1]);
+	active_slave[2] = FlexSEA_Generic::getSlaveID(SL_BASE_ALL, \
+												  active_slave_index[2]);
+	active_slave[3] = FlexSEA_Generic::getSlaveID(SL_BASE_ALL, \
+												  active_slave_index[3]);
 
 	//Populates Experiment/Command list:
 	//==================================
@@ -312,16 +320,16 @@ void W_SlaveComm::managePushButton(int idx, bool forceOff)
 		// set button appearance
 		(*on_off_pb_ptr[idx])->setChecked(true);
 		(*on_off_pb_ptr[idx])->setText(QChar(0x2714));
-		(*on_off_pb_ptr[idx])->setStyleSheet("background-color: rgb(0, 255, 0); \
-										color: rgb(0, 0, 0)");
+		(*on_off_pb_ptr[idx])->setStyleSheet("background-color: \
+								rgb(0, 255, 0); color: rgb(0, 0, 0)");
 	}
 	else
 	{
 		// set button appearance
 		(*on_off_pb_ptr[idx])->setChecked(false);
 		(*on_off_pb_ptr[idx])->setText(QChar(0x2718));
-		(*on_off_pb_ptr[idx])->setStyleSheet("background-color: rgb(127, 127, 127); \
-									 color: rgb(0, 0, 0)");
+		(*on_off_pb_ptr[idx])->setStyleSheet("background-color: \
+								rgb(127, 127, 127); color: rgb(0, 0, 0)");
 	}
 
 	// Logging?
@@ -467,7 +475,8 @@ void W_SlaveComm::displayDataReceived(int idx, int status)
 	}
 }
 
-//This function will connect a Timer signal and a Slot. Updated when "something" changes.
+//This function will connect a Timer signal and a Slot. Updated when
+//"something" changes.
 void W_SlaveComm::configSlaveComm(int item)
 {
 	QString msg = "", msg_ref = "";
@@ -481,7 +490,7 @@ void W_SlaveComm::configSlaveComm(int item)
 			//Refresh all fields:
 			active_slave_index[0] = ui->comboBoxSlave1->currentIndex();
 			active_slave[0] = FlexSEA_Generic::getSlaveID(SL_BASE_ALL, \
-														   active_slave_index[0]);
+														active_slave_index[0]);
 			selected_exp_index[0] = ui->comboBoxExp1->currentIndex();
 			selected_refresh_index[0] = ui->comboBoxRefresh1->currentIndex();
 
@@ -557,16 +566,17 @@ void W_SlaveComm::sc_read_all(uint8_t item)
 //sensor values
 void W_SlaveComm::sc_read_all_ricnu(uint8_t item)
 {
-	int numb = 0;
+	uint16_t numb = 0;
+	uint8_t info[2] = {PORT_USB, PORT_USB};
 	uint8_t slaveId = active_slave[item];
 	uint8_t slaveIndex = active_slave_index[item];
 	uint8_t expIndex = selected_exp_index[item];
+	static uint8_t offset = 0;
 
 	//1) Stream
-	numb = tx_cmd_data_read_all_ricnu(slaveId, CMD_READ, payload_str, \
-									  PAYLOAD_BUF_LEN);
-	numb = comm_gen_str(payload_str, comm_str_usb, PAYLOAD_BUF_LEN);
-	numb = COMM_STR_BUF_LEN;
+	(!offset) ? offset = 1 : offset = 0;
+	tx_cmd_ricnu_r(TX_N_DEFAULT, offset);
+	pack(P_AND_S_DEFAULT, slaveId, info, &numb, comm_str_usb);
 	emit slaveReadWrite(numb, comm_str_usb, READ);
 
 	//2) Decode values
@@ -679,7 +689,8 @@ void W_SlaveComm::sc_item1_slot(void)
 //Master timebase is 100Hz. We divide is to get [100, 50, 33, 20, 10, 5, 1]Hz
 void W_SlaveComm::masterTimerEvent(void)
 {
-	static int tb50Hz = 0, tb33Hz = 0, tb20Hz = 0, tb10Hz = 0, tb5Hz = 0, tb1Hz = 0;
+	static int tb50Hz = 0, tb33Hz = 0, tb20Hz = 0;
+	static int tb10Hz = 0, tb5Hz = 0, tb1Hz = 0;
 
 	//Increment all counters:
 	tb50Hz++;

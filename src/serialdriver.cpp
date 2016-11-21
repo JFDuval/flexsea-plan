@@ -170,8 +170,6 @@ int SerialDriver::read(unsigned char *buf)
 	emit newDataTimeout(true); //Reset counter
 	return 1;
 }
-//***ToDo***: emit dataStatus(0,x) needs to support 4 channel, not to
-//always send channel 0
 
 //Write
 int SerialDriver::write(char bytes_to_send, unsigned char *serial_tx_data)
