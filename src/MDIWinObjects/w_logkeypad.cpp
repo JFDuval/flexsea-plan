@@ -47,7 +47,7 @@ W_LogKeyPad::W_LogKeyPad(QWidget *parent,  struct logContainer_s *logRef) :
 {
 	ui->setupUi(this);
 
-	setWindowTitle("LogKeyPad");
+	setWindowTitle("Read & Display Log File");
 	setWindowIcon(QIcon(":icons/d_logo_small.png"));
 
 	myLogRef = logRef;
@@ -77,7 +77,7 @@ void W_LogKeyPad::init(void)
 {
 	//All values at 0:
 	ui->FileNameLabel->setText(myLogRef->shortFileName);
-	ui->TimeStampLabel->setText(QString::number(myLogRef->logList.at(0).timeStamp_ms) + " ms");
+	ui->labelCursorMs->setText(QString::number(myLogRef->logList.at(0).timeStamp_ms));
 }
 
 
@@ -89,6 +89,6 @@ void W_LogKeyPad::init(void)
 void W_LogKeyPad::on_TimeSlider_valueChanged(int value)
 {
 	emit logTimeSliderValueChanged(value);
-	ui->TimeStampLabel->setText(
-				QString::number(myLogRef->logList.at(value).timeStamp_ms) + " ms");
+	ui->labelCursorMs->setText(
+				QString::number(myLogRef->logList.at(value).timeStamp_ms));
 }
