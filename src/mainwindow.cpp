@@ -73,6 +73,7 @@ MainWindow::MainWindow(QWidget *parent) :
 	calibObjectCount = 0;
 	gossipObjectCount = 0;
 	battObjectCount = 0;
+	logKeyPadObjectCount = 0;
 	strainObjectCount = 0;
 
 	//SerialDriver:
@@ -127,6 +128,22 @@ void MainWindow::translatorUpdateDataSourceStatus(DataSource status)
 
 }
 
+void MainWindow::manageLogKeyPad(DataSource status)
+{
+
+	if(status == LogFile)
+	{
+		createLogKeyPad();
+	}
+	else
+	{
+		if(logKeyPadObjectCount > 0)
+		{
+				myViewLogKeyPad[0]->parentWidget()->close();
+		}
+	}
+}
+
 
 //Creates a new View Execute window
 void MainWindow::createViewExecute(void)
@@ -146,7 +163,7 @@ void MainWindow::createViewExecute(void)
 		}
 
 		myViewExecute[exViewObjectCount] = \
-				new W_Execute(this, myDataLogger->getExecuteLogPtr(), status);
+				new W_Execute(this, myDataLogger->getLogPtr(), status);
 		ui->mdiArea->addSubWindow(myViewExecute[exViewObjectCount]);
 		myViewExecute[exViewObjectCount]->show();
 
@@ -165,7 +182,7 @@ void MainWindow::createViewExecute(void)
 
 		// Link to the slider of 2DPlot. Intermediate signal (connector) to
 		// allow opening of window asynchroniously
-		connect(this, SIGNAL(connectorRefreshDataSlider(int)), \
+		connect(this, SIGNAL(connectorRefreshLogTimeSlider(int)), \
 				myViewExecute[exViewObjectCount], SLOT(displayLogData(int)));
 		connect(this, SIGNAL(connectorUpdateDisplayMode(DisplayMode)), \
 				myViewExecute[exViewObjectCount], SLOT(updateDisplayMode(DisplayMode)));
@@ -265,8 +282,6 @@ void MainWindow::createConfig(void)
 				this, SLOT(closeConfig()));
 
 		//Link to DataLogger
-		connect(myViewConfig[0], SIGNAL(openRecordingFile(uint8_t)), \
-				myDataLogger, SLOT(openRecordingFile(uint8_t)));
 		connect(myViewConfig[0], SIGNAL(openReadingFile()), \
 				myDataLogger, SLOT(openReadingFile()));
 		connect(myViewConfig[0], SIGNAL(closeReadingFile()), \
@@ -281,6 +296,8 @@ void MainWindow::createConfig(void)
 				myViewConfig[0], SLOT(setComProgress(int,int)));
 		connect(myViewConfig[0], SIGNAL(updateDataSourceStatus(DataSource)),
 				this, SLOT(translatorUpdateDataSourceStatus(DataSource)));
+		connect(myViewConfig[0], SIGNAL(updateDataSourceStatus(DataSource)),
+				this, SLOT(manageLogKeyPad(DataSource)));
 
 		configObjectCount++;
 	}
@@ -301,6 +318,12 @@ void MainWindow::closeConfig(void)
 	{
 		configObjectCount--;
 	}
+
+	if(logKeyPadObjectCount > 0)
+	{
+		myViewLogKeyPad[0]->parentWidget()->close();
+	}
+
 	qDebug() << msg;
 	ui->statusBar->showMessage(msg);
 }
@@ -385,9 +408,6 @@ void MainWindow::createView2DPlot(void)
 		//Link to MainWindow for the close signal:
 		connect(myView2DPlot[plot2DObjectCount], SIGNAL(windowClosed()), \
 				this, SLOT(closeView2DPlot()));
-		// TODO ok for one 2dplot, but when a second 2d plot will open, it wont works or be meaningfull.
-		connect(myView2DPlot[plot2DObjectCount], SIGNAL(dataSliderValueChanged(int)), \
-				this, SIGNAL(connectorRefreshDataSlider(int)));
 
 		plot2DObjectCount++;
 	}
@@ -448,9 +468,10 @@ void MainWindow::createSlaveComm(void)
 		//Link SlaveComm and DataLogger
 		connect(myViewSlaveComm[0], SIGNAL(openRecordingFile(uint8_t,QString)), \
 				myDataLogger, SLOT(openRecordingFile(uint8_t,QString)));
-		connect(myViewSlaveComm[0], SIGNAL(writeToLogFile(uint8_t,uint8_t,uint8_t)), \
-				myDataLogger, SLOT(writeToFile(uint8_t,uint8_t,uint8_t)));
-		connect(myViewSlaveComm[0], SIGNAL(closeLogFile(uint8_t)), \
+		connect(myViewSlaveComm[0], SIGNAL(writeToLogFile(uint8_t,uint8_t
+														  ,uint8_t,uint16_t)), \
+				myDataLogger, SLOT(writeToFile(uint8_t,uint8_t,uint8_t,uint16_t)));
+		connect(myViewSlaveComm[0], SIGNAL(closeRecordingFile(uint8_t)), \
 				myDataLogger, SLOT(closeRecordingFile(uint8_t)));
 
 		//Link SlaveComm and Control Trought connector
@@ -798,6 +819,56 @@ void MainWindow::closeViewBattery(void)
 	if(battObjectCount > 0)
 	{
 		battObjectCount--;
+	}
+	qDebug() << msg;
+	ui->statusBar->showMessage(msg);
+}
+
+//Creates a new LogKeyPad
+void MainWindow::createLogKeyPad(void)
+{
+	QString msg = "";
+
+	//Limited number of windows:
+	if(logKeyPadObjectCount < (LOGKEYPAD_WINDOWS_MAX))
+	{
+		myViewLogKeyPad[logKeyPadObjectCount] = new W_LogKeyPad(this, myDataLogger->getLogPtr());
+		ui->mdiArea->addSubWindow(myViewLogKeyPad[logKeyPadObjectCount]);
+		myViewLogKeyPad[logKeyPadObjectCount]->show();
+		myViewLogKeyPad[logKeyPadObjectCount]->parentWidget()->setWindowFlags(
+					Qt::Window | Qt::WindowTitleHint | Qt::CustomizeWindowHint);
+
+		msg = "Created 'LogKeyPad View' object index " + \
+				QString::number(logKeyPadObjectCount) + " (max index = " \
+				+ QString::number(LOGKEYPAD_WINDOWS_MAX-1) + ").";
+		ui->statusBar->showMessage(msg);
+
+		// Link for the data slider
+		connect(myViewLogKeyPad[logKeyPadObjectCount], SIGNAL(logTimeSliderValueChanged(int)), \
+				this, SIGNAL(connectorRefreshLogTimeSlider(int)));
+
+		//Link to MainWindow for the close signal:
+		connect(myViewLogKeyPad[logKeyPadObjectCount], SIGNAL(windowClosed()), \
+				this, SLOT(closeLogKeyPad()));
+
+		logKeyPadObjectCount++;
+	}
+	else
+	{
+		msg = "Maximum number of LogKeyPad View objects reached (" \
+				+ QString::number(LOGKEYPAD_WINDOWS_MAX) + ")";
+		qDebug() << msg;
+		ui->statusBar->showMessage(msg);
+	}
+}
+
+void MainWindow::closeLogKeyPad(void)
+{
+	QString msg = "View LogKeyPad window closed.";
+
+	if(logKeyPadObjectCount > 0)
+	{
+		logKeyPadObjectCount--;
 	}
 	qDebug() << msg;
 	ui->statusBar->showMessage(msg);

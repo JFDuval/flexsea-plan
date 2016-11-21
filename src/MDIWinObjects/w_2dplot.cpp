@@ -1853,11 +1853,6 @@ void W_2DPlot::on_pbReset_clicked()
 	initStats();
 }
 
-void W_2DPlot::on_DataSlider_valueChanged(int value)
-{
-	emit dataSliderValueChanged(value);
-}
-
 //Sets all channels to the IMU:
 void W_2DPlot::on_pbIMU_clicked()
 {

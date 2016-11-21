@@ -21,71 +21,62 @@
 	Biomechatronics research group <http://biomech.media.mit.edu/>
 	[Contributors]
 *****************************************************************************
-	[This file] w_execute.h: Execute View Window
+	[This file] w_LogKeyPad.h: LogKeyPAd Window
 *****************************************************************************
 	[Change log] (Convention: YYYY-MM-DD | author | comment)
-	* 2016-09-09 | jfduval | Initial GPL-3.0 release
+	* 2016-11-19 | Sebastien Belanger | Initial GPL-3.0 release
 	*
 ****************************************************************************/
 
-#ifndef W_EXECUTE_H
-#define W_EXECUTE_H
+#ifndef W_LOGKEYPAD_H
+#define W_LOGKEYPAD_H
 
 //****************************************************************************
 // Include(s)
 //****************************************************************************
 
 #include <QWidget>
-#include "flexsea_generic.h"
-#include "datalogger.h"
-#include "define.h"
+#include <flexsea_generic.h>
 
 //****************************************************************************
 // Namespace & Class Definition:
 //****************************************************************************
 
 namespace Ui {
-class W_Execute;
+class W_LogKeyPad;
 }
 
-class W_Execute : public QWidget
+class W_LogKeyPad : public QWidget
 {
 	Q_OBJECT
 
 public:
 	//Constructor & Destructor:
-	explicit W_Execute(QWidget *parent = 0,
-					   struct logContainer_s *logRef = nullptr,
-					   DisplayMode mode = DisplayLiveData);
-	~W_Execute();
-
-	//Function(s):
-	static void trackVarEx(uint8_t var, uint8_t *varToPlotPtr8s);
-
-
-public slots:
-	void refresh(void);
-	void displayLogData(int index);
-	void updateDisplayMode(DisplayMode mode);
-
-private:
-	//Variables & Objects:
-	Ui::W_Execute *ui;
-	struct logContainer_s *myLogRef;
-	int active_slave, active_slave_index;
-	DisplayMode displayMode;
-
-	//Function(s):
-	void initLive(void);
-	void initLog(void);
-	void displayExecute(struct execute_s *ex);
+	explicit W_LogKeyPad(QWidget *parent = 0,
+						struct logContainer_s *logRef = nullptr);
+	~W_LogKeyPad();
 
 signals:
 	void windowClosed(void);
+	void logTimeSliderValueChanged(int value);
+
+private slots:
+
+	void on_TimeSlider_valueChanged(int value);
+
+private:
+	//Variables & Objects:
+	Ui::W_LogKeyPad *ui;
+
+	struct logContainer_s *myLogRef;
+
+	//Function(s):
+	void init(void);
 };
 
 //****************************************************************************
 // Definition(s)
 //****************************************************************************
 
-#endif // W_EXECUTE_H
+
+#endif // W_LOGKEYPAD_H

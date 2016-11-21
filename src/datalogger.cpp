@@ -188,14 +188,19 @@ void DataLogger::openReadingFile(void)
 		QStringList splitLine;
 		//uint8_t item, slaveIndex, experimentIndex;
 
-		// Read the logfile informations.
+		// Read and save the logfile informations.
 		line = logReadingFile.readLine();
+		splitLine = line.split(',', QString::KeepEmptyParts);
 
-		//TODO : design a better way to parse the header.
-		//item = line.section(' ', 3, 3).toInt();
-		//slaveIndex = line.section(' ', 8, 8).toInt();
-		//slaveName = line.section(' ', 9, 10).remove("(").remove(")");
-		//experimentIndex = line.section(' ', 15, 15).toInt();
+		myLog.dataloggingItem	= splitLine[1];
+		myLog.SlaveIndex		= splitLine[3];
+		myLog.SlaveName			= splitLine[5];
+		myLog.experimentIndex	= splitLine[7];
+		myLog.experimentName	= splitLine[9];
+		myLog.frequency			= splitLine[11].toInt();
+
+		myLog.shortFileName = shortFileName;
+		myLog.fileName		= filename;
 
 		//Clear the column's header.
 		line = logReadingFile.readLine();
@@ -203,29 +208,33 @@ void DataLogger::openReadingFile(void)
 		while (!logReadingFile.atEnd()) {
 			line = logReadingFile.readLine();
 			splitLine = line.split(',', QString::KeepEmptyParts);
-			struct execute_s newitem;
-			myExecute_s.append(newitem);
+
+			// If data line contain expected data
 			if(splitLine.length() >= 20)
 			{
-				myExecute_s.last().accel.x   = splitLine[2].toInt();
-				myExecute_s.last().accel.y   = splitLine[3].toInt();
-				myExecute_s.last().accel.z   = splitLine[4].toInt();
-				myExecute_s.last().gyro.x    = splitLine[5].toInt();
-				myExecute_s.last().gyro.y    = splitLine[6].toInt();
-				myExecute_s.last().gyro.z    = splitLine[7].toInt();
-				myExecute_s.last().strain    = splitLine[8].toInt();
-				myExecute_s.last().analog[0] = splitLine[9].toInt();
-				myExecute_s.last().analog[1] = splitLine[10].toInt();
-				myExecute_s.last().current   = splitLine[11].toInt();
-				myExecute_s.last().enc_display = splitLine[12].toInt();
-				myExecute_s.last().enc_control = splitLine[13].toInt();
-				myExecute_s.last().enc_commut  = splitLine[14].toInt();
-				myExecute_s.last().volt_batt = splitLine[15].toInt();
-				myExecute_s.last().volt_int  = splitLine[16].toInt();
-				myExecute_s.last().temp      = splitLine[17].toInt();
-				myExecute_s.last().status1   = splitLine[18].toInt();
-				myExecute_s.last().status2   = splitLine[19].toInt();
-				FlexSEA_Generic::decodeExecute(&myExecute_s.last());
+				struct log_s newitem;
+				myLog.logList.append(newitem);
+				myLog.logList.last().timeStampDate		= splitLine[0];
+				myLog.logList.last().timeStamp_ms		= splitLine[1].toInt();
+				myLog.logList.last().execute.accel.x	= splitLine[2].toInt();
+				myLog.logList.last().execute.accel.y	= splitLine[3].toInt();
+				myLog.logList.last().execute.accel.z	= splitLine[4].toInt();
+				myLog.logList.last().execute.gyro.x		= splitLine[5].toInt();
+				myLog.logList.last().execute.gyro.y		= splitLine[6].toInt();
+				myLog.logList.last().execute.gyro.z		= splitLine[7].toInt();
+				myLog.logList.last().execute.strain		= splitLine[8].toInt();
+				myLog.logList.last().execute.analog[0]	= splitLine[9].toInt();
+				myLog.logList.last().execute.analog[1]	= splitLine[10].toInt();
+				myLog.logList.last().execute.current	= splitLine[11].toInt();
+				myLog.logList.last().execute.enc_display= splitLine[12].toInt();
+				myLog.logList.last().execute.enc_control= splitLine[13].toInt();
+				myLog.logList.last().execute.enc_commut	= splitLine[14].toInt();
+				myLog.logList.last().execute.volt_batt	= splitLine[15].toInt();
+				myLog.logList.last().execute.volt_int	= splitLine[16].toInt();
+				myLog.logList.last().execute.temp		= splitLine[17].toInt();
+				myLog.logList.last().execute.status1	= splitLine[18].toInt();
+				myLog.logList.last().execute.status2	= splitLine[19].toInt();
+				FlexSEA_Generic::decodeExecute(&myLog.logList.last().execute);
 			}
 		}
 
@@ -245,7 +254,8 @@ void DataLogger::openReadingFile(void)
 	}
 }
 
-void DataLogger::writeToFile(uint8_t item, uint8_t slaveIndex, uint8_t expIndex)
+void DataLogger::writeToFile(uint8_t item, uint8_t slaveIndex,
+							 uint8_t expIndex, uint16_t refreshRate)
 {
 	qint64 t_ms = 0;
 	static qint64 t_ms_initial[4] = {0,0,0,0};
@@ -269,7 +279,7 @@ void DataLogger::writeToFile(uint8_t item, uint8_t slaveIndex, uint8_t expIndex)
 			t_ms_initial[item] = t_ms;
 
 			//Header:
-			writeIdentifier(item, slaveIndex, expIndex);
+			writeIdentifier(item, slaveIndex, expIndex, refreshRate);
 			(this->*headerFctPtr)(item);
 		}
 
@@ -359,7 +369,16 @@ void DataLogger::closeReadingFile(void)
 	{
 		logReadingFile.close();
 	}
-	myExecute_s.clear();
+	// TODO: Implement a new class to handle clear of log properly.
+	myLog.logList.clear();
+	myLog.dataloggingItem.clear();
+	myLog.SlaveIndex.clear();
+	myLog.SlaveName.clear();
+	myLog.experimentIndex.clear();
+	myLog.experimentName.clear();
+	myLog.frequency = 0;
+	myLog.shortFileName.clear();
+	myLog.fileName.clear();
 }
 
 void DataLogger::logReadAllExec(QTextStream *filePtr, uint8_t slaveIndex, \
@@ -521,17 +540,32 @@ void DataLogger::logTimestamp(qint64 *t_ms, QString *t_text)
 	*t_text = myTime->currentDateTime().toString();
 }
 
-void DataLogger::writeIdentifier(uint8_t item, uint8_t slaveIndex, uint8_t expIndex)
+void DataLogger::writeIdentifier(uint8_t item, uint8_t slaveIndex,
+								 uint8_t expIndex, uint16_t refreshRate)
 {
 	QString msg, slaveName, expName;
 	FlexSEA_Generic::getSlaveName(SL_BASE_ALL, slaveIndex, &slaveName);
 	FlexSEA_Generic::getExpName(expIndex, &expName);
 
 	//Top of the file description:
-	msg = "[Datalogging: Item = " + QString::number(item) + " | Slave index = " + \
-						QString::number(slaveIndex) + " (" + slaveName + ") | " + \
-						"Experiment index = " + QString::number(expIndex) + " (" + \
-						expName + ")]\n";
+	msg =	QString("Datalogging Item:")	+ QString(',') +
+			QString::number(item)			+ QString(',') +
+
+			QString("Slave Index:")			+ QString(',') +
+			QString::number(slaveIndex)		+ QString(',') +
+
+			QString("Slave Name:")			+ QString(',') +
+			slaveName						+ QString(',') +
+
+			QString("Experiment Index:")	+ QString(',') +
+			QString::number(expIndex)		+ QString(',') +
+
+			QString("Experiment Name:")		+ QString(',') +
+			expName							+ QString(',') +
+
+			QString("Aquisition Frequency:")+ QString(',') +
+			QString::number(refreshRate)	+ QString("\n");
+
 	qDebug() << msg;
 	if(logRecordingFile[item].isOpen())
 	{

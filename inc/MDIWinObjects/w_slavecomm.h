@@ -114,9 +114,10 @@ signals:
 	//Other:
 	void refresh2DPlot(void);
 	void windowClosed(void);
-	void writeToLogFile(uint8_t item, uint8_t slaveIndex, uint8_t expIndex);
+	void writeToLogFile(uint8_t item, uint8_t slaveIndex,
+						uint8_t expIndex, uint16_t refreshRate);
 	void openRecordingFile(uint8_t item, QString fileName);
-	void closeLogFile(uint8_t item);
+	void closeRecordingFile(uint8_t item);
 	void slaveReadWrite(uint numb, uint8_t *dataPacket, uint8_t r_w);
 
 private:
@@ -129,6 +130,7 @@ private:
 	int selected_exp_index[MAX_SC_ITEMS];
 	int selected_refresh_index[MAX_SC_ITEMS], previous_refresh_index[MAX_SC_ITEMS];
 	QStringList var_list_refresh;
+	QList<int> refreshRate;
 	bool logThisItem[MAX_SC_ITEMS];
 	QPushButton **on_off_pb_ptr[MAX_SC_ITEMS];
 	QCheckBox **log_cb_ptr[MAX_SC_ITEMS];

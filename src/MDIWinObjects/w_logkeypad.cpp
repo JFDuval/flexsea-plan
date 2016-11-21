@@ -21,71 +21,74 @@
 	Biomechatronics research group <http://biomech.media.mit.edu/>
 	[Contributors]
 *****************************************************************************
-	[This file] w_execute.h: Execute View Window
+	[This file] w_LogKeyPad.h: LogKeyPAd Window
 *****************************************************************************
 	[Change log] (Convention: YYYY-MM-DD | author | comment)
-	* 2016-09-09 | jfduval | Initial GPL-3.0 release
+	* 2016-11-19 | Sebastien Belanger | Initial GPL-3.0 release
 	*
 ****************************************************************************/
-
-#ifndef W_EXECUTE_H
-#define W_EXECUTE_H
 
 //****************************************************************************
 // Include(s)
 //****************************************************************************
 
-#include <QWidget>
-#include "flexsea_generic.h"
+#include "w_logkeypad.h"
+#include "ui_w_logkeypad.h"
 #include "datalogger.h"
-#include "define.h"
+#include "main.h"
 
 //****************************************************************************
-// Namespace & Class Definition:
+// Constructor & Destructor:
 //****************************************************************************
 
-namespace Ui {
-class W_Execute;
+W_LogKeyPad::W_LogKeyPad(QWidget *parent,  struct logContainer_s *logRef) :
+	QWidget(parent),
+	ui(new Ui::W_LogKeyPad)
+{
+	ui->setupUi(this);
+
+	setWindowTitle("LogKeyPad");
+	setWindowIcon(QIcon(":icons/d_logo_small.png"));
+
+	myLogRef = logRef;
+	ui->TimeSlider->setRange(0, myLogRef->logList.length()-1);
+	init();
 }
 
-class W_Execute : public QWidget
+W_LogKeyPad::~W_LogKeyPad()
 {
-	Q_OBJECT
-
-public:
-	//Constructor & Destructor:
-	explicit W_Execute(QWidget *parent = 0,
-					   struct logContainer_s *logRef = nullptr,
-					   DisplayMode mode = DisplayLiveData);
-	~W_Execute();
-
-	//Function(s):
-	static void trackVarEx(uint8_t var, uint8_t *varToPlotPtr8s);
-
-
-public slots:
-	void refresh(void);
-	void displayLogData(int index);
-	void updateDisplayMode(DisplayMode mode);
-
-private:
-	//Variables & Objects:
-	Ui::W_Execute *ui;
-	struct logContainer_s *myLogRef;
-	int active_slave, active_slave_index;
-	DisplayMode displayMode;
-
-	//Function(s):
-	void initLive(void);
-	void initLog(void);
-	void displayExecute(struct execute_s *ex);
-
-signals:
-	void windowClosed(void);
-};
+	emit windowClosed();
+	delete ui;
+}
 
 //****************************************************************************
-// Definition(s)
+// Public function(s):
 //****************************************************************************
 
-#endif // W_EXECUTE_H
+//****************************************************************************
+// Public slot(s):
+//****************************************************************************
+
+//****************************************************************************
+// Private function(s):
+//****************************************************************************
+
+void W_LogKeyPad::init(void)
+{
+	//All values at 0:
+	ui->FileNameLabel->setText(myLogRef->shortFileName);
+	ui->TimeStampLabel->setText(QString::number(myLogRef->logList.at(0).timeStamp_ms) + " ms");
+}
+
+
+//****************************************************************************
+// Private slot(s):
+//****************************************************************************
+
+
+void W_LogKeyPad::on_TimeSlider_valueChanged(int value)
+{
+	emit logTimeSliderValueChanged(value);
+	ui->TimeStampLabel->setText(
+				QString::number(myLogRef->logList.at(value).timeStamp_ms) + " ms");
+}

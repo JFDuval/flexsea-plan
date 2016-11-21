@@ -52,13 +52,34 @@ namespace Ui {
 class DataLogger;
 }
 
+struct log_s
+{
+	QString timeStampDate;
+	int32_t timeStamp_ms;
+
+	struct execute_s execute;
+};
+
+struct logContainer_s
+{
+	QString shortFileName;
+	QString fileName;
+	QString dataloggingItem;
+	QString SlaveName;
+	QString SlaveIndex;
+	QString experimentIndex;
+	QString experimentName;
+	uint16_t frequency;
+	QList<struct log_s> logList;
+};
+
 class DataLogger : public QWidget
 {
 	Q_OBJECT
 
 public:
 	explicit DataLogger(QWidget *parent = 0);
-	QList<struct execute_s> * getExecuteLogPtr(void) {return &myExecute_s;}
+	struct logContainer_s * getLogPtr(void) {return &myLog;}
 
 public slots:
 	void openRecordingFile(uint8_t item);
@@ -66,7 +87,8 @@ public slots:
 	void closeRecordingFile(uint8_t item);
 	void openReadingFile(void);
 	void closeReadingFile(void);
-	void writeToFile(uint8_t item, uint8_t slaveIndex, uint8_t expIndex);
+	void writeToFile(uint8_t item, uint8_t slaveIndex,
+					 uint8_t expIndex, uint16_t refreshRate);
 
 private slots:
 
@@ -80,12 +102,13 @@ private:
 
 	bool fileOpened[4];
 
-	QList<struct execute_s> myExecute_s;
+	struct logContainer_s myLog;
 
 	//Function(s):
 	void init(void);
 	void logTimestamp(qint64 *t_ms, QString *t_text);
-	void writeIdentifier(uint8_t item, uint8_t slaveIndex, uint8_t expIndex);
+	void writeIdentifier(uint8_t item, uint8_t slaveIndex,
+									 uint8_t expIndex, uint16_t refreshRate);
 	void writeExecuteReadAllHeader(uint8_t item);
 	void writeReadAllRicnuHeader(uint8_t item);
 	void writeManageReadAllHeader(uint8_t item);
