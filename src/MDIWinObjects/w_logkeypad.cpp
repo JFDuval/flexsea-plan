@@ -89,5 +89,6 @@ void W_LogKeyPad::init(void)
 void W_LogKeyPad::on_TimeSlider_valueChanged(int value)
 {
 	emit logTimeSliderValueChanged(value);
-	ui->TimeStampLabel->setText(QString::number(myLogRef->logList.at(value).timeStamp_ms));
+	ui->TimeStampLabel->setText(
+				QString::number(myLogRef->logList.at(value).timeStamp_ms) + " ms");
 }
