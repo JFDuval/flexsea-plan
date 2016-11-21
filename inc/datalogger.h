@@ -52,6 +52,27 @@ namespace Ui {
 class DataLogger;
 }
 
+struct log_s
+{
+	QString timeStampDate;
+	int32_t timeStamp_ms;
+
+	struct execute_s execute;
+};
+
+struct logContainer_s
+{
+	QString shortFileName;
+	QString fileName;
+	QString SlaveName;
+	QString SlaveIndex;
+	QString experimentIndex;
+	QString experimentName;
+	QString item;
+	uint32_t frequency;
+	struct log_s *log;
+};
+
 class DataLogger : public QWidget
 {
 	Q_OBJECT

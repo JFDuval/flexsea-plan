@@ -530,10 +530,24 @@ void DataLogger::writeIdentifier(uint8_t item, uint8_t slaveIndex, uint8_t expIn
 	FlexSEA_Generic::getExpName(expIndex, &expName);
 
 	//Top of the file description:
-	msg = "[Datalogging: Item = " + QString::number(item) + " | Slave index = " + \
-						QString::number(slaveIndex) + " (" + slaveName + ") | " + \
-						"Experiment index = " + QString::number(expIndex) + " (" + \
-						expName + ")]\n";
+	msg =	QString("Datalogging Item")		+ QString(',') +
+			QString::number(item)			+ QString(',') +
+
+			QString("Slave Index")			+ QString(',') +
+			QString::number(slaveIndex)		+ QString(',') +
+
+			QString("Slave Name")			+ QString(',') +
+			slaveName						+ QString(',') +
+
+			QString("Experiment Index")		+ QString(',') +
+			QString::number(expIndex)		+ QString(',') +
+
+			QString("Experiment Name")		+ QString(',') +
+			expName							+ QString(',') +
+
+			QString("Aquisition Frequency ")+ QString(',') +
+			QString("33 Hz")				+ QString("\n");
+
 	qDebug() << msg;
 	if(logRecordingFile[item].isOpen())
 	{

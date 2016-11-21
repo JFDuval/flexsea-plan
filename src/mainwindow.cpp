@@ -137,7 +137,10 @@ void MainWindow::manageLogKeyPad(DataSource status)
 	}
 	else
 	{
-		myViewLogKeyPad[0]->parentWidget()->close();
+		if(logKeyPadObjectCount > 0)
+		{
+				myViewLogKeyPad[0]->parentWidget()->close();
+		}
 	}
 }
 
