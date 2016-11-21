@@ -436,11 +436,8 @@ void W_Control::on_hSlider_Ctrl_valueChanged(int value)
 
 void W_Control::on_pushButton_SetGains_clicked()
 {
-	QString str;
 	int16_t gains[6] = {0,0,0,0,0,0};
 	uint16_t numb = 0, valid = 0;
-	uint8_t cmdCode = 0, cmdType = 0;
-	uint16_t len = 0;
 	uint8_t info[2] = {PORT_USB, PORT_USB};
 
 	//Save gains in temp variables:

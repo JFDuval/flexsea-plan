@@ -24,20 +24,6 @@
     <layout class="QGridLayout" name="gridLayout_test"/>
    </item>
    <item>
-    <widget class="QLabel" name="labelDataSlider">
-     <property name="text">
-      <string>Log Data Slider</string>
-     </property>
-    </widget>
-   </item>
-   <item>
-    <widget class="QSlider" name="DataSlider">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-    </widget>
-   </item>
-   <item>
     <spacer name="verticalSpacer">
      <property name="orientation">
       <enum>Qt::Vertical</enum>

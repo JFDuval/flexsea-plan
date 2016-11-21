@@ -68,6 +68,7 @@ W_Execute::~W_Execute()
 // Public function(s):
 //****************************************************************************
 
+//ToDo: incomplete function (test in progress)
 void W_Execute::trackVarEx(uint8_t var, uint8_t *varToPlotPtr8s)
 {
 	if(var == 0)
