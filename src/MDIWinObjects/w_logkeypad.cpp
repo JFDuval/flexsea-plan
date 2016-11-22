@@ -51,7 +51,6 @@ W_LogKeyPad::W_LogKeyPad(QWidget *parent,  struct logContainer_s *logRef) :
 	setWindowIcon(QIcon(":icons/d_logo_small.png"));
 
 	myLogRef = logRef;
-	ui->TimeSlider->setRange(0, myLogRef->logList.length()-1);
 	init();
 }
 
@@ -77,7 +76,16 @@ void W_LogKeyPad::init(void)
 {
 	//All values at 0:
 	ui->FileNameLabel->setText(myLogRef->shortFileName);
-	ui->labelCursorMs->setText(QString::number(myLogRef->logList.at(0).timeStamp_ms));
+	ui->labelCursorMs->setText(
+				QString::number(myLogRef->logList.at(0).timeStamp_ms));
+	ui->labelCursorPct->setText(QString::number(0, 'f', 1));
+	ui->TimeSlider->setRange(0, myLogRef->logList.length()-1);
+	ui->labelDataPoints->setText(QString::number(myLogRef->logList.length()));
+	ui->labelLength->setText(
+				QString::number(myLogRef->logList.last().timeStamp_ms/1000.0));
+	ui->labelExperiment->setText(myLogRef->experimentName);
+	ui->TimeSlider->setFocus();
+
 }
 
 
@@ -91,4 +99,7 @@ void W_LogKeyPad::on_TimeSlider_valueChanged(int value)
 	emit logTimeSliderValueChanged(value);
 	ui->labelCursorMs->setText(
 				QString::number(myLogRef->logList.at(value).timeStamp_ms));
+	ui->labelCursorPct->setText(
+					QString::number(
+					(value * 100.0) / (myLogRef->logList.length()-1), 'f', 1));
 }
