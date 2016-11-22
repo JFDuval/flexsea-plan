@@ -104,6 +104,7 @@ void DataLogger::openRecordingFile(uint8_t item, QString shortFileName)
 		QDir::setCurrent("Plan-GUI-Logs");
 		QString fileName = QDir::currentPath() + "/" + shortFileName;
 		QString numberedFileName = fileName;
+		qDebug() << numberedFileName; //ToDo remove
 
 		//Now we open it:
 		int fileNameLen = fileName.length();
@@ -120,7 +121,6 @@ void DataLogger::openRecordingFile(uint8_t item, QString shortFileName)
 			numberedFileName.insert(fileNameLen - 4,
 									"_" + QString::number(i));
 			logRecordingFile[item].setFileName(numberedFileName);
-
 		}
 
 		QString numberedShortFileName = shortFileName + "_" + QString::number(i);
@@ -152,7 +152,7 @@ void DataLogger::openfile(uint8_t item, QString fileName, QString shortFileName)
 		msg = tr("No log file selected.");
 		qDebug() << msg;
 
-		msg = tr("No log file selected or the file couldn't be opened.");
+		msg = tr("No log file selected, or the file couldn't be opened.");
 		emit setStatusBarMessage(msg);
 	}
 }
@@ -160,7 +160,6 @@ void DataLogger::openfile(uint8_t item, QString fileName, QString shortFileName)
 void DataLogger::openReadingFile(void)
 {
 	QString msg = "";
-
 
 	//File Dialog (returns the selected file name):
 	QDir::setCurrent("Plan-GUI-Logs");
@@ -175,7 +174,6 @@ void DataLogger::openReadingFile(void)
 	int pathLen = path.length();
 	QString shortFileName = filename.mid(pathLen+1);
 
-
 	//Now we open it:
 	logReadingFile.setFileName(filename);
 	logReadingFile.size();
@@ -186,7 +184,6 @@ void DataLogger::openReadingFile(void)
 		//Associate stream to file:
 		QString line, slaveName, expName;
 		QStringList splitLine;
-		//uint8_t item, slaveIndex, experimentIndex;
 
 		// Read and save the logfile informations.
 		line = logReadingFile.readLine();
@@ -266,6 +263,9 @@ void DataLogger::writeToFile(uint8_t item, uint8_t slaveIndex,
 
 	QString t_text = "";
 
+	/*ToDo: why are we constantly calling that? It should be done once,
+	 * the first time we start logging. The way it is now, we can switch board
+	 * in the middle of a log, corrupting the data.*/
 	getFctPtrs(slaveIndex, expIndex, &headerFctPtr, &logFctPtr);
 
 	// Verify that the log file is properly opened.
@@ -315,6 +315,7 @@ void DataLogger::getFctPtrs(uint8_t slaveIndex, uint8_t expIndex, \
 				case FLEXSEA_PLAN_BASE:
 					break;
 				case FLEXSEA_MANAGE_BASE:
+					//ToDo: why is Manage different than the others?
 					//(*myHeaderFctPtr) = &writeManageReadAllHeader;
 					*myHeaderFctPtr = &DataLogger::writeManageReadAllHeader;
 					(*myLogFctPtr) = &logReadAllManage;
@@ -380,6 +381,8 @@ void DataLogger::closeReadingFile(void)
 	myLog.shortFileName.clear();
 	myLog.fileName.clear();
 }
+
+//ToDo: move these functions to their respective files
 
 void DataLogger::logReadAllExec(QTextStream *filePtr, uint8_t slaveIndex, \
 								char term, qint64 t_ms, QString t_text)
@@ -460,24 +463,26 @@ void DataLogger::logReadAllRicnu(QTextStream *filePtr, uint8_t slaveIndex, \
 	struct ricnu_s *myPtr;
 	FlexSEA_Generic::assignRicnuPtr(&myPtr, SL_BASE_ALL, slaveIndex);
 
-	logFileStream << t_text << ',' << \
-						t_ms << ',' << \
-						myPtr->ex.accel.x << ',' << \
-						myPtr->ex.accel.y << ',' << \
-						myPtr->ex.accel.z << ',' << \
-						myPtr->ex.gyro.x << ',' << \
-						myPtr->ex.gyro.y << ',' << \
-						myPtr->ex.gyro.z << ',' << \
-						myPtr->ex.current << ',' << \
-						myPtr->ex.enc_motor << ',' << \
-						myPtr->ex.enc_joint << ',' << \
-						myPtr->st.ch[0].strain_filtered << ',' << \
-						myPtr->st.ch[1].strain_filtered << ',' << \
-						myPtr->st.ch[2].strain_filtered << ',' << \
-						myPtr->st.ch[3].strain_filtered << ',' << \
-						myPtr->st.ch[4].strain_filtered << ',' << \
-						myPtr->st.ch[5].strain_filtered << ',' << \
-						term;
+	qDebug() << "logReadAllRicnu";
+
+	(*filePtr) << t_text << ',' << \
+				t_ms << ',' << \
+				myPtr->ex.accel.x << ',' << \
+				myPtr->ex.accel.y << ',' << \
+				myPtr->ex.accel.z << ',' << \
+				myPtr->ex.gyro.x << ',' << \
+				myPtr->ex.gyro.y << ',' << \
+				myPtr->ex.gyro.z << ',' << \
+				myPtr->ex.current << ',' << \
+				myPtr->ex.enc_motor << ',' << \
+				myPtr->ex.enc_joint << ',' << \
+				myPtr->st.ch[0].strain_filtered << ',' << \
+				myPtr->st.ch[1].strain_filtered << ',' << \
+				myPtr->st.ch[2].strain_filtered << ',' << \
+				myPtr->st.ch[3].strain_filtered << ',' << \
+				myPtr->st.ch[4].strain_filtered << ',' << \
+				myPtr->st.ch[5].strain_filtered << ',' << \
+				term;
 }
 
 void DataLogger::logReadAllManage(QTextStream *filePtr, uint8_t slaveIndex, \
@@ -678,6 +683,8 @@ void DataLogger::writeReadAllRicnuHeader(uint8_t item)
 {
 	if(logRecordingFile[item].isOpen())
 	{
+		qDebug() << "writeReadAllRicnuHeader";
+
 		//Print header:
 		logFileStream << "Timestamp," << \
 						"Timestamp (ms)," << \

@@ -74,7 +74,7 @@ QStringList FlexSEA_Generic::var_list_slave =    QStringList()
 QStringList FlexSEA_Generic::var_list_exp = QStringList()
 											<< "Read All (Barebone)"
 											<< "In Control"
-											<< "RIC/NU Knee"
+											<< "RICNU Knee"
 											<< "CSEA Knee"
 											<< "2DOF Ankle"
 											<< "[Your project]";
