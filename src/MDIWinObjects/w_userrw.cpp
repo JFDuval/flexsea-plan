@@ -83,6 +83,12 @@ void W_UserRW::init(void)
 	//Variables:
 	active_slave_index = ui->comboBox_slave->currentIndex();
 	active_slave = FlexSEA_Generic::getSlaveID(SL_BASE_ALL, active_slave_index);
+
+	//All W boxes to 0:
+	ui->w0->setText("0");
+	ui->w1->setText("0");
+	ui->w2->setText("0");
+	ui->w3->setText("0");
 }
 
 //****************************************************************************
