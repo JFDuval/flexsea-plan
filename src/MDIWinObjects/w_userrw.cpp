@@ -38,6 +38,7 @@
 #include "main.h"
 #include <QString>
 #include <QTextStream>
+#include <QDebug>
 
 //****************************************************************************
 // Constructor & Destructor:
@@ -91,6 +92,53 @@ void W_UserRW::init(void)
 	ui->w3->setText("0");
 }
 
+//Send a Write command:
+void W_UserRW::writeUserData(uint8_t index)
+{
+	//Refresh variable:
+	user_data_1.w[0] = (int16_t)ui->w0->text().toInt();
+	user_data_1.w[1] = (int16_t)ui->w1->text().toInt();
+	user_data_1.w[2] = (int16_t)ui->w2->text().toInt();
+	user_data_1.w[3] = (int16_t)ui->w3->text().toInt();
+
+	qDebug() << "Write user data" << index << ":" << user_data_1.w[index];
+
+	qDebug() << "ToDo: send command!";
+}
+
+//Send a Read command:
+void W_UserRW::readUserData(void)
+{
+	qDebug() << "Read user data.";
+
+	qDebug() << "ToDo: send command!";
+}
+
 //****************************************************************************
 // Private slot(s):
 //****************************************************************************
+
+void W_UserRW::on_pushButton_w0_clicked()
+{
+	writeUserData(0);
+}
+
+void W_UserRW::on_pushButton_w1_clicked()
+{
+	writeUserData(1);
+}
+
+void W_UserRW::on_pushButton_w2_clicked()
+{
+	writeUserData(2);
+}
+
+void W_UserRW::on_pushButton_w3_clicked()
+{
+	writeUserData(3);
+}
+
+void W_UserRW::on_pushButton_refresh_clicked()
+{
+	readUserData();
+}

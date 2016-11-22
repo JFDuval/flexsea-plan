@@ -62,6 +62,13 @@ public slots:
 signals:
 	void windowClosed(void);
 
+private slots:
+	void on_pushButton_w0_clicked();
+	void on_pushButton_w1_clicked();
+	void on_pushButton_w2_clicked();
+	void on_pushButton_w3_clicked();
+	void on_pushButton_refresh_clicked();
+
 private:
 	//Variables & Objects:
 	Ui::W_UserRW *ui;
@@ -69,6 +76,8 @@ private:
 
 	//Function(s):
 	void init(void);
+	void writeUserData(uint8_t index);
+	void readUserData(void);
 };
 
 //****************************************************************************
