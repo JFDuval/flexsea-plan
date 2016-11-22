@@ -71,7 +71,8 @@ SOURCES += src/main.cpp \
 	flexsea-user/test/flexsea-user_test-all.c \
 	flexsea-user/test/test-cmd_user.c \
 	src/MDIWinObjects/w_config.cpp \
-    src/MDIWinObjects/w_logkeypad.cpp
+    src/MDIWinObjects/w_logkeypad.cpp \
+    src/MDIWinObjects/w_userrw.cpp
 
 HEADERS  += inc/main.h \
 	inc/mainwindow.h \
@@ -113,7 +114,8 @@ HEADERS  += inc/main.h \
 	flexsea-user/MIT_2DoF_Ankle_v1/inc/cmd-MIT_2DoF_Ankle_v1.h \
 	flexsea-user/RICNU_Knee_v1/inc/cmd-RICNU_Knee_v1.h \
 	flexsea-user/test/flexsea-user_test-all.h \
-    inc/MDIWinObjects/w_logkeypad.h
+    inc/MDIWinObjects/w_logkeypad.h \
+    inc/MDIWinObjects/w_userrw.h
 
 FORMS    += ui/mainwindow.ui \
 	ui/w_execute.ui \
@@ -129,7 +131,8 @@ FORMS    += ui/mainwindow.ui \
 	ui/w_gossip.ui \
 	ui/w_strain.ui \
 	ui/w_config.ui \
-    ui/w_logkeypad.ui
+    ui/w_logkeypad.ui \
+    ui/w_userrw.ui
 
 RESOURCES += \
 	misc/icons.qrc

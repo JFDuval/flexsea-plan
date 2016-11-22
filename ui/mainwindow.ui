@@ -121,6 +121,8 @@
     <property name="title">
      <string>User</string>
     </property>
+    <addaction name="actionUser_R_W"/>
+    <addaction name="separator"/>
     <addaction name="actionRIC_NU_Knee"/>
    </widget>
    <addaction name="menuFile"/>
@@ -239,6 +241,11 @@
   <action name="actionStrain">
    <property name="text">
     <string>Strain</string>
+   </property>
+  </action>
+  <action name="actionUser_R_W">
+   <property name="text">
+    <string>User R/W</string>
    </property>
   </action>
  </widget>
@@ -501,6 +508,22 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>actionUser_R_W</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>createUserRW()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>594</x>
+     <y>433</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>createViewExecute()</slot>
@@ -520,5 +543,6 @@
   <slot>createViewBattery()</slot>
   <slot>createViewStrain()</slot>
   <slot>createViewGossip()</slot>
+  <slot>createUserRW()</slot>
  </slots>
 </ui>

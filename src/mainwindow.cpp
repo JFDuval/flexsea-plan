@@ -76,6 +76,9 @@ MainWindow::MainWindow(QWidget *parent) :
 	logKeyPadObjectCount = 0;
 	strainObjectCount = 0;
 
+	userRW.count = 0;
+	userRW.desc = "User R/W";
+
 	//SerialDriver:
 	mySerialDriver = new SerialDriver;
 
@@ -675,6 +678,50 @@ void MainWindow::closeCalib(void)
 	if(calibObjectCount > 0)
 	{
 		calibObjectCount--;
+	}
+	qDebug() << msg;
+	ui->statusBar->showMessage(msg);
+}
+
+//Creates a new User R/W window
+void MainWindow::createUserRW(void)
+{
+	QString msg = "";
+	userRW.max = USERRW_WINDOWS_MAX;
+
+	//Limited number of windows:
+	if(userRW.count < (userRW.max))
+	{
+		userRW.myWindow[userRW.count] = new W_UserRW(this);
+		ui->mdiArea->addSubWindow(userRW.myWindow[userRW.count]);
+		userRW.myWindow[userRW.count]->show();
+
+		msg = "Created '" + userRW.desc + "' object index " + QString::number(userRW.count) \
+				+ " (max index = " + QString::number(userRW.max-1) + ").";
+		ui->statusBar->showMessage(msg);
+
+		//Link to MainWindow for the close signal:
+		connect(userRW.myWindow[userRW.count], SIGNAL(windowClosed()), \
+				this, SLOT(closeUserRW()));
+
+		userRW.count++;
+	}
+	else
+	{
+		msg = "Maximum number of '" + userRW.desc + "'objects reached (" \
+				+ QString::number(userRW.max) + ")";
+		qDebug() << msg;
+		ui->statusBar->showMessage(msg);
+	}
+}
+
+void MainWindow::closeUserRW(void)
+{
+	QString msg = userRW.desc + " window closed.";
+
+	if(userRW.count > 0)
+	{
+		userRW.count--;
 	}
 	qDebug() << msg;
 	ui->statusBar->showMessage(msg);

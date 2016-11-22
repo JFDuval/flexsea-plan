@@ -1463,7 +1463,6 @@ void W_2DPlot::initStats(void)
 	for(int i = 0; i < VAR_NUM; i++)
 	{
 		memset(stats[i], 0, STATS_FIELDS);
-
 	}
 
 	ui->label_1_min->setText(QString::number(0));

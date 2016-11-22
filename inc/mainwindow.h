@@ -42,6 +42,7 @@
 #include "w_ricnu.h"
 #include "w_manage.h"
 #include "w_calibration.h"
+#include "w_userrw.h"
 #include "w_battery.h"
 #include "w_logkeypad.h"
 #include "w_strain.h"
@@ -71,6 +72,16 @@ class MainWindow;
 #define LOGKEYPAD_WINDOWS_MAX		1
 #define GOSSIP_WINDOWS_MAX			2
 #define STRAIN_WINDOWS_MAX			2
+#define USERRW_WINDOWS_MAX			1
+
+//User_RW Window:
+struct window_userrw_s
+{
+	int count;									//Number of objects
+	int max;									//Max # of objects
+	W_UserRW *myWindow[USERRW_WINDOWS_MAX];		//Stores objects
+	QString desc;								//Text description
+};
 
 class MainWindow : public QMainWindow
 {
@@ -148,6 +159,9 @@ private:
 	//DataLogger:
 	DataLogger *myDataLogger;
 
+	//User R/W
+	struct window_userrw_s userRW;
+
 signals:
 	//Allow window to be independly opened in any order by providing a backbone connector
 	void connectorRefreshLogTimeSlider(int index);
@@ -174,6 +188,7 @@ public slots:
 	void createViewGossip(void);
 	void createViewBattery(void);
 	void createLogKeyPad(void);
+	void createUserRW(void);
 
 	//MDI Windows (closed):
 	void closeViewExecute(void);
@@ -190,6 +205,7 @@ public slots:
 	void closeViewGossip(void);
 	void closeViewBattery(void);
 	void closeLogKeyPad(void);
+	void closeUserRW(void);
 
 	//Message boxes:
 	void displayAbout();
