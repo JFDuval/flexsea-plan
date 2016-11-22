@@ -33,6 +33,7 @@
 //****************************************************************************
 
 #include "datalogger.h"
+#include "w_ricnu.h"
 #include <QDebug>
 #include <QString>
 #include <QFileDialog>
@@ -104,7 +105,6 @@ void DataLogger::openRecordingFile(uint8_t item, QString shortFileName)
 		QDir::setCurrent("Plan-GUI-Logs");
 		QString fileName = QDir::currentPath() + "/" + shortFileName;
 		QString numberedFileName = fileName;
-		qDebug() << numberedFileName; //ToDo remove
 
 		//Now we open it:
 		int fileNameLen = fileName.length();
@@ -484,7 +484,13 @@ void DataLogger::logReadAllRicnu(QTextStream *filePtr, uint8_t slaveIndex, \
 	struct ricnu_s *myPtr;
 	FlexSEA_Generic::assignRicnuPtr(&myPtr, SL_BASE_ALL, slaveIndex);
 
-	qDebug() << "logReadAllRicnu";
+	W_Ricnu::unpackCompressed6ch(myPtr->st.compressedBytes, \
+						&myPtr->st.ch[0].strain_filtered, \
+						&myPtr->st.ch[1].strain_filtered, \
+						&myPtr->st.ch[2].strain_filtered, \
+						&myPtr->st.ch[3].strain_filtered, \
+						&myPtr->st.ch[4].strain_filtered, \
+						&myPtr->st.ch[5].strain_filtered);
 
 	(*filePtr) << t_text << ',' << \
 				t_ms << ',' << \
