@@ -199,11 +199,9 @@ void W_2DPlot::initChart(void)
 		r = qlsData[u]->color().red();
 		g = qlsData[u]->color().green();
 		b = qlsData[u]->color().blue();
-		//qDebug() << r << g << b;
 		msg[u] = "QLabel { background-color: black; color: rgb(" + \
 				QString::number(r) + ',' + QString::number(g) + ','+ \
 				QString::number(b) + ");}";
-		//qDebug() << msg[u];
 	}
 
 	ui->label_t1->setStyleSheet(msg[0]);
@@ -344,13 +342,12 @@ void W_2DPlot::initUserInput(void)
 }
 
 //Each board type has a different variable list.
+//ToDo: those lists should come from the w_BoardName files
 void W_2DPlot::updateVarList(uint8_t var, QComboBox *myCombo)
 {
 	QStringList var_list, toolTipList;
 
 	uint8_t bType = slaveBType[var];
-
-	//qDebug() << "Updating Var List for index =" << var << "bType = " << bType;
 
 	//Build the string:
 	switch(bType)
@@ -1233,7 +1230,7 @@ void W_2DPlot::gen_graph_xarray(void)
 {
 	for(int i = 0; i < PLOT_BUF_LEN; i++)
 	{
-		graph_xarray[i] = i; // x goes from 0 to 1
+		graph_xarray[i] = i;
 	}
 }
 
@@ -1242,10 +1239,7 @@ void W_2DPlot::init_yarrays(void)
 {
 	for(int i = 0; i < VAR_NUM; i++)
 	{
-		for(int j = 0; j < PLOT_BUF_LEN; j++)
-		{
-			graph_yarray[i][j] = 0;
-		}
+		memset(graph_yarray[i], 0, PLOT_BUF_LEN);
 	}
 }
 
@@ -1468,10 +1462,8 @@ void W_2DPlot::initStats(void)
 {
 	for(int i = 0; i < VAR_NUM; i++)
 	{
-		for(int j = 0; j < STATS_FIELDS; j++)
-		{
-			stats[i][j] = 0;
-		}
+		memset(stats[i], 0, STATS_FIELDS);
+
 	}
 
 	ui->label_1_min->setText(QString::number(0));
