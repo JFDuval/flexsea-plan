@@ -35,6 +35,7 @@
 #include "w_logkeypad.h"
 #include "ui_w_logkeypad.h"
 #include "datalogger.h"
+#include <QDebug>
 #include "main.h"
 
 //****************************************************************************
@@ -74,32 +75,43 @@ W_LogKeyPad::~W_LogKeyPad()
 
 void W_LogKeyPad::init(void)
 {
-	//All values at 0:
-	ui->FileNameLabel->setText(myLogRef->shortFileName);
-	ui->labelCursorMs->setText(
-				QString::number(myLogRef->logList.at(0).timeStamp_ms));
-	ui->labelCursorPct->setText(QString::number(0, 'f', 1));
+	QString cursor, refresh;
+	int len_ms = 0, samples = 0;
+	double rate = 0.0;
+
+	//Filename, experiment and basic stats:
+	ui->FileNameLabel->setText(myLogRef->shortFileName);	//Filename
+	ui->labelExperiment->setText(myLogRef->experimentName);	//Experiment
+	samples = myLogRef->logList.length();
+	ui->labelDataPoints->setText(QString::number(samples));
+	len_ms = myLogRef->logList.last().timeStamp_ms;
+	ui->labelLength->setText(QString::number(len_ms/1000.0));
+	rate = (double)samples / ((double)len_ms / 1000);
+	refresh = "Average of " + QString::number(rate, 'f', 2) + "Hz";
+	ui->labelRefresh->setText(refresh);
+
+	//Slider:
 	ui->TimeSlider->setRange(0, myLogRef->logList.length()-1);
-	ui->labelDataPoints->setText(QString::number(myLogRef->logList.length()));
-	ui->labelLength->setText(
-				QString::number(myLogRef->logList.last().timeStamp_ms/1000.0));
-	ui->labelExperiment->setText(myLogRef->experimentName);
+	cursor = QString::number(myLogRef->logList.at(0).timeStamp_ms) + \
+			 " ms (" + QString::number(0, 'f', 1) + "%)";
+	ui->labelCursor->setText(cursor);
+
 	ui->TimeSlider->setFocus();
-
 }
-
 
 //****************************************************************************
 // Private slot(s):
 //****************************************************************************
 
-
 void W_LogKeyPad::on_TimeSlider_valueChanged(int value)
 {
+	QString cursor;
+	int pctVal = 0;
+
 	emit logTimeSliderValueChanged(value);
-	ui->labelCursorMs->setText(
-				QString::number(myLogRef->logList.at(value).timeStamp_ms));
-	ui->labelCursorPct->setText(
-					QString::number(
-					(value * 100.0) / (myLogRef->logList.length()-1), 'f', 1));
+
+	pctVal = (value * 100.0) / (myLogRef->logList.length()-1);
+	cursor = QString::number(myLogRef->logList.at(value).timeStamp_ms) + \
+			 " ms (" + QString::number(pctVal, 'f', 1) + "%)";
+	ui->labelCursor->setText(cursor);
 }
