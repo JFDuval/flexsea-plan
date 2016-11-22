@@ -179,7 +179,7 @@ void DataLogger::openReadingFile(void)
 	logReadingFile.size();
 	if(logReadingFile.open(QIODevice::ReadOnly))
 	{
-		qDebug() << msg;
+		qDebug() << msg;	//ToDo: msg is never set, prints ""
 
 		//Associate stream to file:
 		QString line, slaveName, expName;
@@ -195,43 +195,64 @@ void DataLogger::openReadingFile(void)
 		myLog.experimentIndex	= splitLine[7];
 		myLog.experimentName	= splitLine[9];
 		myLog.frequency			= splitLine[11].toInt();
-
 		myLog.shortFileName = shortFileName;
 		myLog.fileName		= filename;
 
 		//Clear the column's header.
 		line = logReadingFile.readLine();
 
-		while (!logReadingFile.atEnd()) {
+		//Quick hack: detect what board we are reading:
+		bool readingFromExecute = false;
+		if((myLog.SlaveIndex.toInt() >= 0 && myLog.SlaveIndex.toInt() <= 3) && \
+			(myLog.experimentIndex.toInt() == 0))
+		{
+			qDebug() << "Reading from Execute";
+			readingFromExecute = true;
+		}
+		else
+		{
+			qDebug() << "Not Execute Read All, can't read";
+			return;
+		}
+
+		while (!logReadingFile.atEnd())
+		{
 			line = logReadingFile.readLine();
 			splitLine = line.split(',', QString::KeepEmptyParts);
 
-			// If data line contain expected data
-			if(splitLine.length() >= 20)
+			if(readingFromExecute == true)
 			{
-				struct log_s newitem;
-				myLog.logList.append(newitem);
-				myLog.logList.last().timeStampDate		= splitLine[0];
-				myLog.logList.last().timeStamp_ms		= splitLine[1].toInt();
-				myLog.logList.last().execute.accel.x	= splitLine[2].toInt();
-				myLog.logList.last().execute.accel.y	= splitLine[3].toInt();
-				myLog.logList.last().execute.accel.z	= splitLine[4].toInt();
-				myLog.logList.last().execute.gyro.x		= splitLine[5].toInt();
-				myLog.logList.last().execute.gyro.y		= splitLine[6].toInt();
-				myLog.logList.last().execute.gyro.z		= splitLine[7].toInt();
-				myLog.logList.last().execute.strain		= splitLine[8].toInt();
-				myLog.logList.last().execute.analog[0]	= splitLine[9].toInt();
-				myLog.logList.last().execute.analog[1]	= splitLine[10].toInt();
-				myLog.logList.last().execute.current	= splitLine[11].toInt();
-				myLog.logList.last().execute.enc_display= splitLine[12].toInt();
-				myLog.logList.last().execute.enc_control= splitLine[13].toInt();
-				myLog.logList.last().execute.enc_commut	= splitLine[14].toInt();
-				myLog.logList.last().execute.volt_batt	= splitLine[15].toInt();
-				myLog.logList.last().execute.volt_int	= splitLine[16].toInt();
-				myLog.logList.last().execute.temp		= splitLine[17].toInt();
-				myLog.logList.last().execute.status1	= splitLine[18].toInt();
-				myLog.logList.last().execute.status2	= splitLine[19].toInt();
-				FlexSEA_Generic::decodeExecute(&myLog.logList.last().execute);
+				// If data line contain expected data
+				if(splitLine.length() >= 20)
+				{
+					struct log_s newitem;
+					myLog.logList.append(newitem);
+					myLog.logList.last().timeStampDate		= splitLine[0];
+					myLog.logList.last().timeStamp_ms		= splitLine[1].toInt();
+					myLog.logList.last().execute.accel.x	= splitLine[2].toInt();
+					myLog.logList.last().execute.accel.y	= splitLine[3].toInt();
+					myLog.logList.last().execute.accel.z	= splitLine[4].toInt();
+					myLog.logList.last().execute.gyro.x		= splitLine[5].toInt();
+					myLog.logList.last().execute.gyro.y		= splitLine[6].toInt();
+					myLog.logList.last().execute.gyro.z		= splitLine[7].toInt();
+					myLog.logList.last().execute.strain		= splitLine[8].toInt();
+					myLog.logList.last().execute.analog[0]	= splitLine[9].toInt();
+					myLog.logList.last().execute.analog[1]	= splitLine[10].toInt();
+					myLog.logList.last().execute.current	= splitLine[11].toInt();
+					myLog.logList.last().execute.enc_display= splitLine[12].toInt();
+					myLog.logList.last().execute.enc_control= splitLine[13].toInt();
+					myLog.logList.last().execute.enc_commut	= splitLine[14].toInt();
+					myLog.logList.last().execute.volt_batt	= splitLine[15].toInt();
+					myLog.logList.last().execute.volt_int	= splitLine[16].toInt();
+					myLog.logList.last().execute.temp		= splitLine[17].toInt();
+					myLog.logList.last().execute.status1	= splitLine[18].toInt();
+					myLog.logList.last().execute.status2	= splitLine[19].toInt();
+					FlexSEA_Generic::decodeExecute(&myLog.logList.last().execute);
+				}
+			}
+			else
+			{
+				qDebug() << "To this day, we can only load an Execute's log.";
 			}
 		}
 
