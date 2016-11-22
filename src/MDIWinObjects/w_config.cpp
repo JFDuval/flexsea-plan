@@ -184,7 +184,7 @@ void W_Config::on_openComButton_clicked()
 		dataSourceState = LiveCOM;
 		emit updateDataSourceStatus(dataSourceState);
 		ui->pbLoadLogFile->setDisabled(true);
-		ui->pushButtonBTCon->setDisabled(true);
+		//ui->pushButtonBTCon->setDisabled(true);
 		ui->closeComButton->setDisabled(false);
 		ui->comPortComboBox->setDisabled(true);
 	}
@@ -208,7 +208,7 @@ void W_Config::on_closeComButton_clicked()
 	ui->comProgressBar->setDisabled(true);
 
 	ui->pbLoadLogFile->setDisabled(false);
-	ui->pushButtonBTCon->setDisabled(false);
+	//ui->pushButtonBTCon->setDisabled(false);
 
 	ui->comPortComboBox->setDisabled(false);
 
@@ -223,7 +223,7 @@ void W_Config::on_pbLoadLogFile_clicked()
 	ui->pbLoadLogFile->setDisabled(true);
 	ui->pbCloseLogFile->setDisabled(false);
 	ui->openComButton->setDisabled(true);
-	ui->pushButtonBTCon->setDisabled(true);
+	//ui->pushButtonBTCon->setDisabled(true);
 	dataSourceState = LogFile;
 	emit updateDataSourceStatus(dataSourceState);
 }
@@ -234,7 +234,7 @@ void W_Config::on_pbCloseLogFile_clicked()
 	ui->pbLoadLogFile->setDisabled(false);
 	ui->pbCloseLogFile->setDisabled(true);
 	ui->openComButton->setDisabled(false);
-	ui->pushButtonBTCon->setDisabled(false);
+	//ui->pushButtonBTCon->setDisabled(false);
 	dataSourceState = None;
 	emit updateDataSourceStatus(dataSourceState);
 }
