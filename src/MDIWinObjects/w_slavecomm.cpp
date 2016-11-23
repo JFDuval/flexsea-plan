@@ -361,14 +361,24 @@ void W_SlaveComm::manageLogStatus(uint8_t idx)
 									refreshName +
 									".csv");
 		logThisItem[idx] = true;
+
+		// Update GUI
+		ui->comboBoxRefresh1->setDisabled(true);
+		QString ttip = "<html><head/><body><p>You can't change refresh rate while "
+					   "logging.</p></body></html>";
+		ui->comboBoxRefresh1->setToolTip(ttip);
+
 	}
 
 	else
 	{
 		if(logThisItem[idx] == true)
 		{
+			ui->comboBoxRefresh1->setDisabled(false);
 			logThisItem[idx] = false;
 			emit closeRecordingFile(idx);
+
+			ui->comboBoxRefresh1->setToolTip("");
 		}
 	}
 }
