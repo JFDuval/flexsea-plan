@@ -89,7 +89,7 @@ private:
  signals:
 	void openCom(QString name, int tries, int delay);
 	void closeCom(void);
-	void openReadingFile(void);
+	void openReadingFile(bool * isOpen);
 	void closeReadingFile(void);
 	void updateDataSourceStatus(DataSource status);
 	void windowClosed(void);

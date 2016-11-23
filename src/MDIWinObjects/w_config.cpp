@@ -219,13 +219,19 @@ void W_Config::on_closeComButton_clicked()
 
 void W_Config::on_pbLoadLogFile_clicked()
 {
-	emit openReadingFile();
-	ui->pbLoadLogFile->setDisabled(true);
-	ui->pbCloseLogFile->setDisabled(false);
-	ui->openComButton->setDisabled(true);
-	//ui->pushButtonBTCon->setDisabled(true);
-	dataSourceState = LogFile;
-	emit updateDataSourceStatus(dataSourceState);
+	bool isOpen;
+	emit openReadingFile(&isOpen);
+
+	if(isOpen)
+	{
+		ui->pbLoadLogFile->setDisabled(true);
+		ui->pbCloseLogFile->setDisabled(false);
+		ui->openComButton->setDisabled(true);
+		//ui->pushButtonBTCon->setDisabled(true);
+		dataSourceState = LogFile;
+		emit updateDataSourceStatus(dataSourceState);
+	}
+
 }
 
 void W_Config::on_pbCloseLogFile_clicked()

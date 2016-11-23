@@ -85,7 +85,7 @@ public slots:
 	void openRecordingFile(uint8_t item);
 	void openRecordingFile(uint8_t item, QString fileName);
 	void closeRecordingFile(uint8_t item);
-	void openReadingFile(void);
+	void openReadingFile(bool * isOpen);
 	void closeReadingFile(void);
 	void writeToFile(uint8_t item, uint8_t slaveIndex,
 					 uint8_t expIndex, uint16_t refreshRate);

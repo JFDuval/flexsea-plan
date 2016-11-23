@@ -285,8 +285,8 @@ void MainWindow::createConfig(void)
 				this, SLOT(closeConfig()));
 
 		//Link to DataLogger
-		connect(myViewConfig[0], SIGNAL(openReadingFile()), \
-				myDataLogger, SLOT(openReadingFile()));
+		connect(myViewConfig[0], SIGNAL(openReadingFile(bool *)), \
+				myDataLogger, SLOT(openReadingFile(bool *)));
 		connect(myViewConfig[0], SIGNAL(closeReadingFile()), \
 				myDataLogger, SLOT(closeReadingFile()));
 
