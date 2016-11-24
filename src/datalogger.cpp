@@ -58,34 +58,6 @@ DataLogger::DataLogger(QWidget *parent) : QWidget(parent)
 // Public slot(s):
 //****************************************************************************
 
-void DataLogger::openRecordingFile(uint8_t item)
-{
-	if(logRecordingFile[item].isOpen())
-	{
-		qDebug() << "File already open. Close it before opening a new one";
-	}
-	else
-	{
-		//File Dialog (returns the selected file name):
-		QDir::setCurrent("Plan-GUI-Logs");
-		QString filename = QFileDialog::getSaveFileName( \
-					this,
-					tr("Open Log File"),
-					QDir::currentPath() + "\\.csv" ,
-					tr("Log files (*.txt *.csv);;All files (*.*)"));
-
-		//Extract filename to simplify UI:
-		QString path = QDir::currentPath();
-		int pathLen = path.length();
-		QString shortFileName = filename.mid(pathLen+1);
-
-		//Now we open it:
-		logRecordingFile[item].setFileName(filename);
-
-		openfile(item, filename, shortFileName);
-	}
-}
-
 void DataLogger::openRecordingFile(uint8_t item, QString shortFileName)
 {
 	if(logRecordingFile[item].isOpen())
@@ -101,38 +73,22 @@ void DataLogger::openRecordingFile(uint8_t item, QString shortFileName)
 			shortFileName.append(".csv");
 		}
 
-		//File Dialog
-		QDir::setCurrent("Plan-GUI-Logs");
-		QString fileName = QDir::currentPath() + "/" + shortFileName;
-		QString numberedFileName = fileName;
+		// Add date and time to the short file name
+		shortFileName.prepend(QDate::currentDate().toString("yyyy-MM-dd__") +
+							  QTime::currentTime().toString("hh-mm-ss_ap_"));
+		shortFileName.replace(" ", "_");
 
-		//Now we open it:
-		int fileNameLen = fileName.length();
-		numberedFileName.insert(fileNameLen	- 4,"_0");
-		logRecordingFile[item].setFileName(numberedFileName);
-
-		// Search for the next unused numbered file.
-		uint16_t i = 0;
-		while(logRecordingFile[item].exists() ||
-			  i >= 10000)
-		{
-			++i;
-			numberedFileName = fileName;
-			numberedFileName.insert(fileNameLen - 4,
-									"_" + QString::number(i));
-			logRecordingFile[item].setFileName(numberedFileName);
-		}
-
-		QString numberedShortFileName = shortFileName + "_" + QString::number(i);
-
-		openfile(item, numberedFileName, numberedShortFileName);
+		openfile(item, shortFileName);
 	}
 }
 
-void DataLogger::openfile(uint8_t item, QString fileName, QString shortFileName)
+void DataLogger::openfile(uint8_t item, QString shortFileName)
 {
-	QString msg = "";
+	// Set the filename from the current directory
+	QDir::setCurrent("Plan-GUI-Logs");
+	QString fileName = QDir::currentPath() + "/" + shortFileName;
 
+	logRecordingFile[item].setFileName(fileName);
 	// Try to open the file.
 	if(logRecordingFile[item].open(QIODevice::ReadWrite))
 	{
@@ -142,18 +98,17 @@ void DataLogger::openfile(uint8_t item, QString fileName, QString shortFileName)
 
 		//Associate stream to file:
 		logFileStream.setDevice(&logRecordingFile[item]);
-		msg = tr("Opened '") + fileName + "'.";
-		emit setStatusBarMessage(msg);
+
+		emit setStatusBarMessage(tr("Opened '") + fileName + "'.");
+		qDebug() << tr("Opened '") + fileName + "'.";
 	}
 
 	//If no file selected
 	else
 	{
-		msg = tr("No log file selected.");
-		qDebug() << msg;
-
-		msg = tr("No log file selected, or the file couldn't be opened.");
-		emit setStatusBarMessage(msg);
+		qDebug() << tr("No log file selected.");
+		emit setStatusBarMessage(
+					tr("No log file selected, or the file couldn't be opened."));
 	}
 }
 
@@ -250,7 +205,7 @@ void DataLogger::openReadingFile(bool * isOpen)
 
 		msg = tr("Opened '") + filename + "'.";
 		emit setStatusBarMessage(msg);
-		qDebug() << msg;	//ToDo: msg is never set, prints ""
+		qDebug() << msg;
 		*isOpen = true;
 	}
 
@@ -544,6 +499,27 @@ void DataLogger::init(void)
 
 void DataLogger::logDirectory(void)
 {
+
+	//		QString numberedFileName = fileName;
+
+	//		//Now we open it:
+	//		int fileNameLen = fileName.length();
+	//		numberedFileName.insert(fileNameLen	- 4,"_0");
+	//		logRecordingFile[item].setFileName(numberedFileName);
+
+	//		// Search for the next unused numbered file.
+	//		uint16_t i = 0;
+	//		while(logRecordingFile[item].exists() ||
+	//			  i >= 10000)
+	//		{
+	//			++i;
+	//			numberedFileName = fileName;
+	//			numberedFileName.insert(fileNameLen - 4,
+	//									"_" + QString::number(i));
+	//			logRecordingFile[item].setFileName(numberedFileName);
+	//		}
+
+
 	//Do we already have a "Plan-GUI-Logs" directory?
 	if(!QDir("Plan-GUI-Logs").exists())
 	{

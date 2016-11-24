@@ -82,7 +82,6 @@ public:
 	struct logContainer_s * getLogPtr(void) {return &myLog;}
 
 public slots:
-	void openRecordingFile(uint8_t item);
 	void openRecordingFile(uint8_t item, QString fileName);
 	void closeRecordingFile(uint8_t item);
 	void openReadingFile(bool * isOpen);
@@ -114,7 +113,7 @@ private:
 	void writeManageReadAllHeader(uint8_t item);
 	void writeStrainReadAllHeader(uint8_t item);
 	void writeGossipReadAllHeader(uint8_t item);
-	void openfile(uint8_t item, QString fileName, QString shortFileName);
+	void openfile(uint8_t item, QString shortFileName);
 	void logDirectory(void);
 	void logReadAllExec(QTextStream *filePtr, uint8_t slaveIndex, \
 							char term, qint64 t_ms, QString t_text);
