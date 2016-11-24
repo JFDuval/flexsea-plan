@@ -46,7 +46,7 @@
 
 DataLogger::DataLogger(QWidget *parent) : QWidget(parent)
 {
-	logDirectory();
+	initLogDirectory();
 	init();
 }
 
@@ -84,8 +84,10 @@ void DataLogger::openRecordingFile(uint8_t item, QString shortFileName)
 
 void DataLogger::openfile(uint8_t item, QString shortFileName)
 {
+	// Set the folder to current directory
+	QDir::setCurrent(planGUIRootPath + "\\" + logFolder + "\\" + sessionFolder);
+
 	// Set the filename from the current directory
-	QDir::setCurrent("Plan-GUI-Logs");
 	QString fileName = QDir::currentPath() + "/" + shortFileName;
 
 	logRecordingFile[item].setFileName(fileName);
@@ -118,7 +120,7 @@ void DataLogger::openReadingFile(bool * isOpen)
 	*isOpen = false;
 
 	//File Dialog (returns the selected file name):
-	QDir::setCurrent("Plan-GUI-Logs");
+	QDir::setCurrent(planGUIRootPath + "\\" + logFolder);
 	QString filename = QFileDialog::getOpenFileName( \
 				this,
 				tr("Open Log File"),
@@ -497,42 +499,35 @@ void DataLogger::init(void)
 	myTime = new QDateTime;
 }
 
-void DataLogger::logDirectory(void)
+void DataLogger::initLogDirectory()
 {
+	// Save the root path of the execution of the program
+	planGUIRootPath = QDir::currentPath();
 
-	//		QString numberedFileName = fileName;
-
-	//		//Now we open it:
-	//		int fileNameLen = fileName.length();
-	//		numberedFileName.insert(fileNameLen	- 4,"_0");
-	//		logRecordingFile[item].setFileName(numberedFileName);
-
-	//		// Search for the next unused numbered file.
-	//		uint16_t i = 0;
-	//		while(logRecordingFile[item].exists() ||
-	//			  i >= 10000)
-	//		{
-	//			++i;
-	//			numberedFileName = fileName;
-	//			numberedFileName.insert(fileNameLen - 4,
-	//									"_" + QString::number(i));
-	//			logRecordingFile[item].setFileName(numberedFileName);
-	//		}
-
+	// Set the default folder
+	logFolder = "Plan-GUI-Logs";
+	sessionFolder = QDateTime::currentDateTime().toString();
+	sessionFolder.replace(" ", "_");
+	sessionFolder.replace(":", "-");
 
 	//Do we already have a "Plan-GUI-Logs" directory?
-	if(!QDir("Plan-GUI-Logs").exists())
+	if(!QDir().exists(logFolder))
 	{
 		//No, create it:
-		QDir().mkdir("Plan-GUI-Logs");
-		qDebug() << "Created Plan-GUI-Logs";
-		emit setStatusBarMessage("Created the Plan-GUI-Logs directory.");
+		QDir().mkdir(logFolder);
+		qDebug() << QString("Created ") + logFolder;
+		emit setStatusBarMessage("Created the " + logFolder + " directory.");
 		//ui->statusBar->showMessage("Created the Plan-GUI-Logs directory.");
 	}
 	else
 	{
-		qDebug() << "Using existing ""Plan-GUI-Logs"" directory";
+		qDebug() << "Using existing """ + logFolder + """ directory";
 	}
+
+	QDir::setCurrent(logFolder);
+
+	// Create this session folder
+	QDir().mkdir(sessionFolder);
 }
 
 void DataLogger::logTimestamp(qint64 *t_ms, QString *t_text)

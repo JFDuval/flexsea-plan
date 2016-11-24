@@ -96,6 +96,10 @@ private:
 	QFile logRecordingFile[4];
 	QFile logReadingFile;
 
+	QString planGUIRootPath;
+	QString logFolder;
+	QString sessionFolder;
+
 	QTextStream logFileStream;
 	QDateTime *myTime;
 
@@ -114,7 +118,7 @@ private:
 	void writeStrainReadAllHeader(uint8_t item);
 	void writeGossipReadAllHeader(uint8_t item);
 	void openfile(uint8_t item, QString shortFileName);
-	void logDirectory(void);
+	void initLogDirectory(void);
 	void logReadAllExec(QTextStream *filePtr, uint8_t slaveIndex, \
 							char term, qint64 t_ms, QString t_text);
 	void logReadAllRicnu(QTextStream *filePtr, uint8_t slaveIndex, \
