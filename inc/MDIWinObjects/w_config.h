@@ -36,6 +36,7 @@
 //****************************************************************************
 
 #include <QWidget>
+#include "counter.h"
 
 //****************************************************************************
 // Namespace & Class Definition:
@@ -53,7 +54,7 @@ typedef enum DataSource
 	LogFile
 }DataSource;
 
-class W_Config : public QWidget
+class W_Config : public QWidget, public Counter<W_Config>
 {
 	Q_OBJECT
 

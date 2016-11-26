@@ -37,6 +37,7 @@
 
 #include <QApplication>
 #include <QWidget>
+#include "counter.h"
 #include <QtCharts>
 #include <QtCharts/QChartView>
 #include "flexsea_generic.h"
@@ -95,7 +96,7 @@ namespace Ui {
 class W_2DPlot;
 }
 
-class W_2DPlot : public QWidget
+class W_2DPlot : public QWidget, public Counter<W_2DPlot>
 {
 	Q_OBJECT
 

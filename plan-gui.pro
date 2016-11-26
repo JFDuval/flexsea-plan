@@ -115,7 +115,8 @@ HEADERS  += inc/main.h \
 	flexsea-user/RICNU_Knee_v1/inc/cmd-RICNU_Knee_v1.h \
 	flexsea-user/test/flexsea-user_test-all.h \
     inc/MDIWinObjects/w_logkeypad.h \
-    inc/MDIWinObjects/w_userrw.h
+    inc/MDIWinObjects/w_userrw.h \
+    inc/counter.h
 
 FORMS    += ui/mainwindow.ui \
 	ui/w_execute.ui \

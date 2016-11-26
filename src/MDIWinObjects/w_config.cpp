@@ -47,6 +47,7 @@ W_Config::W_Config(QWidget *parent) :
 	QWidget(parent),
 	ui(new Ui::W_Config)
 {
+
 	ui->setupUi(this);
 
 	setWindowTitle("Configuration");

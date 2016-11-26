@@ -36,6 +36,7 @@
 //****************************************************************************
 
 #include <QWidget>
+#include "counter.h"
 #include <QtWidgets/QCheckBox>
 #include <QtWidgets/QPushButton>
 #include "flexsea_generic.h"
@@ -57,7 +58,7 @@ namespace Ui {
 class W_SlaveComm;
 }
 
-class W_SlaveComm : public QWidget
+class W_SlaveComm : public QWidget, public Counter<W_SlaveComm>
 {
 	Q_OBJECT
 

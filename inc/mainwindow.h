@@ -77,7 +77,6 @@ class MainWindow;
 //User_RW Window:
 struct window_userrw_s
 {
-	int count;									//Number of objects
 	int max;									//Max # of objects
 	W_UserRW *myWindow[USERRW_WINDOWS_MAX];		//Stores objects
 	QString desc;								//Text description
@@ -98,59 +97,45 @@ private:
 	//==================
 
 	//Execute View:
-	int exViewObjectCount;
 	W_Execute *myViewExecute[EX_VIEW_WINDOWS_MAX];
 
 	//Manage View:
-	int mnViewObjectCount;
 	W_Manage *myViewManage[MN_VIEW_WINDOWS_MAX];
 
 	//Config objects:
-	int configObjectCount;
 	W_Config *myViewConfig[CONFIG_WINDOWS_MAX];
 
 	//Slave Comm:
-	int slaveCommObjectCount;
 	W_SlaveComm *myViewSlaveComm[SLAVECOMM_WINDOWS_MAX];
 
 	//AnyCommand:
-	int anyCommandObjectCount;
 	W_AnyCommand *myViewAnyCommand[ANYCOMMAND_WINDOWS_MAX];
 
 	//Converter:
-	int converterObjectCount;
 	W_Converter *my_w_converter[CONVERTER_WINDOWS_MAX];
 
 	//Calibration:
-	int calibObjectCount;
 	W_Calibration *myViewCalibration[CALIB_WINDOWS_MAX];
 
 	//Control:
-	int controlObjectCount;
 	W_Control *myViewControl[CONTROL_WINDOWS_MAX];
 
 	//2D Plot:
-	int plot2DObjectCount;
 	W_2DPlot *myView2DPlot[PLOT2D_WINDOWS_MAX];
 
 	//RIC/NU View:
-	int ricnuViewObjectCount;
 	W_Ricnu *myViewRicnu[RICNU_VIEW_WINDOWS_MAX];
 
 	//Battery:
-	int battObjectCount;
 	W_Battery *myViewBatt[BATT_WINDOWS_MAX];
 
 	//LogKeyPad:
-	int logKeyPadObjectCount;
 	W_LogKeyPad *myViewLogKeyPad[LOGKEYPAD_WINDOWS_MAX];
 
 	//Gossip:
-	int gossipObjectCount;
 	W_Gossip *myViewGossip[GOSSIP_WINDOWS_MAX];
 
 	//Strain:
-	int strainObjectCount;
 	W_Strain *myViewStrain[STRAIN_WINDOWS_MAX];
 
 	//Serial Port Driver:

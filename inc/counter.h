@@ -21,66 +21,41 @@
 	Biomechatronics research group <http://biomech.media.mit.edu/>
 	[Contributors]
 *****************************************************************************
-	[This file] w_converter.h: Converter Window
+	[This file] trapez: Counter template
 *****************************************************************************
 	[Change log] (Convention: YYYY-MM-DD | author | comment)
-	* 2016-09-09 | jfduval | Initial GPL-3.0 release
+	* 2016-11-25 | sbelanger | Initial GPL-3.0 release
 	*
 ****************************************************************************/
 
-#ifndef W_CONVERTER_H
-#define W_CONVERTER_H
+#ifndef COUNTER_H_
+#define COUNTER_H_
 
-//****************************************************************************
-// Include(s)
-//****************************************************************************
+// This template/ class implement a counter that can be use to count the number
+// of instance of a specific class.
+//
+// To used it simply inherit from Counter to count objects don't forget to
+// change Widget class for your own base class.
+//
+//		class Widget: public Counter<Widget> {
+//			.....
+//		};
 
-#include <QWidget>
-#include "counter.h"
-
-//****************************************************************************
-// Namespace & Class Definition:
-//****************************************************************************
-
-namespace Ui {
-class W_Converter;
-}
-
-class W_Converter : public QWidget, public Counter<W_Converter>
-{
-	Q_OBJECT
-
+template<typename T>
+class Counter {
 public:
-	//Constructor & Destructor:
-	explicit W_Converter(QWidget *parent = 0);
-	~W_Converter();
+	Counter() { ++count; }
+	Counter(const Counter&) { ++count; }
+	~Counter() { --count; }
 
-signals:
-	void windowClosed(void);
-
-private slots:
-	void on_lineEdituint32_returnPressed();
-	void on_lineEdituint16_returnPressed();
-	void on_lineEdituint32_textChanged(const QString &arg1);
-	void on_lineEdituint16_textChanged(const QString &arg1);
+	static int howManyInstance(){ return count; }
 
 private:
-	//Variables & Objects:
-	Ui::W_Converter *ui;
-
-	//Function(s):
-	void init(void);
-	void zero16bitsBytes(void);
-	void zero32bitsBytes(void);
+	static int count;
 };
 
-//****************************************************************************
-// Definition(s)
-//****************************************************************************
+template<typename T>
+int
+Counter<T>::count = 0;
 
-#define MAX_16BITS		65536
-#define MIN_16BITS		-32768
-#define MAX_32BITS		4294967295
-#define MIN_32BITS		-2147483648
-
-#endif // W_CONVERTER_H
+#endif // COUNTER_H_

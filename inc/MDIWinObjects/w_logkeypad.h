@@ -36,6 +36,7 @@
 //****************************************************************************
 
 #include <QWidget>
+#include "counter.h"
 #include <flexsea_generic.h>
 
 //****************************************************************************
@@ -46,7 +47,7 @@ namespace Ui {
 class W_LogKeyPad;
 }
 
-class W_LogKeyPad : public QWidget
+class W_LogKeyPad : public QWidget, public Counter<W_LogKeyPad>
 {
 	Q_OBJECT
 
