@@ -40,6 +40,8 @@
 //		class Widget: public Counter<Widget> {
 //			.....
 //		};
+// It is based on this article
+// http://www.drdobbs.com/cpp/counting-objects-in-c/184403484
 
 template<typename T>
 class Counter {

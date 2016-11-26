@@ -76,10 +76,8 @@ class MainWindow;
 
 //User_RW Window:
 struct window_userrw_s
-{
-	int max;									//Max # of objects
+{								//Max # of objects
 	W_UserRW *myWindow[USERRW_WINDOWS_MAX];		//Stores objects
-	QString desc;								//Text description
 };
 
 class MainWindow : public QMainWindow

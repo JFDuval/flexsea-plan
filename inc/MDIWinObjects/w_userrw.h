@@ -56,6 +56,10 @@ public:
 	explicit W_UserRW(QWidget *parent = 0);
 	~W_UserRW();
 
+	static const QString desc;
+	static int getMaxWindow(void) { return maxWindow;}
+	static void setMaxWindow(int value) { maxWindow = value;}
+
 	//Function(s):
 
 public slots:
@@ -71,9 +75,13 @@ private slots:
 	void on_pushButton_refresh_clicked();
 
 private:
+	// Static Variable
+	static int maxWindow;
+
 	//Variables & Objects:
 	Ui::W_UserRW *ui;
 	int active_slave, active_slave_index;
+
 
 	//Function(s):
 	void init(void);

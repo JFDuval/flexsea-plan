@@ -60,8 +60,7 @@ MainWindow::MainWindow(QWidget *parent) :
 	//Prepare FlexSEA Stack:
 	init_flexsea_payload_ptr();
 
-	userRW.desc = "User R/W";
-	userRW.max = USERRW_WINDOWS_MAX;
+	W_UserRW::setMaxWindow(USERRW_WINDOWS_MAX);
 
 	//SerialDriver:
 	mySerialDriver = new SerialDriver;
@@ -621,14 +620,15 @@ void MainWindow::createUserRW(void)
 	int objectCount = W_UserRW::howManyInstance();
 
 	//Limited number of windows:
-	if(objectCount < (userRW.max))
+	if(objectCount < W_UserRW::getMaxWindow())
 	{
 		userRW.myWindow[objectCount] = new W_UserRW(this);
 		ui->mdiArea->addSubWindow(userRW.myWindow[objectCount]);
 		userRW.myWindow[objectCount]->show();
 
-		msg = "Created '" + userRW.desc + "' object index " + QString::number(objectCount) \
-				+ " (max index = " + QString::number(userRW.max-1) + ").";
+		msg = "Created '" + W_UserRW::desc + "' object index " +
+				QString::number(objectCount) + " (max index = " +
+				QString::number(W_UserRW::getMaxWindow()-1) + ").";
 		ui->statusBar->showMessage(msg);
 
 		//Link to MainWindow for the close signal:
@@ -638,8 +638,8 @@ void MainWindow::createUserRW(void)
 
 	else
 	{
-		msg = "Maximum number of '" + userRW.desc + "'objects reached (" \
-				+ QString::number(userRW.max) + ")";
+		msg = "Maximum number of '" + W_UserRW::desc + "'objects reached (" \
+				+ QString::number(W_UserRW::getMaxWindow()) + ")";
 		qDebug() << msg;
 		ui->statusBar->showMessage(msg);
 	}
@@ -647,7 +647,7 @@ void MainWindow::createUserRW(void)
 
 void MainWindow::closeUserRW(void)
 {
-	QString msg = userRW.desc + " window closed.";
+	QString msg = W_UserRW::desc + " window closed.";
 	qDebug() << msg;
 	ui->statusBar->showMessage(msg);
 }
