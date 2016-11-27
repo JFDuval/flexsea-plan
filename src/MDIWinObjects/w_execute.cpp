@@ -52,7 +52,7 @@ W_Execute::W_Execute(QWidget *parent,
 {
 	ui->setupUi(this);
 
-	setWindowTitle("Execute - Barebone");
+	setWindowTitle(this->getDescription());
 	setWindowIcon(QIcon(":icons/d_logo_small.png"));
 
 	myLogRef  = logRef;

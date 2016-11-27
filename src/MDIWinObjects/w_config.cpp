@@ -50,7 +50,7 @@ W_Config::W_Config(QWidget *parent) :
 
 	ui->setupUi(this);
 
-	setWindowTitle("Configuration");
+	setWindowTitle(this->getDescription());
 	setWindowIcon(QIcon(":icons/d_logo_small.png"));
 
 	//Init code:

@@ -48,7 +48,7 @@ W_LogKeyPad::W_LogKeyPad(QWidget *parent,  struct logContainer_s *logRef) :
 {
 	ui->setupUi(this);
 
-	setWindowTitle("Read & Display Log File");
+	setWindowTitle(this->getDescription());
 	setWindowIcon(QIcon(":icons/d_logo_small.png"));
 
 	myLogRef = logRef;

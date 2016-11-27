@@ -74,12 +74,6 @@ class MainWindow;
 #define STRAIN_WINDOWS_MAX			2
 #define USERRW_WINDOWS_MAX			1
 
-//User_RW Window:
-struct window_userrw_s
-{								//Max # of objects
-	W_UserRW *myWindow[USERRW_WINDOWS_MAX];		//Stores objects
-};
-
 class MainWindow : public QMainWindow
 {
 	Q_OBJECT
@@ -91,59 +85,27 @@ public:
 private:
 	Ui::MainWindow *ui;
 
-	//Objects & Windows:
-	//==================
-
-	//Execute View:
+	// Sub-Windows
 	W_Execute *myViewExecute[EX_VIEW_WINDOWS_MAX];
-
-	//Manage View:
 	W_Manage *myViewManage[MN_VIEW_WINDOWS_MAX];
-
-	//Config objects:
 	W_Config *myViewConfig[CONFIG_WINDOWS_MAX];
-
-	//Slave Comm:
 	W_SlaveComm *myViewSlaveComm[SLAVECOMM_WINDOWS_MAX];
-
-	//AnyCommand:
 	W_AnyCommand *myViewAnyCommand[ANYCOMMAND_WINDOWS_MAX];
-
-	//Converter:
 	W_Converter *my_w_converter[CONVERTER_WINDOWS_MAX];
-
-	//Calibration:
 	W_Calibration *myViewCalibration[CALIB_WINDOWS_MAX];
-
-	//Control:
 	W_Control *myViewControl[CONTROL_WINDOWS_MAX];
-
-	//2D Plot:
 	W_2DPlot *myView2DPlot[PLOT2D_WINDOWS_MAX];
-
-	//RIC/NU View:
 	W_Ricnu *myViewRicnu[RICNU_VIEW_WINDOWS_MAX];
-
-	//Battery:
 	W_Battery *myViewBatt[BATT_WINDOWS_MAX];
-
-	//LogKeyPad:
 	W_LogKeyPad *myViewLogKeyPad[LOGKEYPAD_WINDOWS_MAX];
-
-	//Gossip:
 	W_Gossip *myViewGossip[GOSSIP_WINDOWS_MAX];
-
-	//Strain:
 	W_Strain *myViewStrain[STRAIN_WINDOWS_MAX];
+	W_UserRW *myUserRW[USERRW_WINDOWS_MAX];
 
-	//Serial Port Driver:
+	// Objects
 	SerialDriver *mySerialDriver;
-
-	//DataLogger:
 	DataLogger *myDataLogger;
 
-	//User R/W
-	struct window_userrw_s userRW;
 
 signals:
 	//Allow window to be independly opened in any order by providing a backbone connector

@@ -49,7 +49,7 @@ W_Battery::W_Battery(QWidget *parent) :
 {
 	ui->setupUi(this);
 
-	setWindowTitle("Battery - Barebone");
+	setWindowTitle(this->getDescription());
 	setWindowIcon(QIcon(":icons/d_logo_small.png"));
 
 	init();

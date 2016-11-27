@@ -49,7 +49,7 @@ W_Manage::W_Manage(QWidget *parent) :
 {
 	ui->setupUi(this);
 
-	setWindowTitle("Manage - Barebone");
+	setWindowTitle(this->getDescription());
 	setWindowIcon(QIcon(":icons/d_logo_small.png"));
 
 	init();

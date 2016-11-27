@@ -46,7 +46,7 @@ W_Converter::W_Converter(QWidget *parent) :
 {
 	ui->setupUi(this);
 
-	setWindowTitle("Converter");
+	setWindowTitle(this->getDescription());
 	setWindowIcon(QIcon(":icons/d_logo_small.png"));
 
 	init();

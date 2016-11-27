@@ -50,7 +50,7 @@ W_Strain::W_Strain(QWidget *parent) :
 {
 	ui->setupUi(this);
 
-	setWindowTitle("6ch StrainAmp - Barebone");
+	setWindowTitle(this->getDescription());
 	setWindowIcon(QIcon(":icons/d_logo_small.png"));
 
 	init();

@@ -21,7 +21,7 @@
 	Biomechatronics research group <http://biomech.media.mit.edu/>
 	[Contributors]
 *****************************************************************************
-	[This file] trapez: Counter template
+	[This file] counter: Counter template
 *****************************************************************************
 	[Change log] (Convention: YYYY-MM-DD | author | comment)
 	* 2016-11-25 | sbelanger | Initial GPL-3.0 release
@@ -30,6 +30,8 @@
 
 #ifndef COUNTER_H_
 #define COUNTER_H_
+
+#include <QString>
 
 // This template/ class implement a counter that can be use to count the number
 // of instance of a specific class.
@@ -51,13 +53,19 @@ public:
 	~Counter() { --count; }
 
 	static int howManyInstance(){ return count; }
+	static int getMaxWindow(void) { return maxWindow;}
+	static void setMaxWindow(int value) { maxWindow = value;}
+	static QString getDescription(void) { return description;}
+	static void setDescription(QString value) { description = value;}
 
 private:
 	static int count;
+	static int maxWindow;
+	static QString description;
 };
 
-template<typename T>
-int
-Counter<T>::count = 0;
+template<typename T> int Counter<T>::count = 0;
+template<typename T> int Counter<T>::maxWindow = 0;
+template<typename T> QString Counter<T>::description = "";
 
 #endif // COUNTER_H_

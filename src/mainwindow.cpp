@@ -60,7 +60,38 @@ MainWindow::MainWindow(QWidget *parent) :
 	//Prepare FlexSEA Stack:
 	init_flexsea_payload_ptr();
 
+	W_Execute::setMaxWindow(EX_VIEW_WINDOWS_MAX);
+	W_Manage::setMaxWindow(MN_VIEW_WINDOWS_MAX);
+	W_Config::setMaxWindow(CONFIG_WINDOWS_MAX);
+	W_SlaveComm::setMaxWindow(SLAVECOMM_WINDOWS_MAX);
+	W_AnyCommand::setMaxWindow(ANYCOMMAND_WINDOWS_MAX);
+	W_Converter::setMaxWindow(CONVERTER_WINDOWS_MAX);
+	W_Calibration::setMaxWindow(CALIB_WINDOWS_MAX);
+	W_Control::setMaxWindow(CONTROL_WINDOWS_MAX);
+	W_2DPlot::setMaxWindow(PLOT2D_WINDOWS_MAX);
+	W_Ricnu::setMaxWindow(RICNU_VIEW_WINDOWS_MAX);
+	W_Battery::setMaxWindow(BATT_WINDOWS_MAX);
+	W_LogKeyPad::setMaxWindow(LOGKEYPAD_WINDOWS_MAX);
+	W_Gossip::setMaxWindow(GOSSIP_WINDOWS_MAX);
+	W_Strain::setMaxWindow(STRAIN_WINDOWS_MAX);
 	W_UserRW::setMaxWindow(USERRW_WINDOWS_MAX);
+
+
+	W_Execute::setDescription("Execute");
+	W_Manage::setDescription("Manage - Barebone");
+	W_Config::setDescription("Configuration");
+	W_SlaveComm::setDescription("Slave Communication");
+	W_AnyCommand::setDescription("Any Command");
+	W_Converter::setDescription("Converter");
+	W_Calibration::setDescription("Hardware Calibration Tool");
+	W_Control::setDescription("Control");
+	W_2DPlot::setDescription("2D Plot");
+	W_Ricnu::setDescription("RIC/NU Knee");
+	W_Battery::setDescription("Battery - Barebone");
+	W_LogKeyPad::setDescription("Read & Display Log File");
+	W_Gossip::setDescription("Gossip - Barebone");
+	W_Strain::setDescription("6ch StrainAmp - Barebone");
+	W_UserRW::setDescription("User R/W");
 
 	//SerialDriver:
 	mySerialDriver = new SerialDriver;
@@ -200,7 +231,6 @@ void MainWindow::createViewManage(void)
 	//Limited number of windows:
 	if(objectCount < (MN_VIEW_WINDOWS_MAX))
 	{
-		//WinViewExecute *myViewEx = new WinViewExecute(ui->mdiArea);
 		myViewManage[objectCount] = new W_Manage(this);
 		ui->mdiArea->addSubWindow(myViewManage[objectCount]);
 		myViewManage[objectCount]->show();
@@ -401,7 +431,6 @@ void MainWindow::createSlaveComm(void)
 	//Limited number of windows:
 	if(objectCount < (SLAVECOMM_WINDOWS_MAX))
 	{
-		//WinViewExecute *myViewEx = new WinViewExecute(ui->mdiArea);
 		myViewSlaveComm[objectCount] = new W_SlaveComm(this);
 		ui->mdiArea->addSubWindow(myViewSlaveComm[objectCount]);
 		myViewSlaveComm[objectCount]->show();
@@ -503,7 +532,6 @@ void MainWindow::createViewRicnu(void)
 	//Limited number of windows:
 	if(objectCount < (RICNU_VIEW_WINDOWS_MAX))
 	{
-		//WinViewExecute *myViewEx = new WinViewExecute(ui->mdiArea);
 		myViewRicnu[objectCount] = new W_Ricnu(this);
 		ui->mdiArea->addSubWindow(myViewRicnu[objectCount]);
 		myViewRicnu[objectCount]->show();
@@ -622,24 +650,25 @@ void MainWindow::createUserRW(void)
 	//Limited number of windows:
 	if(objectCount < W_UserRW::getMaxWindow())
 	{
-		userRW.myWindow[objectCount] = new W_UserRW(this);
-		ui->mdiArea->addSubWindow(userRW.myWindow[objectCount]);
-		userRW.myWindow[objectCount]->show();
+		myUserRW[objectCount] = new W_UserRW(this);
+		ui->mdiArea->addSubWindow(myUserRW[objectCount]);
+		myUserRW[objectCount]->show();
 
-		msg = "Created '" + W_UserRW::desc + "' object index " +
+		msg = "Created '" + W_UserRW::getDescription() + "' object index " +
 				QString::number(objectCount) + " (max index = " +
 				QString::number(W_UserRW::getMaxWindow()-1) + ").";
 		ui->statusBar->showMessage(msg);
 
 		//Link to MainWindow for the close signal:
-		connect(userRW.myWindow[objectCount], SIGNAL(windowClosed()), \
+		connect(myUserRW[objectCount], SIGNAL(windowClosed()), \
 				this, SLOT(closeUserRW()));
 	}
 
 	else
 	{
-		msg = "Maximum number of '" + W_UserRW::desc + "'objects reached (" \
-				+ QString::number(W_UserRW::getMaxWindow()) + ")";
+		msg = "Maximum number of '" + W_UserRW::getDescription() +
+				"'objects reached (" +
+				QString::number(W_UserRW::getMaxWindow()) + ")";
 		qDebug() << msg;
 		ui->statusBar->showMessage(msg);
 	}
@@ -647,7 +676,7 @@ void MainWindow::createUserRW(void)
 
 void MainWindow::closeUserRW(void)
 {
-	QString msg = W_UserRW::desc + " window closed.";
+	QString msg = W_UserRW::getDescription() + " window closed.";
 	qDebug() << msg;
 	ui->statusBar->showMessage(msg);
 }

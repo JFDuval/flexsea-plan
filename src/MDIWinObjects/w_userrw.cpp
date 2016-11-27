@@ -44,17 +44,13 @@
 // Constructor & Destructor:
 //****************************************************************************
 
-const QString W_UserRW::desc = "User R/W";
-
-int W_UserRW::maxWindow = 0;
-
 W_UserRW::W_UserRW(QWidget *parent) :
 	QWidget(parent),
 	ui(new Ui::W_UserRW)
 {
 	ui->setupUi(this);
 
-	setWindowTitle("User R/W");
+	setWindowTitle(this->getDescription());
 	setWindowIcon(QIcon(":icons/d_logo_small.png"));
 
 	init();

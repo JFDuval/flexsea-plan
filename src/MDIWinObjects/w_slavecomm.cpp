@@ -50,7 +50,7 @@ W_SlaveComm::W_SlaveComm(QWidget *parent) :
 {
 	ui->setupUi(this);
 
-	setWindowTitle("Slave Communication");
+	setWindowTitle(this->getDescription());
 	setWindowIcon(QIcon(":icons/d_logo_small.png"));
 
 	initSlaveCom();

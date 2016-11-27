@@ -42,8 +42,9 @@
 // Namespace & Class Definition:
 //****************************************************************************
 
-namespace Ui {
-class W_Config;
+namespace Ui
+{
+	class W_Config;
 }
 
 typedef enum DataSource

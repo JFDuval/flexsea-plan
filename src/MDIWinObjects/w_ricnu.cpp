@@ -47,7 +47,7 @@ W_Ricnu::W_Ricnu(QWidget *parent) :
 {
 	ui->setupUi(this);
 
-	setWindowTitle("RIC/NU Knee");
+	setWindowTitle(this->getDescription());
 	setWindowIcon(QIcon(":icons/d_logo_small.png"));
 
 	init();
