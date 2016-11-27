@@ -165,7 +165,6 @@ void MainWindow::manageLogKeyPad(DataSource status)
 //Creates a new View Execute window
 void MainWindow::createViewExecute(void)
 {
-	QString msg = "";
 	int objectCount = W_Execute::howManyInstance();
 
 	//Limited number of windows:
@@ -185,11 +184,6 @@ void MainWindow::createViewExecute(void)
 		ui->mdiArea->addSubWindow(myViewExecute[objectCount]);
 		myViewExecute[objectCount]->show();
 
-		msg = "Created 'Execute View' object index " + \
-				QString::number(objectCount) + " (max index = " \
-				+ QString::number(EX_VIEW_WINDOWS_MAX-1) + ").";
-		ui->statusBar->showMessage(msg);
-
 		//Link SerialDriver and Execute:
 		connect(mySerialDriver, SIGNAL(newDataReady()), \
 				myViewExecute[objectCount], SLOT(refresh()));
@@ -208,24 +202,19 @@ void MainWindow::createViewExecute(void)
 
 	else
 	{
-		msg = "Maximum number of Execute View objects reached (" \
-				+ QString::number(EX_VIEW_WINDOWS_MAX) + ")";
-		qDebug() << msg;
-		ui->statusBar->showMessage(msg);
+		sendWindowCreatedFailedMsg(W_Execute::getDescription(),
+								   W_Execute::getMaxWindow());
 	}
 }
 
 void MainWindow::closeViewExecute(void)
 {
-	QString msg = "View Execute window closed.";
-	qDebug() << msg;
-	ui->statusBar->showMessage(msg);
+	sendCloseWindowMsg(W_Execute::getDescription());
 }
 
 //Creates a new View Manage window
 void MainWindow::createViewManage(void)
 {
-	QString msg = "";
 	int objectCount = W_Manage::howManyInstance();
 
 	//Limited number of windows:
@@ -235,10 +224,8 @@ void MainWindow::createViewManage(void)
 		ui->mdiArea->addSubWindow(myViewManage[objectCount]);
 		myViewManage[objectCount]->show();
 
-		msg = "Created 'Manage View' object index " + \
-				QString::number(objectCount) + " (max index = " \
-				+ QString::number(MN_VIEW_WINDOWS_MAX-1) + ").";
-		ui->statusBar->showMessage(msg);
+		sendWindowCreatedMsg(W_Manage::getDescription(), objectCount,
+							 W_Manage::getMaxWindow() - 1);
 
 		//Link SerialDriver and Manage:
 		connect(mySerialDriver, SIGNAL(newDataReady()), \
@@ -251,24 +238,19 @@ void MainWindow::createViewManage(void)
 
 	else
 	{
-		msg = "Maximum number of Manage View objects reached (" \
-				+ QString::number(MN_VIEW_WINDOWS_MAX) + ")";
-		qDebug() << msg;
-		ui->statusBar->showMessage(msg);
+		sendWindowCreatedFailedMsg(W_Manage::getDescription(),
+								   W_Manage::getMaxWindow());
 	}
 }
 
 void MainWindow::closeViewManage(void)
 {
-	QString msg = "View Manage window closed.";
-	qDebug() << msg;
-	ui->statusBar->showMessage(msg);
+	sendCloseWindowMsg(W_Manage::getDescription());
 }
 
 //Creates a new Config window
 void MainWindow::createConfig(void)
 {
-	QString msg = "";
 	int objectCount = W_Config::howManyInstance();
 
 	//Limited number of windows:
@@ -278,10 +260,8 @@ void MainWindow::createConfig(void)
 		ui->mdiArea->addSubWindow(myViewConfig[objectCount]);
 		myViewConfig[objectCount]->show();
 
-		msg = "Created 'Config' object index " + QString::number(objectCount) \
-				+ " (max index = " + QString::number(CONFIG_WINDOWS_MAX-1) + ").";
-		qDebug() << msg;
-		ui->statusBar->showMessage(msg);
+		sendWindowCreatedMsg(W_Config::getDescription(), objectCount,
+							 W_Config::getMaxWindow() - 1);
 
 		//Link to MainWindow for the close signal:
 		connect(myViewConfig[objectCount], SIGNAL(windowClosed()), \
@@ -308,30 +288,24 @@ void MainWindow::createConfig(void)
 
 	else
 	{
-		msg = "Maximum number of Config objects reached (" \
-				+ QString::number(CONFIG_WINDOWS_MAX) + ")";
-		qDebug() << msg;
-		ui->statusBar->showMessage(msg);
+		sendWindowCreatedFailedMsg(W_Config::getDescription(),
+								   W_Config::getMaxWindow());
 	}
 }
 
 void MainWindow::closeConfig(void)
 {
-	QString msg = "Config window closed.";
+	sendCloseWindowMsg(W_Config::getDescription());
 
 	if(W_LogKeyPad::howManyInstance() > 0)
 	{
 		myViewLogKeyPad[0]->parentWidget()->close();
 	}
-
-	qDebug() << msg;
-	ui->statusBar->showMessage(msg);
 }
 
 //Creates a new Control Control window
 void MainWindow::createControlControl(void)
 {
-	QString msg = "";
 	int objectCount = W_Control::howManyInstance();
 
 	//Limited number of windows:
@@ -341,10 +315,8 @@ void MainWindow::createControlControl(void)
 		ui->mdiArea->addSubWindow(myViewControl[objectCount]);
 		myViewControl[objectCount]->show();
 
-		msg = "Created 'Control' object index " + QString::number(objectCount) \
-				+ " (max index = " + QString::number(CONTROL_WINDOWS_MAX-1) + ").";
-		qDebug() << msg;
-		ui->statusBar->showMessage(msg);
+		sendWindowCreatedMsg(W_Control::getDescription(), objectCount,
+							 W_Control::getMaxWindow() - 1);
 
 		//Link to MainWindow for the close signal:
 		connect(myViewControl[objectCount], SIGNAL(windowClosed()), \
@@ -357,24 +329,19 @@ void MainWindow::createControlControl(void)
 
 	else
 	{
-		msg = "Maximum number of Control objects reached (" \
-				+ QString::number(CONTROL_WINDOWS_MAX) + ")";
-		qDebug() << msg;
-		ui->statusBar->showMessage(msg);
+		sendWindowCreatedFailedMsg(W_Control::getDescription(),
+								   W_Control::getMaxWindow());
 	}
 }
 
 void MainWindow::closeControlControl(void)
 {
-	QString msg = "Control window closed.";
-	qDebug() << msg;
-	ui->statusBar->showMessage(msg);
+	sendCloseWindowMsg(W_Control::getDescription());
 }
 
 //Creates a new View 2DPlot window
 void MainWindow::createView2DPlot(void)
 {
-	QString msg = "";
 	int objectCount = W_2DPlot::howManyInstance();
 
 	//Limited number of windows:
@@ -384,10 +351,8 @@ void MainWindow::createView2DPlot(void)
 		ui->mdiArea->addSubWindow(myView2DPlot[objectCount]);
 		myView2DPlot[objectCount]->show();
 
-		msg = "Created '2DPlot' object index " + QString::number(objectCount) \
-				+ " (max index = " + QString::number(PLOT2D_WINDOWS_MAX-1) + ").";
-		qDebug() << msg;
-		ui->statusBar->showMessage(msg);
+		sendWindowCreatedMsg(W_2DPlot::getDescription(), objectCount,
+							 W_2DPlot::getMaxWindow() - 1);
 
 		//Link SerialDriver and 2DPlot:
 		/*connect(mySerialDriver, SIGNAL(newDataReady()), \
@@ -408,24 +373,19 @@ void MainWindow::createView2DPlot(void)
 
 	else
 	{
-		msg = "Maximum number of 2DPlot objects reached (" \
-				+ QString::number(PLOT2D_WINDOWS_MAX) + ")";
-		qDebug() << msg;
-		ui->statusBar->showMessage(msg);
+		sendWindowCreatedFailedMsg(W_2DPlot::getDescription(),
+								   W_2DPlot::getMaxWindow());
 	}
 }
 
 void MainWindow::closeView2DPlot(void)
 {
-	QString msg = "2D Plot window closed.";
-	qDebug() << msg;
-	ui->statusBar->showMessage(msg);
+	sendCloseWindowMsg(W_2DPlot::getDescription());
 }
 
 //Creates a new Slave Comm window
 void MainWindow::createSlaveComm(void)
 {
-	QString msg = "";
 	int objectCount = W_SlaveComm::howManyInstance();
 
 	//Limited number of windows:
@@ -435,9 +395,8 @@ void MainWindow::createSlaveComm(void)
 		ui->mdiArea->addSubWindow(myViewSlaveComm[objectCount]);
 		myViewSlaveComm[objectCount]->show();
 
-		msg = "Created 'Slave Comm' object index " + QString::number(objectCount) \
-				+ " (max index = " + QString::number(SLAVECOMM_WINDOWS_MAX-1) + ").";
-		ui->statusBar->showMessage(msg);
+		sendWindowCreatedMsg(W_SlaveComm::getDescription(), objectCount,
+							 W_SlaveComm::getMaxWindow() - 1);
 
 		//Link to MainWindow for the close signal:
 		connect(myViewSlaveComm[objectCount], SIGNAL(windowClosed()), \
@@ -471,24 +430,19 @@ void MainWindow::createSlaveComm(void)
 
 	else
 	{
-		msg = "Maximum number of Slave Comm objects reached (" \
-				+ QString::number(SLAVECOMM_WINDOWS_MAX) + ")";
-		qDebug() << msg;
-		ui->statusBar->showMessage(msg);
+		sendWindowCreatedFailedMsg(W_SlaveComm::getDescription(),
+								   W_SlaveComm::getMaxWindow());
 	}
 }
 
 void MainWindow::closeSlaveComm(void)
 {
-	QString msg = "Slave Comm window closed.";
-	qDebug() << msg;
-	ui->statusBar->showMessage(msg);
+	sendCloseWindowMsg(W_SlaveComm::getDescription());
 }
 
 //Creates a new Any Command window
 void MainWindow::createAnyCommand(void)
 {
-	QString msg = "";
 	int objectCount = W_AnyCommand::howManyInstance();
 
 	//Limited number of windows:
@@ -498,9 +452,8 @@ void MainWindow::createAnyCommand(void)
 		ui->mdiArea->addSubWindow(myViewAnyCommand[objectCount]);
 		myViewAnyCommand[objectCount]->show();
 
-		msg = "Created 'AnyCommand' object index " + QString::number(objectCount) \
-				+ " (max index = " + QString::number(ANYCOMMAND_WINDOWS_MAX-1) + ").";
-		ui->statusBar->showMessage(msg);
+		sendWindowCreatedMsg(W_AnyCommand::getDescription(), objectCount,
+							 W_AnyCommand::getMaxWindow() - 1);
 
 		//Link to MainWindow for the close signal:
 		connect(myViewAnyCommand[objectCount], SIGNAL(windowClosed()), \
@@ -509,24 +462,19 @@ void MainWindow::createAnyCommand(void)
 
 	else
 	{
-		msg = "Maximum number of AnyCommand objects reached (" \
-				+ QString::number(ANYCOMMAND_WINDOWS_MAX) + ")";
-		qDebug() << msg;
-		ui->statusBar->showMessage(msg);
+		sendWindowCreatedFailedMsg(W_AnyCommand::getDescription(),
+								   W_AnyCommand::getMaxWindow());
 	}
 }
 
 void MainWindow::closeAnyCommand(void)
 {
-	QString msg = "Any Command window closed.";
-	qDebug() << msg;
-	ui->statusBar->showMessage(msg);
+	sendCloseWindowMsg(W_AnyCommand::getDescription());
 }
 
 //Creates a new View RIC/NU window
 void MainWindow::createViewRicnu(void)
 {
-	QString msg = "";
 	int objectCount = W_Ricnu::howManyInstance();
 
 	//Limited number of windows:
@@ -536,10 +484,8 @@ void MainWindow::createViewRicnu(void)
 		ui->mdiArea->addSubWindow(myViewRicnu[objectCount]);
 		myViewRicnu[objectCount]->show();
 
-		msg = "Created 'RIC/NU View' object index " + \
-				QString::number(objectCount) + " (max index = " \
-				+ QString::number(RICNU_VIEW_WINDOWS_MAX-1) + ").";
-		ui->statusBar->showMessage(msg);
+		sendWindowCreatedMsg(W_Ricnu::getDescription(), objectCount,
+							 W_Ricnu::getMaxWindow() - 1);
 
 		//Link SerialDriver and RIC/NU:
 		connect(mySerialDriver, SIGNAL(newDataReady()), \
@@ -552,24 +498,19 @@ void MainWindow::createViewRicnu(void)
 
 	else
 	{
-		msg = "Maximum number of RIC/NU View objects reached (" \
-				+ QString::number(RICNU_VIEW_WINDOWS_MAX) + ")";
-		qDebug() << msg;
-		ui->statusBar->showMessage(msg);
+		sendWindowCreatedFailedMsg(W_Ricnu::getDescription(),
+								   W_Ricnu::getMaxWindow());
 	}
 }
 
 void MainWindow::closeViewRicnu(void)
 {
-	QString msg = "View RIC/NU window closed.";
-	qDebug() << msg;
-	ui->statusBar->showMessage(msg);
+	sendCloseWindowMsg(W_Ricnu::getDescription());
 }
 
 //Creates a new Converter window
 void MainWindow::createConverter(void)
 {
-	QString msg = "";
 	int objectCount = W_Converter::howManyInstance();
 
 	//Limited number of windows:
@@ -579,9 +520,8 @@ void MainWindow::createConverter(void)
 		ui->mdiArea->addSubWindow(my_w_converter[objectCount]);
 		my_w_converter[objectCount]->show();
 
-		msg = "Created 'Converter' object index " + QString::number(objectCount) \
-				+ " (max index = " + QString::number(CONVERTER_WINDOWS_MAX-1) + ").";
-		ui->statusBar->showMessage(msg);
+		sendWindowCreatedMsg(W_Converter::getDescription(), objectCount,
+							 W_Converter::getMaxWindow() - 1);
 
 		//Link to MainWindow for the close signal:
 		connect(my_w_converter[objectCount], SIGNAL(windowClosed()), \
@@ -590,24 +530,19 @@ void MainWindow::createConverter(void)
 
 	else
 	{
-		msg = "Maximum number of Converter objects reached (" \
-				+ QString::number(CONVERTER_WINDOWS_MAX) + ")";
-		qDebug() << msg;
-		ui->statusBar->showMessage(msg);
+		sendWindowCreatedFailedMsg(W_Converter::getDescription(),
+								   W_Converter::getMaxWindow());
 	}
 }
 
 void MainWindow::closeConverter(void)
 {
-	QString msg = "Converter window closed.";
-	qDebug() << msg;
-	ui->statusBar->showMessage(msg);
+	sendCloseWindowMsg(W_Converter::getDescription());
 }
 
 //Creates a new Calibration window
 void MainWindow::createCalib(void)
 {
-	QString msg = "";
 	int objectCount = W_Calibration::howManyInstance();
 
 	//Limited number of windows:
@@ -617,9 +552,8 @@ void MainWindow::createCalib(void)
 		ui->mdiArea->addSubWindow(myViewCalibration[objectCount]);
 		myViewCalibration[objectCount]->show();
 
-		msg = "Created 'Calibration' object index " + QString::number(objectCount) \
-				+ " (max index = " + QString::number(CALIB_WINDOWS_MAX-1) + ").";
-		ui->statusBar->showMessage(msg);
+		sendWindowCreatedMsg(W_Calibration::getDescription(), objectCount,
+							 W_Calibration::getMaxWindow() - 1);
 
 		//Link to MainWindow for the close signal:
 		connect(myViewCalibration[objectCount], SIGNAL(windowClosed()), \
@@ -627,24 +561,19 @@ void MainWindow::createCalib(void)
 	}
 	else
 	{
-		msg = "Maximum number of Calibration objects reached (" \
-				+ QString::number(CALIB_WINDOWS_MAX) + ")";
-		qDebug() << msg;
-		ui->statusBar->showMessage(msg);
+		sendWindowCreatedFailedMsg(W_Calibration::getDescription(),
+								   W_Calibration::getMaxWindow());
 	}
 }
 
 void MainWindow::closeCalib(void)
 {
-	QString msg = "Calibration window closed.";
-	qDebug() << msg;
-	ui->statusBar->showMessage(msg);
+	sendCloseWindowMsg(W_Calibration::getDescription());
 }
 
 //Creates a new User R/W window
 void MainWindow::createUserRW(void)
 {
-	QString msg = "";
 	int objectCount = W_UserRW::howManyInstance();
 
 	//Limited number of windows:
@@ -654,10 +583,8 @@ void MainWindow::createUserRW(void)
 		ui->mdiArea->addSubWindow(myUserRW[objectCount]);
 		myUserRW[objectCount]->show();
 
-		msg = "Created '" + W_UserRW::getDescription() + "' object index " +
-				QString::number(objectCount) + " (max index = " +
-				QString::number(W_UserRW::getMaxWindow()-1) + ").";
-		ui->statusBar->showMessage(msg);
+		sendWindowCreatedMsg(W_UserRW::getDescription(), objectCount,
+							 W_UserRW::getMaxWindow() - 1);
 
 		//Link to MainWindow for the close signal:
 		connect(myUserRW[objectCount], SIGNAL(windowClosed()), \
@@ -666,25 +593,19 @@ void MainWindow::createUserRW(void)
 
 	else
 	{
-		msg = "Maximum number of '" + W_UserRW::getDescription() +
-				"'objects reached (" +
-				QString::number(W_UserRW::getMaxWindow()) + ")";
-		qDebug() << msg;
-		ui->statusBar->showMessage(msg);
+		sendWindowCreatedFailedMsg(W_UserRW::getDescription(),
+								   W_UserRW::getMaxWindow());
 	}
 }
 
 void MainWindow::closeUserRW(void)
 {
-	QString msg = W_UserRW::getDescription() + " window closed.";
-	qDebug() << msg;
-	ui->statusBar->showMessage(msg);
+	sendCloseWindowMsg(W_UserRW::getDescription());
 }
 
 //Creates a new View Gossip window
 void MainWindow::createViewGossip(void)
 {
-	QString msg = "";
 	int objectCount = W_Gossip::howManyInstance();
 
 	//Limited number of windows:
@@ -694,10 +615,8 @@ void MainWindow::createViewGossip(void)
 		ui->mdiArea->addSubWindow(myViewGossip[objectCount]);
 		myViewGossip[objectCount]->show();
 
-		msg = "Created 'Gossip View' object index " + \
-				QString::number(objectCount) + " (max index = " \
-				+ QString::number(GOSSIP_WINDOWS_MAX-1) + ").";
-		ui->statusBar->showMessage(msg);
+		sendWindowCreatedMsg(W_Gossip::getDescription(), objectCount,
+							 W_Gossip::getMaxWindow() - 1);
 
 		//Link SerialDriver and Gossip:
 		connect(mySerialDriver, SIGNAL(newDataReady()), \
@@ -710,24 +629,19 @@ void MainWindow::createViewGossip(void)
 
 	else
 	{
-		msg = "Maximum number of Gossip View objects reached (" \
-				+ QString::number(GOSSIP_WINDOWS_MAX) + ")";
-		qDebug() << msg;
-		ui->statusBar->showMessage(msg);
+		sendWindowCreatedFailedMsg(W_Gossip::getDescription(),
+								   W_Gossip::getMaxWindow());
 	}
 }
 
 void MainWindow::closeViewGossip(void)
 {
-	QString msg = "View Gossip window closed.";
-	qDebug() << msg;
-	ui->statusBar->showMessage(msg);
+	sendCloseWindowMsg(W_Gossip::getDescription());
 }
 
 //Creates a new View Strain window
 void MainWindow::createViewStrain(void)
 {
-	QString msg = "";
 	int objectCount = W_Strain::howManyInstance();
 
 	//Limited number of windows:
@@ -737,10 +651,8 @@ void MainWindow::createViewStrain(void)
 		ui->mdiArea->addSubWindow(myViewStrain[objectCount]);
 		myViewStrain[objectCount]->show();
 
-		msg = "Created 'Strain View' object index " + \
-				QString::number(objectCount) + " (max index = " \
-				+ QString::number(STRAIN_WINDOWS_MAX-1) + ").";
-		ui->statusBar->showMessage(msg);
+		sendWindowCreatedMsg(W_Strain::getDescription(), objectCount,
+							 W_Strain::getMaxWindow() - 1);
 
 		//Link SerialDriver and Strain:
 		connect(mySerialDriver, SIGNAL(newDataReady()), \
@@ -753,24 +665,19 @@ void MainWindow::createViewStrain(void)
 
 	else
 	{
-		msg = "Maximum number of Strain View objects reached (" \
-				+ QString::number(STRAIN_WINDOWS_MAX) + ")";
-		qDebug() << msg;
-		ui->statusBar->showMessage(msg);
+		sendWindowCreatedFailedMsg(W_Strain::getDescription(),
+								   W_Strain::getMaxWindow());
 	}
 }
 
 void MainWindow::closeViewStrain(void)
 {
-	QString msg = "View Strain window closed.";
-	qDebug() << msg;
-	ui->statusBar->showMessage(msg);
+	sendCloseWindowMsg(W_Strain::getDescription());
 }
 
 //Creates a new View Battery window
 void MainWindow::createViewBattery(void)
 {
-	QString msg = "";
 	int objectCount = W_Battery::howManyInstance();
 
 	//Limited number of windows:
@@ -780,10 +687,8 @@ void MainWindow::createViewBattery(void)
 		ui->mdiArea->addSubWindow(myViewBatt[objectCount]);
 		myViewBatt[objectCount]->show();
 
-		msg = "Created 'Battery View' object index " + \
-				QString::number(objectCount) + " (max index = " \
-				+ QString::number(BATT_WINDOWS_MAX-1) + ").";
-		ui->statusBar->showMessage(msg);
+		sendWindowCreatedMsg(W_Battery::getDescription(), objectCount,
+							 W_Battery::getMaxWindow() - 1);
 
 		//Link SerialDriver and Battery:
 		connect(mySerialDriver, SIGNAL(newDataReady()), \
@@ -796,24 +701,19 @@ void MainWindow::createViewBattery(void)
 
 	else
 	{
-		msg = "Maximum number of Battery View objects reached (" \
-				+ QString::number(BATT_WINDOWS_MAX) + ")";
-		qDebug() << msg;
-		ui->statusBar->showMessage(msg);
+		sendWindowCreatedFailedMsg(W_Battery::getDescription(),
+								   W_Battery::getMaxWindow());
 	}
 }
 
 void MainWindow::closeViewBattery(void)
 {
-	QString msg = "View Battery window closed.";
-	qDebug() << msg;
-	ui->statusBar->showMessage(msg);
+	sendCloseWindowMsg(W_Battery::getDescription());
 }
 
 //Creates a new LogKeyPad
 void MainWindow::createLogKeyPad(void)
 {
-	QString msg = "";
 	int objectCount = W_LogKeyPad::howManyInstance();
 
 	//Limited number of windows:
@@ -825,10 +725,8 @@ void MainWindow::createLogKeyPad(void)
 		myViewLogKeyPad[objectCount]->parentWidget()->setWindowFlags(
 					Qt::Window | Qt::WindowTitleHint | Qt::CustomizeWindowHint);
 
-		msg = "Created 'LogKeyPad View' object index " + \
-				QString::number(objectCount) + " (max index = " \
-				+ QString::number(LOGKEYPAD_WINDOWS_MAX-1) + ").";
-		ui->statusBar->showMessage(msg);
+		sendWindowCreatedMsg(W_LogKeyPad::getDescription(), objectCount,
+							 W_LogKeyPad::getMaxWindow() - 1);
 
 		// Link for the data slider
 		connect(myViewLogKeyPad[objectCount], SIGNAL(logTimeSliderValueChanged(int)), \
@@ -841,16 +739,36 @@ void MainWindow::createLogKeyPad(void)
 
 	else
 	{
-		msg = "Maximum number of LogKeyPad View objects reached (" \
-				+ QString::number(LOGKEYPAD_WINDOWS_MAX) + ")";
-		qDebug() << msg;
-		ui->statusBar->showMessage(msg);
+		sendWindowCreatedFailedMsg(W_LogKeyPad::getDescription(),
+								   W_LogKeyPad::getMaxWindow());
 	}
 }
 
 void MainWindow::closeLogKeyPad(void)
 {
-	QString msg = "View LogKeyPad window closed.";
+	sendCloseWindowMsg(W_LogKeyPad::getDescription());
+}
+
+void MainWindow::sendWindowCreatedMsg(QString windowName, int index, int maxIndex)
+{
+	QString msg = "Created '" + windowName + "' window index " +
+			QString::number(index) + " (max index = " +
+			QString::number(maxIndex)+ ")";
+	qDebug() << msg;
+	ui->statusBar->showMessage(msg);
+}
+
+void MainWindow::sendWindowCreatedFailedMsg(QString windowName, int maxWindow)
+{
+	QString msg = "Maximum number of " + windowName + " window reached (" \
+			+ QString::number(maxWindow) + ")";
+	qDebug() << msg;
+	ui->statusBar->showMessage(msg);
+}
+
+void MainWindow::sendCloseWindowMsg(QString windowName)
+{
+	QString msg = "View '" + windowName + "' window closed.";
 	qDebug() << msg;
 	ui->statusBar->showMessage(msg);
 }
