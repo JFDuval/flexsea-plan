@@ -21,36 +21,68 @@
 	Biomechatronics research group <http://biomech.media.mit.edu/>
 	[Contributors]
 *****************************************************************************
-	[This file] main: FlexSEA Plan project: GUI app to control FlexSEA slaves
+	[This file] serialdriver: Serial Port Driver
 *****************************************************************************
 	[Change log] (Convention: YYYY-MM-DD | author | comment)
 	* 2016-09-09 | jfduval | Initial GPL-3.0 release
 	*
 ****************************************************************************/
 
+#ifndef LOGFILE_H
+#define LOGFILE_H
+
 //****************************************************************************
 // Include(s)
 //****************************************************************************
 
+#include <QWidget>
 #include "main.h"
-#include "mainwindow.h"
-#include <QApplication>
 
-
-//****************************************************************************
-// Main
-//****************************************************************************
-
-int main(int argc, char *argv[])
+struct log_ss
 {
-	//Unit tests, FlexSEA stack:
-	flexsea_comm_test();
-	flexsea_system_test();
-	flexsea_user_test();
+	QString timeStampDate;
+	int32_t timeStamp_ms;
 
-	QApplication a(argc, argv);
-	MainWindow w;
-	w.show();
+	struct execute_s execute;
+	struct manage_s manage;
+	struct ricnu_s ricnu;
+	struct strain_s strain;
+	struct gossip_s gossip;
+	struct battery_s battery;
+};
 
-	return a.exec();
+//****************************************************************************
+// Namespace & Class
+//****************************************************************************
+
+namespace Ui {
+class LogFile;
 }
+
+class LogFile : QWidget
+{
+	Q_OBJECT
+
+public:
+	explicit LogFile(QWidget *parent = 0);
+	void init(void);
+	void clear(void);
+	void newDataLine(void);
+
+	QString shortFileName;
+	QString fileName;
+	int dataloggingItem;
+	int SlaveIndex;
+	QString SlaveName;
+	int experimentIndex;
+	QString experimentName;
+	int frequency;
+	QList<struct log_ss> data;
+
+};
+
+//****************************************************************************
+// Definition(s)
+//****************************************************************************
+
+#endif // LOGFILE_H

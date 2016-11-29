@@ -33,8 +33,8 @@
 // Include(s)
 //****************************************************************************
 
-#include "main.h"
 #include "flexsea_generic.h"
+#include "main.h"
 #include <QComboBox>
 #include <QDebug>
 

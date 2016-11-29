@@ -21,7 +21,7 @@
 	Biomechatronics research group <http://biomech.media.mit.edu/>
 	[Contributors]
 *****************************************************************************
-	[This file] main: FlexSEA Plan project: GUI app to control FlexSEA slaves
+	[This file] serialdriver: Serial Port Driver
 *****************************************************************************
 	[Change log] (Convention: YYYY-MM-DD | author | comment)
 	* 2016-09-09 | jfduval | Initial GPL-3.0 release
@@ -32,25 +32,60 @@
 // Include(s)
 //****************************************************************************
 
-#include "main.h"
-#include "mainwindow.h"
-#include <QApplication>
-
+#include "logFile.h"
 
 //****************************************************************************
-// Main
+// Constructor & Destructor:
 //****************************************************************************
 
-int main(int argc, char *argv[])
+LogFile::LogFile(QWidget *parent) : QWidget(parent)
 {
-	//Unit tests, FlexSEA stack:
-	flexsea_comm_test();
-	flexsea_system_test();
-	flexsea_user_test();
-
-	QApplication a(argc, argv);
-	MainWindow w;
-	w.show();
-
-	return a.exec();
+	init();
 }
+
+//****************************************************************************
+// Public function(s):
+//****************************************************************************
+
+void LogFile::init(void)
+{
+	dataloggingItem = 0;
+	SlaveIndex = 0;
+	experimentIndex = 0;
+	frequency = 0;
+}
+
+void LogFile::clear(void)
+{
+	dataloggingItem = 0;
+	SlaveIndex = 0;
+	SlaveName.clear();
+	experimentIndex = 0;
+	experimentName.clear();
+	frequency = 0;
+	shortFileName.clear();
+	fileName.clear();
+	data.clear();
+}
+
+void LogFile::newDataLine(void)
+{
+	struct log_ss newitem;
+	data.append(newitem);
+}
+
+
+//****************************************************************************
+// Public slot(s):
+//****************************************************************************
+
+
+//****************************************************************************
+// Private function(s):
+//****************************************************************************
+
+
+//****************************************************************************
+// Private slot(s):
+//****************************************************************************
+

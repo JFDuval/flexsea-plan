@@ -43,6 +43,7 @@
 #include <QList>
 #include "flexsea_generic.h"
 #include "main.h"
+#include "logFile.h"
 
 //****************************************************************************
 // Namespace & Class
@@ -80,6 +81,7 @@ class DataLogger : public QWidget
 public:
 	explicit DataLogger(QWidget *parent = 0);
 	struct logContainer_s * getLogPtr(void) {return &myLog;}
+	LogFile * getLogFilePtr(void) {return &myLogFile;}
 
 public slots:
 	void openRecordingFile(uint8_t item, QString fileName);
@@ -106,6 +108,8 @@ private:
 	bool fileOpened[4];
 
 	struct logContainer_s myLog;
+	LogFile myLogFile;
+
 
 	//Function(s):
 	void init(void);

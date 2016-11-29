@@ -144,14 +144,14 @@ void DataLogger::openReadingFile(bool * isOpen)
 		line = logReadingFile.readLine();
 		splitLine = line.split(',', QString::KeepEmptyParts);
 
-		myLog.dataloggingItem	= splitLine[1];
-		myLog.SlaveIndex		= splitLine[3];
-		myLog.SlaveName			= splitLine[5];
-		myLog.experimentIndex	= splitLine[7];
-		myLog.experimentName	= splitLine[9];
-		myLog.frequency			= splitLine[11].toInt();
-		myLog.shortFileName = shortFileName;
-		myLog.fileName		= filename;
+		myLogFile.dataloggingItem	= splitLine[1].toInt();
+		myLogFile.SlaveIndex		= splitLine[3].toInt();
+		myLogFile.SlaveName			= splitLine[5];
+		myLogFile.experimentIndex	= splitLine[7].toInt();
+		myLogFile.experimentName	= splitLine[9];
+		myLogFile.frequency			= splitLine[11].toInt();
+		myLogFile.shortFileName = shortFileName;
+		myLogFile.fileName		= filename;
 
 		//Clear the column's header.
 		line = logReadingFile.readLine();
@@ -159,8 +159,8 @@ void DataLogger::openReadingFile(bool * isOpen)
 		// TODO: Remove this by supporting multiple board
 		// Quick hack: detect what board we are reading:
 
-		if((myLog.SlaveIndex.toInt() >= 0 && myLog.SlaveIndex.toInt() <= 3) && \
-			(myLog.experimentIndex.toInt() == 0))
+		if((myLogFile.SlaveIndex >= 0 && myLogFile.SlaveIndex <= 3) && \
+			(myLogFile.experimentIndex == 0))
 		{
 			qDebug() << "Reading from Execute";
 		}
@@ -178,29 +178,29 @@ void DataLogger::openReadingFile(bool * isOpen)
 			// If data line contain expected data
 			if(splitLine.length() >= 20)
 			{
-				struct log_s newitem;
-				myLog.logList.append(newitem);
-				myLog.logList.last().timeStampDate		= splitLine[0];
-				myLog.logList.last().timeStamp_ms		= splitLine[1].toInt();
-				myLog.logList.last().execute.accel.x	= splitLine[2].toInt();
-				myLog.logList.last().execute.accel.y	= splitLine[3].toInt();
-				myLog.logList.last().execute.accel.z	= splitLine[4].toInt();
-				myLog.logList.last().execute.gyro.x		= splitLine[5].toInt();
-				myLog.logList.last().execute.gyro.y		= splitLine[6].toInt();
-				myLog.logList.last().execute.gyro.z		= splitLine[7].toInt();
-				myLog.logList.last().execute.strain		= splitLine[8].toInt();
-				myLog.logList.last().execute.analog[0]	= splitLine[9].toInt();
-				myLog.logList.last().execute.analog[1]	= splitLine[10].toInt();
-				myLog.logList.last().execute.current	= splitLine[11].toInt();
-				myLog.logList.last().execute.enc_display= splitLine[12].toInt();
-				myLog.logList.last().execute.enc_control= splitLine[13].toInt();
-				myLog.logList.last().execute.enc_commut	= splitLine[14].toInt();
-				myLog.logList.last().execute.volt_batt	= splitLine[15].toInt();
-				myLog.logList.last().execute.volt_int	= splitLine[16].toInt();
-				myLog.logList.last().execute.temp		= splitLine[17].toInt();
-				myLog.logList.last().execute.status1	= splitLine[18].toInt();
-				myLog.logList.last().execute.status2	= splitLine[19].toInt();
-				FlexSEA_Generic::decodeExecute(&myLog.logList.last().execute);
+
+				myLogFile.newDataLine();
+				myLogFile.data.last().timeStampDate		= splitLine[0];
+				myLogFile.data.last().timeStamp_ms		= splitLine[1].toInt();
+				myLogFile.data.last().execute.accel.x	= splitLine[2].toInt();
+				myLogFile.data.last().execute.accel.y	= splitLine[3].toInt();
+				myLogFile.data.last().execute.accel.z	= splitLine[4].toInt();
+				myLogFile.data.last().execute.gyro.x	= splitLine[5].toInt();
+				myLogFile.data.last().execute.gyro.y	= splitLine[6].toInt();
+				myLogFile.data.last().execute.gyro.z	= splitLine[7].toInt();
+				myLogFile.data.last().execute.strain	= splitLine[8].toInt();
+				myLogFile.data.last().execute.analog[0]	= splitLine[9].toInt();
+				myLogFile.data.last().execute.analog[1]	= splitLine[10].toInt();
+				myLogFile.data.last().execute.current	= splitLine[11].toInt();
+				myLogFile.data.last().execute.enc_display= splitLine[12].toInt();
+				myLogFile.data.last().execute.enc_control= splitLine[13].toInt();
+				myLogFile.data.last().execute.enc_commut= splitLine[14].toInt();
+				myLogFile.data.last().execute.volt_batt	= splitLine[15].toInt();
+				myLogFile.data.last().execute.volt_int	= splitLine[16].toInt();
+				myLogFile.data.last().execute.temp		= splitLine[17].toInt();
+				myLogFile.data.last().execute.status1	= splitLine[18].toInt();
+				myLogFile.data.last().execute.status2	= splitLine[19].toInt();
+				FlexSEA_Generic::decodeExecute(&myLogFile.data.last().execute);
 			}
 
 		}
@@ -341,16 +341,8 @@ void DataLogger::closeReadingFile(void)
 	{
 		logReadingFile.close();
 	}
-	// TODO: Implement a new class to handle clear of log properly.
-	myLog.logList.clear();
-	myLog.dataloggingItem.clear();
-	myLog.SlaveIndex.clear();
-	myLog.SlaveName.clear();
-	myLog.experimentIndex.clear();
-	myLog.experimentName.clear();
-	myLog.frequency = 0;
-	myLog.shortFileName.clear();
-	myLog.fileName.clear();
+
+	myLogFile.clear();
 }
 
 //ToDo: move these functions to their respective files
