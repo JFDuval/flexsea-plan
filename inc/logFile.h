@@ -68,6 +68,8 @@ public:
 	void init(void);
 	void clear(void);
 	void newDataLine(void);
+	void decodeLastLine(void);
+	void decodeAllLine(void);
 
 	QString shortFileName;
 	QString fileName;

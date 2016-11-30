@@ -45,7 +45,7 @@
 //****************************************************************************
 
 W_Execute::W_Execute(QWidget *parent,
-					 struct logContainer_s *logRef,
+					 LogFile *logFileRef,
 					 DisplayMode mode) :
 	QWidget(parent),
 	ui(new Ui::W_Execute)
@@ -55,7 +55,7 @@ W_Execute::W_Execute(QWidget *parent,
 	setWindowTitle(this->getDescription());
 	setWindowIcon(QIcon(":icons/d_logo_small.png"));
 
-	myLogRef  = logRef;
+	myLogFileRef  = logFileRef;
 	displayMode = mode;
 	updateDisplayMode(displayMode);
 }
@@ -94,9 +94,9 @@ void W_Execute::refresh(void)
 
 void W_Execute::displayLogData(int index)
 {
-   if(myLogRef->logList.isEmpty() == false)
+   if(myLogFileRef->data.isEmpty() == false)
    {
-		displayExecute(&(myLogRef->logList[index].execute));
+		displayExecute(&(myLogFileRef->data[index].execute));
    }
 }
 

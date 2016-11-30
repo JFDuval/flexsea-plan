@@ -200,10 +200,12 @@ void DataLogger::openReadingFile(bool * isOpen)
 				myLogFile.data.last().execute.temp		= splitLine[17].toInt();
 				myLogFile.data.last().execute.status1	= splitLine[18].toInt();
 				myLogFile.data.last().execute.status2	= splitLine[19].toInt();
-				FlexSEA_Generic::decodeExecute(&myLogFile.data.last().execute);
+
 			}
 
+
 		}
+		myLogFile.decodeAllLine();
 
 		msg = tr("Opened '") + filename + "'.";
 		emit setStatusBarMessage(msg);

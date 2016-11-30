@@ -37,9 +37,9 @@
 
 #include <QWidget>
 #include "counter.h"
-#include "flexsea_generic.h"
 #include "datalogger.h"
 #include "define.h"
+#include "logFile.h"
 
 //****************************************************************************
 // Namespace & Class Definition:
@@ -56,7 +56,7 @@ class W_Execute : public QWidget, public Counter<W_Execute>
 public:
 	//Constructor & Destructor:
 	explicit W_Execute(QWidget *parent = 0,
-					   struct logContainer_s *logRef = nullptr,
+					   LogFile *logFileRef = nullptr,
 					   DisplayMode mode = DisplayLiveData);
 	~W_Execute();
 
@@ -72,7 +72,7 @@ public slots:
 private:
 	//Variables & Objects:
 	Ui::W_Execute *ui;
-	struct logContainer_s *myLogRef;
+	LogFile *myLogFileRef;
 	int active_slave, active_slave_index;
 	DisplayMode displayMode;
 

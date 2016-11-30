@@ -53,34 +53,12 @@ namespace Ui {
 class DataLogger;
 }
 
-struct log_s
-{
-	QString timeStampDate;
-	int32_t timeStamp_ms;
-
-	struct execute_s execute;
-};
-
-struct logContainer_s
-{
-	QString shortFileName;
-	QString fileName;
-	QString dataloggingItem;
-	QString SlaveName;
-	QString SlaveIndex;
-	QString experimentIndex;
-	QString experimentName;
-	uint16_t frequency;
-	QList<struct log_s> logList;
-};
-
 class DataLogger : public QWidget
 {
 	Q_OBJECT
 
 public:
 	explicit DataLogger(QWidget *parent = 0);
-	struct logContainer_s * getLogPtr(void) {return &myLog;}
 	LogFile * getLogFilePtr(void) {return &myLogFile;}
 
 public slots:
@@ -107,7 +85,6 @@ private:
 
 	bool fileOpened[4];
 
-	struct logContainer_s myLog;
 	LogFile myLogFile;
 
 

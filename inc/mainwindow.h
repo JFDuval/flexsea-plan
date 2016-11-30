@@ -33,9 +33,19 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-#include "w_execute.h"
 #include "w_slavecomm.h"
+
+#include "w_execute.h"
+#include "w_logkeypad.h"
+
+// TODO The inclusion of logFile.h in execute and logkeypad cause an issue if
+// they are include here before w_config. The compilation error is
+// "'Log file' does not name a type"
+// It's maybe due to a circular inclusion, but I've not succedd to understand
+// What was going on. Any Help is welcome!
+
 #include "w_config.h"
+
 #include "w_anycommand.h"
 #include "w_2dplot.h"
 #include "w_control.h"
@@ -44,7 +54,6 @@
 #include "w_calibration.h"
 #include "w_userrw.h"
 #include "w_battery.h"
-#include "w_logkeypad.h"
 #include "w_strain.h"
 #include "w_gossip.h"
 #include "w_converter.h"

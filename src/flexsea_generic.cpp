@@ -311,23 +311,33 @@ void FlexSEA_Generic::decodeExecute(struct execute_s *exPtr)
 						P5_ADC_MAX)*P5_ADC_SUPPLY;
 }
 
-//RIC/NU is a special case of Execute board. Call this AFTER decodeExecute()
-//TODO think about a better way to do this
+//RIC/NU is a special case of Execute board. It use the first struct of execute
+// and strain.
 void FlexSEA_Generic::decodeRicnu(uint8_t base, uint8_t index)
 {
 	(void)base;
 	(void)index;
-
 	ricnu_1.ex = exec1;
 	ricnu_1.st = strain1;
+	decodeRicnu(&ricnu_1);
 }
 
-//Decodes some of Manage's fields
+void FlexSEA_Generic::decodeRicnu(struct ricnu_s *riPtr)
+{
+	decodeExecute(&riPtr->ex);
+	decodeStrain(&riPtr->st);
+}
+
 void FlexSEA_Generic::decodeManage(uint8_t base, uint8_t index)
 {
 	struct manage_s *mnPtr;
 	assignManagePtr(&mnPtr, base, index);
+	decodeManage(mnPtr);
+}
 
+//Decodes some of Manage's fields
+void FlexSEA_Generic::decodeManage(struct manage_s *mnPtr)
+{
 	//Accel in mG
 	mnPtr->decoded.accel.x = (1000*mnPtr->accel.x)/8192;
 	mnPtr->decoded.accel.y = (1000*mnPtr->accel.y)/8192;
@@ -361,7 +371,12 @@ void FlexSEA_Generic::decodeGossip(uint8_t base, uint8_t index)
 {
 	struct gossip_s *goPtr;
 	assignGossipPtr(&goPtr, base, index);
+	decodeGossip(goPtr);
+}
 
+//Decodes some of Gossip's fields
+void FlexSEA_Generic::decodeGossip(struct gossip_s *goPtr)
+{
 	//Accel in mG
 	goPtr->decoded.accel.x = (1000*goPtr->accel.x)/8192;
 	goPtr->decoded.accel.y = (1000*goPtr->accel.y)/8192;
@@ -378,12 +393,16 @@ void FlexSEA_Generic::decodeGossip(uint8_t base, uint8_t index)
 	goPtr->decoded.magneto.z = (15*goPtr->magneto.z)/100;
 }
 
-//Decodes some of Battery's fields
 void FlexSEA_Generic::decodeBattery(uint8_t base, uint8_t index)
 {
 	struct battery_s *baPtr;
 	assignBatteryPtr(&baPtr, base, index);
+	decodeBattery(baPtr);
+}
 
+//Decodes some of Battery's fields
+void FlexSEA_Generic::decodeBattery(struct battery_s *baPtr)
+{
 	baPtr->decoded.voltage = baPtr->voltage;    //TODO
 	baPtr->decoded.current = baPtr->current;    //TODO
 	baPtr->decoded.power = baPtr->voltage * baPtr->current;
@@ -395,7 +414,12 @@ void FlexSEA_Generic::decodeStrain(uint8_t base, uint8_t index)
 {
 	struct strain_s *stPtr;
 	assignStrainPtr(&stPtr, base, index);
+	decodeStrain(stPtr);
 
+}
+
+void FlexSEA_Generic::decodeStrain(struct strain_s *stPtr)
+{
 	stPtr->decoded.strain[0] = (100*(stPtr->ch[0].strain_filtered-STRAIN_MIDPOINT)/STRAIN_MIDPOINT);
 	stPtr->decoded.strain[1] = (100*(stPtr->ch[1].strain_filtered-STRAIN_MIDPOINT)/STRAIN_MIDPOINT);
 	stPtr->decoded.strain[2] = (100*(stPtr->ch[2].strain_filtered-STRAIN_MIDPOINT)/STRAIN_MIDPOINT);
@@ -418,8 +442,6 @@ void FlexSEA_Generic::decodeSlave(uint8_t base, uint8_t index)
 			decodeManage(base, index);
 			break;
 		case FLEXSEA_EXECUTE_BASE:
-			decodeExecute(base, index);
-			decodeStrain(base, index);
 			decodeRicnu(base, index);
 			break;
 		case FLEXSEA_BATTERY_BASE:

@@ -133,13 +133,24 @@ public:
 						uint8_t stat2, QString *str1);
 	static void packetVisualizer(uint numb, uint8_t *packet);
 	static void decodeSlave(uint8_t base, uint8_t index);
+
 	static void decodeExecute(uint8_t base, uint8_t index);
 	static void decodeExecute(struct execute_s *exPtr);
+
 	static void decodeRicnu(uint8_t base, uint8_t index);
+	static void decodeRicnu(struct ricnu_s *riPtr);
+
 	static void decodeManage(uint8_t base, uint8_t index);
+	static void decodeManage(struct manage_s *mnPtr);
+
 	static void decodeGossip(uint8_t base, uint8_t index);
+	static void decodeGossip(struct gossip_s *goPtr);
+
 	static void decodeBattery(uint8_t base, uint8_t index);
+	static void decodeBattery(struct battery_s *baPtr);
+
 	static void decodeStrain(uint8_t base, uint8_t index);
+	static void decodeStrain(struct strain_s *stPtr);
 
 public slots:
 

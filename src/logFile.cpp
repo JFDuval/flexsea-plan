@@ -33,6 +33,12 @@
 //****************************************************************************
 
 #include "logFile.h"
+#include "flexsea_generic.h"
+#include <QDebug>
+
+// TODO The inclusion of logFile.h in execute and logkeypad cause an issue if
+// they are include here before w_config in mainwindow.h . See mainwindow.h for
+// more details.
 
 //****************************************************************************
 // Constructor & Destructor:
@@ -72,6 +78,128 @@ void LogFile::newDataLine(void)
 {
 	struct log_ss newitem;
 	data.append(newitem);
+}
+
+void LogFile::decodeLastLine(void)
+{
+	// Execute
+	if(SlaveIndex >= SL_BASE_EX && SlaveIndex < SL_BASE_MN)
+	{
+		FlexSEA_Generic::decodeExecute(&data.last().execute);
+	}
+
+	// Manage
+	else if(SlaveIndex >= SL_BASE_MN && SlaveIndex < SL_BASE_PLAN)
+	{
+		FlexSEA_Generic::decodeManage(&data.last().manage);
+	}
+
+	// Plan
+	else if(SlaveIndex >= SL_BASE_PLAN && SlaveIndex < SL_BASE_GOSSIP)
+	{
+		//TODO What to do in this case?
+		qDebug() << "Error in log file: Is plan a structure? how to we manage it";
+	}
+
+	// Gossip
+	else if(SlaveIndex >= SL_BASE_GOSSIP && SlaveIndex < SL_BASE_BATT)
+	{
+		FlexSEA_Generic::decodeGossip(&data.last().gossip);
+	}
+
+	// Battery
+	else if(SlaveIndex >= SL_BASE_BATT && SlaveIndex < SL_BASE_STRAIN)
+	{
+		FlexSEA_Generic::decodeBattery(&data.last().battery);
+	}
+
+	// Strain
+	else if(SlaveIndex >= SL_BASE_STRAIN && SlaveIndex < SL_BASE_RICNU)
+	{
+		FlexSEA_Generic::decodeStrain(&data.last().strain);
+	}
+
+	// RIC/NU
+	else if(SlaveIndex >= SL_BASE_RICNU && SlaveIndex < SL_LEN_ALL)
+	{
+		FlexSEA_Generic::decodeRicnu(&data.last().ricnu);
+	}
+
+	else
+	{
+		qDebug() << "Error in log file: Structure not defined";
+	}
+}
+
+void LogFile::decodeAllLine(void)
+{
+	int i;
+
+	// Execute
+	if(SlaveIndex >= SL_BASE_EX && SlaveIndex < SL_BASE_MN)
+	{
+		for(i = 0; i < data.size(); ++i)
+		{
+			FlexSEA_Generic::decodeExecute(&data[i].execute);
+		}
+	}
+
+	// Manage
+	else if(SlaveIndex >= SL_BASE_MN && SlaveIndex < SL_BASE_PLAN)
+	{
+		for(i = 0; i < data.size(); ++i)
+		{
+			FlexSEA_Generic::decodeManage(&data[i].manage);
+		}
+	}
+
+	// Plan
+	else if(SlaveIndex >= SL_BASE_PLAN && SlaveIndex < SL_BASE_GOSSIP)
+	{
+		//TODO What to do in this case?
+		qDebug() << "Error in log file: Is plan a structure? how to we manage it";
+	}
+
+	// Gossip
+	else if(SlaveIndex >= SL_BASE_GOSSIP && SlaveIndex < SL_BASE_BATT)
+	{
+		for(i = 0; i < data.size(); ++i)
+		{
+			FlexSEA_Generic::decodeGossip(&data[i].gossip);
+		}
+	}
+
+	// Battery
+	else if(SlaveIndex >= SL_BASE_BATT && SlaveIndex < SL_BASE_STRAIN)
+	{
+		for(i = 0; i < data.size(); ++i)
+		{
+			FlexSEA_Generic::decodeBattery(&data[i].battery);
+		}
+	}
+
+	// Strain
+	else if(SlaveIndex >= SL_BASE_STRAIN && SlaveIndex < SL_BASE_RICNU)
+	{
+		for(i = 0; i < data.size(); ++i)
+		{
+			FlexSEA_Generic::decodeStrain(&data[i].strain);
+		}
+	}
+
+	// RIC/NU
+	else if(SlaveIndex >= SL_BASE_RICNU && SlaveIndex < SL_LEN_ALL)
+	{
+		for(i = 0; i < data.size(); ++i)
+		{
+			FlexSEA_Generic::decodeRicnu(&data[i].ricnu);
+		}
+	}
+
+	else
+	{
+		qDebug() << "Error in log file: Structure not defined";
+	}
 }
 
 
