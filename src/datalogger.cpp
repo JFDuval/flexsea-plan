@@ -74,8 +74,8 @@ void DataLogger::openRecordingFile(uint8_t item, QString shortFileName)
 		}
 
 		// Add date and time to the short file name
-		shortFileName.prepend(QDate::currentDate().toString("yyyy-MM-dd__") +
-							  QTime::currentTime().toString("hh-mm-ss_ap_"));
+		shortFileName.prepend(QDate::currentDate().toString("yyyy-MM-dd_") +
+							  QTime::currentTime().toString("HH'h'mm'm'ss's'_"));
 		shortFileName.replace(" ", "_");
 
 		openfile(item, shortFileName);
@@ -178,7 +178,6 @@ void DataLogger::openReadingFile(bool * isOpen)
 			// If data line contain expected data
 			if(splitLine.length() >= 20)
 			{
-
 				myLogFile.newDataLine();
 				myLogFile.data.last().timeStampDate		= splitLine[0];
 				myLogFile.data.last().timeStamp_ms		= splitLine[1].toInt();
@@ -200,10 +199,7 @@ void DataLogger::openReadingFile(bool * isOpen)
 				myLogFile.data.last().execute.temp		= splitLine[17].toInt();
 				myLogFile.data.last().execute.status1	= splitLine[18].toInt();
 				myLogFile.data.last().execute.status2	= splitLine[19].toInt();
-
 			}
-
-
 		}
 		myLogFile.decodeAllLine();
 
@@ -216,8 +212,6 @@ void DataLogger::openReadingFile(bool * isOpen)
 	//If no file selected
 	else
 	{
-
-
 		msg = tr("No log file selected or the file couldn't be opened.");
 		emit setStatusBarMessage(msg);
 		qDebug() << msg;
@@ -500,7 +494,9 @@ void DataLogger::initLogDirectory()
 
 	// Set the default folder
 	logFolder = "Plan-GUI-Logs";
-	sessionFolder = QDateTime::currentDateTime().toString();
+	sessionFolder = QDate::currentDate().toString("yyyy-MM-dd_") + \
+					QTime::currentTime().toString("HH'h'mm'm'ss's'");
+
 	sessionFolder.replace(" ", "_");
 	sessionFolder.replace(":", "-");
 
