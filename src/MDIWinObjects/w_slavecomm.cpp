@@ -122,7 +122,7 @@ void W_SlaveComm::externalSlaveWrite(char numb, unsigned char *tx_data)
 
 void W_SlaveComm::initSlaveCom(void)
 {
-	QString slave_name;
+	QString ttip = "";
 
 	//Safeguard - protected from signals emited during setup
 	allComboBoxesPopulated = false;
@@ -152,22 +152,27 @@ void W_SlaveComm::initSlaveCom(void)
 	//On/Off Button:
 	//==============
 
+	ttip = "<html><head/><body><p>Turn streaming on/off</p></body></html>";
 	ui->pushButton1->setText(QChar(0x2718));
 	ui->pushButton1->setAutoFillBackground(true);
 	ui->pushButton1->setStyleSheet("background-color: rgb(127, 127, 127); \
 									color: rgb(0, 0, 0)");
+	ui->pushButton1->setToolTip(ttip);
 	ui->pushButton2->setText(QChar(0x2718));
 	ui->pushButton2->setAutoFillBackground(true);
 	ui->pushButton2->setStyleSheet("background-color: rgb(127, 127, 127); \
 								   color: rgb(0, 0, 0)");
+	ui->pushButton2->setToolTip(ttip);
 	ui->pushButton3->setText(QChar(0x2718));
 	ui->pushButton3->setAutoFillBackground(true);
 	ui->pushButton3->setStyleSheet("background-color: rgb(127, 127, 127); \
 								  color: rgb(0, 0, 0)");
+	ui->pushButton3->setToolTip(ttip);
 	ui->pushButton4->setText(QChar(0x2718));
 	ui->pushButton4->setAutoFillBackground(true);
 	ui->pushButton4->setStyleSheet("background-color: rgb(127, 127, 127); \
 								  color: rgb(0, 0, 0)");
+	ui->pushButton4->setToolTip(ttip);
 
 	//Log checkboxes:
 	//===============
@@ -179,6 +184,15 @@ void W_SlaveComm::initSlaveCom(void)
 	ui->checkBoxLog2->setEnabled(false);
 	ui->checkBoxLog3->setEnabled(false);
 	ui->checkBoxLog4->setEnabled(false);
+
+	//Decode Checkbox tooltips:
+	ttip = "<html><head/><body><p>Check this box to log the stream. \
+			</p><p>It will log under the folder &quot;Plan-GUI-Logs&quot; \
+			when the stream is active.</p></body></html>";
+	ui->checkBoxLog1->setToolTip(ttip);
+	ui->checkBoxLog2->setToolTip(ttip);
+	ui->checkBoxLog3->setToolTip(ttip);
+	ui->checkBoxLog4->setToolTip(ttip);
 
 	//All pushbutton start disabled:
 	//==============================
@@ -292,23 +306,28 @@ void W_SlaveComm::initTimers(void)
 //Place pictograms on labels:
 void W_SlaveComm::initDisplayDataReceived(void)
 {
+	QString ttip = "<html><head/><body><p>Stream Status.</p></body></html>";
 	QFont f( "Arial", 12, QFont::Bold);
 
 	ui->stat1->setText(QChar(0x2B07));
 	ui->stat1->setAlignment(Qt::AlignCenter);
 	ui->stat1->setFont(f);
+	ui->stat1->setToolTip(ttip);
 
 	ui->stat2->setText(QChar(0x2B07));
 	ui->stat2->setAlignment(Qt::AlignCenter);
 	ui->stat2->setFont(f);
+	ui->stat2->setToolTip(ttip);
 
 	ui->stat3->setText(QChar(0x2B07));
 	ui->stat3->setAlignment(Qt::AlignCenter);
 	ui->stat3->setFont(f);
+	ui->stat3->setToolTip(ttip);
 
 	ui->stat4->setText(QChar(0x2B07));
 	ui->stat4->setAlignment(Qt::AlignCenter);
 	ui->stat4->setFont(f);
+	ui->stat4->setToolTip(ttip);
 }
 
 //The 4 PB slots call this function:
