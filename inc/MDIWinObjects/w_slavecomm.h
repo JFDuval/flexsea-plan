@@ -50,6 +50,8 @@
 #define MASTER_TIMER            100 //Hz
 #define MAX_EXPERIMENTS         10
 
+#define TIM_FREQ_TO_P(f)		(1000/f)	//f in Hz, return in ms
+
 //****************************************************************************
 // Namespace & Class Definition:
 //****************************************************************************

@@ -62,38 +62,9 @@ extern "C" {
 // Public Function Prototype(s):
 //****************************************************************************
 
-
 //****************************************************************************
 // Definition(s):
 //****************************************************************************
-
-#ifdef SINGLE_COMMAND
-#ifdef MULTIPLE_COMMANDS
-#error "Pick one Command option!"
-#endif
-#endif
-
-//Multiple commands:
-#define MAX_COMMAND_LEN 		256
-#define MAX_ARGS 				12
-
-//IO functions, Reset:
-#define RESET_PORT				9
-#define RESET_PIN				12
-
-//#define NULL					0
-
-//Timers:
-//======
-
-#define TIM_FREQ_TO_P(f)		(1000/f)	//f in Hz, return in ms
-
-//Stream:
-//======
-
-#define STREAM_MIN_FREQ			1
-#define STREAM_MAX_FREQ			1000
-#define STREAM_DEFAULT_FREQ		35
 
 #ifdef __cplusplus
 }
