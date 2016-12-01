@@ -339,21 +339,21 @@ void DataLogger::getFctPtrs(uint8_t slaveIndex, uint8_t expIndex, \
 					//ToDo: why is Manage different than the others?
 					//(*myHeaderFctPtr) = &writeManageReadAllHeader;
 					*myHeaderFctPtr = &DataLogger::writeManageReadAllHeader;
-					(*myLogFctPtr) = &logReadAllManage;
+					*myLogFctPtr = &DataLogger::logReadAllManage;
 					break;
 				case FLEXSEA_EXECUTE_BASE:
-					(*myHeaderFctPtr) = &writeExecuteReadAllHeader;
-					(*myLogFctPtr) = &logReadAllExec;
+					*myHeaderFctPtr = &DataLogger::writeExecuteReadAllHeader;
+					*myLogFctPtr = &DataLogger::logReadAllExec;
 					break;
 				case FLEXSEA_BATTERY_BASE:
 					break;
 				case FLEXSEA_STRAIN_BASE:
-					(*myHeaderFctPtr) = &writeStrainReadAllHeader;
-					(*myLogFctPtr) = &logReadAllStrain;
+					*myHeaderFctPtr = &DataLogger::writeStrainReadAllHeader;
+					*myLogFctPtr = &DataLogger::logReadAllStrain;
 					break;
 				case FLEXSEA_GOSSIP_BASE:
-					(*myHeaderFctPtr) = &writeGossipReadAllHeader;
-					(*myLogFctPtr) = &logReadAllGossip;
+					*myHeaderFctPtr = &DataLogger::writeGossipReadAllHeader;
+					*myLogFctPtr = &DataLogger::logReadAllGossip;
 					break;
 			}
 			break;
@@ -361,8 +361,8 @@ void DataLogger::getFctPtrs(uint8_t slaveIndex, uint8_t expIndex, \
 			qDebug() << "Not programmed!";
 			break;
 		case 2: //RIC/NU Knee
-			(*myHeaderFctPtr) = &writeReadAllRicnuHeader;
-			(*myLogFctPtr) = &logReadAllRicnu;
+			*myHeaderFctPtr = &DataLogger::writeReadAllRicnuHeader;
+			*myLogFctPtr = &DataLogger::logReadAllRicnu;
 			break;
 		case 3: //CSEA Knee
 			qDebug() << "Not programmed!";
