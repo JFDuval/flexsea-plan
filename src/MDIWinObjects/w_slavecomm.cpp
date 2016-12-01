@@ -567,7 +567,7 @@ void W_SlaveComm::sc_read_all(uint8_t item)
 	if(logThisItem[item] == true)
 	{
 		emit writeToLogFile(item, slaveIndex, expIndex,
-							refreshRate.at(ui->comboBoxRefresh1->currentIndex()));
+							uint16_t(refreshRate.at(ui->comboBoxRefresh1->currentIndex())));
 	}
 }
 

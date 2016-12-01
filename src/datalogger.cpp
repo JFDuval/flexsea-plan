@@ -76,7 +76,6 @@ void DataLogger::openRecordingFile(uint8_t item, QString shortFileName)
 		// Add date and time to the short file name
 		shortFileName.prepend(QDate::currentDate().toString("yyyy-MM-dd_") +
 							  QTime::currentTime().toString("HH'h'mm'm'ss's'_"));
-		shortFileName.replace(" ", "_");
 
 		openfile(item, shortFileName);
 	}
@@ -84,6 +83,14 @@ void DataLogger::openRecordingFile(uint8_t item, QString shortFileName)
 
 void DataLogger::openfile(uint8_t item, QString shortFileName)
 {
+	// Replace whitespace by underscore
+	shortFileName.replace(" ", "_");
+
+	// Remove invalid character for a filename(According to Windows)
+	shortFileName.remove(QRegExp("[<>:\"/|?*]"));
+	shortFileName.remove("\\");
+
+
 	// Set the folder to current directory
 	QDir::setCurrent(planGUIRootPath + "\\" + logFolder + "\\" + sessionFolder);
 

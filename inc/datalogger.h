@@ -87,7 +87,6 @@ private:
 
 	LogFile myLogFile;
 
-
 	//Function(s):
 	void init(void);
 	void logTimestamp(qint64 *t_ms, QString *t_text);

@@ -21,10 +21,10 @@
 	Biomechatronics research group <http://biomech.media.mit.edu/>
 	[Contributors]
 *****************************************************************************
-	[This file] serialdriver: Serial Port Driver
+	[This file] LogFile: Log File data class
 *****************************************************************************
 	[Change log] (Convention: YYYY-MM-DD | author | comment)
-	* 2016-09-09 | jfduval | Initial GPL-3.0 release
+	* 2016-11-30 | sbelanger | Initial GPL-3.0 release
 	*
 ****************************************************************************/
 
@@ -80,6 +80,7 @@ void LogFile::newDataLine(void)
 	data.append(newitem);
 }
 
+// TODO Optimise this code. There's certainly a way!
 void LogFile::decodeLastLine(void)
 {
 	// Execute
@@ -131,6 +132,7 @@ void LogFile::decodeLastLine(void)
 	}
 }
 
+// TODO Optimise this code. There's certainly a way!
 void LogFile::decodeAllLine(void)
 {
 	int i;
