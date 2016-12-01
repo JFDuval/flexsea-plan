@@ -36,6 +36,7 @@
 //****************************************************************************
 
 #include <QWidget>
+#include "counter.h"
 #include "flexsea_generic.h"
 
 //****************************************************************************
@@ -46,7 +47,7 @@ namespace Ui {
 class W_Strain;
 }
 
-class W_Strain : public QWidget
+class W_Strain : public QWidget, public Counter<W_Strain>
 {
 	Q_OBJECT
 

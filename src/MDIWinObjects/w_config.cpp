@@ -47,9 +47,10 @@ W_Config::W_Config(QWidget *parent) :
 	QWidget(parent),
 	ui(new Ui::W_Config)
 {
+
 	ui->setupUi(this);
 
-	setWindowTitle("Configuration");
+	setWindowTitle(this->getDescription());
 	setWindowIcon(QIcon(":icons/d_logo_small.png"));
 
 	//Init code:
@@ -219,13 +220,19 @@ void W_Config::on_closeComButton_clicked()
 
 void W_Config::on_pbLoadLogFile_clicked()
 {
-	emit openReadingFile();
-	ui->pbLoadLogFile->setDisabled(true);
-	ui->pbCloseLogFile->setDisabled(false);
-	ui->openComButton->setDisabled(true);
-	//ui->pushButtonBTCon->setDisabled(true);
-	dataSourceState = LogFile;
-	emit updateDataSourceStatus(dataSourceState);
+	bool isOpen;
+	emit openReadingFile(&isOpen);
+
+	if(isOpen)
+	{
+		ui->pbLoadLogFile->setDisabled(true);
+		ui->pbCloseLogFile->setDisabled(false);
+		ui->openComButton->setDisabled(true);
+		//ui->pushButtonBTCon->setDisabled(true);
+		dataSourceState = FromLogFile;
+		emit updateDataSourceStatus(dataSourceState);
+	}
+
 }
 
 void W_Config::on_pbCloseLogFile_clicked()

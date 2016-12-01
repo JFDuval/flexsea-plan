@@ -71,8 +71,9 @@ SOURCES += src/main.cpp \
 	flexsea-user/test/flexsea-user_test-all.c \
 	flexsea-user/test/test-cmd_user.c \
 	src/MDIWinObjects/w_config.cpp \
-    src/MDIWinObjects/w_logkeypad.cpp \
-    src/MDIWinObjects/w_userrw.cpp
+	src/MDIWinObjects/w_logkeypad.cpp \
+	src/MDIWinObjects/w_userrw.cpp \
+	src/logFile.cpp
 
 HEADERS  += inc/main.h \
 	inc/mainwindow.h \
@@ -114,8 +115,10 @@ HEADERS  += inc/main.h \
 	flexsea-user/MIT_2DoF_Ankle_v1/inc/cmd-MIT_2DoF_Ankle_v1.h \
 	flexsea-user/RICNU_Knee_v1/inc/cmd-RICNU_Knee_v1.h \
 	flexsea-user/test/flexsea-user_test-all.h \
-    inc/MDIWinObjects/w_logkeypad.h \
-    inc/MDIWinObjects/w_userrw.h
+	inc/MDIWinObjects/w_logkeypad.h \
+	inc/MDIWinObjects/w_userrw.h \
+	inc/counter.h \
+	inc/logFile.h
 
 FORMS    += ui/mainwindow.ui \
 	ui/w_execute.ui \
@@ -131,8 +134,8 @@ FORMS    += ui/mainwindow.ui \
 	ui/w_gossip.ui \
 	ui/w_strain.ui \
 	ui/w_config.ui \
-    ui/w_logkeypad.ui \
-    ui/w_userrw.ui
+	ui/w_logkeypad.ui \
+	ui/w_userrw.ui
 
 RESOURCES += \
 	misc/icons.qrc
@@ -143,7 +146,6 @@ QMAKE_CFLAGS = $$QMAKE_CFLAGS -Wno-unused-but-set-variable
 #Linked will fail - debug only
 #QMAKE_CFLAGS = $$QMAKE_CFLAGS -E
 #QMAKE_CXXFLAGS = $$QMAKE_CXXFLAGS -E
-
 #DISTFILES += \
 #	flexsea-comm/flexsea.gitignore \
 #	flexsea-comm/GPL-3.0.txt \

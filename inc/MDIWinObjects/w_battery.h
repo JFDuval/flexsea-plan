@@ -36,6 +36,7 @@
 //****************************************************************************
 
 #include <QWidget>
+#include "counter.h"
 #include "flexsea_generic.h"
 
 //****************************************************************************
@@ -46,7 +47,7 @@ namespace Ui {
 class W_Battery;
 }
 
-class W_Battery : public QWidget
+class W_Battery : public QWidget, public Counter<W_Battery>
 {
 	Q_OBJECT
 

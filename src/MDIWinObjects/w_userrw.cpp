@@ -50,7 +50,7 @@ W_UserRW::W_UserRW(QWidget *parent) :
 {
 	ui->setupUi(this);
 
-	setWindowTitle("User R/W");
+	setWindowTitle(this->getDescription());
 	setWindowIcon(QIcon(":icons/d_logo_small.png"));
 
 	init();

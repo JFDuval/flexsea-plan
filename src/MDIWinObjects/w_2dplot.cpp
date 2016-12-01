@@ -55,7 +55,7 @@ W_2DPlot::W_2DPlot(QWidget *parent) :
 {
 	ui->setupUi(this);
 
-	setWindowTitle("2D Plot");
+	setWindowTitle(this->getDescription());
 	setWindowIcon(QIcon(":icons/d_logo_small.png"));
 
 	initFlag = true;

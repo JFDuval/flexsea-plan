@@ -33,8 +33,13 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-#include "w_execute.h"
+#include "flexsea_generic.h"
+#include "logFile.h"
+#include "serialdriver.h"
+#include "datalogger.h"
 #include "w_slavecomm.h"
+#include "w_execute.h"
+#include "w_logkeypad.h"
 #include "w_config.h"
 #include "w_anycommand.h"
 #include "w_2dplot.h"
@@ -44,13 +49,9 @@
 #include "w_calibration.h"
 #include "w_userrw.h"
 #include "w_battery.h"
-#include "w_logkeypad.h"
 #include "w_strain.h"
 #include "w_gossip.h"
 #include "w_converter.h"
-#include "flexsea_generic.h"
-#include "serialdriver.h"
-#include "datalogger.h"
 #include "main.h"
 
 namespace Ui {
@@ -74,15 +75,6 @@ class MainWindow;
 #define STRAIN_WINDOWS_MAX			2
 #define USERRW_WINDOWS_MAX			1
 
-//User_RW Window:
-struct window_userrw_s
-{
-	int count;									//Number of objects
-	int max;									//Max # of objects
-	W_UserRW *myWindow[USERRW_WINDOWS_MAX];		//Stores objects
-	QString desc;								//Text description
-};
-
 class MainWindow : public QMainWindow
 {
 	Q_OBJECT
@@ -94,73 +86,26 @@ public:
 private:
 	Ui::MainWindow *ui;
 
-	//Objects & Windows:
-	//==================
-
-	//Execute View:
-	int exViewObjectCount;
+	// Sub-Windows
 	W_Execute *myViewExecute[EX_VIEW_WINDOWS_MAX];
-
-	//Manage View:
-	int mnViewObjectCount;
 	W_Manage *myViewManage[MN_VIEW_WINDOWS_MAX];
-
-	//Config objects:
-	int configObjectCount;
 	W_Config *myViewConfig[CONFIG_WINDOWS_MAX];
-
-	//Slave Comm:
-	int slaveCommObjectCount;
 	W_SlaveComm *myViewSlaveComm[SLAVECOMM_WINDOWS_MAX];
-
-	//AnyCommand:
-	int anyCommandObjectCount;
 	W_AnyCommand *myViewAnyCommand[ANYCOMMAND_WINDOWS_MAX];
-
-	//Converter:
-	int converterObjectCount;
 	W_Converter *my_w_converter[CONVERTER_WINDOWS_MAX];
-
-	//Calibration:
-	int calibObjectCount;
 	W_Calibration *myViewCalibration[CALIB_WINDOWS_MAX];
-
-	//Control:
-	int controlObjectCount;
 	W_Control *myViewControl[CONTROL_WINDOWS_MAX];
-
-	//2D Plot:
-	int plot2DObjectCount;
 	W_2DPlot *myView2DPlot[PLOT2D_WINDOWS_MAX];
-
-	//RIC/NU View:
-	int ricnuViewObjectCount;
 	W_Ricnu *myViewRicnu[RICNU_VIEW_WINDOWS_MAX];
-
-	//Battery:
-	int battObjectCount;
 	W_Battery *myViewBatt[BATT_WINDOWS_MAX];
-
-	//LogKeyPad:
-	int logKeyPadObjectCount;
 	W_LogKeyPad *myViewLogKeyPad[LOGKEYPAD_WINDOWS_MAX];
-
-	//Gossip:
-	int gossipObjectCount;
 	W_Gossip *myViewGossip[GOSSIP_WINDOWS_MAX];
-
-	//Strain:
-	int strainObjectCount;
 	W_Strain *myViewStrain[STRAIN_WINDOWS_MAX];
+	W_UserRW *myUserRW[USERRW_WINDOWS_MAX];
 
-	//Serial Port Driver:
+	// Objects
 	SerialDriver *mySerialDriver;
-
-	//DataLogger:
 	DataLogger *myDataLogger;
-
-	//User R/W
-	struct window_userrw_s userRW;
 
 signals:
 	//Allow window to be independly opened in any order by providing a backbone connector
@@ -206,6 +151,11 @@ public slots:
 	void closeViewBattery(void);
 	void closeLogKeyPad(void);
 	void closeUserRW(void);
+
+	//Messages Status Bar + debug
+	void sendWindowCreatedMsg(QString windowName, int index, int maxIndex);
+	void sendWindowCreatedFailedMsg(QString windowName, int maxWindow);
+	void sendCloseWindowMsg(QString windowName);
 
 	//Message boxes:
 	void displayAbout();

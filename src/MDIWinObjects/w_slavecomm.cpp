@@ -50,7 +50,7 @@ W_SlaveComm::W_SlaveComm(QWidget *parent) :
 {
 	ui->setupUi(this);
 
-	setWindowTitle("Slave Communication");
+	setWindowTitle(this->getDescription());
 	setWindowIcon(QIcon(":icons/d_logo_small.png"));
 
 	initSlaveCom();
@@ -361,14 +361,24 @@ void W_SlaveComm::manageLogStatus(uint8_t idx)
 									refreshName +
 									".csv");
 		logThisItem[idx] = true;
+
+		// Update GUI
+		ui->comboBoxRefresh1->setDisabled(true);
+		QString ttip = "<html><head/><body><p>You can't change refresh rate while "
+					   "logging.</p></body></html>";
+		ui->comboBoxRefresh1->setToolTip(ttip);
+
 	}
 
 	else
 	{
 		if(logThisItem[idx] == true)
 		{
+			ui->comboBoxRefresh1->setDisabled(false);
 			logThisItem[idx] = false;
 			emit closeRecordingFile(idx);
+
+			ui->comboBoxRefresh1->setToolTip("");
 		}
 	}
 }
@@ -557,7 +567,7 @@ void W_SlaveComm::sc_read_all(uint8_t item)
 	if(logThisItem[item] == true)
 	{
 		emit writeToLogFile(item, slaveIndex, expIndex,
-							refreshRate.at(ui->comboBoxRefresh1->currentIndex()));
+							uint16_t(refreshRate.at(ui->comboBoxRefresh1->currentIndex())));
 	}
 }
 

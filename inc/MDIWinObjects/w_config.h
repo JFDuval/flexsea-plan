@@ -36,13 +36,15 @@
 //****************************************************************************
 
 #include <QWidget>
+#include "counter.h"
 
 //****************************************************************************
 // Namespace & Class Definition:
 //****************************************************************************
 
-namespace Ui {
-class W_Config;
+namespace Ui
+{
+	class W_Config;
 }
 
 typedef enum DataSource
@@ -50,10 +52,10 @@ typedef enum DataSource
 	None,
 	LiveCOM,
 	LiveBluetooth,
-	LogFile
+	FromLogFile
 }DataSource;
 
-class W_Config : public QWidget
+class W_Config : public QWidget, public Counter<W_Config>
 {
 	Q_OBJECT
 
@@ -89,7 +91,7 @@ private:
  signals:
 	void openCom(QString name, int tries, int delay);
 	void closeCom(void);
-	void openReadingFile(void);
+	void openReadingFile(bool * isOpen);
 	void closeReadingFile(void);
 	void updateDataSourceStatus(DataSource status);
 	void windowClosed(void);

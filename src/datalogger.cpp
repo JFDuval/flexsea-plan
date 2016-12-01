@@ -46,7 +46,7 @@
 
 DataLogger::DataLogger(QWidget *parent) : QWidget(parent)
 {
-	logDirectory();
+	initLogDirectory();
 	init();
 }
 
@@ -57,34 +57,6 @@ DataLogger::DataLogger(QWidget *parent) : QWidget(parent)
 //****************************************************************************
 // Public slot(s):
 //****************************************************************************
-
-void DataLogger::openRecordingFile(uint8_t item)
-{
-	if(logRecordingFile[item].isOpen())
-	{
-		qDebug() << "File already open. Close it before opening a new one";
-	}
-	else
-	{
-		//File Dialog (returns the selected file name):
-		QDir::setCurrent("Plan-GUI-Logs");
-		QString filename = QFileDialog::getSaveFileName( \
-					this,
-					tr("Open Log File"),
-					QDir::currentPath() + "\\.csv" ,
-					tr("Log files (*.txt *.csv);;All files (*.*)"));
-
-		//Extract filename to simplify UI:
-		QString path = QDir::currentPath();
-		int pathLen = path.length();
-		QString shortFileName = filename.mid(pathLen+1);
-
-		//Now we open it:
-		logRecordingFile[item].setFileName(filename);
-
-		openfile(item, filename, shortFileName);
-	}
-}
 
 void DataLogger::openRecordingFile(uint8_t item, QString shortFileName)
 {
@@ -101,38 +73,31 @@ void DataLogger::openRecordingFile(uint8_t item, QString shortFileName)
 			shortFileName.append(".csv");
 		}
 
-		//File Dialog
-		QDir::setCurrent("Plan-GUI-Logs");
-		QString fileName = QDir::currentPath() + "/" + shortFileName;
-		QString numberedFileName = fileName;
+		// Add date and time to the short file name
+		shortFileName.prepend(QDate::currentDate().toString("yyyy-MM-dd_") +
+							  QTime::currentTime().toString("HH'h'mm'm'ss's'_"));
 
-		//Now we open it:
-		int fileNameLen = fileName.length();
-		numberedFileName.insert(fileNameLen	- 4,"_0");
-		logRecordingFile[item].setFileName(numberedFileName);
-
-		// Search for the next unused numbered file.
-		uint16_t i = 0;
-		while(logRecordingFile[item].exists() ||
-			  i >= 10000)
-		{
-			++i;
-			numberedFileName = fileName;
-			numberedFileName.insert(fileNameLen - 4,
-									"_" + QString::number(i));
-			logRecordingFile[item].setFileName(numberedFileName);
-		}
-
-		QString numberedShortFileName = shortFileName + "_" + QString::number(i);
-
-		openfile(item, numberedFileName, numberedShortFileName);
+		openfile(item, shortFileName);
 	}
 }
 
-void DataLogger::openfile(uint8_t item, QString fileName, QString shortFileName)
+void DataLogger::openfile(uint8_t item, QString shortFileName)
 {
-	QString msg = "";
+	// Replace whitespace by underscore
+	shortFileName.replace(" ", "_");
 
+	// Remove invalid character for a filename(According to Windows)
+	shortFileName.remove(QRegExp("[<>:\"/|?*]"));
+	shortFileName.remove("\\");
+
+
+	// Set the folder to current directory
+	QDir::setCurrent(planGUIRootPath + "\\" + logFolder + "\\" + sessionFolder);
+
+	// Set the filename from the current directory
+	QString fileName = QDir::currentPath() + "/" + shortFileName;
+
+	logRecordingFile[item].setFileName(fileName);
 	// Try to open the file.
 	if(logRecordingFile[item].open(QIODevice::ReadWrite))
 	{
@@ -142,27 +107,27 @@ void DataLogger::openfile(uint8_t item, QString fileName, QString shortFileName)
 
 		//Associate stream to file:
 		logFileStream.setDevice(&logRecordingFile[item]);
-		msg = tr("Opened '") + fileName + "'.";
-		emit setStatusBarMessage(msg);
+
+		emit setStatusBarMessage(tr("Opened '") + fileName + "'.");
+		qDebug() << tr("Opened '") + fileName + "'.";
 	}
 
 	//If no file selected
 	else
 	{
-		msg = tr("No log file selected.");
-		qDebug() << msg;
-
-		msg = tr("No log file selected, or the file couldn't be opened.");
-		emit setStatusBarMessage(msg);
+		qDebug() << tr("No log file selected.");
+		emit setStatusBarMessage(
+					tr("No log file selected, or the file couldn't be opened."));
 	}
 }
 
-void DataLogger::openReadingFile(void)
+void DataLogger::openReadingFile(bool * isOpen)
 {
 	QString msg = "";
+	*isOpen = false;
 
 	//File Dialog (returns the selected file name):
-	QDir::setCurrent("Plan-GUI-Logs");
+	QDir::setCurrent(planGUIRootPath + "\\" + logFolder);
 	QString filename = QFileDialog::getOpenFileName( \
 				this,
 				tr("Open Log File"),
@@ -176,42 +141,39 @@ void DataLogger::openReadingFile(void)
 
 	//Now we open it:
 	logReadingFile.setFileName(filename);
-	logReadingFile.size();
+
 	if(logReadingFile.open(QIODevice::ReadOnly))
 	{
-		qDebug() << msg;	//ToDo: msg is never set, prints ""
-
-		//Associate stream to file:
-		QString line, slaveName, expName;
+		// Read and save the logfile informations.
+		QString line;
 		QStringList splitLine;
 
-		// Read and save the logfile informations.
 		line = logReadingFile.readLine();
 		splitLine = line.split(',', QString::KeepEmptyParts);
 
-		myLog.dataloggingItem	= splitLine[1];
-		myLog.SlaveIndex		= splitLine[3];
-		myLog.SlaveName			= splitLine[5];
-		myLog.experimentIndex	= splitLine[7];
-		myLog.experimentName	= splitLine[9];
-		myLog.frequency			= splitLine[11].toInt();
-		myLog.shortFileName = shortFileName;
-		myLog.fileName		= filename;
+		myLogFile.dataloggingItem	= splitLine[1].toInt();
+		myLogFile.SlaveIndex		= splitLine[3].toInt();
+		myLogFile.SlaveName			= splitLine[5];
+		myLogFile.experimentIndex	= splitLine[7].toInt();
+		myLogFile.experimentName	= splitLine[9];
+		myLogFile.frequency			= splitLine[11].toInt();
+		myLogFile.shortFileName = shortFileName;
+		myLogFile.fileName		= filename;
 
 		//Clear the column's header.
 		line = logReadingFile.readLine();
 
-		//Quick hack: detect what board we are reading:
-		bool readingFromExecute = false;
-		if((myLog.SlaveIndex.toInt() >= 0 && myLog.SlaveIndex.toInt() <= 3) && \
-			(myLog.experimentIndex.toInt() == 0))
+		// TODO: Remove this by supporting multiple board
+		// Quick hack: detect what board we are reading:
+
+		if((myLogFile.SlaveIndex >= 0 && myLogFile.SlaveIndex <= 3) && \
+			(myLogFile.experimentIndex == 0))
 		{
 			qDebug() << "Reading from Execute";
-			readingFromExecute = true;
 		}
 		else
 		{
-			qDebug() << "Not Execute Read All, can't read";
+			qDebug() << "To this day, we can only load an Execute's log.";
 			return;
 		}
 
@@ -220,55 +182,46 @@ void DataLogger::openReadingFile(void)
 			line = logReadingFile.readLine();
 			splitLine = line.split(',', QString::KeepEmptyParts);
 
-			if(readingFromExecute == true)
+			// If data line contain expected data
+			if(splitLine.length() >= 20)
 			{
-				// If data line contain expected data
-				if(splitLine.length() >= 20)
-				{
-					struct log_s newitem;
-					myLog.logList.append(newitem);
-					myLog.logList.last().timeStampDate		= splitLine[0];
-					myLog.logList.last().timeStamp_ms		= splitLine[1].toInt();
-					myLog.logList.last().execute.accel.x	= splitLine[2].toInt();
-					myLog.logList.last().execute.accel.y	= splitLine[3].toInt();
-					myLog.logList.last().execute.accel.z	= splitLine[4].toInt();
-					myLog.logList.last().execute.gyro.x		= splitLine[5].toInt();
-					myLog.logList.last().execute.gyro.y		= splitLine[6].toInt();
-					myLog.logList.last().execute.gyro.z		= splitLine[7].toInt();
-					myLog.logList.last().execute.strain		= splitLine[8].toInt();
-					myLog.logList.last().execute.analog[0]	= splitLine[9].toInt();
-					myLog.logList.last().execute.analog[1]	= splitLine[10].toInt();
-					myLog.logList.last().execute.current	= splitLine[11].toInt();
-					myLog.logList.last().execute.enc_display= splitLine[12].toInt();
-					myLog.logList.last().execute.enc_control= splitLine[13].toInt();
-					myLog.logList.last().execute.enc_commut	= splitLine[14].toInt();
-					myLog.logList.last().execute.volt_batt	= splitLine[15].toInt();
-					myLog.logList.last().execute.volt_int	= splitLine[16].toInt();
-					myLog.logList.last().execute.temp		= splitLine[17].toInt();
-					myLog.logList.last().execute.status1	= splitLine[18].toInt();
-					myLog.logList.last().execute.status2	= splitLine[19].toInt();
-					FlexSEA_Generic::decodeExecute(&myLog.logList.last().execute);
-				}
-			}
-			else
-			{
-				qDebug() << "To this day, we can only load an Execute's log.";
+				myLogFile.newDataLine();
+				myLogFile.data.last().timeStampDate		= splitLine[0];
+				myLogFile.data.last().timeStamp_ms		= splitLine[1].toInt();
+				myLogFile.data.last().execute.accel.x	= splitLine[2].toInt();
+				myLogFile.data.last().execute.accel.y	= splitLine[3].toInt();
+				myLogFile.data.last().execute.accel.z	= splitLine[4].toInt();
+				myLogFile.data.last().execute.gyro.x	= splitLine[5].toInt();
+				myLogFile.data.last().execute.gyro.y	= splitLine[6].toInt();
+				myLogFile.data.last().execute.gyro.z	= splitLine[7].toInt();
+				myLogFile.data.last().execute.strain	= splitLine[8].toInt();
+				myLogFile.data.last().execute.analog[0]	= splitLine[9].toInt();
+				myLogFile.data.last().execute.analog[1]	= splitLine[10].toInt();
+				myLogFile.data.last().execute.current	= splitLine[11].toInt();
+				myLogFile.data.last().execute.enc_display= splitLine[12].toInt();
+				myLogFile.data.last().execute.enc_control= splitLine[13].toInt();
+				myLogFile.data.last().execute.enc_commut= splitLine[14].toInt();
+				myLogFile.data.last().execute.volt_batt	= splitLine[15].toInt();
+				myLogFile.data.last().execute.volt_int	= splitLine[16].toInt();
+				myLogFile.data.last().execute.temp		= splitLine[17].toInt();
+				myLogFile.data.last().execute.status1	= splitLine[18].toInt();
+				myLogFile.data.last().execute.status2	= splitLine[19].toInt();
 			}
 		}
-
-		//emit setNewLogFileLoaded(myExecute_s);
+		myLogFile.decodeAllLine();
 
 		msg = tr("Opened '") + filename + "'.";
 		emit setStatusBarMessage(msg);
+		qDebug() << msg;
+		*isOpen = true;
 	}
 
 	//If no file selected
 	else
 	{
-		qDebug() << msg;
-
 		msg = tr("No log file selected or the file couldn't be opened.");
 		emit setStatusBarMessage(msg);
+		qDebug() << msg;
 	}
 }
 
@@ -391,16 +344,8 @@ void DataLogger::closeReadingFile(void)
 	{
 		logReadingFile.close();
 	}
-	// TODO: Implement a new class to handle clear of log properly.
-	myLog.logList.clear();
-	myLog.dataloggingItem.clear();
-	myLog.SlaveIndex.clear();
-	myLog.SlaveName.clear();
-	myLog.experimentIndex.clear();
-	myLog.experimentName.clear();
-	myLog.frequency = 0;
-	myLog.shortFileName.clear();
-	myLog.fileName.clear();
+
+	myLogFile.clear();
 }
 
 //ToDo: move these functions to their respective files
@@ -549,21 +494,37 @@ void DataLogger::init(void)
 	myTime = new QDateTime;
 }
 
-void DataLogger::logDirectory(void)
+void DataLogger::initLogDirectory()
 {
+	// Save the root path of the execution of the program
+	planGUIRootPath = QDir::currentPath();
+
+	// Set the default folder
+	logFolder = "Plan-GUI-Logs";
+	sessionFolder = QDate::currentDate().toString("yyyy-MM-dd_") + \
+					QTime::currentTime().toString("HH'h'mm'm'ss's'");
+
+	sessionFolder.replace(" ", "_");
+	sessionFolder.replace(":", "-");
+
 	//Do we already have a "Plan-GUI-Logs" directory?
-	if(!QDir("Plan-GUI-Logs").exists())
+	if(!QDir().exists(logFolder))
 	{
 		//No, create it:
-		QDir().mkdir("Plan-GUI-Logs");
-		qDebug() << "Created Plan-GUI-Logs";
-		emit setStatusBarMessage("Created the Plan-GUI-Logs directory.");
+		QDir().mkdir(logFolder);
+		qDebug() << QString("Created ") + logFolder;
+		emit setStatusBarMessage("Created the " + logFolder + " directory.");
 		//ui->statusBar->showMessage("Created the Plan-GUI-Logs directory.");
 	}
 	else
 	{
-		qDebug() << "Using existing ""Plan-GUI-Logs"" directory";
+		qDebug() << "Using existing """ + logFolder + """ directory";
 	}
+
+	QDir::setCurrent(logFolder);
+
+	// Create this session folder
+	QDir().mkdir(sessionFolder);
 }
 
 void DataLogger::logTimestamp(qint64 *t_ms, QString *t_text)

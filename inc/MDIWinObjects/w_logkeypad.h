@@ -36,7 +36,8 @@
 //****************************************************************************
 
 #include <QWidget>
-#include <flexsea_generic.h>
+#include "counter.h"
+#include "logFile.h"
 
 //****************************************************************************
 // Namespace & Class Definition:
@@ -46,14 +47,14 @@ namespace Ui {
 class W_LogKeyPad;
 }
 
-class W_LogKeyPad : public QWidget
+class W_LogKeyPad : public QWidget, public Counter<W_LogKeyPad>
 {
 	Q_OBJECT
 
 public:
 	//Constructor & Destructor:
 	explicit W_LogKeyPad(QWidget *parent = 0,
-						struct logContainer_s *logRef = nullptr);
+						LogFile *logFileRef = nullptr);
 	~W_LogKeyPad();
 
 signals:
@@ -68,7 +69,7 @@ private:
 	//Variables & Objects:
 	Ui::W_LogKeyPad *ui;
 
-	struct logContainer_s *myLogRef;
+	LogFile *myLogFileRef;
 
 	//Function(s):
 	void init(void);

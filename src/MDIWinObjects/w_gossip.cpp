@@ -50,7 +50,7 @@ W_Gossip::W_Gossip(QWidget *parent) :
 {
 	ui->setupUi(this);
 
-	setWindowTitle("Gossip - Barebone");
+	setWindowTitle(this->getDescription());
 	setWindowIcon(QIcon(":icons/d_logo_small.png"));
 
 	init();

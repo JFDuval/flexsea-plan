@@ -36,6 +36,7 @@
 //****************************************************************************
 
 #include <QWidget>
+#include "counter.h"
 #include "flexsea_generic.h"
 
 //****************************************************************************
@@ -46,7 +47,7 @@ namespace Ui {
 class W_UserRW;
 }
 
-class W_UserRW : public QWidget
+class W_UserRW : public QWidget, public Counter<W_UserRW>
 {
 	Q_OBJECT
 
@@ -70,9 +71,12 @@ private slots:
 	void on_pushButton_refresh_clicked();
 
 private:
+	// Static Variable
+
 	//Variables & Objects:
 	Ui::W_UserRW *ui;
 	int active_slave, active_slave_index;
+
 
 	//Function(s):
 	void init(void);

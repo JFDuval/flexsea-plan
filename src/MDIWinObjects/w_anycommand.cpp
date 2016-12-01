@@ -46,7 +46,7 @@ W_AnyCommand::W_AnyCommand(QWidget *parent) :
 {
 	ui->setupUi(this);
 
-	setWindowTitle("Any Command");
+	setWindowTitle(this->getDescription());
 	setWindowIcon(QIcon(":icons/d_logo_small.png"));
 
 	init();

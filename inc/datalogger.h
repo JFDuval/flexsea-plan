@@ -43,6 +43,7 @@
 #include <QList>
 #include "flexsea_generic.h"
 #include "main.h"
+#include "logFile.h"
 
 //****************************************************************************
 // Namespace & Class
@@ -52,40 +53,18 @@ namespace Ui {
 class DataLogger;
 }
 
-struct log_s
-{
-	QString timeStampDate;
-	int32_t timeStamp_ms;
-
-	struct execute_s execute;
-};
-
-struct logContainer_s
-{
-	QString shortFileName;
-	QString fileName;
-	QString dataloggingItem;
-	QString SlaveName;
-	QString SlaveIndex;
-	QString experimentIndex;
-	QString experimentName;
-	uint16_t frequency;
-	QList<struct log_s> logList;
-};
-
 class DataLogger : public QWidget
 {
 	Q_OBJECT
 
 public:
 	explicit DataLogger(QWidget *parent = 0);
-	struct logContainer_s * getLogPtr(void) {return &myLog;}
+	LogFile * getLogFilePtr(void) {return &myLogFile;}
 
 public slots:
-	void openRecordingFile(uint8_t item);
 	void openRecordingFile(uint8_t item, QString fileName);
 	void closeRecordingFile(uint8_t item);
-	void openReadingFile(void);
+	void openReadingFile(bool * isOpen);
 	void closeReadingFile(void);
 	void writeToFile(uint8_t item, uint8_t slaveIndex,
 					 uint8_t expIndex, uint16_t refreshRate);
@@ -97,12 +76,16 @@ private:
 	QFile logRecordingFile[4];
 	QFile logReadingFile;
 
+	QString planGUIRootPath;
+	QString logFolder;
+	QString sessionFolder;
+
 	QTextStream logFileStream;
 	QDateTime *myTime;
 
 	bool fileOpened[4];
 
-	struct logContainer_s myLog;
+	LogFile myLogFile;
 
 	//Function(s):
 	void init(void);
@@ -114,8 +97,8 @@ private:
 	void writeManageReadAllHeader(uint8_t item);
 	void writeStrainReadAllHeader(uint8_t item);
 	void writeGossipReadAllHeader(uint8_t item);
-	void openfile(uint8_t item, QString fileName, QString shortFileName);
-	void logDirectory(void);
+	void openfile(uint8_t item, QString shortFileName);
+	void initLogDirectory(void);
 	void logReadAllExec(QTextStream *filePtr, uint8_t slaveIndex, \
 							char term, qint64 t_ms, QString t_text);
 	void logReadAllRicnu(QTextStream *filePtr, uint8_t slaveIndex, \

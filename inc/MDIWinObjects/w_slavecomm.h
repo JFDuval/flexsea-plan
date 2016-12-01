@@ -36,6 +36,7 @@
 //****************************************************************************
 
 #include <QWidget>
+#include "counter.h"
 #include <QtWidgets/QCheckBox>
 #include <QtWidgets/QPushButton>
 #include "flexsea_generic.h"
@@ -49,6 +50,8 @@
 #define MASTER_TIMER            100 //Hz
 #define MAX_EXPERIMENTS         10
 
+#define TIM_FREQ_TO_P(f)		(1000/f)	//f in Hz, return in ms
+
 //****************************************************************************
 // Namespace & Class Definition:
 //****************************************************************************
@@ -57,7 +60,7 @@ namespace Ui {
 class W_SlaveComm;
 }
 
-class W_SlaveComm : public QWidget
+class W_SlaveComm : public QWidget, public Counter<W_SlaveComm>
 {
 	Q_OBJECT
 

@@ -21,66 +21,70 @@
 	Biomechatronics research group <http://biomech.media.mit.edu/>
 	[Contributors]
 *****************************************************************************
-	[This file] w_converter.h: Converter Window
+	[This file] LogFile: Log File data class
 *****************************************************************************
 	[Change log] (Convention: YYYY-MM-DD | author | comment)
-	* 2016-09-09 | jfduval | Initial GPL-3.0 release
+	* 2016-11-30 | sbelanger | Initial GPL-3.0 release
 	*
 ****************************************************************************/
 
-#ifndef W_CONVERTER_H
-#define W_CONVERTER_H
+#ifndef LOGFILE_H
+#define LOGFILE_H
 
 //****************************************************************************
 // Include(s)
 //****************************************************************************
 
 #include <QWidget>
-#include "counter.h"
+#include "main.h"
+
+struct log_ss
+{
+	QString timeStampDate;
+	int32_t timeStamp_ms;
+
+	struct execute_s execute;
+	struct manage_s manage;
+	struct ricnu_s ricnu;
+	struct strain_s strain;
+	struct gossip_s gossip;
+	struct battery_s battery;
+};
 
 //****************************************************************************
-// Namespace & Class Definition:
+// Namespace & Class
 //****************************************************************************
 
 namespace Ui {
-class W_Converter;
+class LogFile;
 }
 
-class W_Converter : public QWidget, public Counter<W_Converter>
+class LogFile : QWidget
 {
 	Q_OBJECT
 
 public:
-	//Constructor & Destructor:
-	explicit W_Converter(QWidget *parent = 0);
-	~W_Converter();
-
-signals:
-	void windowClosed(void);
-
-private slots:
-	void on_lineEdituint32_returnPressed();
-	void on_lineEdituint16_returnPressed();
-	void on_lineEdituint32_textChanged(const QString &arg1);
-	void on_lineEdituint16_textChanged(const QString &arg1);
-
-private:
-	//Variables & Objects:
-	Ui::W_Converter *ui;
-
-	//Function(s):
+	explicit LogFile(QWidget *parent = 0);
 	void init(void);
-	void zero16bitsBytes(void);
-	void zero32bitsBytes(void);
+	void clear(void);
+	void newDataLine(void);
+	void decodeLastLine(void);
+	void decodeAllLine(void);
+
+	QString shortFileName;
+	QString fileName;
+	int dataloggingItem;
+	int SlaveIndex;
+	QString SlaveName;
+	int experimentIndex;
+	QString experimentName;
+	int frequency;
+	QList<struct log_ss> data;
+
 };
 
 //****************************************************************************
 // Definition(s)
 //****************************************************************************
 
-#define MAX_16BITS		65536
-#define MIN_16BITS		-32768
-#define MAX_32BITS		4294967295
-#define MIN_32BITS		-2147483648
-
-#endif // W_CONVERTER_H
+#endif // LOGFILE_H

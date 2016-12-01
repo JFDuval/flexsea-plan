@@ -50,7 +50,7 @@ W_Control::W_Control(QWidget *parent) :
 {
 	ui->setupUi(this);
 
-	setWindowTitle("Control");
+	setWindowTitle(this->getDescription());
 	setWindowIcon(QIcon(":icons/d_logo_small.png"));
 
 	initControl();

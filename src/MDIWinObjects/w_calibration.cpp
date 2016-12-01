@@ -49,7 +49,7 @@ W_Calibration::W_Calibration(QWidget *parent) :
 {
 	ui->setupUi(this);
 
-	setWindowTitle("Hardware Calibration Tool");
+	setWindowTitle(this->getDescription());
 	setWindowIcon(QIcon(":icons/d_logo_small.png"));
 
 	init();
