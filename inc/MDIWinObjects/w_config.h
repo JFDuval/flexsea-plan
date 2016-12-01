@@ -52,7 +52,7 @@ typedef enum DataSource
 	None,
 	LiveCOM,
 	LiveBluetooth,
-	LogFile
+	FromLogFile
 }DataSource;
 
 class W_Config : public QWidget, public Counter<W_Config>

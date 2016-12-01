@@ -134,7 +134,7 @@ MainWindow::~MainWindow()
 //Transfer the signal from config to the
 void MainWindow::translatorUpdateDataSourceStatus(DataSource status)
 {
-	if(status == LogFile)
+	if(status == FromLogFile)
 	{
 		emit connectorUpdateDisplayMode(DisplayLogData);
 	}
@@ -148,7 +148,7 @@ void MainWindow::translatorUpdateDataSourceStatus(DataSource status)
 void MainWindow::manageLogKeyPad(DataSource status)
 {
 
-	if(status == LogFile)
+	if(status == FromLogFile)
 	{
 		createLogKeyPad();
 	}
@@ -173,7 +173,7 @@ void MainWindow::createViewExecute(void)
 		DisplayMode status = DisplayLiveData;
 		if(W_Config::howManyInstance() > 0)
 		{
-			if(myViewConfig[0]->getDataSourceStatus() == LogFile)
+			if(myViewConfig[0]->getDataSourceStatus() == FromLogFile)
 			{
 				status = DisplayLogData;
 			}

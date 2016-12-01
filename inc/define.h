@@ -1,7 +1,6 @@
 #ifndef DEFINE_H
 #define DEFINE_H
 
-
 namespace Ui {
 
 class Define;

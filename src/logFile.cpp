@@ -36,10 +36,6 @@
 #include "flexsea_generic.h"
 #include <QDebug>
 
-// TODO The inclusion of logFile.h in execute and logkeypad cause an issue if
-// they are include here before w_config in mainwindow.h . See mainwindow.h for
-// more details.
-
 //****************************************************************************
 // Constructor & Destructor:
 //****************************************************************************

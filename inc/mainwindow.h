@@ -33,19 +33,14 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include "flexsea_generic.h"
+#include "logFile.h"
+#include "serialdriver.h"
+#include "datalogger.h"
 #include "w_slavecomm.h"
-
 #include "w_execute.h"
 #include "w_logkeypad.h"
-
-// TODO The inclusion of logFile.h in execute and logkeypad cause an issue if
-// they are include here before w_config. The compilation error is
-// "'Log file' does not name a type"
-// It's maybe due to a circular inclusion, but I've not succedd to understand
-// What was going on. Any Help is welcome!
-
 #include "w_config.h"
-
 #include "w_anycommand.h"
 #include "w_2dplot.h"
 #include "w_control.h"
@@ -57,9 +52,6 @@
 #include "w_strain.h"
 #include "w_gossip.h"
 #include "w_converter.h"
-#include "flexsea_generic.h"
-#include "serialdriver.h"
-#include "datalogger.h"
 #include "main.h"
 
 namespace Ui {
@@ -114,7 +106,6 @@ private:
 	// Objects
 	SerialDriver *mySerialDriver;
 	DataLogger *myDataLogger;
-
 
 signals:
 	//Allow window to be independly opened in any order by providing a backbone connector

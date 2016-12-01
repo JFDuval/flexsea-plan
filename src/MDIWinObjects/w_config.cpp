@@ -229,7 +229,7 @@ void W_Config::on_pbLoadLogFile_clicked()
 		ui->pbCloseLogFile->setDisabled(false);
 		ui->openComButton->setDisabled(true);
 		//ui->pushButtonBTCon->setDisabled(true);
-		dataSourceState = LogFile;
+		dataSourceState = FromLogFile;
 		emit updateDataSourceStatus(dataSourceState);
 	}
 
