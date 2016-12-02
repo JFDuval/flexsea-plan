@@ -321,7 +321,8 @@ void DataLogger::getFctPtrs(uint8_t slaveIndex, uint8_t expIndex, \
 			qDebug() << "Not programmed!";
 			break;
 		case 4: //2DOF Ankle
-			qDebug() << "Not programmed!";
+			*myHeaderFctPtr = &DataLogger::writeManageA2DOFHeader;
+			*myLogFctPtr = &DataLogger::logA2DOFManage;
 			break;
 		default:
 			qDebug() << "Invalid Experiment - can't write Log Header";
@@ -485,6 +486,49 @@ void DataLogger::logReadAllManage(QTextStream *filePtr, uint8_t slaveIndex, \
 						term;
 }
 
+//ToDo this should be in the User files, not here:
+void DataLogger::logA2DOFManage(QTextStream *filePtr, uint8_t slaveIndex, \
+								char term, qint64 t_ms, QString t_text)
+{
+	struct execute_s *exPtr1 = &exec1, *exPtr2 = &exec2;
+
+	(*filePtr) << t_text << ',' << \
+						t_ms << ',' << \
+						exPtr1->accel.x << ',' << \
+						exPtr1->accel.y << ',' << \
+						exPtr1->accel.z << ',' << \
+						exPtr1->gyro.x << ',' << \
+						exPtr1->gyro.y << ',' << \
+						exPtr1->gyro.z << ',' << \
+						exPtr1->strain << ',' << \
+						exPtr1->analog[0] << ',' << \
+						exPtr1->analog[1] << ',' << \
+						exPtr1->current << ',' << \
+						exPtr1->enc_display << ',' << \
+						exPtr1->volt_batt << ',' << \
+						exPtr1->volt_int << ',' << \
+						exPtr1->temp << ',' << \
+						exPtr1->status1 << ',' << \
+						exPtr1->status2 << ',' << \
+						exPtr2->accel.x << ',' << \
+						exPtr2->accel.y << ',' << \
+						exPtr2->accel.z << ',' << \
+						exPtr2->gyro.x << ',' << \
+						exPtr2->gyro.y << ',' << \
+						exPtr2->gyro.z << ',' << \
+						exPtr2->strain << ',' << \
+						exPtr2->analog[0] << ',' << \
+						exPtr2->analog[1] << ',' << \
+						exPtr2->current << ',' << \
+						exPtr2->enc_display << ',' << \
+						exPtr2->volt_batt << ',' << \
+						exPtr2->volt_int << ',' << \
+						exPtr2->temp << ',' << \
+						exPtr2->status1 << ',' << \
+						exPtr2->status2 << \
+						term;
+}
+
 //****************************************************************************
 // Private function(s):
 //****************************************************************************
@@ -619,6 +663,49 @@ void DataLogger::writeManageReadAllHeader(uint8_t item)
 						"analog6," << \
 						"analog7," << \
 						"Status1" << \
+						endl;
+	}
+}
+
+void DataLogger::writeManageA2DOFHeader(uint8_t item)
+{
+	if(logRecordingFile[item].isOpen())
+	{
+		//Print header:
+		logFileStream << "Timestamp," << \
+						"Timestamp (ms)," << \
+						"accel.x," << \
+						"accel.y," << \
+						"accel.z," << \
+						"gyro.x," << \
+						"gyro.y," << \
+						"gyro.z," << \
+						"strain," << \
+						"analog_0," << \
+						"analog_1," << \
+						"current," << \
+						"enc," << \
+						"VB," << \
+						"VG," << \
+						"Temp," << \
+						"Status1," << \
+						"Status2," << \
+						"accel.x," << \
+						"accel.y," << \
+						"accel.z," << \
+						"gyro.x," << \
+						"gyro.y," << \
+						"gyro.z," << \
+						"strain," << \
+						"analog_0," << \
+						"analog_1," << \
+						"current," << \
+						"enc," << \
+						"VB," << \
+						"VG," << \
+						"Temp," << \
+						"Status1," << \
+						"Status2" << \
 						endl;
 	}
 }

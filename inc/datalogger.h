@@ -95,6 +95,7 @@ private:
 	void writeExecuteReadAllHeader(uint8_t item);
 	void writeReadAllRicnuHeader(uint8_t item);
 	void writeManageReadAllHeader(uint8_t item);
+	void writeManageA2DOFHeader(uint8_t item);
 	void writeStrainReadAllHeader(uint8_t item);
 	void writeGossipReadAllHeader(uint8_t item);
 	void openfile(uint8_t item, QString shortFileName);
@@ -104,6 +105,8 @@ private:
 	void logReadAllRicnu(QTextStream *filePtr, uint8_t slaveIndex, \
 							char term, qint64 t_ms, QString t_text);
 	void logReadAllManage(QTextStream *filePtr, uint8_t slaveIndex, \
+									char term, qint64 t_ms, QString t_text);
+	void logA2DOFManage(QTextStream *filePtr, uint8_t slaveIndex, \
 									char term, qint64 t_ms, QString t_text);
 	void logReadAllGossip(QTextStream *filePtr, uint8_t slaveIndex, \
 									char term, qint64 t_ms, QString t_text);

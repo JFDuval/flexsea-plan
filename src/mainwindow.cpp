@@ -52,7 +52,7 @@ MainWindow::MainWindow(QWidget *parent) :
 	ui->setupUi(this);
 	QMainWindow::showMaximized();
 
-	setWindowTitle("FlexSEA Plan GUI v2.0 (Alpha Release - 11/2016)");
+	setWindowTitle("FlexSEA Plan GUI v2.0 (Alpha Release - 12/2016)");
 	ui->statusBar->showMessage("Program launched. COM: Not Connected. \
 								Stream status: N/A", 0);
 	setWindowIcon(QIcon(":icons/d_logo_small.png"));
@@ -75,7 +75,6 @@ MainWindow::MainWindow(QWidget *parent) :
 	W_Gossip::setMaxWindow(GOSSIP_WINDOWS_MAX);
 	W_Strain::setMaxWindow(STRAIN_WINDOWS_MAX);
 	W_UserRW::setMaxWindow(USERRW_WINDOWS_MAX);
-
 
 	W_Execute::setDescription("Execute");
 	W_Manage::setDescription("Manage - Barebone");
@@ -107,7 +106,6 @@ MainWindow::MainWindow(QWidget *parent) :
 	ui->menuFile->actions().at(3)->setEnabled(false);		//Load configuration
 	ui->menuFile->actions().at(4)->setEnabled(false);		//Save configuration
 	ui->menuControl->actions().at(1)->setEnabled(false);	//In Control
-
 
 	//Log and MainWindow
 	connect(myDataLogger, SIGNAL(setStatusBarMessage(QString)), \
@@ -160,7 +158,6 @@ void MainWindow::manageLogKeyPad(DataSource status)
 		}
 	}
 }
-
 
 //Creates a new View Execute window
 void MainWindow::createViewExecute(void)
@@ -354,11 +351,8 @@ void MainWindow::createView2DPlot(void)
 		sendWindowCreatedMsg(W_2DPlot::getDescription(), objectCount,
 							 W_2DPlot::getMaxWindow() - 1);
 
-		//Link SerialDriver and 2DPlot:
-		/*connect(mySerialDriver, SIGNAL(newDataReady()), \
-				myView2DPlot[objectCount], SLOT(refresh2DPlot())); */
 
-		//New version: updates at fixed rate, not based on serial reply:
+		//Fixed rate, not based on serial reply:
 		connect(myViewSlaveComm[0], SIGNAL(refresh2DPlot()), \
 				myView2DPlot[objectCount], SLOT(refresh2DPlot()));
 
