@@ -112,8 +112,10 @@ void W_SlaveComm::externalSlaveWrite(char numb, unsigned char *tx_data)
 {
 	//First test: send right away
 	//***TODO Fix***
-	FlexSEA_Generic::packetVisualizer(numb, tx_data);
 	emit slaveReadWrite(numb, tx_data, WRITE);
+
+	//Enable the following line to inspect the packet:
+	//FlexSEA_Generic::packetVisualizer(numb, tx_data);
 }
 
 //****************************************************************************

@@ -38,6 +38,7 @@
 #include "main.h"
 #include <QString>
 #include <QTextStream>
+#include <QTimer>
 #include <QDebug>
 
 //****************************************************************************
@@ -80,6 +81,7 @@ void W_UserRW::init(void)
 	//Populates Slave list:
 	FlexSEA_Generic::populateSlaveComboBox(ui->comboBox_slave, SL_BASE_ALL, \
 											SL_LEN_ALL);
+	ui->comboBox_slave->setCurrentIndex(4);	//Manage 1 by default
 
 	//Variables:
 	active_slave_index = ui->comboBox_slave->currentIndex();
@@ -90,28 +92,51 @@ void W_UserRW::init(void)
 	ui->w1->setText("0");
 	ui->w2->setText("0");
 	ui->w3->setText("0");
+
+	//All R boxes to 0:
+	ui->r0->setText("0");
+	ui->r1->setText("0");
+	ui->r2->setText("0");
+	ui->r3->setText("0");
+
+	//Timer used to refresh the received data:
+	refreshDelayTimer = new QTimer(this);
+	connect(refreshDelayTimer, SIGNAL(timeout()), this, SLOT(refreshDisplay()));
 }
 
 //Send a Write command:
 void W_UserRW::writeUserData(uint8_t index)
 {
+	uint8_t info[2] = {PORT_USB, PORT_USB};
+	uint16_t numb = 0;
+
 	//Refresh variable:
 	user_data_1.w[0] = (int16_t)ui->w0->text().toInt();
 	user_data_1.w[1] = (int16_t)ui->w1->text().toInt();
 	user_data_1.w[2] = (int16_t)ui->w2->text().toInt();
 	user_data_1.w[3] = (int16_t)ui->w3->text().toInt();
 
-	qDebug() << "Write user data" << index << ":" << user_data_1.w[index];
+	//qDebug() << "Write user data" << index << ":" << user_data_1.w[index];
 
-	qDebug() << "ToDo: send command!";
+	//Prepare and send command:
+	tx_cmd_data_user_w(TX_N_DEFAULT, index);
+	pack(P_AND_S_DEFAULT, active_slave, info, &numb, comm_str_usb);
+	emit writeCommand(numb, comm_str_usb);
 }
 
 //Send a Read command:
 void W_UserRW::readUserData(void)
 {
-	qDebug() << "Read user data.";
+	uint8_t info[2] = {PORT_USB, PORT_USB};
+	uint16_t numb = 0;
 
-	qDebug() << "ToDo: send command!";
+	//Prepare and send command:
+	tx_cmd_data_user_r(TX_N_DEFAULT);
+	pack(P_AND_S_DEFAULT, active_slave, info, &numb, comm_str_usb);
+	emit writeCommand(numb, comm_str_usb);
+
+	//Display will be refreshed in 75ms:
+	refreshDelayTimer->start(75);
 }
 
 //****************************************************************************
@@ -141,4 +166,21 @@ void W_UserRW::on_pushButton_w3_clicked()
 void W_UserRW::on_pushButton_refresh_clicked()
 {
 	readUserData();
+}
+
+//Refreshes the User R values (display only):
+void W_UserRW::refreshDisplay(void)
+{
+	refreshDelayTimer->stop();
+
+	ui->r0->setText(QString::number(user_data_1.r[0]));
+	ui->r1->setText(QString::number(user_data_1.r[1]));
+	ui->r2->setText(QString::number(user_data_1.r[2]));
+	ui->r3->setText(QString::number(user_data_1.r[3]));
+}
+
+void W_UserRW::on_comboBox_slave_currentIndexChanged(int index)
+{
+	active_slave_index = ui->comboBox_slave->currentIndex();
+	active_slave = FlexSEA_Generic::getSlaveID(SL_BASE_ALL, active_slave_index);
 }

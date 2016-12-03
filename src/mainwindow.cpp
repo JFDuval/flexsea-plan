@@ -583,6 +583,10 @@ void MainWindow::createUserRW(void)
 		//Link to MainWindow for the close signal:
 		connect(myUserRW[objectCount], SIGNAL(windowClosed()), \
 				this, SLOT(closeUserRW()));
+
+		//Link to SlaveComm to send commands:
+		connect(myUserRW[objectCount], SIGNAL(writeCommand(char,unsigned char*)), \
+				this, SIGNAL(connectorWriteCommand(char,unsigned char*)));
 	}
 
 	else
