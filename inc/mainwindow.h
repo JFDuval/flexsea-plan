@@ -111,7 +111,7 @@ signals:
 	//Allow window to be independly opened in any order by providing a backbone connector
 	void connectorRefreshLogTimeSlider(int index);
 	void connectorUpdateDisplayMode(DisplayMode mode);
-	void connectorWriteCommand(char ch,unsigned char* chPtr);
+	void connectorWriteCommand(uint8_t ch, uint8_t* chPtr, uint8_t r_w);
 
 public slots:
 

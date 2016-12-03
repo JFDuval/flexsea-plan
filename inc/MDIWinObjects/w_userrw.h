@@ -62,7 +62,7 @@ public slots:
 
 signals:
 	void windowClosed(void);
-	void writeCommand(char numb, unsigned char *tx_data);
+	void writeCommand(uint8_t numb, uint8_t *tx_data, uint8_t r_w);
 
 private slots:
 	void on_pushButton_w0_clicked();

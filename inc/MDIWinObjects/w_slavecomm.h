@@ -74,7 +74,7 @@ public slots:
 	void receiveNewDataReady(void);
 	void receiveComPortStatus(bool status);
 	void updateIndicatorTimeout(bool rst);
-	void externalSlaveWrite(char numb, unsigned char *tx_data);
+	void externalSlaveReadWrite(uint8_t numb, uint8_t *tx_data, uint8_t r_w);
 
 private slots:
 

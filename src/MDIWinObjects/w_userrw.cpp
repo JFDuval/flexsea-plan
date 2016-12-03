@@ -121,7 +121,7 @@ void W_UserRW::writeUserData(uint8_t index)
 	//Prepare and send command:
 	tx_cmd_data_user_w(TX_N_DEFAULT, index);
 	pack(P_AND_S_DEFAULT, active_slave, info, &numb, comm_str_usb);
-	emit writeCommand(numb, comm_str_usb);
+	emit writeCommand(numb, comm_str_usb, WRITE);
 }
 
 //Send a Read command:
@@ -133,7 +133,7 @@ void W_UserRW::readUserData(void)
 	//Prepare and send command:
 	tx_cmd_data_user_r(TX_N_DEFAULT);
 	pack(P_AND_S_DEFAULT, active_slave, info, &numb, comm_str_usb);
-	emit writeCommand(numb, comm_str_usb);
+	emit writeCommand(numb, comm_str_usb, READ);
 
 	//Display will be refreshed in 75ms:
 	refreshDelayTimer->start(75);

@@ -61,7 +61,7 @@ public slots:
 
 signals:
 	void windowClosed(void);
-	void writeCommand(char numb, unsigned char *tx_data);
+	void writeCommand(char numb, unsigned char *tx_data, uint8_t r_w);
 
 private slots:
 	void timerCtrlEvent(void);

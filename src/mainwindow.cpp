@@ -320,8 +320,8 @@ void MainWindow::createControlControl(void)
 				this, SLOT(closeControlControl()));
 
 		//Link to SlaveComm to send commands:
-		connect(myViewControl[objectCount], SIGNAL(writeCommand(char,unsigned char*)), \
-				this, SIGNAL(connectorWriteCommand(char,unsigned char*)));
+		connect(myViewControl[objectCount], SIGNAL(writeCommand(uint8_t,uint8_t*,uint8_t)), \
+				this, SIGNAL(connectorWriteCommand(uint8_t,uint8_t*,uint8_t)));
 	}
 
 	else
@@ -417,9 +417,9 @@ void MainWindow::createSlaveComm(void)
 		connect(myViewSlaveComm[0], SIGNAL(closeRecordingFile(uint8_t)), \
 				myDataLogger, SLOT(closeRecordingFile(uint8_t)));
 
-		//Link SlaveComm and Control Trought connector
-		connect(this, SIGNAL(connectorWriteCommand(char,unsigned char*)), \
-				myViewSlaveComm[0], SLOT(externalSlaveWrite(char,unsigned char*)));
+		//Link SlaveComm and Control Through connector
+		connect(this, SIGNAL(connectorWriteCommand(uint8_t,uint8_t*,uint8_t)), \
+				myViewSlaveComm[0], SLOT(externalSlaveReadWrite(uint8_t,uint8_t*,uint8_t)));
 	}
 
 	else
@@ -585,8 +585,9 @@ void MainWindow::createUserRW(void)
 				this, SLOT(closeUserRW()));
 
 		//Link to SlaveComm to send commands:
-		connect(myUserRW[objectCount], SIGNAL(writeCommand(char,unsigned char*)), \
-				this, SIGNAL(connectorWriteCommand(char,unsigned char*)));
+		connect(myUserRW[objectCount], SIGNAL(writeCommand(uint8_t,\
+				uint8_t*,uint8_t)), this, SIGNAL(connectorWriteCommand(uint8_t,\
+				uint8_t*, uint8_t)));
 	}
 
 	else

@@ -207,7 +207,7 @@ void W_Control::controller_setpoint(int val)
 	{
 		//Common for all gain functions:
 		pack(P_AND_S_DEFAULT, active_slave, info, &numb, comm_str_usb);
-		emit writeCommand(numb, comm_str_usb);
+		emit writeCommand(numb, comm_str_usb, WRITE);
 	}
 	else
 	{
@@ -321,7 +321,7 @@ void W_Control::on_pushButton_SetController_clicked()
 	//Prepare and send command:
 	tx_cmd_ctrl_mode_w(TX_N_DEFAULT, ctrl);
 	pack(P_AND_S_DEFAULT, active_slave, info, &numb, comm_str_usb);
-	emit writeCommand(numb, comm_str_usb);
+	emit writeCommand(numb, comm_str_usb, WRITE);
 
 	//Notify user:
 	QString msg;
@@ -491,7 +491,7 @@ void W_Control::on_pushButton_SetGains_clicked()
 
 		//Common for all gain functions:
 		pack(P_AND_S_DEFAULT, active_slave, info, &numb, comm_str_usb);
-		emit writeCommand(numb, comm_str_usb);
+		emit writeCommand(numb, comm_str_usb, WRITE);
 	}
 	else
 	{

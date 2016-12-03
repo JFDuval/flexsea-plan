@@ -108,11 +108,11 @@ void W_SlaveComm::receiveComPortStatus(bool status)
 }
 
 //A 3rd party is using SlaveComm to write to a slave (ex.: Control, Any Command)
-void W_SlaveComm::externalSlaveWrite(char numb, unsigned char *tx_data)
+void W_SlaveComm::externalSlaveReadWrite(uint8_t numb, uint8_t *tx_data, uint8_t r_w)
 {
-	//First test: send right away
-	//***TODO Fix***
-	emit slaveReadWrite(numb, tx_data, WRITE);
+	//First test: send right away //***TODO Fix***, should be in queue
+
+	emit slaveReadWrite(numb, tx_data, r_w);
 
 	//Enable the following line to inspect the packet:
 	//FlexSEA_Generic::packetVisualizer(numb, tx_data);
