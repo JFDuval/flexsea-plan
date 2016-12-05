@@ -142,87 +142,102 @@ void DataLogger::openReadingFile(bool * isOpen)
 	//Now we open it:
 	logReadingFile.setFileName(filename);
 
-	if(logReadingFile.open(QIODevice::ReadOnly))
+	//Check if the file was successfully opened
+	if(logReadingFile.open(QIODevice::ReadOnly) == false)
 	{
-		// Read and save the logfile informations.
-		QString line;
-		QStringList splitLine;
+		msg = tr("Error : No log file selected or the file couldn't be opened.");
+		emit setStatusBarMessage(msg);
+		qDebug() << msg;
+		return;
+	}
 
+	//Check if the file is empty
+	if(logReadingFile.size() == 0)
+	{
+		msg = tr("Error : Loaded file was empty.");
+		emit setStatusBarMessage(msg);
+		qDebug() << msg;
+		return;
+	}
+
+	// Read and save the logfile informations.
+	QString line;
+	QStringList splitLine;
+
+	line = logReadingFile.readLine();
+	splitLine = line.split(',', QString::KeepEmptyParts);
+
+	//Check if the file header contain the expected number of data
+	if(splitLine.length() < 12)
+	{
+		msg = tr("Error : Loaded file format was not compatible");
+		emit setStatusBarMessage(msg);
+		qDebug() << msg;
+		return;
+	}
+
+	myLogFile.dataloggingItem	= splitLine[1].toInt();
+	myLogFile.SlaveIndex		= splitLine[3].toInt();
+	myLogFile.SlaveName			= splitLine[5];
+	myLogFile.experimentIndex	= splitLine[7].toInt();
+	myLogFile.experimentName	= splitLine[9];
+	myLogFile.frequency			= splitLine[11].toInt();
+	myLogFile.shortFileName		= shortFileName;
+	myLogFile.fileName			= filename;
+
+	//Clear the column's header.
+	line = logReadingFile.readLine();
+	splitLine = line.split(',', QString::KeepEmptyParts);
+	int test = splitLine.length();
+	//Check if data header contain the number of expected field
+	if(splitLine.length() < 20)
+	{
+		msg = tr("File format is not compatible");
+		emit setStatusBarMessage(msg);
+		qDebug() << msg;
+		myLogFile.clear();
+		return;
+	}
+
+	while (!logReadingFile.atEnd())
+	{
 		line = logReadingFile.readLine();
 		splitLine = line.split(',', QString::KeepEmptyParts);
 
-		myLogFile.dataloggingItem	= splitLine[1].toInt();
-		myLogFile.SlaveIndex		= splitLine[3].toInt();
-		myLogFile.SlaveName			= splitLine[5];
-		myLogFile.experimentIndex	= splitLine[7].toInt();
-		myLogFile.experimentName	= splitLine[9];
-		myLogFile.frequency			= splitLine[11].toInt();
-		myLogFile.shortFileName = shortFileName;
-		myLogFile.fileName		= filename;
-
-		//Clear the column's header.
-		line = logReadingFile.readLine();
-
-		// TODO: Remove this by supporting multiple board
-		// Quick hack: detect what board we are reading:
-
-		if((myLogFile.SlaveIndex >= 0 && myLogFile.SlaveIndex <= 3) && \
-			(myLogFile.experimentIndex == 0))
+		//Check if data line contain the number of data expected
+		if(splitLine.length() >= 20)
 		{
-			qDebug() << "Reading from Execute";
+			myLogFile.newDataLine();
+			myLogFile.data.last().timeStampDate		= splitLine[0];
+			myLogFile.data.last().timeStamp_ms		= splitLine[1].toInt();
+			myLogFile.data.last().execute.accel.x	= splitLine[2].toInt();
+			myLogFile.data.last().execute.accel.y	= splitLine[3].toInt();
+			myLogFile.data.last().execute.accel.z	= splitLine[4].toInt();
+			myLogFile.data.last().execute.gyro.x	= splitLine[5].toInt();
+			myLogFile.data.last().execute.gyro.y	= splitLine[6].toInt();
+			myLogFile.data.last().execute.gyro.z	= splitLine[7].toInt();
+			myLogFile.data.last().execute.strain	= splitLine[8].toInt();
+			myLogFile.data.last().execute.analog[0]	= splitLine[9].toInt();
+			myLogFile.data.last().execute.analog[1]	= splitLine[10].toInt();
+			myLogFile.data.last().execute.current	= splitLine[11].toInt();
+			myLogFile.data.last().execute.enc_display= splitLine[12].toInt();
+			myLogFile.data.last().execute.enc_control= splitLine[13].toInt();
+			myLogFile.data.last().execute.enc_commut= splitLine[14].toInt();
+			myLogFile.data.last().execute.volt_batt	= splitLine[15].toInt();
+			myLogFile.data.last().execute.volt_int	= splitLine[16].toInt();
+			myLogFile.data.last().execute.temp		= splitLine[17].toInt();
+			myLogFile.data.last().execute.status1	= splitLine[18].toInt();
+			myLogFile.data.last().execute.status2	= splitLine[19].toInt();
 		}
-		else
-		{
-			qDebug() << "To this day, we can only load an Execute's log.";
-			return;
-		}
-
-		while (!logReadingFile.atEnd())
-		{
-			line = logReadingFile.readLine();
-			splitLine = line.split(',', QString::KeepEmptyParts);
-
-			// If data line contain expected data
-			if(splitLine.length() >= 20)
-			{
-				myLogFile.newDataLine();
-				myLogFile.data.last().timeStampDate		= splitLine[0];
-				myLogFile.data.last().timeStamp_ms		= splitLine[1].toInt();
-				myLogFile.data.last().execute.accel.x	= splitLine[2].toInt();
-				myLogFile.data.last().execute.accel.y	= splitLine[3].toInt();
-				myLogFile.data.last().execute.accel.z	= splitLine[4].toInt();
-				myLogFile.data.last().execute.gyro.x	= splitLine[5].toInt();
-				myLogFile.data.last().execute.gyro.y	= splitLine[6].toInt();
-				myLogFile.data.last().execute.gyro.z	= splitLine[7].toInt();
-				myLogFile.data.last().execute.strain	= splitLine[8].toInt();
-				myLogFile.data.last().execute.analog[0]	= splitLine[9].toInt();
-				myLogFile.data.last().execute.analog[1]	= splitLine[10].toInt();
-				myLogFile.data.last().execute.current	= splitLine[11].toInt();
-				myLogFile.data.last().execute.enc_display= splitLine[12].toInt();
-				myLogFile.data.last().execute.enc_control= splitLine[13].toInt();
-				myLogFile.data.last().execute.enc_commut= splitLine[14].toInt();
-				myLogFile.data.last().execute.volt_batt	= splitLine[15].toInt();
-				myLogFile.data.last().execute.volt_int	= splitLine[16].toInt();
-				myLogFile.data.last().execute.temp		= splitLine[17].toInt();
-				myLogFile.data.last().execute.status1	= splitLine[18].toInt();
-				myLogFile.data.last().execute.status2	= splitLine[19].toInt();
-			}
-		}
-		myLogFile.decodeAllLine();
-
-		msg = tr("Opened '") + filename + "'.";
-		emit setStatusBarMessage(msg);
-		qDebug() << msg;
-		*isOpen = true;
 	}
 
-	//If no file selected
-	else
-	{
-		msg = tr("No log file selected or the file couldn't be opened.");
-		emit setStatusBarMessage(msg);
-		qDebug() << msg;
-	}
+	myLogFile.decodeAllLine();
+
+	msg = tr("Opened '") + filename + "'.";
+	emit setStatusBarMessage(msg);
+	qDebug() << msg;
+
+	*isOpen = true;
 }
 
 void DataLogger::writeToFile(uint8_t item, uint8_t slaveIndex,
