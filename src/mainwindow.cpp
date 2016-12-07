@@ -181,6 +181,9 @@ void MainWindow::createViewExecute(void)
 		ui->mdiArea->addSubWindow(myViewExecute[objectCount]);
 		myViewExecute[objectCount]->show();
 
+		sendWindowCreatedMsg(W_Execute::getDescription(), objectCount,
+							 W_Execute::getMaxWindow() - 1);
+
 		//Link SerialDriver and Execute:
 		connect(mySerialDriver, SIGNAL(newDataReady()), \
 				myViewExecute[objectCount], SLOT(refresh()));
