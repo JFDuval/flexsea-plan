@@ -442,6 +442,7 @@ void FlexSEA_Generic::decodeSlave(uint8_t base, uint8_t index)
 			decodeManage(base, index);
 			break;
 		case FLEXSEA_EXECUTE_BASE:
+			decodeExecute(base, index);
 			decodeRicnu(base, index);
 			break;
 		case FLEXSEA_BATTERY_BASE:
