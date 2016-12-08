@@ -269,6 +269,7 @@ void DataLogger::writeToFile(uint8_t item, uint8_t slaveIndex,
 
 			//Header:
 			writeIdentifier(item, slaveIndex, expIndex, refreshRate);
+			//writeReadAllHeader(&executeData, item);
 			(this->*headerFctPtr)(item);
 		}
 
@@ -363,8 +364,16 @@ void DataLogger::closeReadingFile(void)
 	myLogFile.clear();
 }
 
-//ToDo: move these functions to their respective files
 
+void DataLogger::logReadAll(FlexseaDevice *device, uint8_t item)
+{
+	if(logRecordingFile[item].isOpen())
+	{
+		logFileStream << device->getLastLineStr() << endl;
+	}
+}
+
+//ToDo: move these functions to their respective files
 void DataLogger::logReadAllExec(QTextStream *filePtr, uint8_t slaveIndex, \
 								char term, qint64 t_ms, QString t_text)
 {
@@ -578,6 +587,14 @@ void DataLogger::writeIdentifier(uint8_t item, uint8_t slaveIndex,
 	if(logRecordingFile[item].isOpen())
 	{
 		logFileStream << msg;
+	}
+}
+
+void DataLogger::writeReadAllHeader(FlexseaDevice *device, uint8_t item)
+{
+	if(logRecordingFile[item].isOpen())
+	{
+		logFileStream << device->getHeaderStr() << endl;
 	}
 }
 

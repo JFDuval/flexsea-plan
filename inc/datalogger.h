@@ -44,6 +44,7 @@
 #include "flexsea_generic.h"
 #include "main.h"
 #include "logFile.h"
+#include "flexsea_data.h"
 
 //****************************************************************************
 // Namespace & Class
@@ -76,6 +77,8 @@ private:
 	QFile logRecordingFile[4];
 	QFile logReadingFile;
 
+	ExecuteClass executeData = ExecuteClass(LogDataFile);
+
 	QString planGUIRootPath;
 	QString logFolder;
 	QString sessionFolder;
@@ -92,6 +95,9 @@ private:
 	void logTimestamp(qint64 *t_ms, QString *t_text);
 	void writeIdentifier(uint8_t item, uint8_t slaveIndex,
 									 uint8_t expIndex, uint16_t refreshRate);
+
+	void writeReadAllHeader(FlexseaDevice *device, uint8_t item);
+
 	void writeExecuteReadAllHeader(uint8_t item);
 	void writeReadAllRicnuHeader(uint8_t item);
 	void writeManageReadAllHeader(uint8_t item);
@@ -99,6 +105,9 @@ private:
 	void writeGossipReadAllHeader(uint8_t item);
 	void openfile(uint8_t item, QString shortFileName);
 	void initLogDirectory(void);
+
+	void logReadAll(FlexseaDevice *device, uint8_t item);
+
 	void logReadAllExec(QTextStream *filePtr, uint8_t slaveIndex, \
 							char term, qint64 t_ms, QString t_text);
 	void logReadAllRicnu(QTextStream *filePtr, uint8_t slaveIndex, \

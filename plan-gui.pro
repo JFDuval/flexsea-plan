@@ -73,7 +73,8 @@ SOURCES += src/main.cpp \
 	src/MDIWinObjects/w_config.cpp \
 	src/MDIWinObjects/w_logkeypad.cpp \
 	src/MDIWinObjects/w_userrw.cpp \
-	src/logFile.cpp
+	src/logFile.cpp \
+    src/flexsea_data.cpp
 
 HEADERS  += inc/main.h \
 	inc/mainwindow.h \
@@ -91,7 +92,6 @@ HEADERS  += inc/main.h \
 	flexsea-shared/unity/unity.h \
 	flexsea-shared/unity/unity_internals.h \
 	flexsea-system/test/flexsea-system_test-all.h \
-	inc/flexsea_generic.h \
 	inc/datalogger.h \
 	inc/trapez.h \
 	inc/serialdriver.h \
@@ -118,7 +118,9 @@ HEADERS  += inc/main.h \
 	inc/MDIWinObjects/w_logkeypad.h \
 	inc/MDIWinObjects/w_userrw.h \
 	inc/counter.h \
-	inc/logFile.h
+	inc/logFile.h \
+    inc/flexsea_generic.h \
+    inc/flexsea_data.h
 
 FORMS    += ui/mainwindow.ui \
 	ui/w_execute.ui \
