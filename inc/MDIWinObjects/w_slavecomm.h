@@ -45,10 +45,10 @@
 // Definition(s)
 //****************************************************************************
 
-#define MAX_SC_ITEMS            4
-#define MAX_SLAVES              10
-#define MASTER_TIMER            100 //Hz
-#define MAX_EXPERIMENTS         10
+#define MAX_SC_ITEMS			4
+#define MAX_SLAVES				10
+#define MASTER_TIMER			200 //Hz
+#define MAX_EXPERIMENTS			10
 
 #define TIM_FREQ_TO_P(f)		(1000/f)	//f in Hz, return in ms
 
@@ -106,6 +106,7 @@ private slots:
 signals:
 
 	//Timers:
+	void masterTimer200Hz(void);
 	void masterTimer100Hz(void);
 	void masterTimer50Hz(void);
 	void masterTimer20Hz(void);

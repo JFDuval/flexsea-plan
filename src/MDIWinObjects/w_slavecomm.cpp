@@ -247,10 +247,9 @@ void W_SlaveComm::initSlaveCom(void)
 	//Refresh Rate:
 	//==================================
 
-	var_list_refresh << "100Hz" << "50Hz" << "33Hz" << "20Hz" \
-					 << "10Hz" << "5Hz" << "1Hz";
-	refreshRate << 100 << 50 << 33 << 20
-				<< 10 << 5 << 1;
+	var_list_refresh << "200Hz" << "100Hz" << "50Hz" << "33Hz" \
+					 << "20Hz" << "10Hz" << "5Hz" << "1Hz";
+	refreshRate << 200 << 100 << 50 << 33 << 20 << 10 << 5 << 1;
 	for(int index = 0; index < var_list_refresh.count(); index++)
 	{
 		ui->comboBoxRefresh1->addItem(var_list_refresh.at(index));
@@ -260,14 +259,15 @@ void W_SlaveComm::initSlaveCom(void)
 	}
 
 	//Start at 33Hz:
-	ui->comboBoxRefresh1->setCurrentIndex(2);
-	ui->comboBoxRefresh2->setCurrentIndex(2);
-	ui->comboBoxRefresh3->setCurrentIndex(2);
-	ui->comboBoxRefresh4->setCurrentIndex(2);
-	selected_refresh_index[0] = 2;
-	selected_refresh_index[1] = 2;
-	selected_refresh_index[2] = 2;
-	selected_refresh_index[3] = 2;
+	uint8_t defaultTslot = 3;
+	ui->comboBoxRefresh1->setCurrentIndex(defaultTslot);
+	ui->comboBoxRefresh2->setCurrentIndex(defaultTslot);
+	ui->comboBoxRefresh3->setCurrentIndex(defaultTslot);
+	ui->comboBoxRefresh4->setCurrentIndex(defaultTslot);
+	selected_refresh_index[0] = defaultTslot;
+	selected_refresh_index[1] = defaultTslot;
+	selected_refresh_index[2] = defaultTslot;
+	selected_refresh_index[3] = defaultTslot;
 	previous_refresh_index[0] = selected_refresh_index[0];
 	previous_refresh_index[1] = selected_refresh_index[1];
 	previous_refresh_index[2] = selected_refresh_index[2];
@@ -277,10 +277,10 @@ void W_SlaveComm::initSlaveCom(void)
 	allComboBoxesPopulated = true;
 
 	//Connect default slots:
-	connectSCItem(0, 2, 0);
-	connectSCItem(1, 2, 0);
-	connectSCItem(2, 2, 0);
-	connectSCItem(3, 2, 0);
+	connectSCItem(0, defaultTslot, 0);
+	connectSCItem(1, defaultTslot, 0);
+	connectSCItem(2, defaultTslot, 0);
+	connectSCItem(3, defaultTslot, 0);
 
 	//For now, Experiments 2-4 are disabled:
 	//======================================
@@ -425,30 +425,34 @@ void W_SlaveComm::connectSCItem(int item, int sig_idx, int breakB4make)
 		switch(sig_idx)
 		{
 			case 0:
-				sc_connections[item] = connect(this, SIGNAL(masterTimer100Hz()), \
+				sc_connections[item] = connect(this, SIGNAL(masterTimer200Hz()), \
 										this, SLOT(sc_item1_slot()));
 				break;
 			case 1:
-				sc_connections[item] = connect(this, SIGNAL(masterTimer50Hz()), \
+				sc_connections[item] = connect(this, SIGNAL(masterTimer100Hz()), \
 										this, SLOT(sc_item1_slot()));
 				break;
 			case 2:
-				sc_connections[item] = connect(this, SIGNAL(masterTimer33Hz()), \
+				sc_connections[item] = connect(this, SIGNAL(masterTimer50Hz()), \
 										this, SLOT(sc_item1_slot()));
 				break;
 			case 3:
-				sc_connections[item] = connect(this, SIGNAL(masterTimer20Hz()), \
+				sc_connections[item] = connect(this, SIGNAL(masterTimer33Hz()), \
 										this, SLOT(sc_item1_slot()));
 				break;
 			case 4:
-				sc_connections[item] = connect(this, SIGNAL(masterTimer10Hz()), \
+				sc_connections[item] = connect(this, SIGNAL(masterTimer20Hz()), \
 										this, SLOT(sc_item1_slot()));
 				break;
 			case 5:
-				sc_connections[item] = connect(this, SIGNAL(masterTimer5Hz()), \
+				sc_connections[item] = connect(this, SIGNAL(masterTimer10Hz()), \
 										this, SLOT(sc_item1_slot()));
 				break;
 			case 6:
+				sc_connections[item] = connect(this, SIGNAL(masterTimer5Hz()), \
+										this, SLOT(sc_item1_slot()));
+				break;
+			case 7:
 				sc_connections[item] = connect(this, SIGNAL(masterTimer1Hz()), \
 										this, SLOT(sc_item1_slot()));
 				break;
@@ -748,13 +752,15 @@ void W_SlaveComm::sc_item1_slot(void)
 	}
 }
 
-//Master timebase is 100Hz. We divide is to get [100, 50, 33, 20, 10, 5, 1]Hz
+/* Master timebase is 200Hz. We divide is to get
+ * [200, 100, 50, 33, 20, 10, 5, 1]Hz */
 void W_SlaveComm::masterTimerEvent(void)
 {
-	static int tb50Hz = 0, tb33Hz = 0, tb20Hz = 0;
+	static int tb100Hz = 0, tb50Hz = 0, tb33Hz = 0, tb20Hz = 0;
 	static int tb10Hz = 0, tb5Hz = 0, tb1Hz = 0;
 
 	//Increment all counters:
+	tb100Hz++;
 	tb50Hz++;
 	tb33Hz++;
 	tb20Hz++;
@@ -764,41 +770,47 @@ void W_SlaveComm::masterTimerEvent(void)
 
 	//Emit signals:
 
-	emit masterTimer100Hz();
+	emit masterTimer200Hz();
 	updateIndicatorTimeout(false);
 
-	if(tb50Hz > 1)
+	if(tb100Hz > 1)
+	{
+		tb100Hz = 0;
+		emit masterTimer100Hz();
+	}
+
+	if(tb50Hz > 3)
 	{
 		tb50Hz = 0;
 		emit masterTimer50Hz();
 	}
 
-	if(tb33Hz > 2)
+	if(tb33Hz > 5)
 	{
 		tb33Hz = 0;
 		emit masterTimer33Hz();
 		emit refresh2DPlot();   //Move to desired slot
 	}
 
-	if(tb20Hz > 4)
+	if(tb20Hz > 9)
 	{
 		tb20Hz = 0;
 		emit masterTimer20Hz();
 	}
 
-	if(tb10Hz > 9)
+	if(tb10Hz > 19)
 	{
 		tb10Hz = 0;
 		emit masterTimer10Hz();
 	}
 
-	if(tb5Hz > 19)
+	if(tb5Hz > 39)
 	{
 		tb5Hz = 0;
 		emit masterTimer5Hz();
 	}
 
-	if(tb1Hz > 99)
+	if(tb1Hz > 199)
 	{
 		tb1Hz = 0;
 		emit masterTimer1Hz();
