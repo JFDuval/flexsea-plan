@@ -73,7 +73,8 @@ SOURCES += src/main.cpp \
 	src/MDIWinObjects/w_config.cpp \
 	src/MDIWinObjects/w_logkeypad.cpp \
 	src/MDIWinObjects/w_userrw.cpp \
-	src/logFile.cpp
+	src/logFile.cpp \
+    flexsea-user/MotorTestBench/src/cmd-MotorTestBench.c
 
 HEADERS  += inc/main.h \
 	inc/mainwindow.h \
@@ -118,7 +119,8 @@ HEADERS  += inc/main.h \
 	inc/MDIWinObjects/w_logkeypad.h \
 	inc/MDIWinObjects/w_userrw.h \
 	inc/counter.h \
-	inc/logFile.h
+	inc/logFile.h \
+    flexsea-user/MotorTestBench/inc/cmd-MotorTestBench.h
 
 FORMS    += ui/mainwindow.ui \
 	ui/w_execute.ui \

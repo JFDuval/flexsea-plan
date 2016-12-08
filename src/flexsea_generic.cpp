@@ -78,6 +78,7 @@ QStringList FlexSEA_Generic::var_list_exp = QStringList()
 											<< "CSEA Knee"
 											<< "2DOF Ankle"
 											<< "Battery Board"
+											<< "Test Bench"
 											<< "[Your project]";
 
 //****************************************************************************

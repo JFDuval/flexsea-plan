@@ -627,8 +627,7 @@ void W_SlaveComm::sc_read_all_ricnu(uint8_t item)
 }
 
 //Argument is the item line (0-3)
-//Read All should be programmed for all boards - it returns all the onboard
-//sensor values
+//Communicates with a Manage, MIT's 2DoF ankle
 void W_SlaveComm::sc_ankle2dof(uint8_t item)
 {
 	uint16_t numb = 0;
@@ -694,6 +693,36 @@ void W_SlaveComm::sc_battery(uint8_t item)
 	*/
 }
 
+//Argument is the item line (0-3)
+//Communicates with a Manage, as part of our motor test bench
+void W_SlaveComm::sc_testbench(uint8_t item)
+{
+	uint16_t numb = 0;
+	uint8_t info[2] = {PORT_USB, PORT_USB};
+	uint8_t slaveId = active_slave[item];
+	uint8_t slaveIndex = active_slave_index[item];
+	uint8_t expIndex = selected_exp_index[item];
+	static uint8_t sel_slave = 0;
+
+	//1) Stream
+	tx_cmd_motortb_r(TX_N_DEFAULT, sel_slave, 0, 0, 0);
+	pack(P_AND_S_DEFAULT, slaveId, info, &numb, comm_str_usb);
+	emit slaveReadWrite(numb, comm_str_usb, READ);
+
+	sel_slave++;
+	sel_slave %= 3;
+
+	//2) Decode values
+	FlexSEA_Generic::decodeSlave(SL_BASE_EX, sel_slave);
+
+	//3) Log
+	if(logThisItem[item] == true)
+	{
+		emit writeToLogFile(item, slaveIndex, expIndex,
+							refreshRate.at(ui->comboBoxRefresh1->currentIndex()));
+	}
+}
+
 //
 void W_SlaveComm::updateIndicatorTimeout(bool rst)
 {
@@ -745,6 +774,9 @@ void W_SlaveComm::sc_item1_slot(void)
 				break;
 			case 5:	//Battery Board
 				sc_battery(0);
+				break;
+			case 6:	//Test Bench
+				sc_testbench(0);
 				break;
 			default:
 				break;
