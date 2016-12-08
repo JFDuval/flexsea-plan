@@ -702,18 +702,25 @@ void W_SlaveComm::sc_testbench(uint8_t item)
 	uint8_t slaveId = active_slave[item];
 	uint8_t slaveIndex = active_slave_index[item];
 	uint8_t expIndex = selected_exp_index[item];
-	static uint8_t sel_slave = 0;
+	static uint8_t offset = 0;
 
 	//1) Stream
-	tx_cmd_motortb_r(TX_N_DEFAULT, sel_slave, 0, 0, 0);
+	tx_cmd_motortb_r(TX_N_DEFAULT, offset, 0, 0, 0);
 	pack(P_AND_S_DEFAULT, slaveId, info, &numb, comm_str_usb);
 	emit slaveReadWrite(numb, comm_str_usb, READ);
 
-	sel_slave++;
-	sel_slave %= 3;
+	offset++;
+	offset %= 3;
 
 	//2) Decode values
-	FlexSEA_Generic::decodeSlave(SL_BASE_EX, sel_slave);
+	if(offset == 0 || offset == 1)
+	{
+		FlexSEA_Generic::decodeSlave(SL_BASE_EX, offset);
+	}
+	else if(offset == 2)
+	{
+		FlexSEA_Generic::decodeSlave(SL_BASE_ALL, 9);
+	}
 
 	//3) Log
 	if(logThisItem[item] == true)
