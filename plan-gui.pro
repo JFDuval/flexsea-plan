@@ -13,6 +13,7 @@ TEMPLATE = app
 
 INCLUDEPATH += inc \
 	inc/MDIWinObjects \
+	inc/flexSeaDevice \
 	flexsea-comm/inc \
 	flexsea-comm/test \
 	flexsea-system/inc \
@@ -74,7 +75,8 @@ SOURCES += src/main.cpp \
 	src/MDIWinObjects/w_logkeypad.cpp \
 	src/MDIWinObjects/w_userrw.cpp \
 	src/logFile.cpp \
-    src/flexsea_data.cpp
+	src/FlexSEADevice/executeDevice.cpp \
+    src/FlexSEADevice/flexseaDevice.cpp
 
 HEADERS  += inc/main.h \
 	inc/mainwindow.h \
@@ -119,8 +121,9 @@ HEADERS  += inc/main.h \
 	inc/MDIWinObjects/w_userrw.h \
 	inc/counter.h \
 	inc/logFile.h \
-    inc/flexsea_generic.h \
-    inc/flexsea_data.h
+	inc/flexsea_generic.h \
+	inc/FlexSEADevice/executeDevice.h \
+	inc/FlexSEADevice/flexseaDevice.h
 
 FORMS    += ui/mainwindow.ui \
 	ui/w_execute.ui \

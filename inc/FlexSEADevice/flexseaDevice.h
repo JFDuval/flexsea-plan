@@ -21,23 +21,31 @@
 	Biomechatronics research group <http://biomech.media.mit.edu/>
 	[Contributors]
 *****************************************************************************
-	[This file] LogFile: Log File data class
+	[This file] FlexseaDevice: Interface class flexSEA device
 *****************************************************************************
 	[Change log] (Convention: YYYY-MM-DD | author | comment)
-	* 2016-11-30 | sbelanger | Initial GPL-3.0 release
+	* 2016-12-07 | sbelanger | Initial GPL-3.0 release
 	*
 ****************************************************************************/
 
-#ifndef EXECUTECLASS_H
-#define EXECUTECLASS_H
+#ifndef FLEXSEADEVICE_H
+#define FLEXSEADEVICE_H
 
 //****************************************************************************
 // Include(s)
 //****************************************************************************
 
-#include <QList>
 #include <QString>
-#include <flexsea_global_structs.h>
+
+//****************************************************************************
+// Definition(s)
+//****************************************************************************
+
+enum DataSourceFile
+{
+	LiveDataFile,
+	LogDataFile
+};
 
 //****************************************************************************
 // Namespace & Class
@@ -46,24 +54,19 @@
 namespace Ui
 {
 	class FlexseaDevice;
-	class ExecuteClass;
 }
-
-enum DataSourceFile
-{
-	LiveDataFile,
-	LogDataFile
-};
 
 class FlexseaDevice
 {
 public:
+	explicit FlexseaDevice();
 	virtual QString getHeaderStr(void) = 0;
 	virtual QString getLastLineStr(void) = 0;
 	virtual void decodeLastLine(void) = 0;
 	virtual void decodeAllLine(void) = 0;
-	virtual void clear(void) = 0;
 	virtual void appendEmptyLine(void) = 0;
+
+	virtual void clear(void);
 
 	enum DataSourceFile dataSource;
 	QString shortFileName;
@@ -76,37 +79,4 @@ public:
 	int frequency;
 };
 
-struct ExecuteT
-{
-	QString timeStampDate;
-	int32_t timeStamp_ms;
-	execute_s exec;
-};
-
-class ExecuteClass : public FlexseaDevice
-{
-public:
-	explicit ExecuteClass(enum DataSourceFile dataSourceInit);
-
-
-	// Virtual implementation
-	QString getHeaderStr(void);
-	QString getLastLineStr(void);
-	void decodeLastLine(void);
-	void decodeAllLine(void);
-	void clear(void);
-	void appendEmptyLine(void);
-
-	QList<struct ExecuteT> data;
-
-private:
-	void decode(struct execute_s *exPtr);
-
-};
-
-
-//****************************************************************************
-// Definition(s)
-//****************************************************************************
-
-#endif // EXECUTECLASS_H
+#endif // FLEXSEADEVICE_H

@@ -21,10 +21,10 @@
 	Biomechatronics research group <http://biomech.media.mit.edu/>
 	[Contributors]
 *****************************************************************************
-	[This file] LogFile: Log File data class
+	[This file] ExecuteDevice: Execute Device Data Class
 *****************************************************************************
 	[Change log] (Convention: YYYY-MM-DD | author | comment)
-	* 2016-11-30 | sbelanger | Initial GPL-3.0 release
+	* 2016-12-07 | sbelanger | Initial GPL-3.0 release
 	*
 ****************************************************************************/
 
@@ -32,7 +32,7 @@
 // Include(s)
 //****************************************************************************
 
-#include "flexsea_data.h"
+#include "executeDevice.h"
 #include "flexsea_generic.h"
 #include <QDebug>
 #include <QTextStream>
@@ -41,20 +41,16 @@
 // Constructor & Destructor:
 //****************************************************************************
 
-ExecuteClass::ExecuteClass(enum DataSourceFile dataSourceInit)
+ExecuteDevice::ExecuteDevice(enum DataSourceFile dataSourceInit): FlexseaDevice()
 {
 	this->dataSource = dataSourceInit;
-	dataloggingItem = 0;
-	SlaveIndex = 0;
-	experimentIndex = 0;
-	frequency = 0;
 }
 
 //****************************************************************************
 // Public function(s):
 //****************************************************************************
 
-QString ExecuteClass::getHeaderStr(void)
+QString ExecuteDevice::getHeaderStr(void)
 {
 	return QString("Timestamp,") + \
 				   "Timestamp (ms)," + \
@@ -78,7 +74,7 @@ QString ExecuteClass::getHeaderStr(void)
 				   "Status2";
 }
 
-QString ExecuteClass::getLastLineStr(void)
+QString ExecuteDevice::getLastLineStr(void)
 {
 	QString str;
 	QTextStream(&str) <<	data.last().timeStampDate << ',' << \
@@ -104,30 +100,23 @@ QString ExecuteClass::getLastLineStr(void)
 	return str;
 }
 
-void ExecuteClass::clear(void)
+void ExecuteDevice::clear(void)
 {
-	dataloggingItem = 0;
-	SlaveIndex = 0;
-	SlaveName.clear();
-	experimentIndex = 0;
-	experimentName.clear();
-	frequency = 0;
-	shortFileName.clear();
-	fileName.clear();
+	FlexseaDevice::clear();
 	data.clear();
 }
 
-void ExecuteClass::appendEmptyLine(void)
+void ExecuteDevice::appendEmptyLine(void)
 {
-	data.append(ExecuteT());
+	data.append(ExecuteStamp());
 }
 
-void ExecuteClass::decodeLastLine(void)
+void ExecuteDevice::decodeLastLine(void)
 {
 	decode(&data.last().exec);
 }
 
-void ExecuteClass::decodeAllLine(void)
+void ExecuteDevice::decodeAllLine(void)
 {
 	for(int i = 0; i < data.size(); ++i)
 	{
@@ -144,7 +133,7 @@ void ExecuteClass::decodeAllLine(void)
 //****************************************************************************
 // Private function(s):
 //****************************************************************************
-void ExecuteClass::decode(struct execute_s *exPtr)
+void ExecuteDevice::decode(struct execute_s *exPtr)
 {
 	//Accel in mG
 	exPtr->decoded.accel.x = (1000*exPtr->accel.x)/8192;

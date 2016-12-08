@@ -44,7 +44,8 @@
 #include "flexsea_generic.h"
 #include "main.h"
 #include "logFile.h"
-#include "flexsea_data.h"
+
+#include "ExecuteDevice.h"
 
 //****************************************************************************
 // Namespace & Class
@@ -77,7 +78,7 @@ private:
 	QFile logRecordingFile[4];
 	QFile logReadingFile;
 
-	ExecuteClass executeData = ExecuteClass(LogDataFile);
+	ExecuteDevice executeData = ExecuteDevice(LogDataFile);
 
 	QString planGUIRootPath;
 	QString logFolder;
