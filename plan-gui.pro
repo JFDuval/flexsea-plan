@@ -74,7 +74,9 @@ SOURCES += src/main.cpp \
 	src/MDIWinObjects/w_logkeypad.cpp \
 	src/MDIWinObjects/w_userrw.cpp \
 	src/logFile.cpp \
-    flexsea-user/MotorTestBench/src/cmd-MotorTestBench.c
+    flexsea-user/MotorTestBench/src/cmd-MotorTestBench.c \
+    flexsea-user/src/flexsea_user_structs.c \
+    src/MDIWinObjects/w_testbench.cpp
 
 HEADERS  += inc/main.h \
 	inc/mainwindow.h \
@@ -120,7 +122,9 @@ HEADERS  += inc/main.h \
 	inc/MDIWinObjects/w_userrw.h \
 	inc/counter.h \
 	inc/logFile.h \
-    flexsea-user/MotorTestBench/inc/cmd-MotorTestBench.h
+    flexsea-user/MotorTestBench/inc/cmd-MotorTestBench.h \
+    flexsea-user/inc/flexsea_user_structs.h \
+    inc/MDIWinObjects/w_testbench.h
 
 FORMS    += ui/mainwindow.ui \
 	ui/w_execute.ui \
@@ -137,7 +141,8 @@ FORMS    += ui/mainwindow.ui \
 	ui/w_strain.ui \
 	ui/w_config.ui \
 	ui/w_logkeypad.ui \
-	ui/w_userrw.ui
+	ui/w_userrw.ui \
+    ui/w_testbench.ui
 
 RESOURCES += \
 	misc/icons.qrc

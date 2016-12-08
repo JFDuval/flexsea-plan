@@ -75,6 +75,7 @@ MainWindow::MainWindow(QWidget *parent) :
 	W_Gossip::setMaxWindow(GOSSIP_WINDOWS_MAX);
 	W_Strain::setMaxWindow(STRAIN_WINDOWS_MAX);
 	W_UserRW::setMaxWindow(USERRW_WINDOWS_MAX);
+	W_TestBench::setMaxWindow(TESTBENCH_WINDOWS_MAX);
 
 	W_Execute::setDescription("Execute");
 	W_Manage::setDescription("Manage - Barebone");
@@ -86,11 +87,12 @@ MainWindow::MainWindow(QWidget *parent) :
 	W_Control::setDescription("Control");
 	W_2DPlot::setDescription("2D Plot");
 	W_Ricnu::setDescription("RIC/NU Knee");
-	W_Battery::setDescription("Battery - Barebone");
+	W_Battery::setDescription("Battery Board");
 	W_LogKeyPad::setDescription("Read & Display Log File");
 	W_Gossip::setDescription("Gossip - Barebone");
 	W_Strain::setDescription("6ch StrainAmp - Barebone");
 	W_UserRW::setDescription("User R/W");
+	W_TestBench::setDescription("Test Bench");
 
 	//SerialDriver:
 	mySerialDriver = new SerialDriver;
@@ -749,6 +751,42 @@ void MainWindow::createLogKeyPad(void)
 void MainWindow::closeLogKeyPad(void)
 {
 	sendCloseWindowMsg(W_LogKeyPad::getDescription());
+}
+
+//Creates a new View TestBench window
+void MainWindow::createViewTestBench(void)
+{
+	int objectCount = W_TestBench::howManyInstance();
+
+	//Limited number of windows:
+	if(objectCount < (TESTBENCH_WINDOWS_MAX))
+	{
+		myViewTestBench[objectCount] = new W_TestBench(this);
+		ui->mdiArea->addSubWindow(myViewTestBench[objectCount]);
+		myViewTestBench[objectCount]->show();
+
+		sendWindowCreatedMsg(W_TestBench::getDescription(), objectCount,
+							 W_TestBench::getMaxWindow() - 1);
+
+		//Link SerialDriver and Battery:
+		connect(mySerialDriver, SIGNAL(newDataReady()), \
+				myViewTestBench[objectCount], SLOT(refreshDisplayTestBench()));
+
+		//Link to MainWindow for the close signal:
+		connect(myViewTestBench[objectCount], SIGNAL(windowClosed()), \
+				this, SLOT(closeViewBattery()));
+	}
+
+	else
+	{
+		sendWindowCreatedFailedMsg(W_TestBench::getDescription(),
+								   W_TestBench::getMaxWindow());
+	}
+}
+
+void MainWindow::closeViewTestBench(void)
+{
+	sendCloseWindowMsg(W_TestBench::getDescription());
 }
 
 void MainWindow::sendWindowCreatedMsg(QString windowName, int index, int maxIndex)
