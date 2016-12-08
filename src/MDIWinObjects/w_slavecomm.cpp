@@ -662,6 +662,34 @@ void W_SlaveComm::sc_ankle2dof(uint8_t item)
 	}
 }
 
+//Argument is the item line (0-3)
+//Read the Battery board connected to a Manage
+void W_SlaveComm::sc_battery(uint8_t item)
+{
+	uint16_t numb = 0;
+	uint8_t info[2] = {PORT_USB, PORT_USB};
+	uint8_t slaveId = active_slave[item];
+	uint8_t slaveIndex = active_slave_index[item];
+	uint8_t expIndex = selected_exp_index[item];
+
+	//1) Stream
+	tx_cmd_exp_batt_r(TX_N_DEFAULT);
+	pack(P_AND_S_DEFAULT, slaveId, info, &numb, comm_str_usb);
+	emit slaveReadWrite(numb, comm_str_usb, READ);
+
+	//2) Decode values
+	FlexSEA_Generic::decodeSlave(SL_BASE_ALL, slaveIndex);
+
+	//3) Log
+	/*
+	if(logThisItem[item] == true)
+	{
+		emit writeToLogFile(item, slaveIndex, expIndex,
+							refreshRate.at(ui->comboBoxRefresh1->currentIndex()));
+	}
+	*/
+}
+
 //
 void W_SlaveComm::updateIndicatorTimeout(bool rst)
 {
@@ -710,6 +738,9 @@ void W_SlaveComm::sc_item1_slot(void)
 				break;
 			case 4: //2DOF Ankle
 				sc_ankle2dof(0);
+				break;
+			case 5:	//Battery Board
+				sc_battery(0);
 				break;
 			default:
 				break;

@@ -77,6 +77,7 @@ QStringList FlexSEA_Generic::var_list_exp = QStringList()
 											<< "RICNU Knee"
 											<< "CSEA Knee"
 											<< "2DOF Ankle"
+											<< "Battery Board"
 											<< "[Your project]";
 
 //****************************************************************************
@@ -403,10 +404,10 @@ void FlexSEA_Generic::decodeBattery(uint8_t base, uint8_t index)
 //Decodes some of Battery's fields
 void FlexSEA_Generic::decodeBattery(struct battery_s *baPtr)
 {
-	baPtr->decoded.voltage = baPtr->voltage;    //TODO
-	baPtr->decoded.current = baPtr->current;    //TODO
-	baPtr->decoded.power = baPtr->voltage * baPtr->current;
-	baPtr->decoded.temp = baPtr->temp;          //TODO
+	baPtr->decoded.voltage = baPtr->voltage;
+	baPtr->decoded.current = baPtr->current;
+	baPtr->decoded.power = baPtr->decoded.voltage * baPtr->decoded.current;
+	baPtr->decoded.temp = baPtr->temp;
 }
 
 //Decodes some of Strain's fields
@@ -415,7 +416,6 @@ void FlexSEA_Generic::decodeStrain(uint8_t base, uint8_t index)
 	struct strain_s *stPtr;
 	assignStrainPtr(&stPtr, base, index);
 	decodeStrain(stPtr);
-
 }
 
 void FlexSEA_Generic::decodeStrain(struct strain_s *stPtr)
