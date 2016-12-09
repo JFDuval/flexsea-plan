@@ -21,10 +21,10 @@
 	Biomechatronics research group <http://biomech.media.mit.edu/>
 	[Contributors]
 *****************************************************************************
-	[This file] ExecuteDevice: Execute Device Data Class
+	[This file] GossipDevice: Gossip Device Data Class
 *****************************************************************************
 	[Change log] (Convention: YYYY-MM-DD | author | comment)
-	* 2016-12-07 | sbelanger | Initial GPL-3.0 release
+	* 2016-12-08 | sbelanger | Initial GPL-3.0 release
 	*
 ****************************************************************************/
 
@@ -32,7 +32,7 @@
 // Include(s)
 //****************************************************************************
 
-#include "executeDevice.h"
+#include "gossipDevice.h"
 #include "flexsea_generic.h"
 #include <QDebug>
 #include <QTextStream>
@@ -41,7 +41,7 @@
 // Constructor & Destructor:
 //****************************************************************************
 
-ExecuteDevice::ExecuteDevice(enum DataSourceFile dataSourceInit): FlexseaDevice()
+GossipDevice::GossipDevice(enum DataSourceFile dataSourceInit): FlexseaDevice()
 {
 	this->dataSource = dataSourceInit;
 }
@@ -50,7 +50,7 @@ ExecuteDevice::ExecuteDevice(enum DataSourceFile dataSourceInit): FlexseaDevice(
 // Public function(s):
 //****************************************************************************
 
-QString ExecuteDevice::getHeaderStr(void)
+QString GossipDevice::getHeaderStr(void)
 {
 	return QString("Timestamp,")	+ \
 				   "Timestamp (ms),"+ \
@@ -60,99 +60,82 @@ QString ExecuteDevice::getHeaderStr(void)
 				   "gyro.x,"		+ \
 				   "gyro.y,"		+ \
 				   "gyro.z,"		+ \
-				   "strain,"		+ \
-				   "analog_0,"		+ \
-				   "analog_1,"		+ \
-				   "current,"		+ \
-				   "enc-disp,"		+ \
-				   "enc-cont,"		+ \
-				   "enc-comm,"		+ \
-				   "VB,"			+ \
-				   "VG,"			+ \
-				   "Temp,"			+ \
-				   "Status1,"		+ \
-				   "Status2";
+				   "magneto.x,"		+ \
+				   "magneto.y,"		+ \
+				   "magneto.z,"		+ \
+				   "io1,"			+ \
+				   "io2,"			+ \
+				   "capsense1,"		+ \
+				   "capsense2,"		+ \
+				   "capsense3,"		+ \
+				   "capsense4,"		+ \
+				   "Status1";
 }
 
-QString ExecuteDevice::getLastLineStr(void)
+QString GossipDevice::getLastLineStr(void)
 {
 	QString str;
-	QTextStream(&str) <<	exList.last().timeStampDate		<< ',' << \
-							exList.last().timeStamp_ms		<< ',' << \
-							exList.last().data.accel.x		<< ',' << \
-							exList.last().data.accel.y		<< ',' << \
-							exList.last().data.accel.z		<< ',' << \
-							exList.last().data.gyro.x		<< ',' << \
-							exList.last().data.gyro.y		<< ',' << \
-							exList.last().data.gyro.z		<< ',' << \
-							exList.last().data.strain		<< ',' << \
-							exList.last().data.analog[0]	<< ',' << \
-							exList.last().data.analog[1]	<< ',' << \
-							exList.last().data.current		<< ',' << \
-							exList.last().data.enc_display	<< ',' << \
-							exList.last().data.enc_control	<< ',' << \
-							exList.last().data.enc_commut	<< ',' << \
-							exList.last().data.volt_batt	<< ',' << \
-							exList.last().data.volt_int		<< ',' << \
-							exList.last().data.temp			<< ',' << \
-							exList.last().data.status1		<< ',' << \
-							exList.last().data.status2;
+	QTextStream(&str) <<	goList.last().timeStampDate		<< ',' << \
+							goList.last().timeStamp_ms		<< ',' << \
+							goList.last().data.accel.x		<< ',' << \
+							goList.last().data.accel.y		<< ',' << \
+							goList.last().data.accel.z		<< ',' << \
+							goList.last().data.gyro.x		<< ',' << \
+							goList.last().data.gyro.y		<< ',' << \
+							goList.last().data.gyro.z		<< ',' << \
+							goList.last().data.magneto.x	<< ',' << \
+							goList.last().data.magneto.y	<< ',' << \
+							goList.last().data.magneto.z	<< ',' << \
+							goList.last().data.io[0]		<< ',' << \
+							goList.last().data.io[1]		<< ',' << \
+							goList.last().data.capsense[0]	<< ',' << \
+							goList.last().data.capsense[1]	<< ',' << \
+							goList.last().data.capsense[2]	<< ',' << \
+							goList.last().data.capsense[3]	<< ',' << \
+							goList.last().data.status;
 	return str;
 }
 
-void ExecuteDevice::clear(void)
+void GossipDevice::clear(void)
 {
 	FlexseaDevice::clear();
-	exList.clear();
+	goList.clear();
 }
 
-void ExecuteDevice::appendEmptyLine(void)
+void GossipDevice::appendEmptyLine(void)
 {
-	exList.append(ExecuteStamp());
+	goList.append(GossipStamp());
 }
 
-void ExecuteDevice::decodeLastLine(void)
+void GossipDevice::decodeLastLine(void)
 {
-	decode(&exList.last().data);
+	decode(&goList.last().data);
 }
 
-void ExecuteDevice::decodeAllLine(void)
+void GossipDevice::decodeAllLine(void)
 {
-	for(int i = 0; i < exList.size(); ++i)
+	for(int i = 0; i < goList.size(); ++i)
 	{
-		decode(&exList[i].data);
+		decode(&goList[i].data);
 	}
 }
 
-
-void ExecuteDevice::decode(struct execute_s *exPtr)
+void GossipDevice::decode(struct gossip_s *goPtr)
 {
 	//Accel in mG
-	exPtr->decoded.accel.x = (1000*exPtr->accel.x)/8192;
-	exPtr->decoded.accel.y = (1000*exPtr->accel.y)/8192;
-	exPtr->decoded.accel.z = (1000*exPtr->accel.z)/8192;
+	goPtr->decoded.accel.x = (1000*goPtr->accel.x)/8192;
+	goPtr->decoded.accel.y = (1000*goPtr->accel.y)/8192;
+	goPtr->decoded.accel.z = (1000*goPtr->accel.z)/8192;
 
 	//Gyro in degrees/s
-	exPtr->decoded.gyro.x = (100*exPtr->gyro.x)/164;
-	exPtr->decoded.gyro.y = (100*exPtr->gyro.y)/164;
-	exPtr->decoded.gyro.z = (100*exPtr->gyro.z)/164;
+	goPtr->decoded.gyro.x = (100*goPtr->gyro.x)/164;
+	goPtr->decoded.gyro.y = (100*goPtr->gyro.y)/164;
+	goPtr->decoded.gyro.z = (100*goPtr->gyro.z)/164;
 
-	//exPtr->decoded.current = (185*exPtr->current)/10;   //mA
-	exPtr->decoded.current = exPtr->current;   //1mA/bit for sine comm.
-
-	exPtr->decoded.volt_batt = (int32_t)1000*P4_ADC_SUPPLY*((16*\
-						(float)exPtr->volt_batt/3 + 302 ) \
-						/P4_ADC_MAX) / 0.0738;          //mV
-
-	exPtr->decoded.volt_int = (int32_t)1000*P4_ADC_SUPPLY*((26*\
-						(float)exPtr->volt_int/3 + 440 ) \
-						/P4_ADC_MAX) / 0.43;            //mV
-
-	exPtr->decoded.temp = (int32_t)10*((((2.625*(float)exPtr->temp + 41) \
-					  /P4_ADC_MAX)*P4_ADC_SUPPLY) - P4_T0) / P4_TC; //C*10
-
-	exPtr->decoded.analog[0] = (int32_t)1000*((float)exPtr->analog[0]/ \
-						P5_ADC_MAX)*P5_ADC_SUPPLY;
+	//Magneto in uT (0.15uT/LSB)
+	goPtr->decoded.magneto.x = (15*goPtr->magneto.x)/100;
+	goPtr->decoded.magneto.y = (15*goPtr->magneto.y)/100;
+	goPtr->decoded.magneto.z = (15*goPtr->magneto.z)/100;
 }
 
 //****************************************************************************

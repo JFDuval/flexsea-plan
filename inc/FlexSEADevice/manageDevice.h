@@ -21,15 +21,15 @@
 	Biomechatronics research group <http://biomech.media.mit.edu/>
 	[Contributors]
 *****************************************************************************
-	[This file] ExecuteDevice: Execute Device Data Class
+	[This file] ManageDevice: Manage Device Data Class
 *****************************************************************************
 	[Change log] (Convention: YYYY-MM-DD | author | comment)
-	* 2016-12-07 | sbelanger | Initial GPL-3.0 release
+	* 2016-12-08 | sbelanger | Initial GPL-3.0 release
 	*
 ****************************************************************************/
 
-#ifndef EXECUTEDEVICE_H
-#define EXECUTEDEVICE_H
+#ifndef MANAGEDEVICE_H
+#define MANAGEDEVICE_H
 
 //****************************************************************************
 // Include(s)
@@ -46,20 +46,20 @@
 
 namespace Ui
 {
-	class ExecuteDevice;
+	class ManageDevice;
 }
 
-struct ExecuteStamp
+struct ManageStamp
 {
 	QString timeStampDate;
 	int32_t timeStamp_ms;
-	execute_s data;
+	manage_s data;
 };
 
-class ExecuteDevice : public FlexseaDevice
+class ManageDevice : public FlexseaDevice
 {
 public:
-	explicit ExecuteDevice(enum DataSourceFile dataSourceInit);
+	explicit ManageDevice(enum DataSourceFile dataSourceInit);
 
 	// Interface implementation
 	QString getHeaderStr(void);
@@ -69,8 +69,8 @@ public:
 	void clear(void);
 	void appendEmptyLine(void);
 
-	QList<struct ExecuteStamp> exList;
-	static void decode(struct execute_s *exPtr);
+	QList<struct ManageStamp> mnList;
+	static void decode(struct manage_s *mnPtr);
 
 private:
 
@@ -81,4 +81,4 @@ private:
 // Definition(s)
 //****************************************************************************
 
-#endif // EXECUTEDEVICE_H
+#endif // MANAGEDEVICE_H

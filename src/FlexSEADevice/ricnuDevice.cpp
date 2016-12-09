@@ -21,10 +21,10 @@
 	Biomechatronics research group <http://biomech.media.mit.edu/>
 	[Contributors]
 *****************************************************************************
-	[This file] ExecuteDevice: Execute Device Data Class
+	[This file] RicnuDevice: Ricnu Device Data Class
 *****************************************************************************
 	[Change log] (Convention: YYYY-MM-DD | author | comment)
-	* 2016-12-07 | sbelanger | Initial GPL-3.0 release
+	* 2016-12-08 | sbelanger | Initial GPL-3.0 release
 	*
 ****************************************************************************/
 
@@ -32,16 +32,18 @@
 // Include(s)
 //****************************************************************************
 
-#include "executeDevice.h"
+#include "ricnuDevice.h"
 #include "flexsea_generic.h"
 #include <QDebug>
 #include <QTextStream>
+#include "executeDevice.h"
+#include "strainDevice.h"
 
 //****************************************************************************
 // Constructor & Destructor:
 //****************************************************************************
 
-ExecuteDevice::ExecuteDevice(enum DataSourceFile dataSourceInit): FlexseaDevice()
+RicnuDevice::RicnuDevice(enum DataSourceFile dataSourceInit): FlexseaDevice()
 {
 	this->dataSource = dataSourceInit;
 }
@@ -50,7 +52,7 @@ ExecuteDevice::ExecuteDevice(enum DataSourceFile dataSourceInit): FlexseaDevice(
 // Public function(s):
 //****************************************************************************
 
-QString ExecuteDevice::getHeaderStr(void)
+QString RicnuDevice::getHeaderStr(void)
 {
 	return QString("Timestamp,")	+ \
 				   "Timestamp (ms),"+ \
@@ -60,99 +62,82 @@ QString ExecuteDevice::getHeaderStr(void)
 				   "gyro.x,"		+ \
 				   "gyro.y,"		+ \
 				   "gyro.z,"		+ \
-				   "strain,"		+ \
-				   "analog_0,"		+ \
-				   "analog_1,"		+ \
 				   "current,"		+ \
-				   "enc-disp,"		+ \
-				   "enc-cont,"		+ \
-				   "enc-comm,"		+ \
-				   "VB,"			+ \
-				   "VG,"			+ \
-				   "Temp,"			+ \
-				   "Status1,"		+ \
-				   "Status2";
+				   "enc-mot,"		+ \
+				   "enc-joint,"		+ \
+				   "strain1,"		+ \
+				   "strain2,"		+ \
+				   "strain3,"		+ \
+				   "strain4,"		+ \
+				   "strain5,"		+ \
+				   "strain6";
 }
 
-QString ExecuteDevice::getLastLineStr(void)
+QString RicnuDevice::getLastLineStr(void)
 {
+	unpackCompressed6ch(&riList.last().data.st);
+
 	QString str;
-	QTextStream(&str) <<	exList.last().timeStampDate		<< ',' << \
-							exList.last().timeStamp_ms		<< ',' << \
-							exList.last().data.accel.x		<< ',' << \
-							exList.last().data.accel.y		<< ',' << \
-							exList.last().data.accel.z		<< ',' << \
-							exList.last().data.gyro.x		<< ',' << \
-							exList.last().data.gyro.y		<< ',' << \
-							exList.last().data.gyro.z		<< ',' << \
-							exList.last().data.strain		<< ',' << \
-							exList.last().data.analog[0]	<< ',' << \
-							exList.last().data.analog[1]	<< ',' << \
-							exList.last().data.current		<< ',' << \
-							exList.last().data.enc_display	<< ',' << \
-							exList.last().data.enc_control	<< ',' << \
-							exList.last().data.enc_commut	<< ',' << \
-							exList.last().data.volt_batt	<< ',' << \
-							exList.last().data.volt_int		<< ',' << \
-							exList.last().data.temp			<< ',' << \
-							exList.last().data.status1		<< ',' << \
-							exList.last().data.status2;
+	QTextStream(&str) <<	riList.last().timeStampDate					<< ',' << \
+							riList.last().timeStamp_ms					<< ',' << \
+							riList.last().data.ex.accel.x				<< ',' << \
+							riList.last().data.ex.accel.y				<< ',' << \
+							riList.last().data.ex.accel.z				<< ',' << \
+							riList.last().data.ex.gyro.x				<< ',' << \
+							riList.last().data.ex.gyro.y				<< ',' << \
+							riList.last().data.ex.gyro.z				<< ',' << \
+							riList.last().data.ex.current				<< ',' << \
+							riList.last().data.ex.enc_motor				<< ',' << \
+							riList.last().data.ex.enc_joint				<< ',' << \
+							riList.last().data.st.ch[0].strain_filtered	<< ',' << \
+							riList.last().data.st.ch[1].strain_filtered << ',' << \
+							riList.last().data.st.ch[2].strain_filtered << ',' << \
+							riList.last().data.st.ch[3].strain_filtered << ',' << \
+							riList.last().data.st.ch[4].strain_filtered << ',' << \
+							riList.last().data.st.ch[5].strain_filtered;
 	return str;
 }
 
-void ExecuteDevice::clear(void)
+void RicnuDevice::clear(void)
 {
 	FlexseaDevice::clear();
-	exList.clear();
+	riList.clear();
 }
 
-void ExecuteDevice::appendEmptyLine(void)
+void RicnuDevice::appendEmptyLine(void)
 {
-	exList.append(ExecuteStamp());
+	riList.append(RicnuStamp());
 }
 
-void ExecuteDevice::decodeLastLine(void)
+void RicnuDevice::decodeLastLine(void)
 {
-	decode(&exList.last().data);
+	decode(&riList.last().data);
 }
 
-void ExecuteDevice::decodeAllLine(void)
+void RicnuDevice::decodeAllLine(void)
 {
-	for(int i = 0; i < exList.size(); ++i)
+	for(int i = 0; i < riList.size(); ++i)
 	{
-		decode(&exList[i].data);
+		decode(&riList[i].data);
 	}
 }
 
-
-void ExecuteDevice::decode(struct execute_s *exPtr)
+void RicnuDevice::decode(struct ricnu_s *riPtr)
 {
-	//Accel in mG
-	exPtr->decoded.accel.x = (1000*exPtr->accel.x)/8192;
-	exPtr->decoded.accel.y = (1000*exPtr->accel.y)/8192;
-	exPtr->decoded.accel.z = (1000*exPtr->accel.z)/8192;
+	ExecuteDevice::decode(&riPtr->ex);
+	StrainDevice::decode(&riPtr->st);
+}
 
-	//Gyro in degrees/s
-	exPtr->decoded.gyro.x = (100*exPtr->gyro.x)/164;
-	exPtr->decoded.gyro.y = (100*exPtr->gyro.y)/164;
-	exPtr->decoded.gyro.z = (100*exPtr->gyro.z)/164;
-
-	//exPtr->decoded.current = (185*exPtr->current)/10;   //mA
-	exPtr->decoded.current = exPtr->current;   //1mA/bit for sine comm.
-
-	exPtr->decoded.volt_batt = (int32_t)1000*P4_ADC_SUPPLY*((16*\
-						(float)exPtr->volt_batt/3 + 302 ) \
-						/P4_ADC_MAX) / 0.0738;          //mV
-
-	exPtr->decoded.volt_int = (int32_t)1000*P4_ADC_SUPPLY*((26*\
-						(float)exPtr->volt_int/3 + 440 ) \
-						/P4_ADC_MAX) / 0.43;            //mV
-
-	exPtr->decoded.temp = (int32_t)10*((((2.625*(float)exPtr->temp + 41) \
-					  /P4_ADC_MAX)*P4_ADC_SUPPLY) - P4_T0) / P4_TC; //C*10
-
-	exPtr->decoded.analog[0] = (int32_t)1000*((float)exPtr->analog[0]/ \
-						P5_ADC_MAX)*P5_ADC_SUPPLY;
+//Unpack from buffer
+void RicnuDevice::unpackCompressed6ch(struct strain_s *stPtr)
+{
+	uint8_t *buf = stPtr->compressedBytes;
+	stPtr->ch[0].strain_filtered = ((*(buf+0) << 8 | *(buf+1)) >> 4);
+	stPtr->ch[1].strain_filtered = (((*(buf+1) << 8 | *(buf+2))) & 0xFFF);
+	stPtr->ch[2].strain_filtered = ((*(buf+3) << 8 | *(buf+4)) >> 4);
+	stPtr->ch[3].strain_filtered = (((*(buf+4) << 8 | *(buf+5))) & 0xFFF);
+	stPtr->ch[4].strain_filtered = ((*(buf+6) << 8 | *(buf+7)) >> 4);
+	stPtr->ch[5].strain_filtered = (((*(buf+7) << 8 | *(buf+8))) & 0xFFF);
 }
 
 //****************************************************************************

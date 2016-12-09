@@ -21,15 +21,15 @@
 	Biomechatronics research group <http://biomech.media.mit.edu/>
 	[Contributors]
 *****************************************************************************
-	[This file] ExecuteDevice: Execute Device Data Class
+	[This file] GossipDevice: Gossip Device Data Class
 *****************************************************************************
 	[Change log] (Convention: YYYY-MM-DD | author | comment)
-	* 2016-12-07 | sbelanger | Initial GPL-3.0 release
+	* 2016-12-08 | sbelanger | Initial GPL-3.0 release
 	*
 ****************************************************************************/
 
-#ifndef EXECUTEDEVICE_H
-#define EXECUTEDEVICE_H
+#ifndef GOSSIPDEVICE_H
+#define GOSSIPDEVICE_H
 
 //****************************************************************************
 // Include(s)
@@ -46,20 +46,20 @@
 
 namespace Ui
 {
-	class ExecuteDevice;
+	class GossipDevice;
 }
 
-struct ExecuteStamp
+struct GossipStamp
 {
 	QString timeStampDate;
 	int32_t timeStamp_ms;
-	execute_s data;
+	gossip_s data;
 };
 
-class ExecuteDevice : public FlexseaDevice
+class GossipDevice : public FlexseaDevice
 {
 public:
-	explicit ExecuteDevice(enum DataSourceFile dataSourceInit);
+	explicit GossipDevice(enum DataSourceFile dataSourceInit);
 
 	// Interface implementation
 	QString getHeaderStr(void);
@@ -69,16 +69,15 @@ public:
 	void clear(void);
 	void appendEmptyLine(void);
 
-	QList<struct ExecuteStamp> exList;
-	static void decode(struct execute_s *exPtr);
+	QList<struct GossipStamp> goList;
+	static void decode(struct gossip_s *goPtr);
 
 private:
 
 };
 
-
 //****************************************************************************
 // Definition(s)
 //****************************************************************************
 
-#endif // EXECUTEDEVICE_H
+#endif // GOSSIPDEVICE_H

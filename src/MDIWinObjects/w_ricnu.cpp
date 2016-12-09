@@ -165,17 +165,7 @@ void W_Ricnu::displayRicnu(struct ricnu_s *ricnu)
 */
 }
 
-//Unpack from buffer
-void W_Ricnu::unpackCompressed6ch(uint8_t *buf, uint16_t *v0, uint16_t *v1, uint16_t *v2, \
-							uint16_t *v3, uint16_t *v4, uint16_t *v5)
-{
-	*v0 = ((*(buf+0) << 8 | *(buf+1)) >> 4);
-	*v1 = (((*(buf+1) << 8 | *(buf+2))) & 0xFFF);
-	*v2 = ((*(buf+3) << 8 | *(buf+4)) >> 4);
-	*v3 = (((*(buf+4) << 8 | *(buf+5))) & 0xFFF);
-	*v4 = ((*(buf+6) << 8 | *(buf+7)) >> 4);
-	*v5 = (((*(buf+7) << 8 | *(buf+8))) & 0xFFF);
-}
+
 
 //****************************************************************************
 // Private slot(s):

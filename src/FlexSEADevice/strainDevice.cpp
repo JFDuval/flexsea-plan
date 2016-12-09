@@ -52,50 +52,50 @@ ExecuteDevice::ExecuteDevice(enum DataSourceFile dataSourceInit): FlexseaDevice(
 
 QString ExecuteDevice::getHeaderStr(void)
 {
-	return QString("Timestamp,")	+ \
-				   "Timestamp (ms),"+ \
-				   "accel.x,"		+ \
-				   "accel.y,"		+ \
-				   "accel.z,"		+ \
-				   "gyro.x,"		+ \
-				   "gyro.y,"		+ \
-				   "gyro.z,"		+ \
-				   "strain,"		+ \
-				   "analog_0,"		+ \
-				   "analog_1,"		+ \
-				   "current,"		+ \
-				   "enc-disp,"		+ \
-				   "enc-cont,"		+ \
-				   "enc-comm,"		+ \
-				   "VB,"			+ \
-				   "VG,"			+ \
-				   "Temp,"			+ \
-				   "Status1,"		+ \
+	return QString("Timestamp,") + \
+				   "Timestamp (ms)," + \
+				   "accel.x," + \
+				   "accel.y," + \
+				   "accel.z," + \
+				   "gyro.x," + \
+				   "gyro.y," + \
+				   "gyro.z," + \
+				   "strain," + \
+				   "analog_0," + \
+				   "analog_1," + \
+				   "current," + \
+				   "enc-disp," + \
+				   "enc-cont," + \
+				   "enc-comm," + \
+				   "VB," + \
+				   "VG," + \
+				   "Temp," + \
+				   "Status1," + \
 				   "Status2";
 }
 
 QString ExecuteDevice::getLastLineStr(void)
 {
 	QString str;
-	QTextStream(&str) <<	exList.last().timeStampDate		<< ',' << \
-							exList.last().timeStamp_ms		<< ',' << \
-							exList.last().data.accel.x		<< ',' << \
-							exList.last().data.accel.y		<< ',' << \
-							exList.last().data.accel.z		<< ',' << \
-							exList.last().data.gyro.x		<< ',' << \
-							exList.last().data.gyro.y		<< ',' << \
-							exList.last().data.gyro.z		<< ',' << \
-							exList.last().data.strain		<< ',' << \
-							exList.last().data.analog[0]	<< ',' << \
-							exList.last().data.analog[1]	<< ',' << \
-							exList.last().data.current		<< ',' << \
-							exList.last().data.enc_display	<< ',' << \
-							exList.last().data.enc_control	<< ',' << \
-							exList.last().data.enc_commut	<< ',' << \
-							exList.last().data.volt_batt	<< ',' << \
-							exList.last().data.volt_int		<< ',' << \
-							exList.last().data.temp			<< ',' << \
-							exList.last().data.status1		<< ',' << \
+	QTextStream(&str) <<	exList.last().timeStampDate << ',' << \
+							exList.last().timeStamp_ms << ',' << \
+							exList.last().data.accel.x << ',' << \
+							exList.last().data.accel.y << ',' << \
+							exList.last().data.accel.z << ',' << \
+							exList.last().data.gyro.x << ',' << \
+							exList.last().data.gyro.y << ',' << \
+							exList.last().data.gyro.z << ',' << \
+							exList.last().data.strain << ',' << \
+							exList.last().data.analog[0] << ',' << \
+							exList.last().data.analog[1] << ',' << \
+							exList.last().data.current << ',' << \
+							exList.last().data.enc_display << ',' << \
+							exList.last().data.enc_control << ',' << \
+							exList.last().data.enc_commut << ',' << \
+							exList.last().data.volt_batt << ',' << \
+							exList.last().data.volt_int << ',' << \
+							exList.last().data.temp << ',' << \
+							exList.last().data.status1 << ',' << \
 							exList.last().data.status2;
 	return str;
 }

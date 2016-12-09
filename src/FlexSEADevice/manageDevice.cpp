@@ -21,10 +21,10 @@
 	Biomechatronics research group <http://biomech.media.mit.edu/>
 	[Contributors]
 *****************************************************************************
-	[This file] ExecuteDevice: Execute Device Data Class
+	[This file] ManageDevice: Manage Device Data Class
 *****************************************************************************
 	[Change log] (Convention: YYYY-MM-DD | author | comment)
-	* 2016-12-07 | sbelanger | Initial GPL-3.0 release
+	* 2016-12-08 | sbelanger | Initial GPL-3.0 release
 	*
 ****************************************************************************/
 
@@ -32,7 +32,7 @@
 // Include(s)
 //****************************************************************************
 
-#include "executeDevice.h"
+#include "manageDevice.h"
 #include "flexsea_generic.h"
 #include <QDebug>
 #include <QTextStream>
@@ -41,7 +41,7 @@
 // Constructor & Destructor:
 //****************************************************************************
 
-ExecuteDevice::ExecuteDevice(enum DataSourceFile dataSourceInit): FlexseaDevice()
+ManageDevice::ManageDevice(enum DataSourceFile dataSourceInit): FlexseaDevice()
 {
 	this->dataSource = dataSourceInit;
 }
@@ -50,7 +50,7 @@ ExecuteDevice::ExecuteDevice(enum DataSourceFile dataSourceInit): FlexseaDevice(
 // Public function(s):
 //****************************************************************************
 
-QString ExecuteDevice::getHeaderStr(void)
+QString ManageDevice::getHeaderStr(void)
 {
 	return QString("Timestamp,")	+ \
 				   "Timestamp (ms),"+ \
@@ -60,99 +60,96 @@ QString ExecuteDevice::getHeaderStr(void)
 				   "gyro.x,"		+ \
 				   "gyro.y,"		+ \
 				   "gyro.z,"		+ \
-				   "strain,"		+ \
-				   "analog_0,"		+ \
-				   "analog_1,"		+ \
-				   "current,"		+ \
-				   "enc-disp,"		+ \
-				   "enc-cont,"		+ \
-				   "enc-comm,"		+ \
-				   "VB,"			+ \
-				   "VG,"			+ \
-				   "Temp,"			+ \
-				   "Status1,"		+ \
-				   "Status2";
+				   "digitalIn,"		+ \
+				   "sw1,"			+ \
+				   "analog0,"		+ \
+				   "analog1,"		+ \
+				   "analog2,"		+ \
+				   "analog3,"		+ \
+				   "analog4,"		+ \
+				   "analog5,"		+ \
+				   "analog6,"		+ \
+				   "analog7,"		+ \
+				   "Status1";
 }
 
-QString ExecuteDevice::getLastLineStr(void)
+QString ManageDevice::getLastLineStr(void)
 {
 	QString str;
-	QTextStream(&str) <<	exList.last().timeStampDate		<< ',' << \
-							exList.last().timeStamp_ms		<< ',' << \
-							exList.last().data.accel.x		<< ',' << \
-							exList.last().data.accel.y		<< ',' << \
-							exList.last().data.accel.z		<< ',' << \
-							exList.last().data.gyro.x		<< ',' << \
-							exList.last().data.gyro.y		<< ',' << \
-							exList.last().data.gyro.z		<< ',' << \
-							exList.last().data.strain		<< ',' << \
-							exList.last().data.analog[0]	<< ',' << \
-							exList.last().data.analog[1]	<< ',' << \
-							exList.last().data.current		<< ',' << \
-							exList.last().data.enc_display	<< ',' << \
-							exList.last().data.enc_control	<< ',' << \
-							exList.last().data.enc_commut	<< ',' << \
-							exList.last().data.volt_batt	<< ',' << \
-							exList.last().data.volt_int		<< ',' << \
-							exList.last().data.temp			<< ',' << \
-							exList.last().data.status1		<< ',' << \
-							exList.last().data.status2;
+	QTextStream(&str) <<	mnList.last().timeStampDate		<< ',' << \
+							mnList.last().timeStamp_ms		<< ',' << \
+							mnList.last().data.accel.x		<< ',' << \
+							mnList.last().data.accel.y		<< ',' << \
+							mnList.last().data.accel.z		<< ',' << \
+							mnList.last().data.gyro.x		<< ',' << \
+							mnList.last().data.gyro.y		<< ',' << \
+							mnList.last().data.gyro.z		<< ',' << \
+							mnList.last().data.digitalIn	<< ',' << \
+							mnList.last().data.sw1			<< ',' << \
+							mnList.last().data.analog[0]	<< ',' << \
+							mnList.last().data.analog[1]	<< ',' << \
+							mnList.last().data.analog[2]	<< ',' << \
+							mnList.last().data.analog[3]	<< ',' << \
+							mnList.last().data.analog[4]	<< ',' << \
+							mnList.last().data.analog[5]	<< ',' << \
+							mnList.last().data.analog[6]	<< ',' << \
+							mnList.last().data.analog[7]	<< ',' << \
+							mnList.last().data.status1;
 	return str;
 }
 
-void ExecuteDevice::clear(void)
+void ManageDevice::clear(void)
 {
 	FlexseaDevice::clear();
-	exList.clear();
+	mnList.clear();
 }
 
-void ExecuteDevice::appendEmptyLine(void)
+void ManageDevice::appendEmptyLine(void)
 {
-	exList.append(ExecuteStamp());
+	mnList.append(ManageStamp());
 }
 
-void ExecuteDevice::decodeLastLine(void)
+void ManageDevice::decodeLastLine(void)
 {
-	decode(&exList.last().data);
+	decode(&mnList.last().data);
 }
 
-void ExecuteDevice::decodeAllLine(void)
+void ManageDevice::decodeAllLine(void)
 {
-	for(int i = 0; i < exList.size(); ++i)
+	for(int i = 0; i < mnList.size(); ++i)
 	{
-		decode(&exList[i].data);
+		decode(&mnList[i].data);
 	}
 }
 
-
-void ExecuteDevice::decode(struct execute_s *exPtr)
+void ManageDevice::decode(struct manage_s *mnPtr)
 {
 	//Accel in mG
-	exPtr->decoded.accel.x = (1000*exPtr->accel.x)/8192;
-	exPtr->decoded.accel.y = (1000*exPtr->accel.y)/8192;
-	exPtr->decoded.accel.z = (1000*exPtr->accel.z)/8192;
+	mnPtr->decoded.accel.x = (1000*mnPtr->accel.x)/8192;
+	mnPtr->decoded.accel.y = (1000*mnPtr->accel.y)/8192;
+	mnPtr->decoded.accel.z = (1000*mnPtr->accel.z)/8192;
 
 	//Gyro in degrees/s
-	exPtr->decoded.gyro.x = (100*exPtr->gyro.x)/164;
-	exPtr->decoded.gyro.y = (100*exPtr->gyro.y)/164;
-	exPtr->decoded.gyro.z = (100*exPtr->gyro.z)/164;
+	mnPtr->decoded.gyro.x = (100*mnPtr->gyro.x)/164;
+	mnPtr->decoded.gyro.y = (100*mnPtr->gyro.y)/164;
+	mnPtr->decoded.gyro.z = (100*mnPtr->gyro.z)/164;
 
-	//exPtr->decoded.current = (185*exPtr->current)/10;   //mA
-	exPtr->decoded.current = exPtr->current;   //1mA/bit for sine comm.
-
-	exPtr->decoded.volt_batt = (int32_t)1000*P4_ADC_SUPPLY*((16*\
-						(float)exPtr->volt_batt/3 + 302 ) \
-						/P4_ADC_MAX) / 0.0738;          //mV
-
-	exPtr->decoded.volt_int = (int32_t)1000*P4_ADC_SUPPLY*((26*\
-						(float)exPtr->volt_int/3 + 440 ) \
-						/P4_ADC_MAX) / 0.43;            //mV
-
-	exPtr->decoded.temp = (int32_t)10*((((2.625*(float)exPtr->temp + 41) \
-					  /P4_ADC_MAX)*P4_ADC_SUPPLY) - P4_T0) / P4_TC; //C*10
-
-	exPtr->decoded.analog[0] = (int32_t)1000*((float)exPtr->analog[0]/ \
-						P5_ADC_MAX)*P5_ADC_SUPPLY;
+	mnPtr->decoded.analog[0] = (int32_t)1000*((float)mnPtr->analog[0]/ \
+						STM32_ADC_MAX)*STM32_ADC_SUPPLY;
+	mnPtr->decoded.analog[1] = (int32_t)1000*((float)mnPtr->analog[1]/ \
+						STM32_ADC_MAX)*STM32_ADC_SUPPLY;
+	mnPtr->decoded.analog[2] = (int32_t)1000*((float)mnPtr->analog[2]/ \
+						STM32_ADC_MAX)*STM32_ADC_SUPPLY;
+	mnPtr->decoded.analog[3] = (int32_t)1000*((float)mnPtr->analog[3]/ \
+						STM32_ADC_MAX)*STM32_ADC_SUPPLY;
+	mnPtr->decoded.analog[4] = (int32_t)1000*((float)mnPtr->analog[4]/ \
+						STM32_ADC_MAX)*STM32_ADC_SUPPLY;
+	mnPtr->decoded.analog[5] = (int32_t)1000*((float)mnPtr->analog[5]/ \
+						STM32_ADC_MAX)*STM32_ADC_SUPPLY;
+	mnPtr->decoded.analog[6] = (int32_t)1000*((float)mnPtr->analog[6]/ \
+						STM32_ADC_MAX)*STM32_ADC_SUPPLY;
+	mnPtr->decoded.analog[7] = (int32_t)1000*((float)mnPtr->analog[7]/ \
+						STM32_ADC_MAX)*STM32_ADC_SUPPLY;
 }
 
 //****************************************************************************

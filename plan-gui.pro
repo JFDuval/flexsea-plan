@@ -76,7 +76,12 @@ SOURCES += src/main.cpp \
 	src/MDIWinObjects/w_userrw.cpp \
 	src/logFile.cpp \
 	src/FlexSEADevice/executeDevice.cpp \
-    src/FlexSEADevice/flexseaDevice.cpp
+    src/FlexSEADevice/flexseaDevice.cpp \
+    src/FlexSEADevice/batteryDevice.cpp \
+    src/FlexSEADevice/gossipDevice.cpp \
+    src/FlexSEADevice/manageDevice.cpp \
+    src/FlexSEADevice/ricnuDevice.cpp \
+    src/FlexSEADevice/strainDevice.cpp
 
 HEADERS  += inc/main.h \
 	inc/mainwindow.h \
@@ -123,7 +128,12 @@ HEADERS  += inc/main.h \
 	inc/logFile.h \
 	inc/flexsea_generic.h \
 	inc/FlexSEADevice/executeDevice.h \
-	inc/FlexSEADevice/flexseaDevice.h
+	inc/FlexSEADevice/flexseaDevice.h \
+    inc/FlexSEADevice/batteryDevice.h \
+    inc/FlexSEADevice/gossipDevice.h \
+    inc/FlexSEADevice/manageDevice.h \
+    inc/FlexSEADevice/ricnuDevice.h \
+    inc/FlexSEADevice/strainDevice.h
 
 FORMS    += ui/mainwindow.ui \
 	ui/w_execute.ui \

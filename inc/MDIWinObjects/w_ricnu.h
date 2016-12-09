@@ -56,11 +56,6 @@ public:
 	explicit W_Ricnu(QWidget *parent = 0);
 	~W_Ricnu();
 
-	//Function(s):
-	static void unpackCompressed6ch(uint8_t *buf, uint16_t *v0, uint16_t *v1, \
-							 uint16_t *v2, uint16_t *v3, uint16_t *v4, \
-							 uint16_t *v5);
-
 public slots:
 	void refreshDisplayRicnu(void);
 

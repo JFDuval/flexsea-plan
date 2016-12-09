@@ -35,6 +35,7 @@
 #include "logFile.h"
 #include "flexsea_generic.h"
 #include <QDebug>
+#include "executeDevice.h"
 
 //****************************************************************************
 // Constructor & Destructor:
@@ -82,7 +83,7 @@ void LogFile::decodeLastLine(void)
 	// Execute
 	if(SlaveIndex >= SL_BASE_EX && SlaveIndex < SL_BASE_MN)
 	{
-		FlexSEA_Generic::decodeExecute(&data.last().execute);
+		ExecuteDevice::decode(&data.last().execute);
 	}
 
 	// Manage
@@ -138,7 +139,7 @@ void LogFile::decodeAllLine(void)
 	{
 		for(i = 0; i < data.size(); ++i)
 		{
-			FlexSEA_Generic::decodeExecute(&data[i].execute);
+			ExecuteDevice::decode(&data[i].execute);
 		}
 	}
 

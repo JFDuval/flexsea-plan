@@ -135,7 +135,6 @@ public:
 	static void decodeSlave(uint8_t base, uint8_t index);
 
 	static void decodeExecute(uint8_t base, uint8_t index);
-	static void decodeExecute(struct execute_s *exPtr);
 
 	static void decodeRicnu(uint8_t base, uint8_t index);
 	static void decodeRicnu(struct ricnu_s *riPtr);

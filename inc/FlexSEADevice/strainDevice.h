@@ -46,14 +46,14 @@
 
 namespace Ui
 {
-	class ExecuteDevice;
+	class ExecuteClass;
 }
 
 struct ExecuteStamp
 {
 	QString timeStampDate;
 	int32_t timeStamp_ms;
-	execute_s data;
+	execute_s exec;
 };
 
 class ExecuteDevice : public FlexseaDevice
@@ -69,7 +69,7 @@ public:
 	void clear(void);
 	void appendEmptyLine(void);
 
-	QList<struct ExecuteStamp> exList;
+	QList<struct ExecuteStamp> data;
 	static void decode(struct execute_s *exPtr);
 
 private:

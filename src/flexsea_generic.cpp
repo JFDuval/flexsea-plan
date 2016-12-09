@@ -37,6 +37,8 @@
 #include "main.h"
 #include <QComboBox>
 #include <QDebug>
+#include "executeDevice.h"
+
 
 //****************************************************************************
 // Static Variable initialization
@@ -278,37 +280,7 @@ void FlexSEA_Generic::decodeExecute(uint8_t base, uint8_t index)
 {
 	struct execute_s *exPtr;
 	assignExecutePtr(&exPtr, base, index);
-	decodeExecute(exPtr);
-}
-
-void FlexSEA_Generic::decodeExecute(struct execute_s *exPtr)
-{
-	//Accel in mG
-	exPtr->decoded.accel.x = (1000*exPtr->accel.x)/8192;
-	exPtr->decoded.accel.y = (1000*exPtr->accel.y)/8192;
-	exPtr->decoded.accel.z = (1000*exPtr->accel.z)/8192;
-
-	//Gyro in degrees/s
-	exPtr->decoded.gyro.x = (100*exPtr->gyro.x)/164;
-	exPtr->decoded.gyro.y = (100*exPtr->gyro.y)/164;
-	exPtr->decoded.gyro.z = (100*exPtr->gyro.z)/164;
-
-	//exPtr->decoded.current = (185*exPtr->current)/10;   //mA
-	exPtr->decoded.current = exPtr->current;   //1mA/bit for sine comm.
-
-	exPtr->decoded.volt_batt = (int32_t)1000*P4_ADC_SUPPLY*((16*\
-						(float)exPtr->volt_batt/3 + 302 ) \
-						/P4_ADC_MAX) / 0.0738;          //mV
-
-	exPtr->decoded.volt_int = (int32_t)1000*P4_ADC_SUPPLY*((26*\
-						(float)exPtr->volt_int/3 + 440 ) \
-						/P4_ADC_MAX) / 0.43;            //mV
-
-	exPtr->decoded.temp = (int32_t)10*((((2.625*(float)exPtr->temp + 41) \
-					  /P4_ADC_MAX)*P4_ADC_SUPPLY) - P4_T0) / P4_TC; //C*10
-
-	exPtr->decoded.analog[0] = (int32_t)1000*((float)exPtr->analog[0]/ \
-						P5_ADC_MAX)*P5_ADC_SUPPLY;
+	ExecuteDevice::decode(exPtr);
 }
 
 //RIC/NU is a special case of Execute board. It use the first struct of execute
@@ -324,7 +296,7 @@ void FlexSEA_Generic::decodeRicnu(uint8_t base, uint8_t index)
 
 void FlexSEA_Generic::decodeRicnu(struct ricnu_s *riPtr)
 {
-	decodeExecute(&riPtr->ex);
+	ExecuteDevice::decode(&riPtr->ex);
 	decodeStrain(&riPtr->st);
 }
 
@@ -442,6 +414,7 @@ void FlexSEA_Generic::decodeSlave(uint8_t base, uint8_t index)
 			decodeManage(base, index);
 			break;
 		case FLEXSEA_EXECUTE_BASE:
+			decodeExecute(base, index);
 			decodeRicnu(base, index);
 			break;
 		case FLEXSEA_BATTERY_BASE:
