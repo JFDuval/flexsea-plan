@@ -73,6 +73,27 @@ W_TestBench::~W_TestBench()
 //Call this function to refresh the display
 void W_TestBench::refreshDisplayTestBench(void)
 {
+	//Execute 1:
+	ui->dispEx1_0->setText(QString::number(motortb.ex1[0]));
+	ui->dispEx1_1->setText(QString::number(motortb.ex1[1]));
+	ui->dispEx1_2->setText(QString::number(motortb.ex1[2]));
+	ui->dispEx1_3->setText(QString::number(motortb.ex1[3]));
+	ui->dispEx1_4->setText(QString::number(motortb.ex1[4]));
+	ui->dispEx1_5->setText(QString::number(motortb.ex1[5]));
+
+	//Execute 2:
+	ui->dispEx2_0->setText(QString::number(motortb.ex2[0]));
+	ui->dispEx2_1->setText(QString::number(motortb.ex2[1]));
+	ui->dispEx2_2->setText(QString::number(motortb.ex2[2]));
+	ui->dispEx2_3->setText(QString::number(motortb.ex2[3]));
+	ui->dispEx2_4->setText(QString::number(motortb.ex2[4]));
+	ui->dispEx2_5->setText(QString::number(motortb.ex2[5]));
+
+	//Manage 1:
+	ui->dispMn1_0->setText(QString::number(motortb.mn1[0]));
+	ui->dispMn1_1->setText(QString::number(motortb.mn1[1]));
+	ui->dispMn1_2->setText(QString::number(motortb.mn1[2]));
+	ui->dispMn1_3->setText(QString::number(motortb.mn1[3]));
 }
 
 //****************************************************************************
@@ -81,7 +102,29 @@ void W_TestBench::refreshDisplayTestBench(void)
 
 void W_TestBench::init(void)
 {
+	//All displays at 0:
 
+	//Execute 1:
+	ui->dispEx1_0->setText("0");
+	ui->dispEx1_1->setText("0");
+	ui->dispEx1_2->setText("0");
+	ui->dispEx1_3->setText("0");
+	ui->dispEx1_4->setText("0");
+	ui->dispEx1_5->setText("0");
+
+	//Execute 2:
+	ui->dispEx2_0->setText("0");
+	ui->dispEx2_1->setText("0");
+	ui->dispEx2_2->setText("0");
+	ui->dispEx2_3->setText("0");
+	ui->dispEx2_4->setText("0");
+	ui->dispEx2_5->setText("0");
+
+	//Manage 1:
+	ui->dispMn1_0->setText("0");
+	ui->dispMn1_1->setText("0");
+	ui->dispMn1_2->setText("0");
+	ui->dispMn1_3->setText("0");
 }
 
 //****************************************************************************
