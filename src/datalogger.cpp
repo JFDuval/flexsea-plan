@@ -289,8 +289,6 @@ void DataLogger::getFctPtrs(uint8_t slaveIndex, uint8_t expIndex, \
 				case FLEXSEA_PLAN_BASE:
 					break;
 				case FLEXSEA_MANAGE_BASE:
-					//ToDo: why is Manage different than the others?
-					//(*myHeaderFctPtr) = &writeManageReadAllHeader;
 					*myHeaderFctPtr = &DataLogger::writeManageReadAllHeader;
 					*myLogFctPtr = &DataLogger::logReadAllManage;
 					break;
@@ -323,6 +321,13 @@ void DataLogger::getFctPtrs(uint8_t slaveIndex, uint8_t expIndex, \
 		case 4: //2DOF Ankle
 			*myHeaderFctPtr = &DataLogger::writeManageA2DOFHeader;
 			*myLogFctPtr = &DataLogger::logA2DOFManage;
+			break;
+		case 5: //Battery Board
+			qDebug() << "Logging battery board is not programmed!";
+			break;
+		case 6: //Test Bench
+			*myHeaderFctPtr = &DataLogger::writeManageTestBenchHeader;
+			*myLogFctPtr = &DataLogger::logManageTestBench;
 			break;
 		default:
 			qDebug() << "Invalid Experiment - can't write Log Header";
@@ -529,6 +534,53 @@ void DataLogger::logA2DOFManage(QTextStream *filePtr, uint8_t slaveIndex, \
 						term;
 }
 
+void DataLogger::logManageTestBench(QTextStream *filePtr, uint8_t slaveIndex, \
+								char term, qint64 t_ms, QString t_text)
+{
+	struct execute_s *exPtr1 = &exec1, *exPtr2 = &exec2;
+	int16_t *mtbExPtr1 = motortb.ex1, *mtbExPtr2 = motortb.ex2;
+
+	(*filePtr) << t_text << ',' << \
+						t_ms << ',' << \
+						mtbExPtr1[0] << ',' << \
+						mtbExPtr1[1] << ',' << \
+						mtbExPtr1[2] << ',' << \
+						mtbExPtr1[3] << ',' << \
+						mtbExPtr1[4] << ',' << \
+						mtbExPtr1[5] << ',' << \
+						exPtr1->strain << ',' << \
+						exPtr1->analog[0] << ',' << \
+						exPtr1->analog[1] << ',' << \
+						exPtr1->current << ',' << \
+						exPtr1->enc_display << ',' << \
+						exPtr1->volt_batt << ',' << \
+						exPtr1->volt_int << ',' << \
+						exPtr1->temp << ',' << \
+						exPtr1->status1 << ',' << \
+						exPtr1->status2 << ',' << \
+						mtbExPtr2[0] << ',' << \
+						mtbExPtr2[1] << ',' << \
+						mtbExPtr2[2] << ',' << \
+						mtbExPtr2[3] << ',' << \
+						mtbExPtr2[4] << ',' << \
+						mtbExPtr2[5] << ',' << \
+						exPtr2->strain << ',' << \
+						exPtr2->analog[0] << ',' << \
+						exPtr2->analog[1] << ',' << \
+						exPtr2->current << ',' << \
+						exPtr2->enc_display << ',' << \
+						exPtr2->volt_batt << ',' << \
+						exPtr2->volt_int << ',' << \
+						exPtr2->temp << ',' << \
+						exPtr2->status1 << ',' << \
+						exPtr2->status2 << ',' << \
+						motortb.mn1[0] << ',' << \
+						motortb.mn1[1] << ',' << \
+						motortb.mn1[2] << ',' << \
+						motortb.mn1[3] << \
+						term;
+}
+
 //****************************************************************************
 // Private function(s):
 //****************************************************************************
@@ -706,6 +758,53 @@ void DataLogger::writeManageA2DOFHeader(uint8_t item)
 						"Temp," << \
 						"Status1," << \
 						"Status2" << \
+						endl;
+	}
+}
+
+void DataLogger::writeManageTestBenchHeader(uint8_t item)
+{
+	if(logRecordingFile[item].isOpen())
+	{
+		//Print header:
+		logFileStream << "Timestamp," << \
+						"Timestamp (ms)," << \
+						"ex1[0]," << \
+						"ex1[1]," << \
+						"ex1[2]," << \
+						"ex1[3]," << \
+						"ex1[4]," << \
+						"ex1[5]," << \
+						"strain," << \
+						"analog_0," << \
+						"analog_1," << \
+						"current," << \
+						"enc," << \
+						"VB," << \
+						"VG," << \
+						"Temp," << \
+						"Status1," << \
+						"Status2," << \
+						"ex2[0]," << \
+						"ex2[1]," << \
+						"ex2[2]," << \
+						"ex2[3]," << \
+						"ex2[4]," << \
+						"ex2[5]," << \
+						"strain," << \
+						"analog_0," << \
+						"analog_1," << \
+						"current," << \
+						"enc," << \
+						"VB," << \
+						"VG," << \
+						"Temp," << \
+						"Status1," << \
+						"Status2," << \
+						"mn1[0]," << \
+						"mn1[1]," << \
+						"mn1[2]," << \
+						"mn1[3]" << \
 						endl;
 	}
 }
