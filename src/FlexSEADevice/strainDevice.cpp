@@ -21,10 +21,10 @@
 	Biomechatronics research group <http://biomech.media.mit.edu/>
 	[Contributors]
 *****************************************************************************
-	[This file] ExecuteDevice: Execute Device Data Class
+	[This file] StrainDevice: Strain Device Data Class
 *****************************************************************************
 	[Change log] (Convention: YYYY-MM-DD | author | comment)
-	* 2016-12-07 | sbelanger | Initial GPL-3.0 release
+	* 2016-12-10 | sbelanger | Initial GPL-3.0 release
 	*
 ****************************************************************************/
 
@@ -32,7 +32,7 @@
 // Include(s)
 //****************************************************************************
 
-#include "executeDevice.h"
+#include "strainDevice.h"
 #include "flexsea_generic.h"
 #include <QDebug>
 #include <QTextStream>
@@ -41,7 +41,7 @@
 // Constructor & Destructor:
 //****************************************************************************
 
-ExecuteDevice::ExecuteDevice(enum DataSourceFile dataSourceInit): FlexseaDevice()
+StrainDevice::StrainDevice(enum DataSourceFile dataSourceInit): FlexseaDevice()
 {
 	this->dataSource = dataSourceInit;
 }
@@ -50,109 +50,64 @@ ExecuteDevice::ExecuteDevice(enum DataSourceFile dataSourceInit): FlexseaDevice(
 // Public function(s):
 //****************************************************************************
 
-QString ExecuteDevice::getHeaderStr(void)
+QString StrainDevice::getHeaderStr(void)
 {
 	return QString("Timestamp,") + \
-				   "Timestamp (ms)," + \
-				   "accel.x," + \
-				   "accel.y," + \
-				   "accel.z," + \
-				   "gyro.x," + \
-				   "gyro.y," + \
-				   "gyro.z," + \
-				   "strain," + \
-				   "analog_0," + \
-				   "analog_1," + \
-				   "current," + \
-				   "enc-disp," + \
-				   "enc-cont," + \
-				   "enc-comm," + \
-				   "VB," + \
-				   "VG," + \
-				   "Temp," + \
-				   "Status1," + \
-				   "Status2";
+					"Timestamp (ms)," + \
+					"ch1," + \
+					"ch2," + \
+					"ch3," + \
+					"ch4," + \
+					"ch5," + \
+					"ch6";
 }
 
-QString ExecuteDevice::getLastLineStr(void)
+QString StrainDevice::getLastLineStr(void)
 {
 	QString str;
-	QTextStream(&str) <<	exList.last().timeStampDate << ',' << \
-							exList.last().timeStamp_ms << ',' << \
-							exList.last().data.accel.x << ',' << \
-							exList.last().data.accel.y << ',' << \
-							exList.last().data.accel.z << ',' << \
-							exList.last().data.gyro.x << ',' << \
-							exList.last().data.gyro.y << ',' << \
-							exList.last().data.gyro.z << ',' << \
-							exList.last().data.strain << ',' << \
-							exList.last().data.analog[0] << ',' << \
-							exList.last().data.analog[1] << ',' << \
-							exList.last().data.current << ',' << \
-							exList.last().data.enc_display << ',' << \
-							exList.last().data.enc_control << ',' << \
-							exList.last().data.enc_commut << ',' << \
-							exList.last().data.volt_batt << ',' << \
-							exList.last().data.volt_int << ',' << \
-							exList.last().data.temp << ',' << \
-							exList.last().data.status1 << ',' << \
-							exList.last().data.status2;
+	QTextStream(&str) <<	stList.last().timeStampDate << ',' << \
+							stList.last().timeStamp_ms << ',' << \
+							stList.last().data.ch[0].strain_filtered << ',' << \
+							stList.last().data.ch[1].strain_filtered << ',' << \
+							stList.last().data.ch[2].strain_filtered << ',' << \
+							stList.last().data.ch[3].strain_filtered << ',' << \
+							stList.last().data.ch[4].strain_filtered << ',' << \
+							stList.last().data.ch[5].strain_filtered;
 	return str;
 }
 
-void ExecuteDevice::clear(void)
+void StrainDevice::clear(void)
 {
 	FlexseaDevice::clear();
-	exList.clear();
+	stList.clear();
 }
 
-void ExecuteDevice::appendEmptyLine(void)
+void StrainDevice::appendEmptyLine(void)
 {
-	exList.append(ExecuteStamp());
+	stList.append(StrainStamp());
 }
 
-void ExecuteDevice::decodeLastLine(void)
+void StrainDevice::decodeLastLine(void)
 {
-	decode(&exList.last().data);
+	decode(&stList.last().data);
 }
 
-void ExecuteDevice::decodeAllLine(void)
+void StrainDevice::decodeAllLine(void)
 {
-	for(int i = 0; i < exList.size(); ++i)
+	for(int i = 0; i < stList.size(); ++i)
 	{
-		decode(&exList[i].data);
+		decode(&stList[i].data);
 	}
 }
 
-
-void ExecuteDevice::decode(struct execute_s *exPtr)
+void StrainDevice::decode(struct strain_s *stPtr)
 {
-	//Accel in mG
-	exPtr->decoded.accel.x = (1000*exPtr->accel.x)/8192;
-	exPtr->decoded.accel.y = (1000*exPtr->accel.y)/8192;
-	exPtr->decoded.accel.z = (1000*exPtr->accel.z)/8192;
-
-	//Gyro in degrees/s
-	exPtr->decoded.gyro.x = (100*exPtr->gyro.x)/164;
-	exPtr->decoded.gyro.y = (100*exPtr->gyro.y)/164;
-	exPtr->decoded.gyro.z = (100*exPtr->gyro.z)/164;
-
-	//exPtr->decoded.current = (185*exPtr->current)/10;   //mA
-	exPtr->decoded.current = exPtr->current;   //1mA/bit for sine comm.
-
-	exPtr->decoded.volt_batt = (int32_t)1000*P4_ADC_SUPPLY*((16*\
-						(float)exPtr->volt_batt/3 + 302 ) \
-						/P4_ADC_MAX) / 0.0738;          //mV
-
-	exPtr->decoded.volt_int = (int32_t)1000*P4_ADC_SUPPLY*((26*\
-						(float)exPtr->volt_int/3 + 440 ) \
-						/P4_ADC_MAX) / 0.43;            //mV
-
-	exPtr->decoded.temp = (int32_t)10*((((2.625*(float)exPtr->temp + 41) \
-					  /P4_ADC_MAX)*P4_ADC_SUPPLY) - P4_T0) / P4_TC; //C*10
-
-	exPtr->decoded.analog[0] = (int32_t)1000*((float)exPtr->analog[0]/ \
-						P5_ADC_MAX)*P5_ADC_SUPPLY;
+	stPtr->decoded.strain[0] = (100*(stPtr->ch[0].strain_filtered-STRAIN_MIDPOINT)/STRAIN_MIDPOINT);
+	stPtr->decoded.strain[1] = (100*(stPtr->ch[1].strain_filtered-STRAIN_MIDPOINT)/STRAIN_MIDPOINT);
+	stPtr->decoded.strain[2] = (100*(stPtr->ch[2].strain_filtered-STRAIN_MIDPOINT)/STRAIN_MIDPOINT);
+	stPtr->decoded.strain[3] = (100*(stPtr->ch[3].strain_filtered-STRAIN_MIDPOINT)/STRAIN_MIDPOINT);
+	stPtr->decoded.strain[4] = (100*(stPtr->ch[4].strain_filtered-STRAIN_MIDPOINT)/STRAIN_MIDPOINT);
+	stPtr->decoded.strain[5] = (100*(stPtr->ch[5].strain_filtered-STRAIN_MIDPOINT)/STRAIN_MIDPOINT);
 }
 
 //****************************************************************************

@@ -35,6 +35,7 @@
 #include "w_ricnu.h"
 #include "flexsea_generic.h"
 #include "ui_w_ricnu.h"
+#include "ricnuDevice.h"
 #include "main.h"
 
 //****************************************************************************
@@ -97,10 +98,7 @@ void W_Ricnu::displayRicnu(struct ricnu_s *ricnu)
 	//Unpack:
 	//=======
 
-	unpackCompressed6ch(ricnu->st.compressedBytes, &ricnu->st.ch[0].strain_filtered,
-						&ricnu->st.ch[1].strain_filtered, &ricnu->st.ch[2].strain_filtered,
-						&ricnu->st.ch[3].strain_filtered, &ricnu->st.ch[4].strain_filtered,
-						&ricnu->st.ch[5].strain_filtered);
+	RicnuDevice::unpackCompressed6ch(&ricnu->st);
 
 	//Raw values:
 	//===========
