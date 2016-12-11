@@ -37,7 +37,13 @@
 #include "main.h"
 #include <QComboBox>
 #include <QDebug>
+
+#include "batteryDevice.h"
 #include "executeDevice.h"
+#include "gossipDevice.h"
+#include "manageDevice.h"
+#include "ricnuDevice.h"
+#include "strainDevice.h"
 
 
 //****************************************************************************
@@ -291,51 +297,15 @@ void FlexSEA_Generic::decodeRicnu(uint8_t base, uint8_t index)
 	(void)index;
 	ricnu_1.ex = exec1;
 	ricnu_1.st = strain1;
-	decodeRicnu(&ricnu_1);
-}
-
-void FlexSEA_Generic::decodeRicnu(struct ricnu_s *riPtr)
-{
-	ExecuteDevice::decode(&riPtr->ex);
-	decodeStrain(&riPtr->st);
+	ExecuteDevice::decode(&ricnu_1.ex);
+	StrainDevice::decode(&ricnu_1.st);
 }
 
 void FlexSEA_Generic::decodeManage(uint8_t base, uint8_t index)
 {
 	struct manage_s *mnPtr;
 	assignManagePtr(&mnPtr, base, index);
-	decodeManage(mnPtr);
-}
-
-//Decodes some of Manage's fields
-void FlexSEA_Generic::decodeManage(struct manage_s *mnPtr)
-{
-	//Accel in mG
-	mnPtr->decoded.accel.x = (1000*mnPtr->accel.x)/8192;
-	mnPtr->decoded.accel.y = (1000*mnPtr->accel.y)/8192;
-	mnPtr->decoded.accel.z = (1000*mnPtr->accel.z)/8192;
-
-	//Gyro in degrees/s
-	mnPtr->decoded.gyro.x = (100*mnPtr->gyro.x)/164;
-	mnPtr->decoded.gyro.y = (100*mnPtr->gyro.y)/164;
-	mnPtr->decoded.gyro.z = (100*mnPtr->gyro.z)/164;
-
-	mnPtr->decoded.analog[0] = (int32_t)1000*((float)mnPtr->analog[0]/ \
-						STM32_ADC_MAX)*STM32_ADC_SUPPLY;
-	mnPtr->decoded.analog[1] = (int32_t)1000*((float)mnPtr->analog[1]/ \
-						STM32_ADC_MAX)*STM32_ADC_SUPPLY;
-	mnPtr->decoded.analog[2] = (int32_t)1000*((float)mnPtr->analog[2]/ \
-						STM32_ADC_MAX)*STM32_ADC_SUPPLY;
-	mnPtr->decoded.analog[3] = (int32_t)1000*((float)mnPtr->analog[3]/ \
-						STM32_ADC_MAX)*STM32_ADC_SUPPLY;
-	mnPtr->decoded.analog[4] = (int32_t)1000*((float)mnPtr->analog[4]/ \
-						STM32_ADC_MAX)*STM32_ADC_SUPPLY;
-	mnPtr->decoded.analog[5] = (int32_t)1000*((float)mnPtr->analog[5]/ \
-						STM32_ADC_MAX)*STM32_ADC_SUPPLY;
-	mnPtr->decoded.analog[6] = (int32_t)1000*((float)mnPtr->analog[6]/ \
-						STM32_ADC_MAX)*STM32_ADC_SUPPLY;
-	mnPtr->decoded.analog[7] = (int32_t)1000*((float)mnPtr->analog[7]/ \
-						STM32_ADC_MAX)*STM32_ADC_SUPPLY;
+	ManageDevice::decode(mnPtr);
 }
 
 //Decodes some of Gossip's fields
@@ -343,42 +313,14 @@ void FlexSEA_Generic::decodeGossip(uint8_t base, uint8_t index)
 {
 	struct gossip_s *goPtr;
 	assignGossipPtr(&goPtr, base, index);
-	decodeGossip(goPtr);
-}
-
-//Decodes some of Gossip's fields
-void FlexSEA_Generic::decodeGossip(struct gossip_s *goPtr)
-{
-	//Accel in mG
-	goPtr->decoded.accel.x = (1000*goPtr->accel.x)/8192;
-	goPtr->decoded.accel.y = (1000*goPtr->accel.y)/8192;
-	goPtr->decoded.accel.z = (1000*goPtr->accel.z)/8192;
-
-	//Gyro in degrees/s
-	goPtr->decoded.gyro.x = (100*goPtr->gyro.x)/164;
-	goPtr->decoded.gyro.y = (100*goPtr->gyro.y)/164;
-	goPtr->decoded.gyro.z = (100*goPtr->gyro.z)/164;
-
-	//Magneto in uT (0.15uT/LSB)
-	goPtr->decoded.magneto.x = (15*goPtr->magneto.x)/100;
-	goPtr->decoded.magneto.y = (15*goPtr->magneto.y)/100;
-	goPtr->decoded.magneto.z = (15*goPtr->magneto.z)/100;
+	GossipDevice::decode(goPtr);
 }
 
 void FlexSEA_Generic::decodeBattery(uint8_t base, uint8_t index)
 {
 	struct battery_s *baPtr;
 	assignBatteryPtr(&baPtr, base, index);
-	decodeBattery(baPtr);
-}
-
-//Decodes some of Battery's fields
-void FlexSEA_Generic::decodeBattery(struct battery_s *baPtr)
-{
-	baPtr->decoded.voltage = baPtr->voltage;    //TODO
-	baPtr->decoded.current = baPtr->current;    //TODO
-	baPtr->decoded.power = baPtr->voltage * baPtr->current;
-	baPtr->decoded.temp = baPtr->temp;          //TODO
+	BatteryDevice::decode(baPtr);
 }
 
 //Decodes some of Strain's fields
@@ -386,18 +328,7 @@ void FlexSEA_Generic::decodeStrain(uint8_t base, uint8_t index)
 {
 	struct strain_s *stPtr;
 	assignStrainPtr(&stPtr, base, index);
-	decodeStrain(stPtr);
-
-}
-
-void FlexSEA_Generic::decodeStrain(struct strain_s *stPtr)
-{
-	stPtr->decoded.strain[0] = (100*(stPtr->ch[0].strain_filtered-STRAIN_MIDPOINT)/STRAIN_MIDPOINT);
-	stPtr->decoded.strain[1] = (100*(stPtr->ch[1].strain_filtered-STRAIN_MIDPOINT)/STRAIN_MIDPOINT);
-	stPtr->decoded.strain[2] = (100*(stPtr->ch[2].strain_filtered-STRAIN_MIDPOINT)/STRAIN_MIDPOINT);
-	stPtr->decoded.strain[3] = (100*(stPtr->ch[3].strain_filtered-STRAIN_MIDPOINT)/STRAIN_MIDPOINT);
-	stPtr->decoded.strain[4] = (100*(stPtr->ch[4].strain_filtered-STRAIN_MIDPOINT)/STRAIN_MIDPOINT);
-	stPtr->decoded.strain[5] = (100*(stPtr->ch[5].strain_filtered-STRAIN_MIDPOINT)/STRAIN_MIDPOINT);
+	StrainDevice::decode(stPtr);
 }
 
 //Decodes some of the slave's fields

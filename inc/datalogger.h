@@ -45,7 +45,7 @@
 #include "main.h"
 #include "logFile.h"
 
-#include "ExecuteDevice.h"
+#include "executeDevice.h"
 
 //****************************************************************************
 // Namespace & Class
@@ -68,6 +68,7 @@ public slots:
 	void closeRecordingFile(uint8_t item);
 	void openReadingFile(bool * isOpen);
 	void closeReadingFile(void);
+	void writeToFile(FlexseaDevice *devicePtr, uint8_t item);
 	void writeToFile(uint8_t item, uint8_t slaveIndex,
 					 uint8_t expIndex, uint16_t refreshRate);
 
@@ -96,6 +97,7 @@ private:
 	void logTimestamp(qint64 *t_ms, QString *t_text);
 	void writeIdentifier(uint8_t item, uint8_t slaveIndex,
 									 uint8_t expIndex, uint16_t refreshRate);
+	void writeIdentifier(FlexseaDevice *devicePtr, uint8_t item);
 
 	void writeReadAllHeader(FlexseaDevice *device, uint8_t item);
 

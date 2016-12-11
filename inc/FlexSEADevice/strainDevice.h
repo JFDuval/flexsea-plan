@@ -68,6 +68,7 @@ public:
 	void decodeAllLine(void);
 	void clear(void);
 	void appendEmptyLine(void);
+	QString getLastStatusStr(void);
 
 	QList<struct StrainStamp> stList;
 	static void decode(struct strain_s *stPtr);

@@ -128,6 +128,11 @@ void RicnuDevice::decode(struct ricnu_s *riPtr)
 	StrainDevice::decode(&riPtr->st);
 }
 
+QString RicnuDevice::getLastStatusStr(void)
+{
+	return QString("No decoding available for this board");
+}
+
 //Unpack from buffer
 void RicnuDevice::unpackCompressed6ch(struct strain_s *stPtr)
 {

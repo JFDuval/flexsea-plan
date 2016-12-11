@@ -122,6 +122,11 @@ void ManageDevice::decodeAllLine(void)
 	}
 }
 
+QString ManageDevice::getLastStatusStr(void)
+{
+	return QString("No decoding available for this board");
+}
+
 void ManageDevice::decode(struct manage_s *mnPtr)
 {
 	//Accel in mG

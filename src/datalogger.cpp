@@ -40,6 +40,13 @@
 #include <QTextStream>
 #include <QDateTime>
 
+#include "batteryDevice.h"
+#include "executeDevice.h"
+#include "gossipDevice.h"
+#include "manageDevice.h"
+#include "ricnuDevice.h"
+#include "strainDevice.h"
+
 //****************************************************************************
 // Constructor & Destructor:
 //****************************************************************************
@@ -240,6 +247,28 @@ void DataLogger::openReadingFile(bool * isOpen)
 	*isOpen = true;
 }
 
+void DataLogger::writeToFile(FlexseaDevice *devicePtr, uint8_t item)
+{
+	// Verify that the log file is properly opened.
+	if(logRecordingFile[item].isOpen())
+	{
+		//Writting for the first time?
+		if(logRecordingFile[item].pos() == 0)
+		{
+			//Header:
+			writeIdentifier(devicePtr, item);
+			writeReadAllHeader(devicePtr, item);
+		}
+
+		//And we add to the text file:
+		logReadAll(devicePtr, item);
+	}
+	else
+	{
+		emit setStatusBarMessage("Datalogger: no file selected.");
+	}
+}
+
 void DataLogger::writeToFile(uint8_t item, uint8_t slaveIndex,
 							 uint8_t expIndex, uint16_t refreshRate)
 {
@@ -269,7 +298,6 @@ void DataLogger::writeToFile(uint8_t item, uint8_t slaveIndex,
 
 			//Header:
 			writeIdentifier(item, slaveIndex, expIndex, refreshRate);
-			//writeReadAllHeader(&executeData, item);
 			(this->*headerFctPtr)(item);
 		}
 
@@ -549,6 +577,34 @@ void DataLogger::logTimestamp(qint64 *t_ms, QString *t_text)
 {
 	*t_ms = myTime->currentMSecsSinceEpoch();
 	*t_text = myTime->currentDateTime().toString();
+}
+
+void DataLogger::writeIdentifier(FlexseaDevice *devicePtr, uint8_t item)
+{
+	QString msg;
+	//Top of the file description:
+	msg =	QString("Datalogging Item:")				+ QString(',') +
+			QString::number(item)						+ QString(',') +
+
+			QString("Slave Index:")						+ QString(',') +
+			QString::number(devicePtr->SlaveIndex)		+ QString(',') +
+
+			QString("Slave Name:")						+ QString(',') +
+			devicePtr->SlaveName						+ QString(',') +
+
+			QString("Experiment Index:")				+ QString(',') +
+			QString::number(devicePtr->experimentIndex)	+ QString(',') +
+
+			QString("Experiment Name:")					+ QString(',') +
+			devicePtr->experimentName					+ QString(',') +
+
+			QString("Aquisition Frequency:")			+ QString(',') +
+			devicePtr->frequency						+ QString("\n");
+
+	if(logRecordingFile[item].isOpen())
+	{
+		logFileStream << msg;
+	}
 }
 
 void DataLogger::writeIdentifier(uint8_t item, uint8_t slaveIndex,

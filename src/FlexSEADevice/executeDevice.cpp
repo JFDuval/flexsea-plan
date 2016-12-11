@@ -124,6 +124,68 @@ void ExecuteDevice::decodeAllLine(void)
 	}
 }
 
+QString ExecuteDevice::getLastStatusStr(void)
+{
+	QString statusStr;
+
+	//WDCLK:
+	if(GET_WDCLK_FLAG(exList.last().data.status1))
+	{
+		statusStr.append("Co-Processor Error");
+	}
+
+	//Disconnected battery:
+	if(GET_DISCON_FLAG(exList.last().data.status1) == BATT_DISCONNECTED)
+	{
+		if(statusStr.isEmpty() == false){statusStr.append(" | ");}
+		statusStr.append("Disconnected battery");
+	}
+
+	//Temperature:
+	if(GET_OVERTEMP_FLAG(exList.last().data.status1) == T_WARNING)
+	{
+		if(statusStr.isEmpty() == false){statusStr.append(" | ");}
+		statusStr.append("Temp. Near Limit");
+	}
+	else if(GET_OVERTEMP_FLAG(exList.last().data.status1) == T_ERROR)
+	{
+		if(statusStr.isEmpty() == false){statusStr.append(" | ");}
+		statusStr.append("Temp. Error");
+	}
+
+	//Voltage - VB:
+	if(GET_VB_FLAG(exList.last().data.status1) == V_LOW)
+	{
+		if(statusStr.isEmpty() == false){statusStr.append(" | ");}
+		statusStr.append("VB Low");
+	}
+	else if(GET_VB_FLAG(exList.last().data.status1) == V_HIGH)
+	{
+		if(statusStr.isEmpty() == false){statusStr.append(" | ");}
+		statusStr.append("VB High");
+	}
+
+	//Voltage - VG:
+	if(GET_VG_FLAG(exList.last().data.status1) == V_LOW)
+	{
+		if(statusStr.isEmpty() == false){statusStr.append(" | ");}
+		statusStr.append("VG Low");
+	}
+	else if(GET_VG_FLAG(exList.last().data.status1) == V_HIGH)
+	{
+		if(statusStr.isEmpty() == false){statusStr.append(" | ");}
+		statusStr.append("VG High");
+	}
+
+	//If nothing is wrong:
+	if(statusStr.isEmpty())
+	{
+		statusStr.append("Status: OK");
+	}
+
+	return statusStr;
+}
+
 
 void ExecuteDevice::decode(struct execute_s *exPtr)
 {

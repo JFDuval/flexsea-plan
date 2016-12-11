@@ -98,6 +98,11 @@ void BatteryDevice::decodeAllLine(void)
 	}
 }
 
+QString BatteryDevice::getLastStatusStr(void)
+{
+	return QString("No decoding available for this board");
+}
+
 void BatteryDevice::decode(struct battery_s *baPtr)
 {
 	baPtr->decoded.voltage = baPtr->voltage;    //TODO mV

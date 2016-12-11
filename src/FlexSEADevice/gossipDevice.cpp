@@ -120,6 +120,11 @@ void GossipDevice::decodeAllLine(void)
 	}
 }
 
+QString GossipDevice::getLastStatusStr(void)
+{
+	return QString("No decoding available for this board");
+}
+
 void GossipDevice::decode(struct gossip_s *goPtr)
 {
 	//Accel in mG

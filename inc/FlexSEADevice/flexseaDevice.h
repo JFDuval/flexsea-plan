@@ -65,6 +65,7 @@ public:
 	virtual void decodeLastLine(void) = 0;
 	virtual void decodeAllLine(void) = 0;
 	virtual void appendEmptyLine(void) = 0;
+	virtual QString getLastStatusStr(void) = 0;
 
 	virtual void clear(void);
 

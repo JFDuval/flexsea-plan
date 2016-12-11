@@ -35,7 +35,13 @@
 #include "logFile.h"
 #include "flexsea_generic.h"
 #include <QDebug>
+
+#include "batteryDevice.h"
 #include "executeDevice.h"
+#include "gossipDevice.h"
+#include "manageDevice.h"
+#include "ricnuDevice.h"
+#include "strainDevice.h"
 
 //****************************************************************************
 // Constructor & Destructor:
@@ -89,7 +95,7 @@ void LogFile::decodeLastLine(void)
 	// Manage
 	else if(SlaveIndex >= SL_BASE_MN && SlaveIndex < SL_BASE_PLAN)
 	{
-		FlexSEA_Generic::decodeManage(&data.last().manage);
+		ManageDevice::decode(&data.last().manage);
 	}
 
 	// Plan
@@ -102,25 +108,25 @@ void LogFile::decodeLastLine(void)
 	// Gossip
 	else if(SlaveIndex >= SL_BASE_GOSSIP && SlaveIndex < SL_BASE_BATT)
 	{
-		FlexSEA_Generic::decodeGossip(&data.last().gossip);
+		GossipDevice::decode(&data.last().gossip);
 	}
 
 	// Battery
 	else if(SlaveIndex >= SL_BASE_BATT && SlaveIndex < SL_BASE_STRAIN)
 	{
-		FlexSEA_Generic::decodeBattery(&data.last().battery);
+		BatteryDevice::decode(&data.last().battery);
 	}
 
 	// Strain
 	else if(SlaveIndex >= SL_BASE_STRAIN && SlaveIndex < SL_BASE_RICNU)
 	{
-		FlexSEA_Generic::decodeStrain(&data.last().strain);
+		StrainDevice::decode(&data.last().strain);
 	}
 
 	// RIC/NU
 	else if(SlaveIndex >= SL_BASE_RICNU && SlaveIndex < SL_LEN_ALL)
 	{
-		FlexSEA_Generic::decodeRicnu(&data.last().ricnu);
+		RicnuDevice::decode(&data.last().ricnu);
 	}
 
 	else
@@ -148,7 +154,7 @@ void LogFile::decodeAllLine(void)
 	{
 		for(i = 0; i < data.size(); ++i)
 		{
-			FlexSEA_Generic::decodeManage(&data[i].manage);
+			ManageDevice::decode(&data[i].manage);
 		}
 	}
 
@@ -164,7 +170,7 @@ void LogFile::decodeAllLine(void)
 	{
 		for(i = 0; i < data.size(); ++i)
 		{
-			FlexSEA_Generic::decodeGossip(&data[i].gossip);
+			GossipDevice::decode(&data[i].gossip);
 		}
 	}
 
@@ -173,7 +179,7 @@ void LogFile::decodeAllLine(void)
 	{
 		for(i = 0; i < data.size(); ++i)
 		{
-			FlexSEA_Generic::decodeBattery(&data[i].battery);
+			BatteryDevice::decode(&data[i].battery);
 		}
 	}
 
@@ -182,7 +188,7 @@ void LogFile::decodeAllLine(void)
 	{
 		for(i = 0; i < data.size(); ++i)
 		{
-			FlexSEA_Generic::decodeStrain(&data[i].strain);
+			StrainDevice::decode(&data[i].strain);
 		}
 	}
 
@@ -191,7 +197,7 @@ void LogFile::decodeAllLine(void)
 	{
 		for(i = 0; i < data.size(); ++i)
 		{
-			FlexSEA_Generic::decodeRicnu(&data[i].ricnu);
+			RicnuDevice::decode(&data[i].ricnu);
 		}
 	}
 

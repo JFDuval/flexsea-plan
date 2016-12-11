@@ -100,6 +100,11 @@ void StrainDevice::decodeAllLine(void)
 	}
 }
 
+QString StrainDevice::getLastStatusStr(void)
+{
+	return QString("No decoding available for this board");
+}
+
 void StrainDevice::decode(struct strain_s *stPtr)
 {
 	stPtr->decoded.strain[0] = (100*(stPtr->ch[0].strain_filtered-STRAIN_MIDPOINT)/STRAIN_MIDPOINT);

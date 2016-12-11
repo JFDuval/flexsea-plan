@@ -68,6 +68,7 @@ public:
 	void decodeAllLine(void);
 	void clear(void);
 	void appendEmptyLine(void);
+	QString getLastStatusStr(void);
 
 	QList<struct ExecuteStamp> exList;
 	static void decode(struct execute_s *exPtr);

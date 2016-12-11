@@ -68,6 +68,7 @@ public:
 	void decodeAllLine(void);
 	void clear(void);
 	void appendEmptyLine(void);
+	QString getLastStatusStr(void);
 
 	QList<struct ManageStamp> mnList;
 	static void decode(struct manage_s *mnPtr);

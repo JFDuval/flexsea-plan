@@ -68,6 +68,7 @@ public:
 	void decodeAllLine(void);
 	void clear(void);
 	void appendEmptyLine(void);
+	QString getLastStatusStr(void);
 
 	QList<struct BatteryStamp> baList;
 	static void decode(struct battery_s *baPtr);
