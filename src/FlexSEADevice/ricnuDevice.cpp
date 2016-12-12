@@ -128,7 +128,7 @@ void RicnuDevice::decode(struct ricnu_s *riPtr)
 	StrainDevice::decode(&riPtr->st);
 }
 
-QString RicnuDevice::getLastStatusStr(void)
+QString RicnuDevice::getStatusStr(void)
 {
 	return QString("No decoding available for this board");
 }

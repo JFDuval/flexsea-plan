@@ -93,6 +93,11 @@ MainWindow::MainWindow(QWidget *parent) :
 	W_Strain::setDescription("6ch StrainAmp - Barebone");
 	W_UserRW::setDescription("User R/W");
 
+	executeDevList.append(ExecuteDevice(&exec1));
+	executeDevList.append(ExecuteDevice(&exec2));
+	executeDevList.append(ExecuteDevice(&exec3));
+	executeDevList.append(ExecuteDevice(&exec4));
+
 	//SerialDriver:
 	mySerialDriver = new SerialDriver;
 
@@ -180,7 +185,8 @@ void MainWindow::createViewExecute(void)
 		}
 
 		myViewExecute[objectCount] = \
-				new W_Execute(this, myDataLogger->getLogFilePtr(), status);
+				new W_Execute(this, myDataLogger->getLogFilePtr(),
+							  status, &executeDevList);
 		ui->mdiArea->addSubWindow(myViewExecute[objectCount]);
 		myViewExecute[objectCount]->show();
 
@@ -391,7 +397,8 @@ void MainWindow::createSlaveComm(void)
 	//Limited number of windows:
 	if(objectCount < (SLAVECOMM_WINDOWS_MAX))
 	{
-		myViewSlaveComm[objectCount] = new W_SlaveComm(this);
+		myViewSlaveComm[objectCount] = new W_SlaveComm(this,
+													   &executeDevList);
 		ui->mdiArea->addSubWindow(myViewSlaveComm[objectCount]);
 		myViewSlaveComm[objectCount]->show();
 
@@ -417,9 +424,12 @@ void MainWindow::createSlaveComm(void)
 		//Link SlaveComm and DataLogger
 		connect(myViewSlaveComm[0], SIGNAL(openRecordingFile(uint8_t,QString)), \
 				myDataLogger, SLOT(openRecordingFile(uint8_t,QString)));
-		connect(myViewSlaveComm[0], SIGNAL(writeToLogFile(uint8_t,uint8_t
-														  ,uint8_t,uint16_t)), \
+		connect(myViewSlaveComm[0], SIGNAL(writeToLogFile(uint8_t,uint8_t, \
+														  uint8_t,uint16_t)), \
 				myDataLogger, SLOT(writeToFile(uint8_t,uint8_t,uint8_t,uint16_t)));
+		connect(myViewSlaveComm[0], SIGNAL(writeToLogFiledev(FlexseaDevice *,\
+															 uint8_t )), \
+				myDataLogger, SLOT(writeToFiledev(FlexseaDevice *, uint8_t)));
 		connect(myViewSlaveComm[0], SIGNAL(closeRecordingFile(uint8_t)), \
 				myDataLogger, SLOT(closeRecordingFile(uint8_t)));
 

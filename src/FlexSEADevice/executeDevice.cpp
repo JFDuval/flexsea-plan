@@ -41,9 +41,16 @@
 // Constructor & Destructor:
 //****************************************************************************
 
-ExecuteDevice::ExecuteDevice(enum DataSourceFile dataSourceInit): FlexseaDevice()
+ExecuteDevice::ExecuteDevice(void): FlexseaDevice()
 {
-	this->dataSource = dataSourceInit;
+	this->dataSource = LogDataFile;
+}
+
+ExecuteDevice::ExecuteDevice(execute_s *execInit): FlexseaDevice()
+{
+	this->dataSource = LiveDataFile;
+	exList.append(ExecuteStamp());
+	exList.last().data = execInit;
 }
 
 //****************************************************************************
@@ -79,111 +86,117 @@ QString ExecuteDevice::getLastLineStr(void)
 	QString str;
 	QTextStream(&str) <<	exList.last().timeStampDate		<< ',' << \
 							exList.last().timeStamp_ms		<< ',' << \
-							exList.last().data.accel.x		<< ',' << \
-							exList.last().data.accel.y		<< ',' << \
-							exList.last().data.accel.z		<< ',' << \
-							exList.last().data.gyro.x		<< ',' << \
-							exList.last().data.gyro.y		<< ',' << \
-							exList.last().data.gyro.z		<< ',' << \
-							exList.last().data.strain		<< ',' << \
-							exList.last().data.analog[0]	<< ',' << \
-							exList.last().data.analog[1]	<< ',' << \
-							exList.last().data.current		<< ',' << \
-							exList.last().data.enc_display	<< ',' << \
-							exList.last().data.enc_control	<< ',' << \
-							exList.last().data.enc_commut	<< ',' << \
-							exList.last().data.volt_batt	<< ',' << \
-							exList.last().data.volt_int		<< ',' << \
-							exList.last().data.temp			<< ',' << \
-							exList.last().data.status1		<< ',' << \
-							exList.last().data.status2;
+							exList.last().data->accel.x		<< ',' << \
+							exList.last().data->accel.y		<< ',' << \
+							exList.last().data->accel.z		<< ',' << \
+							exList.last().data->gyro.x		<< ',' << \
+							exList.last().data->gyro.y		<< ',' << \
+							exList.last().data->gyro.z		<< ',' << \
+							exList.last().data->strain		<< ',' << \
+							exList.last().data->analog[0]	<< ',' << \
+							exList.last().data->analog[1]	<< ',' << \
+							exList.last().data->current		<< ',' << \
+							exList.last().data->enc_display	<< ',' << \
+							exList.last().data->enc_control	<< ',' << \
+							exList.last().data->enc_commut	<< ',' << \
+							exList.last().data->volt_batt	<< ',' << \
+							exList.last().data->volt_int		<< ',' << \
+							exList.last().data->temp			<< ',' << \
+							exList.last().data->status1		<< ',' << \
+							exList.last().data->status2;
 	return str;
 }
 
 void ExecuteDevice::clear(void)
 {
 	FlexseaDevice::clear();
+	for(int i = 0; i < exList.size(); ++i)
+	{
+		delete exList[i].data;
+	}
 	exList.clear();
 }
 
 void ExecuteDevice::appendEmptyLine(void)
 {
 	exList.append(ExecuteStamp());
+	exList.last().data = new execute_s();
 }
 
 void ExecuteDevice::decodeLastLine(void)
 {
-	decode(&exList.last().data);
+	decode(exList.last().data);
 }
 
 void ExecuteDevice::decodeAllLine(void)
 {
 	for(int i = 0; i < exList.size(); ++i)
 	{
-		decode(&exList[i].data);
+		decode(exList[i].data);
 	}
 }
 
-QString ExecuteDevice::getLastStatusStr(void)
+QString ExecuteDevice::getStatusStr(int index)
 {
-	QString statusStr;
+	QString str;
+	uint8_t status1 = exList[index].data->status1;
 
 	//WDCLK:
-	if(GET_WDCLK_FLAG(exList.last().data.status1))
+	if(GET_WDCLK_FLAG(status1))
 	{
-		statusStr.append("Co-Processor Error");
+		str.append("Co-Processor Error");
 	}
 
 	//Disconnected battery:
-	if(GET_DISCON_FLAG(exList.last().data.status1) == BATT_DISCONNECTED)
+	if(GET_DISCON_FLAG(status1) == BATT_DISCONNECTED)
 	{
-		if(statusStr.isEmpty() == false){statusStr.append(" | ");}
-		statusStr.append("Disconnected battery");
+		if(str.isEmpty() == false){str.append(" | ");}
+		str.append("Disconnected battery");
 	}
 
 	//Temperature:
-	if(GET_OVERTEMP_FLAG(exList.last().data.status1) == T_WARNING)
+	if(GET_OVERTEMP_FLAG(status1) == T_WARNING)
 	{
-		if(statusStr.isEmpty() == false){statusStr.append(" | ");}
-		statusStr.append("Temp. Near Limit");
+		if(str.isEmpty() == false){str.append(" | ");}
+		str.append("Temp. Near Limit");
 	}
-	else if(GET_OVERTEMP_FLAG(exList.last().data.status1) == T_ERROR)
+	else if(GET_OVERTEMP_FLAG(status1) == T_ERROR)
 	{
-		if(statusStr.isEmpty() == false){statusStr.append(" | ");}
-		statusStr.append("Temp. Error");
+		if(str.isEmpty() == false){str.append(" | ");}
+		str.append("Temp. Error");
 	}
 
 	//Voltage - VB:
-	if(GET_VB_FLAG(exList.last().data.status1) == V_LOW)
+	if(GET_VB_FLAG(status1) == V_LOW)
 	{
-		if(statusStr.isEmpty() == false){statusStr.append(" | ");}
-		statusStr.append("VB Low");
+		if(str.isEmpty() == false){str.append(" | ");}
+		str.append("VB Low");
 	}
-	else if(GET_VB_FLAG(exList.last().data.status1) == V_HIGH)
+	else if(GET_VB_FLAG(status1) == V_HIGH)
 	{
-		if(statusStr.isEmpty() == false){statusStr.append(" | ");}
-		statusStr.append("VB High");
+		if(str.isEmpty() == false){str.append(" | ");}
+		str.append("VB High");
 	}
 
 	//Voltage - VG:
-	if(GET_VG_FLAG(exList.last().data.status1) == V_LOW)
+	if(GET_VG_FLAG(status1) == V_LOW)
 	{
-		if(statusStr.isEmpty() == false){statusStr.append(" | ");}
-		statusStr.append("VG Low");
+		if(str.isEmpty() == false){str.append(" | ");}
+		str.append("VG Low");
 	}
-	else if(GET_VG_FLAG(exList.last().data.status1) == V_HIGH)
+	else if(GET_VG_FLAG(status1) == V_HIGH)
 	{
-		if(statusStr.isEmpty() == false){statusStr.append(" | ");}
-		statusStr.append("VG High");
+		if(str.isEmpty() == false){str.append(" | ");}
+		str.append("VG High");
 	}
 
 	//If nothing is wrong:
-	if(statusStr.isEmpty())
+	if(str.isEmpty() == true)
 	{
-		statusStr.append("Status: OK");
+		str.append("Status: OK");
 	}
 
-	return statusStr;
+	return str;
 }
 
 

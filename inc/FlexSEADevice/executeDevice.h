@@ -53,13 +53,14 @@ struct ExecuteStamp
 {
 	QString timeStampDate;
 	int32_t timeStamp_ms;
-	execute_s data;
+	execute_s *data;
 };
 
 class ExecuteDevice : public FlexseaDevice
 {
 public:
-	explicit ExecuteDevice(enum DataSourceFile dataSourceInit);
+	explicit ExecuteDevice(void);
+	explicit ExecuteDevice(execute_s *execInit);
 
 	// Interface implementation
 	QString getHeaderStr(void);
@@ -68,10 +69,12 @@ public:
 	void decodeAllLine(void);
 	void clear(void);
 	void appendEmptyLine(void);
-	QString getLastStatusStr(void);
+	QString getStatusStr(int index);
+
 
 	QList<struct ExecuteStamp> exList;
 	static void decode(struct execute_s *exPtr);
+
 
 private:
 

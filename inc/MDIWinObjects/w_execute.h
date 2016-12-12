@@ -40,6 +40,7 @@
 #include "datalogger.h"
 #include "define.h"
 #include "logFile.h"
+#include "executeDevice.h"
 
 //****************************************************************************
 // Namespace & Class Definition:
@@ -55,9 +56,10 @@ class W_Execute : public QWidget, public Counter<W_Execute>
 
 public:
 	//Constructor & Destructor:
-	explicit W_Execute(QWidget *parent = 0,
-					   LogFile *logFileRef = nullptr,
-					   DisplayMode mode = DisplayLiveData);
+	explicit W_Execute(	QWidget *parent = 0,
+						LogFile *logFileRef = nullptr,
+						DisplayMode mode = DisplayLiveData,
+						QList<ExecuteDevice> *execListPtr = nullptr);
 	~W_Execute();
 
 	//Function(s):
@@ -75,11 +77,13 @@ private:
 	LogFile *myLogFileRef;
 	int active_slave, active_slave_index;
 	DisplayMode displayMode;
+	QList<ExecuteDevice> *deviceList;
+	ExecuteDevice logDevice;
 
 	//Function(s):
 	void initLive(void);
 	void initLog(void);
-	void displayExecute(struct execute_s *ex);
+	void displayExecute(ExecuteDevice *devicePtr, int index);
 
 signals:
 	void windowClosed(void);

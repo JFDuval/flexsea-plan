@@ -52,6 +52,7 @@
 #include "w_strain.h"
 #include "w_gossip.h"
 #include "w_converter.h"
+#include "flexseaDevice.h"
 #include "main.h"
 
 namespace Ui {
@@ -85,6 +86,8 @@ public:
 
 private:
 	Ui::MainWindow *ui;
+
+	QList<ExecuteDevice> executeDevList;
 
 	// Sub-Windows
 	W_Execute *myViewExecute[EX_VIEW_WINDOWS_MAX];

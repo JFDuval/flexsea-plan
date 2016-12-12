@@ -247,7 +247,7 @@ void DataLogger::openReadingFile(bool * isOpen)
 	*isOpen = true;
 }
 
-void DataLogger::writeToFile(FlexseaDevice *devicePtr, uint8_t item)
+void DataLogger::writeToFiledev(FlexseaDevice *devicePtr, uint8_t item)
 {
 	// Verify that the log file is properly opened.
 	if(logRecordingFile[item].isOpen())

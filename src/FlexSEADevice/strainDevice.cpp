@@ -100,7 +100,7 @@ void StrainDevice::decodeAllLine(void)
 	}
 }
 
-QString StrainDevice::getLastStatusStr(void)
+QString StrainDevice::getStatusStr(void)
 {
 	return QString("No decoding available for this board");
 }

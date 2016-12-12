@@ -68,7 +68,7 @@ public:
 	void decodeAllLine(void);
 	void clear(void);
 	void appendEmptyLine(void);
-	QString getLastStatusStr(void);
+	QString getStatusStr(void);
 
 	QList<struct RicnuStamp> riList;
 	static void decode(struct ricnu_s *riPtr);

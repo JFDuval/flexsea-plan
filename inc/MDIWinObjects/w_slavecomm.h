@@ -40,6 +40,8 @@
 #include <QtWidgets/QCheckBox>
 #include <QtWidgets/QPushButton>
 #include "flexsea_generic.h"
+#include "flexseaDevice.h"
+#include "executeDevice.h"
 
 //****************************************************************************
 // Definition(s)
@@ -66,7 +68,8 @@ class W_SlaveComm : public QWidget, public Counter<W_SlaveComm>
 
 public:
 	//Constructor & Destructor:
-	explicit W_SlaveComm(QWidget *parent = 0);
+	explicit W_SlaveComm(QWidget *parent = 0,
+						 QList<ExecuteDevice> *exDevListPtr = nullptr);
 	~W_SlaveComm();
 
 public slots:
@@ -119,6 +122,7 @@ signals:
 	void windowClosed(void);
 	void writeToLogFile(uint8_t item, uint8_t slaveIndex,
 						uint8_t expIndex, uint16_t refreshRate);
+	void writeToLogFiledev(FlexseaDevice *devicePtr, uint8_t item);
 	void openRecordingFile(uint8_t item, QString fileName);
 	void closeRecordingFile(uint8_t item);
 	void slaveReadWrite(uint numb, uint8_t *dataPacket, uint8_t r_w);
@@ -128,6 +132,9 @@ private:
 	Ui::W_SlaveComm *ui;
 	bool allComboBoxesPopulated;
 	//Store active connections:
+
+	QList<ExecuteDevice> *exDevList;
+
 	QMetaObject::Connection sc_connections[MAX_SC_ITEMS];
 	int active_slave[MAX_SC_ITEMS], active_slave_index[MAX_SC_ITEMS];
 	int selected_exp_index[MAX_SC_ITEMS];

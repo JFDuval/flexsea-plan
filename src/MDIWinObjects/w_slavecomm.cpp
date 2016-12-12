@@ -44,7 +44,8 @@
 // Constructor & Destructor:
 //****************************************************************************
 
-W_SlaveComm::W_SlaveComm(QWidget *parent) :
+W_SlaveComm::W_SlaveComm(QWidget *parent,
+						 QList<ExecuteDevice> *exDevListPtr) :
 	QWidget(parent),
 	ui(new Ui::W_SlaveComm)
 {
@@ -53,6 +54,7 @@ W_SlaveComm::W_SlaveComm(QWidget *parent) :
 	setWindowTitle(this->getDescription());
 	setWindowIcon(QIcon(":icons/d_logo_small.png"));
 
+	exDevList = exDevListPtr;
 	initSlaveCom();
 	initTimers();
 }
@@ -582,11 +584,13 @@ void W_SlaveComm::sc_read_all(uint8_t item)
 	FlexSEA_Generic::decodeSlave(SL_BASE_ALL, slaveIndex);
 	//(Uncertain about timings, probably delayed by 1 sample)
 
+
 	//3) Log
 	if(logThisItem[item] == true)
 	{
-		emit writeToLogFile(item, slaveIndex, expIndex,
-							uint16_t(refreshRate.at(ui->comboBoxRefresh1->currentIndex())));
+		emit writeToLogFiledev(&(*exDevList)[0], item);
+		//emit writeToLogFile(item, slaveIndex, expIndex,
+							//uint16_t(refreshRate.at(ui->comboBoxRefresh1->currentIndex())));
 	}
 }
 

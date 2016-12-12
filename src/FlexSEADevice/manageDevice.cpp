@@ -122,7 +122,7 @@ void ManageDevice::decodeAllLine(void)
 	}
 }
 
-QString ManageDevice::getLastStatusStr(void)
+QString ManageDevice::getStatusStr(void)
 {
 	return QString("No decoding available for this board");
 }

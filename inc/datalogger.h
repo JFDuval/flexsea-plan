@@ -68,7 +68,7 @@ public slots:
 	void closeRecordingFile(uint8_t item);
 	void openReadingFile(bool * isOpen);
 	void closeReadingFile(void);
-	void writeToFile(FlexseaDevice *devicePtr, uint8_t item);
+	void writeToFiledev(FlexseaDevice *devicePtr, uint8_t item);
 	void writeToFile(uint8_t item, uint8_t slaveIndex,
 					 uint8_t expIndex, uint16_t refreshRate);
 
@@ -79,7 +79,7 @@ private:
 	QFile logRecordingFile[4];
 	QFile logReadingFile;
 
-	ExecuteDevice executeData = ExecuteDevice(LogDataFile);
+	ExecuteDevice executeData = ExecuteDevice();
 
 	QString planGUIRootPath;
 	QString logFolder;

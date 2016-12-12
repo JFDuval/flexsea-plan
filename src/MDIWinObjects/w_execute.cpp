@@ -46,7 +46,8 @@
 
 W_Execute::W_Execute(QWidget *parent,
 					 LogFile *logFileRef,
-					 DisplayMode mode) :
+					 DisplayMode mode,
+					 QList<ExecuteDevice> *deviceListPtr) :
 	QWidget(parent),
 	ui(new Ui::W_Execute)
 {
@@ -58,6 +59,7 @@ W_Execute::W_Execute(QWidget *parent,
 	myLogFileRef  = logFileRef;
 	displayMode = mode;
 	updateDisplayMode(displayMode);
+	deviceList = deviceListPtr;
 }
 
 W_Execute::~W_Execute()
@@ -86,17 +88,15 @@ void W_Execute::trackVarEx(uint8_t var, uint8_t *varToPlotPtr8s)
 //Call this function to refresh the display
 void W_Execute::refresh(void)
 {
-	struct execute_s *exPtr;
-	FlexSEA_Generic::assignExecutePtr(&exPtr, SL_BASE_ALL, \
-									   ui->comboBox_slave->currentIndex());
-	displayExecute(exPtr);
+	int index = ui->comboBox_slave->currentIndex();
+	displayExecute(&((*deviceList)[index]), 0);
 }
 
 void W_Execute::displayLogData(int index)
 {
    if(myLogFileRef->data.isEmpty() == false)
    {
-		displayExecute(&(myLogFileRef->data[index].execute));
+		displayExecute(&logDevice, index);
    }
 }
 
@@ -132,9 +132,11 @@ void W_Execute::initLog(void)
 	displayLogData(0);
 }
 
-void W_Execute::displayExecute(struct execute_s *ex)
+void W_Execute::displayExecute(ExecuteDevice *devicePtr, int index)
 {
 	int combined_status = 0;
+
+	struct execute_s *ex = devicePtr->exList[index].data;
 
 	//Raw values:
 	//===========
@@ -182,10 +184,7 @@ void W_Execute::displayExecute(struct execute_s *ex)
 
 	ui->disp_strain_d->setText(QString::number(ex->decoded.strain,'i', 0));
 
-	QString myStr;
-	FlexSEA_Generic::decodeStatus(SL_BASE_EX, ui->comboBox_slave->currentIndex(), \
-									  ex->status1, ex->status2, &myStr);
-	ui->label_status1->setText(myStr);
+	ui->label_status1->setText(devicePtr->getStatusStr(index));
 
 	//==========
 }
