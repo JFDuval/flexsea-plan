@@ -577,7 +577,11 @@ void DataLogger::logManageTestBench(QTextStream *filePtr, uint8_t slaveIndex, \
 						motortb.mn1[0] << ',' << \
 						motortb.mn1[1] << ',' << \
 						motortb.mn1[2] << ',' << \
-						motortb.mn1[3] << \
+						motortb.mn1[3] << ',' << \
+						batt1.voltage << ',' << \
+						batt1.current << ',' << \
+						batt1.decoded.power << ',' << \
+						batt1.temp << \
 						term;
 }
 
@@ -804,7 +808,11 @@ void DataLogger::writeManageTestBenchHeader(uint8_t item)
 						"mn1[0]," << \
 						"mn1[1]," << \
 						"mn1[2]," << \
-						"mn1[3]" << \
+						"mn1[3]," << \
+						"Batt.volt," << \
+						"Batt.current," << \
+						"Batt.power," << \
+						"Batt.temp" << \
 						endl;
 	}
 }
