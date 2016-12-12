@@ -147,6 +147,8 @@ private slots:
 
 	void on_pbIMU_clicked();
 
+	void on_pbPoints_clicked();
+
 signals:
 	void windowClosed(void);
 
@@ -211,6 +213,7 @@ private:
 	QVector<int> myVector0, myVectorX;
 	QDateTime *myTime;
 	float getRefreshRate(void);
+	bool pointsVisible;
 
 	QLineSeries qlsDataTest;
 	QLineSeries qlsDataBuffer[6];

@@ -146,9 +146,9 @@ void W_2DPlot::saveNewPoints(int myDataPoints[6])
 		qlsDataBuffer[0].replace(VECLEN-1, QPointF(VECLEN-1, myDataPoints[0]));
 		qlsDataBuffer[1].replace(VECLEN-1, QPointF(VECLEN-1, myDataPoints[1]));
 		qlsDataBuffer[2].replace(VECLEN-1, QPointF(VECLEN-1, myDataPoints[2]));
-		qlsDataBuffer[3].replace(VECLEN-1, QPointF(VECLEN-1, myDataPoints[3]));
-		qlsDataBuffer[4].replace(VECLEN-1, QPointF(VECLEN-1, myDataPoints[4]));
-		qlsDataBuffer[5].replace(VECLEN-1, QPointF(VECLEN-1, myDataPoints[5]));
+	//	qlsDataBuffer[3].replace(VECLEN-1, QPointF(VECLEN-1, myDataPoints[3]));
+	//	qlsDataBuffer[4].replace(VECLEN-1, QPointF(VECLEN-1, myDataPoints[4]));
+//		qlsDataBuffer[5].replace(VECLEN-1, QPointF(VECLEN-1, myDataPoints[5]));
 	}
 }
 
@@ -477,6 +477,8 @@ void W_2DPlot::initUserInput(void)
 	ui->checkBoxD4->setToolTip(ttip);
 	ui->checkBoxD5->setToolTip(ttip);
 	ui->checkBoxD6->setToolTip(ttip);
+
+	pointsVisible = false;
 
 	saveCurrentSettings();
 }
@@ -1995,4 +1997,23 @@ void W_2DPlot::on_pbIMU_clicked()
 	ui->cBoxvar4->setCurrentIndex(4);
 	ui->cBoxvar5->setCurrentIndex(5);
 	ui->cBoxvar6->setCurrentIndex(6);
+}
+
+void W_2DPlot::on_pbPoints_clicked()
+{
+	if(pointsVisible == false)
+	{
+		pointsVisible = true;
+		ui->pbPoints->setText("Hide Points");
+	}
+	else
+	{
+		pointsVisible = false;
+		ui->pbPoints->setText("Show Points");
+	}
+
+	for(int i = 0; i < VAR_NUM; i++)
+	{
+		qlsData[i]->setPointsVisible(pointsVisible);
+	}
 }
