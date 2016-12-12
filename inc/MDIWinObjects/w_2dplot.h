@@ -41,6 +41,7 @@
 #include <QtCharts>
 #include <QtCharts/QChartView>
 #include "flexsea_generic.h"
+#include <QtCharts/QXYSeries>
 
 //****************************************************************************
 // Definition(s)
@@ -48,8 +49,8 @@
 
 #define INIT_PLOT_XMIN				0
 #define INIT_PLOT_XMAX				200
-#define INIT_PLOT_YMIN				-10000
-#define INIT_PLOT_YMAX				10000
+#define INIT_PLOT_YMIN				0
+#define INIT_PLOT_YMAX				600
 #define INIT_PLOT_LEN				((INIT_PLOT_XMAX-INIT_PLOT_XMIN)+1)
 #define VAR_NUM						6
 #define PLOT_BUF_LEN				1000
@@ -203,6 +204,16 @@ private:
 	void assignVariableRicnu(uint8_t var, struct ricnu_s *myPtr);
 	void initStats(void);
 	void refreshStats(void);
+
+	//Test 12/12/2016:
+	void saveNewPoint(int myDataPoint);
+	void saveNewPoints(int myDataPoints[6]);
+	QVector<int> myVector0, myVectorX;
+	QDateTime *myTime;
+	float getRefreshRate(void);
+
+	QLineSeries qlsDataTest;
+	QLineSeries qlsDataBuffer[6];
 };
 
 

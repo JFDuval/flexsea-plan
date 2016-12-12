@@ -40,6 +40,7 @@
 #include <QtCharts/QChartView>
 #include <QtCharts/QSplineSeries>
 #include <QDebug>
+#include <QDateTime>
 #include "flexsea_generic.h"
 #include "main.h"
 
@@ -62,6 +63,8 @@ W_2DPlot::W_2DPlot(QWidget *parent) :
 	initUserInput();
 	initChart();
 	initStats();
+
+	myTime = new QDateTime;
 }
 
 W_2DPlot::~W_2DPlot()
@@ -74,12 +77,148 @@ W_2DPlot::~W_2DPlot()
 // Public function(s):
 //****************************************************************************
 
+#define VECLEN	100
+void W_2DPlot::saveNewPoint(int myDataPoint)
+{
+	static int vecLen = 0;
+	QPointF temp;
+
+	if(vecLen <= VECLEN-1)
+	{
+		//First VECLEN points: append
+		qlsDataTest.append(vecLen, myDataPoint);
+		vecLen++;
+	}
+	else
+	{
+		//Full array, we start shifting:
+		for(int i = 1; i < VECLEN; i++)
+		{
+			temp = qlsDataTest.at(i);
+			qlsDataTest.replace(i-1, QPointF(i-1, temp.ry()));
+		}
+		//Last (new):
+		qlsDataTest.replace(VECLEN-1, QPointF(VECLEN-1, myDataPoint));
+	}
+}
+
+//Updates 6 buffers:
+void W_2DPlot::saveNewPoints(int myDataPoints[6])
+{
+	static int vecLen = 0;
+	QPointF temp;
+
+	if(vecLen <= VECLEN-1)
+	{
+		//First VECLEN points: append
+		qlsDataBuffer[0].append(vecLen, myDataPoints[0]);
+		qlsDataBuffer[1].append(vecLen, myDataPoints[1]);
+		qlsDataBuffer[2].append(vecLen, myDataPoints[2]);
+		qlsDataBuffer[3].append(vecLen, myDataPoints[3]);
+		qlsDataBuffer[4].append(vecLen, myDataPoints[4]);
+		qlsDataBuffer[5].append(vecLen, myDataPoints[5]);
+		vecLen++;
+	}
+	else
+	{
+		//Full array, we start shifting:
+		for(int i = 1; i < VECLEN; i++)
+		{
+			temp = qlsDataBuffer[0].at(i);
+			qlsDataBuffer[0].replace(i-1, QPointF(i-1, temp.ry()));
+
+			temp = qlsDataBuffer[1].at(i);
+			qlsDataBuffer[1].replace(i-1, QPointF(i-1, temp.ry()));
+
+			temp = qlsDataBuffer[2].at(i);
+			qlsDataBuffer[2].replace(i-1, QPointF(i-1, temp.ry()));
+
+			temp = qlsDataBuffer[3].at(i);
+			qlsDataBuffer[3].replace(i-1, QPointF(i-1, temp.ry()));
+
+			temp = qlsDataBuffer[4].at(i);
+			qlsDataBuffer[4].replace(i-1, QPointF(i-1, temp.ry()));
+
+			temp = qlsDataBuffer[5].at(i);
+			qlsDataBuffer[5].replace(i-1, QPointF(i-1, temp.ry()));
+		}
+		//Last (new):
+		qlsDataBuffer[0].replace(VECLEN-1, QPointF(VECLEN-1, myDataPoints[0]));
+		qlsDataBuffer[1].replace(VECLEN-1, QPointF(VECLEN-1, myDataPoints[1]));
+		qlsDataBuffer[2].replace(VECLEN-1, QPointF(VECLEN-1, myDataPoints[2]));
+		qlsDataBuffer[3].replace(VECLEN-1, QPointF(VECLEN-1, myDataPoints[3]));
+		qlsDataBuffer[4].replace(VECLEN-1, QPointF(VECLEN-1, myDataPoints[4]));
+		qlsDataBuffer[5].replace(VECLEN-1, QPointF(VECLEN-1, myDataPoints[5]));
+	}
+}
+
+//Returns the rate at which it is called, in Hz
+//Average of 10 values
+float W_2DPlot::getRefreshRate(void)
+{
+	static qint64 oldTime = 0;
+	qint64 newTime = 0, diffTime = 0;
+	float t_s = 0.0, f = 0.0, avg = 0.0;
+	static float oldAvg = 0.0;
+
+	newTime = myTime->currentMSecsSinceEpoch();
+	diffTime = newTime - oldTime;
+	oldTime = newTime;
+
+	t_s = diffTime/1000.0;
+	f = 1/t_s;
+
+	//Average:
+	avg = 0.9*oldAvg;
+	avg += 0.1*f;
+	oldAvg = avg;
+
+	return avg;
+}
+
 void W_2DPlot::refresh2DPlot(void)
 {
 	uint8_t index = 0, used = 0;
 
-	genTestData();
+	//genTestData();
 
+	static int div[6] = {0,3,6,9,12,15};
+	int val[6] = {0,0,0,0,0,0};
+	div[0]++; div[1]++; div[2]++; div[3]++; div[4]++; div[5]++;
+	div[0] %= 18; div[1] %= 18; div[2] %= 18;
+	div[3] %= 18; div[4] %= 18; div[5] %= 18;
+	val[0] = 20*div[0];
+	val[1] = 20*div[1];
+	val[2] = 20*div[2];
+	val[3] = 20*div[3];
+	val[4] = 20*div[4];
+	val[5] = 20*div[5];
+
+	//qDebug() << val;
+	//qlsData[0]->append(div, val);
+
+	saveNewPoints(val);
+	qlsData[0]->replace(qlsDataBuffer[0].points());
+	qlsData[1]->replace(qlsDataBuffer[1].points());
+	qlsData[2]->replace(qlsDataBuffer[2].points());
+	qlsData[3]->replace(qlsDataBuffer[3].points());
+	qlsData[4]->replace(qlsDataBuffer[4].points());
+	qlsData[5]->replace(qlsDataBuffer[5].points());
+
+	//Display stats:
+	ui->label_refreshRate->setText(QString::number(getRefreshRate(), 'f', 2) \
+									+ " Hz");
+
+	/*
+	qlsDataTest.append(div,val);
+
+	if(!div)
+	{
+		qlsData[0]->replace(qlsDataTest.points());
+	}
+	*/
+
+	/*
 	//For every variable:
 	for(index = 0; index < VAR_NUM; index++)
 	{
@@ -138,6 +277,7 @@ void W_2DPlot::refresh2DPlot(void)
 	}
 
 	refreshStats();
+	*/
 }
 
 //****************************************************************************
