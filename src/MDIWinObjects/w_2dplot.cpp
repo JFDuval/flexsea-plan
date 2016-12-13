@@ -131,12 +131,14 @@ void W_2DPlot::saveNewPoints(int myDataPoints[6])
 void W_2DPlot::computeStats(void)
 {
 	QPointF min, max;
-	//QPoint tempInt;
+	QPoint temp;
+	long long avg = 0;
 
 	for(int i = 0; i < VAR_NUM; i++)
 	{
 		min.setY(qlsDataBuffer[i].at(0).y());
 		max.setY(qlsDataBuffer[i].at(0).y());
+		avg = 0;
 		for(int j = 1; j < VECLEN-1; j++)
 		{
 			//Minimum:
@@ -146,14 +148,30 @@ void W_2DPlot::computeStats(void)
 			}
 
 			//Maximum:
-			if(qlsDataBuffer[i].at(j).y() > min.y())
+			if(qlsDataBuffer[i].at(j).y() > max.y())
 			{
 				max.setY(qlsDataBuffer[i].at(j).y());
 			}
+
+			//Average - sum:
+			temp = qlsDataBuffer[i].at(j).toPoint();
+			avg += temp.y();
 		}
+
+		//Average - result:
+		avg = avg / VECLEN;
+
+		//Save:
+		temp = min.toPoint();
+		stats[i][STATS_MIN] = temp.y();
+		temp = max.toPoint();
+		stats[i][STATS_MAX] = temp.y();
+		stats[i][STATS_AVG] = (int64_t) avg;
+
 		//qDebug() << "Min:" << min.y() << "Max:" << max.y();
 
 	}
+
 
 	//qDebug() << "Min:" << min.y();
 	//qDebug() << "Min:" << stats[0][STATS_MIN] << ", Max:" << stats[0][STATS_MAX];
@@ -256,6 +274,7 @@ void W_2DPlot::refresh2DPlot(void)
 
 	//refreshStats();
 	computeStats();
+	refreshStats();
 }
 
 //****************************************************************************
