@@ -74,6 +74,9 @@
 #define FORMAT_8U					4
 #define FORMAT_8S					5
 
+//Test code:
+#define VECLEN	100
+
 //VTP = Variable To Plot
 struct vtp_s
 {
@@ -144,9 +147,7 @@ private slots:
 	void on_pushButtonClear_clicked();
 	void on_pbReset_clicked();
 	void genTestData(void);
-
 	void on_pbIMU_clicked();
-
 	void on_pbPoints_clicked();
 
 signals:
@@ -158,9 +159,9 @@ private:
 	QChart *chart;
 	QChartView *chartView;
 	QLineSeries *qlsData[VAR_NUM];
-	QLineSeries *mySeriesTest;
-	int graph_xarray[PLOT_BUF_LEN];
-	int graph_yarray[VAR_NUM][PLOT_BUF_LEN];
+	//QLineSeries *mySeriesTest;
+	//int graph_xarray[PLOT_BUF_LEN];
+	//int graph_yarray[VAR_NUM][PLOT_BUF_LEN];
 	int plot_xmin, plot_ymin, plot_xmax, plot_ymax, plot_len;
 	uint8_t data_to_plot[VAR_NUM];
 	int graph_ylim[2*VAR_NUM];
@@ -186,12 +187,7 @@ private:
 	//Function(s):
 	void initChart(void);
 	void initUserInput(void);
-	void gen_graph_xarray(void);
-	void init_yarrays(void);
 	void setChartAxis(void);
-	void refreshData2DPlot(int *x, int *y, int len, uint8_t plot_index);
-	void update_plot_buf_single(int *buf, int *idx, int new_data);
-	void update_graph_array(int graph, int new_data);
 	uint8_t select_plot_slave(uint8_t index);
 	void array_minmax(int *arr, int len, int *min, int *max);
 	void addMargins(int *ymin, int *ymax);
@@ -208,14 +204,13 @@ private:
 	void refreshStats(void);
 
 	//Test 12/12/2016:
-	void saveNewPoint(int myDataPoint);
 	void saveNewPoints(int myDataPoints[6]);
 	QVector<int> myVector0, myVectorX;
 	QDateTime *myTime;
 	float getRefreshRate(void);
 	bool pointsVisible;
 
-	QLineSeries qlsDataTest;
+	//QLineSeries qlsDataTest;
 	QLineSeries qlsDataBuffer[6];
 };
 

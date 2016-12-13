@@ -77,31 +77,6 @@ W_2DPlot::~W_2DPlot()
 // Public function(s):
 //****************************************************************************
 
-#define VECLEN	100
-void W_2DPlot::saveNewPoint(int myDataPoint)
-{
-	static int vecLen = 0;
-	QPointF temp;
-
-	if(vecLen <= VECLEN-1)
-	{
-		//First VECLEN points: append
-		qlsDataTest.append(vecLen, myDataPoint);
-		vecLen++;
-	}
-	else
-	{
-		//Full array, we start shifting:
-		for(int i = 1; i < VECLEN; i++)
-		{
-			temp = qlsDataTest.at(i);
-			qlsDataTest.replace(i-1, QPointF(i-1, temp.ry()));
-		}
-		//Last (new):
-		qlsDataTest.replace(VECLEN-1, QPointF(VECLEN-1, myDataPoint));
-	}
-}
-
 //Updates 6 buffers:
 void W_2DPlot::saveNewPoints(int myDataPoints[6])
 {
@@ -146,9 +121,9 @@ void W_2DPlot::saveNewPoints(int myDataPoints[6])
 		qlsDataBuffer[0].replace(VECLEN-1, QPointF(VECLEN-1, myDataPoints[0]));
 		qlsDataBuffer[1].replace(VECLEN-1, QPointF(VECLEN-1, myDataPoints[1]));
 		qlsDataBuffer[2].replace(VECLEN-1, QPointF(VECLEN-1, myDataPoints[2]));
-	//	qlsDataBuffer[3].replace(VECLEN-1, QPointF(VECLEN-1, myDataPoints[3]));
-	//	qlsDataBuffer[4].replace(VECLEN-1, QPointF(VECLEN-1, myDataPoints[4]));
-//		qlsDataBuffer[5].replace(VECLEN-1, QPointF(VECLEN-1, myDataPoints[5]));
+		qlsDataBuffer[3].replace(VECLEN-1, QPointF(VECLEN-1, myDataPoints[3]));
+		qlsDataBuffer[4].replace(VECLEN-1, QPointF(VECLEN-1, myDataPoints[4]));
+		qlsDataBuffer[5].replace(VECLEN-1, QPointF(VECLEN-1, myDataPoints[5]));
 	}
 }
 
@@ -182,43 +157,12 @@ void W_2DPlot::refresh2DPlot(void)
 
 	//genTestData();
 
-	static int div[6] = {0,3,6,9,12,15};
 	int val[6] = {0,0,0,0,0,0};
-	div[0]++; div[1]++; div[2]++; div[3]++; div[4]++; div[5]++;
-	div[0] %= 18; div[1] %= 18; div[2] %= 18;
-	div[3] %= 18; div[4] %= 18; div[5] %= 18;
-	val[0] = 20*div[0];
-	val[1] = 20*div[1];
-	val[2] = 20*div[2];
-	val[3] = 20*div[3];
-	val[4] = 20*div[4];
-	val[5] = 20*div[5];
-
-	//qDebug() << val;
-	//qlsData[0]->append(div, val);
-
-	saveNewPoints(val);
-	qlsData[0]->replace(qlsDataBuffer[0].points());
-	qlsData[1]->replace(qlsDataBuffer[1].points());
-	qlsData[2]->replace(qlsDataBuffer[2].points());
-	qlsData[3]->replace(qlsDataBuffer[3].points());
-	qlsData[4]->replace(qlsDataBuffer[4].points());
-	qlsData[5]->replace(qlsDataBuffer[5].points());
 
 	//Display stats:
 	ui->label_refreshRate->setText(QString::number(getRefreshRate(), 'f', 2) \
 									+ " Hz");
 
-	/*
-	qlsDataTest.append(div,val);
-
-	if(!div)
-	{
-		qlsData[0]->replace(qlsDataTest.points());
-	}
-	*/
-
-	/*
 	//For every variable:
 	for(index = 0; index < VAR_NUM; index++)
 	{
@@ -239,25 +183,25 @@ void W_2DPlot::refresh2DPlot(void)
 			switch(vtp[index].format)
 			{
 				case FORMAT_32S:
-					update_graph_array(index, (*vtp[index].ptr32s));
+					val[index] = (*vtp[index].ptr32s);
 					break;
 				case FORMAT_32U:
-					update_graph_array(index, (int)(*vtp[index].ptr32u));
+					val[index] = (int)(*vtp[index].ptr32u);
 					break;
 				case FORMAT_16S:
-					update_graph_array(index, (int)(*vtp[index].ptr16s));
+					val[index] = (int)(*vtp[index].ptr16s);
 					break;
 				case FORMAT_16U:
-					update_graph_array(index, (int)(*vtp[index].ptr16u));
+					val[index] = (int)(*vtp[index].ptr16u);
 					break;
 				case FORMAT_8S:
-					update_graph_array(index, (int)(*vtp[index].ptr8s));
+					val[index] = (int)(*vtp[index].ptr8s);
 					break;
 				case FORMAT_8U:
-					update_graph_array(index, (int)(*vtp[index].ptr8u));
+					val[index] = (int)(*vtp[index].ptr8u);
 					break;
 				default:
-					update_graph_array(index, 0);
+					val[index] = 0;
 					break;
 			}
 		}
@@ -265,19 +209,20 @@ void W_2DPlot::refresh2DPlot(void)
 		{
 			if(used)
 			{
-				update_graph_array(index, (*vtp[index].ptrD32s));
+				val[index] = (*vtp[index].ptrD32s);
 			}
-		}
-
-		if(used)
-		{
-			//Plot it:
-			refreshData2DPlot(graph_xarray, graph_yarray[index], plot_len, index);
 		}
 	}
 
-	refreshStats();
-	*/
+	saveNewPoints(val);
+	qlsData[0]->replace(qlsDataBuffer[0].points());
+	qlsData[1]->replace(qlsDataBuffer[1].points());
+	qlsData[2]->replace(qlsDataBuffer[2].points());
+	qlsData[3]->replace(qlsDataBuffer[3].points());
+	qlsData[4]->replace(qlsDataBuffer[4].points());
+	qlsData[5]->replace(qlsDataBuffer[5].points());
+
+	//refreshStats();
 }
 
 //****************************************************************************
@@ -301,8 +246,6 @@ void W_2DPlot::initChart(void)
 	qlsData[0]->append(0, 0);
 	qlsData[1] = new QLineSeries();
 	qlsData[1]->append(0, 0);
-	mySeriesTest = new QLineSeries();
-	mySeriesTest->append(0, 0);
 	qlsData[2] = new QLineSeries();
 	qlsData[2]->append(0, 0);
 	qlsData[3] = new QLineSeries();
@@ -434,8 +377,8 @@ void W_2DPlot::initUserInput(void)
 	//Data fields and variables:
 	//==========================
 
-	gen_graph_xarray();
-	init_yarrays();
+	//gen_graph_xarray();
+	//init_yarrays();
 
 	//Note: Color coded labels will be defined based on the chart.
 
@@ -649,11 +592,6 @@ void W_2DPlot::assignVariableEx(uint8_t var, struct execute_s *myPtr)
 	//'Used' as default, 'false' when set at Unused
 	vtp[var].used = true;
 	vtp[var].format = FORMAT_32S;
-
-	//Quick test - ToDo remove
-//	uint8_t *testPtr;
-//	W_Execute::trackVarEx(0, &testPtr);
-	//qDebug() << *(testPtr);
 
 	//Assign pointer:
 	switch(varIndex[var])
@@ -1304,39 +1242,6 @@ void W_2DPlot::addMargins(int *ymin, int *ymax)
 	}
 }
 
-//Buffer management for the N variables that we can plot.
-void W_2DPlot::update_graph_array(int graph, int new_data)
-{
-	static int idx_plot[VAR_NUM] = {0,0,0,0,0,0};
-
-	//Updating buffer with one new data point
-	update_plot_buf_single(graph_yarray[graph], &idx_plot[graph], new_data);
-}
-
-//Add one byte to the FIFO buffer
-//Do not call that function directly
-void W_2DPlot::update_plot_buf_single(int *buf, int *idx, int new_data)
-{
-	if((*idx) < plot_len)
-	{
-		//Buffer isn't full yet, no need to discard "old" bytes
-		buf[(*idx)] = new_data;
-		(*idx)++;
-	}
-	else
-	{
-		//Shift buffer to clear one spot
-		for(int i = 1; i < plot_len; i++)
-		{
-			buf[i-1] = buf[i];
-		}
-		//Add last byte to the buffer
-		buf[plot_len-1] = new_data;
-	}
-
-	//buf[] is now up to date
-}
-
 //What slave are we plotting for this variable?
 uint8_t W_2DPlot::select_plot_slave(uint8_t index)
 {
@@ -1365,24 +1270,6 @@ uint8_t W_2DPlot::select_plot_slave(uint8_t index)
 	}
 
 	return retval;
-}
-
-//All graphs use the same X data. Call this once at startup.
-void W_2DPlot::gen_graph_xarray(void)
-{
-	for(int i = 0; i < PLOT_BUF_LEN; i++)
-	{
-		graph_xarray[i] = i;
-	}
-}
-
-//Initialize all the graphs at 0:
-void W_2DPlot::init_yarrays(void)
-{
-	for(int i = 0; i < VAR_NUM; i++)
-	{
-		memset(graph_yarray[i], 0, PLOT_BUF_LEN);
-	}
 }
 
 //Manages the chart axis, including auto-scaling
@@ -1532,58 +1419,6 @@ void W_2DPlot::array_minmax(int *arr, int len, int *min, int *max)
 			(*min) = arr[i];
 		if(arr[i] > (*max))
 			(*max) = arr[i];
-	}
-}
-
-//ToDo Re-think this:
-/*
- * Note 1: every time this function is called we clear the qlsData series,
- * and we add new data one by one. This doesn't seem efficient.
- * Note 2: in the current architecture we call this 0-6 times (depending on the
- * variables used. Should we do a mass update?
- * Note 3: setChart Axis only has to change once per cycle, not N times
-*/
-void W_2DPlot::refreshData2DPlot(int *x, int *y, int len, uint8_t plot_index)
-{
-	if(plotFreezed == false)
-	{
-		//From array to QLineSeries, + auto-scale limits:
-		graph_ylim[2*plot_index] = y[0];
-		graph_ylim[2*plot_index+1] = y[0];
-		qlsData[plot_index]->clear();
-
-		for(int i = 0; i < len; i++)
-		{
-			//Add datapoint to series:
-			qlsData[plot_index]->append(x[i], y[i]);
-
-			//Min & Max:
-			if(y[i] < graph_ylim[2*plot_index])
-			{
-				graph_ylim[2*plot_index] = y[i];
-				stats[plot_index][STATS_MIN] = y[i];
-			}
-			if(y[i] > graph_ylim[(2*plot_index) + 1])
-			{
-				graph_ylim[(2*plot_index) + 1] = y[i];
-				stats[plot_index][STATS_MAX] = y[i];
-			}
-		}
-
-		//Average value
-		long long sum = 0;
-		uint32_t qlen = plot_len;
-		for(uint32_t h = 0; h < qlen; h++)
-		{
-			sum += graph_yarray[plot_index][h];
-		}
-		stats[plot_index][STATS_AVG] = (sum/qlen);
-		//ToDo: this stops refreshing once we click on Unused!
-
-		plotting_len = len;
-
-		//Update axis:
-		setChartAxis();
 	}
 }
 
@@ -1975,8 +1810,9 @@ void W_2DPlot::on_checkBoxD6_stateChanged(int arg1)
 
 void W_2DPlot::on_pushButtonClear_clicked()
 {
-	qDebug() << "Clear plot!";
-	init_yarrays();
+	qDebug() << "Clear plot! - TODO**************";
+
+	//ToDo: clear data and stats here
 }
 
 //Reset the 2D plot to default setting
