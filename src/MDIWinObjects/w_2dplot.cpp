@@ -127,6 +127,38 @@ void W_2DPlot::saveNewPoints(int myDataPoints[6])
 	}
 }
 
+//Dumb approach: we scan the whole buffers to find min/max/avg:
+void W_2DPlot::computeStats(void)
+{
+	QPointF min, max;
+	//QPoint tempInt;
+
+	for(int i = 0; i < VAR_NUM; i++)
+	{
+		min.setY(qlsDataBuffer[i].at(0).y());
+		max.setY(qlsDataBuffer[i].at(0).y());
+		for(int j = 1; j < VECLEN-1; j++)
+		{
+			//Minimum:
+			if(qlsDataBuffer[i].at(j).y() < min.y())
+			{
+				min.setY(qlsDataBuffer[i].at(j).y());
+			}
+
+			//Maximum:
+			if(qlsDataBuffer[i].at(j).y() > min.y())
+			{
+				max.setY(qlsDataBuffer[i].at(j).y());
+			}
+		}
+		//qDebug() << "Min:" << min.y() << "Max:" << max.y();
+
+	}
+
+	//qDebug() << "Min:" << min.y();
+	//qDebug() << "Min:" << stats[0][STATS_MIN] << ", Max:" << stats[0][STATS_MAX];
+}
+
 //Returns the rate at which it is called, in Hz
 //Average of 10 values
 float W_2DPlot::getRefreshRate(void)
@@ -223,6 +255,7 @@ void W_2DPlot::refresh2DPlot(void)
 	qlsData[5]->replace(qlsDataBuffer[5].points());
 
 	//refreshStats();
+	computeStats();
 }
 
 //****************************************************************************

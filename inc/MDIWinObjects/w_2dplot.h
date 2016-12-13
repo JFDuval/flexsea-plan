@@ -49,8 +49,8 @@
 
 #define INIT_PLOT_XMIN				0
 #define INIT_PLOT_XMAX				200
-#define INIT_PLOT_YMIN				0
-#define INIT_PLOT_YMAX				600
+#define INIT_PLOT_YMIN				-1000
+#define INIT_PLOT_YMAX				1000
 #define INIT_PLOT_LEN				((INIT_PLOT_XMAX-INIT_PLOT_XMIN)+1)
 #define VAR_NUM						6
 #define PLOT_BUF_LEN				1000
@@ -75,7 +75,7 @@
 #define FORMAT_8S					5
 
 //Test code:
-#define VECLEN	100
+#define VECLEN	200
 
 //VTP = Variable To Plot
 struct vtp_s
@@ -159,9 +159,6 @@ private:
 	QChart *chart;
 	QChartView *chartView;
 	QLineSeries *qlsData[VAR_NUM];
-	//QLineSeries *mySeriesTest;
-	//int graph_xarray[PLOT_BUF_LEN];
-	//int graph_yarray[VAR_NUM][PLOT_BUF_LEN];
 	int plot_xmin, plot_ymin, plot_xmax, plot_ymax, plot_len;
 	uint8_t data_to_plot[VAR_NUM];
 	int graph_ylim[2*VAR_NUM];
@@ -209,8 +206,7 @@ private:
 	QDateTime *myTime;
 	float getRefreshRate(void);
 	bool pointsVisible;
-
-	//QLineSeries qlsDataTest;
+	void computeStats(void);
 	QLineSeries qlsDataBuffer[6];
 };
 
