@@ -110,13 +110,13 @@ public:
 	explicit W_2DPlot(QWidget *parent = 0);
 	~W_2DPlot();
 
-	//Function(s):
-
 public slots:
+
 	void refresh2DPlot(void);
 	void refreshControl(void);
 
 private slots:
+
 	void on_radioButtonXA_clicked();
 	void on_radioButtonXM_clicked();
 	void on_radioButtonYA_clicked();
@@ -146,26 +146,32 @@ private slots:
 	void on_checkBoxD6_stateChanged(int arg1);
 	void on_pushButtonClear_clicked();
 	void on_pbReset_clicked();
-	void genTestData(void);
 	void on_pbIMU_clicked();
 	void on_pbPoints_clicked();
+	void genTestData(void);
 
 signals:
+
 	void windowClosed(void);
 
 private:
+
 	//Variables & Objects:
+
 	Ui::W_2DPlot *ui;
 	QChart *chart;
 	QChartView *chartView;
 	QLineSeries *qlsData[VAR_NUM];
+	QLineSeries qlsDataBuffer[6];
+	QDateTime *myTime;
 	int plot_xmin, plot_ymin, plot_xmax, plot_ymax, plot_len;
-	uint8_t data_to_plot[VAR_NUM];
-	int graph_ylim[2*VAR_NUM];
-	bool allChannelUnused(void);
+	int globalYmin, globalYmax;
+	int vecLen;
+
 	int plotting_len;
 	QStringList var_list_margin;
 	bool plotFreezed, initFlag;
+	bool pointsVisible;
 
 	struct vtp_s vtp[6];
 	uint8_t varToPlotFormat[6];
@@ -182,13 +188,22 @@ private:
 	int32_t myFakeData;
 
 	//Function(s):
+
 	void initChart(void);
 	void initUserInput(void);
-	void setChartAxis(void);
-	uint8_t select_plot_slave(uint8_t index);
-	void addMargins(int *ymin, int *ymax);
-	void updateVarList(uint8_t var, QComboBox *myCombo);
+	void saveNewPoints(int myDataPoints[6]);
+	void computeStats(void);
+	float getRefreshRate(void);
+	void initData(void);
 	void saveCurrentSettings(void);
+	void addMargins(int *ymin, int *ymax);
+	void setChartAxis(void);
+	void setChartAxisAutomatic(void);
+	bool allChannelUnused(void);
+	void initStats(void);
+	void refreshStats(void);
+
+	void updateVarList(uint8_t var, QComboBox *myCombo);
 	void assignVariable(uint8_t var);
 	void assignVariableEx(uint8_t var, struct execute_s *myPtr);
 	void assignVariableMn(uint8_t var, struct manage_s *myPtr);
@@ -196,23 +211,6 @@ private:
 	void assignVariableBa(uint8_t var, struct battery_s *myPtr);
 	void assignVariableSt(uint8_t var, struct strain_s *myPtr);
 	void assignVariableRicnu(uint8_t var, struct ricnu_s *myPtr);
-	void initStats(void);
-	void refreshStats(void);
-
-	//Test 12/12/2016:
-	void saveNewPoints(int myDataPoints[6]);
-	void setChartAxisAutomatic(void);
-	QVector<int> myVector0, myVectorX;
-	QDateTime *myTime;
-	float getRefreshRate(void);
-	bool pointsVisible;
-	void computeStats(void);
-	QLineSeries qlsDataBuffer[6];
-	int globalYmin, globalYmax;
-	int vecLen;
-	void initData(void);
 };
-
-
 
 #endif // W_2DPLOT_H
