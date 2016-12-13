@@ -303,16 +303,19 @@ void W_2DPlot::refresh2DPlot(void)
 	saveNewPoints(val);
 
 	//And now update the display:
-	qlsData[0]->replace(qlsDataBuffer[0].points());
-	qlsData[1]->replace(qlsDataBuffer[1].points());
-	qlsData[2]->replace(qlsDataBuffer[2].points());
-	qlsData[3]->replace(qlsDataBuffer[3].points());
-	qlsData[4]->replace(qlsDataBuffer[4].points());
-	qlsData[5]->replace(qlsDataBuffer[5].points());
+	if(plotFreezed == false)
+	{
+		qlsData[0]->replace(qlsDataBuffer[0].points());
+		qlsData[1]->replace(qlsDataBuffer[1].points());
+		qlsData[2]->replace(qlsDataBuffer[2].points());
+		qlsData[3]->replace(qlsDataBuffer[3].points());
+		qlsData[4]->replace(qlsDataBuffer[4].points());
+		qlsData[5]->replace(qlsDataBuffer[5].points());
 
-	computeStats();
-	refreshStats();
-	setChartAxisAutomatic();
+		computeStats();
+		refreshStats();
+		setChartAxisAutomatic();
+	}
 }
 
 //****************************************************************************
@@ -517,11 +520,8 @@ void W_2DPlot::initData(void)
 	vecLen = 0;
 	for(int i = 0; i < VAR_NUM; i++)
 	{
-		//if(qlsData[i]->count() > 0)
-		{
-			qlsDataBuffer[i].clear();
-			qlsData[i]->replace(qlsDataBuffer[i].points());
-		}
+		qlsDataBuffer[i].clear();
+		qlsData[i]->replace(qlsDataBuffer[i].points());
 	}
 }
 
