@@ -125,6 +125,8 @@ void W_2DPlot::saveNewPoints(int myDataPoints[6])
 		qlsDataBuffer[4].replace(VECLEN-1, QPointF(VECLEN-1, myDataPoints[4]));
 		qlsDataBuffer[5].replace(VECLEN-1, QPointF(VECLEN-1, myDataPoints[5]));
 	}
+
+	plotting_len = vecLen;
 }
 
 //Dumb approach: we scan the whole buffers to find min/max/avg:
@@ -300,6 +302,8 @@ void W_2DPlot::refresh2DPlot(void)
 	}
 
 	saveNewPoints(val);
+
+	//And now update the display:
 	qlsData[0]->replace(qlsDataBuffer[0].points());
 	qlsData[1]->replace(qlsDataBuffer[1].points());
 	qlsData[2]->replace(qlsDataBuffer[2].points());
@@ -307,9 +311,9 @@ void W_2DPlot::refresh2DPlot(void)
 	qlsData[4]->replace(qlsDataBuffer[4].points());
 	qlsData[5]->replace(qlsDataBuffer[5].points());
 
-	//refreshStats();
 	computeStats();
 	refreshStats();
+	setChartAxisAutomatic();
 }
 
 //****************************************************************************
@@ -442,11 +446,13 @@ void W_2DPlot::initUserInput(void)
 		vtp[h].used = false;
 	}
 
+	/*
 	//Limits:
 	for(int i = 0; i < 2*VAR_NUM; i++)
 	{
 		graph_ylim[i] = 0;
 	}
+	*/
 
 	plotting_len = 0;
 
@@ -464,9 +470,6 @@ void W_2DPlot::initUserInput(void)
 
 	//Data fields and variables:
 	//==========================
-
-	//gen_graph_xarray();
-	//init_yarrays();
 
 	//Note: Color coded labels will be defined based on the chart.
 
@@ -1363,6 +1366,8 @@ uint8_t W_2DPlot::select_plot_slave(uint8_t index)
 }
 
 //Manages the chart axis, including auto-scaling
+//This function is called when the user makes a change.
+//setChartAxisAutomatic() will be refreshed by a timer
 void W_2DPlot::setChartAxis(void)
 {
 	//X:
@@ -1446,55 +1451,32 @@ void W_2DPlot::setChartAxis(void)
 
 		//Auto scale Y axis:
 		//==================
-
-		//Special case 1: all Unused
-		if(allChannelUnused() == true)
-		{
-			//qDebug() << "All Unused";
-			plot_ymin = -10;
-			plot_ymax = 10;
-		}
-		else
-		{
-			//Special case 2: at least 1 unused. We need a value for it,
-			//otherwise it will force a 0.
-			int yValMin = 0, yValMax = 0;
-			for(int k = 0; k < VAR_NUM; k++)
-			{
-				if(vtp[k].used == true)
-				{
-					//We found one, copy its values:
-					yValMin = graph_ylim[2*k];
-					yValMax = graph_ylim[(2*k)+1];
-					break;
-				}
-			}
-			//Now we use this for all unused channels:
-			for(int k = 0; k < VAR_NUM; k++)
-			{
-				if(vtp[k].used == false)
-				{
-					//Unused, replace its min/max:
-					graph_ylim[2*k] = yValMin;
-					graph_ylim[(2*k)+1] = yValMax;
-				}
-			}
-
-			//Now we can find the min/max of all channels:
-			array_minmax(graph_ylim, 2*VAR_NUM, &plot_ymin, &plot_ymax);
-
-			//Apply a margin:
-			addMargins(&plot_ymin, &plot_ymax);
-		}
-
-		//Notify user of value used:
-		ui->lineEditYMin->setText(QString::number(plot_ymin));
-		ui->lineEditYMax->setText(QString::number(plot_ymax));
+		//(all done in Automatic function)
 	}
 
 	//Update chart:
 	chart->axisX()->setRange(plot_xmin, plot_xmax);
 	chart->axisY()->setRange(plot_ymin, plot_ymax);
+}
+
+void W_2DPlot::setChartAxisAutomatic(void)
+{
+	if(ui->radioButtonYA->isChecked())
+	{
+		plot_ymin = globalYmin;
+		plot_ymax = globalYmax;
+
+		//Apply a margin:
+		addMargins(&plot_ymin, &plot_ymax);
+
+		//Update chart:
+		//chart->axisX()->setRange(plot_xmin, plot_xmax);
+		chart->axisY()->setRange(plot_ymin, plot_ymax);
+
+		//Display values used:
+		ui->lineEditYMin->setText(QString::number(plot_ymin));
+		ui->lineEditYMax->setText(QString::number(plot_ymax));
+	}
 }
 
 //Returns the min and max of an array. Used for the auto axis

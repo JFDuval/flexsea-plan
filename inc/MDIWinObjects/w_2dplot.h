@@ -202,6 +202,7 @@ private:
 
 	//Test 12/12/2016:
 	void saveNewPoints(int myDataPoints[6]);
+	void setChartAxisAutomatic(void);
 	QVector<int> myVector0, myVectorX;
 	QDateTime *myTime;
 	float getRefreshRate(void);
