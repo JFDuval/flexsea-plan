@@ -134,6 +134,7 @@ void W_2DPlot::computeStats(void)
 	QPoint temp;
 	long long avg = 0;
 
+	//Stats for each channel:
 	for(int i = 0; i < VAR_NUM; i++)
 	{
 		min.setY(qlsDataBuffer[i].at(0).y());
@@ -167,14 +168,48 @@ void W_2DPlot::computeStats(void)
 		temp = max.toPoint();
 		stats[i][STATS_MAX] = temp.y();
 		stats[i][STATS_AVG] = (int64_t) avg;
-
-		//qDebug() << "Min:" << min.y() << "Max:" << max.y();
-
 	}
 
+	//Stats for all channels:
 
-	//qDebug() << "Min:" << min.y();
-	//qDebug() << "Min:" << stats[0][STATS_MIN] << ", Max:" << stats[0][STATS_MAX];
+	if(allChannelUnused() == true)
+	{
+		globalYmin = -10;
+		globalYmax = 10;
+	}
+	else
+	{
+		//First, we use the 1st used channel to initialize the global min/max:
+		for(int i = 0; i < VAR_NUM; i++)
+		{
+			if(vtp[i].used == true)
+			{
+				globalYmin = stats[i][STATS_MIN];
+				globalYmax = stats[i][STATS_MAX];
+				break;
+			}
+		}
+
+		//Now we can compare:
+		for(int i = 0; i < VAR_NUM; i++)
+		{
+			//We only use the 'used' channels for the global min/max:
+			if(vtp[i].used == true)
+			{
+				//Minimum:
+				if(stats[i][STATS_MIN] < globalYmin)
+				{
+					globalYmin = stats[i][STATS_MIN];
+				}
+
+				//Maximum:
+				if(stats[i][STATS_MAX] > globalYmax)
+				{
+					globalYmax = stats[i][STATS_MAX];
+				}
+			}
+		}
+	}
 }
 
 //Returns the rate at which it is called, in Hz
@@ -474,6 +509,8 @@ void W_2DPlot::initUserInput(void)
 	ui->checkBoxD6->setToolTip(ttip);
 
 	pointsVisible = false;
+	globalYmin = 0;
+	globalYmin = 0;
 
 	saveCurrentSettings();
 }
@@ -490,7 +527,7 @@ void W_2DPlot::updateVarList(uint8_t var, QComboBox *myCombo)
 	switch(bType)
 	{
 		case FLEXSEA_PLAN_BASE:
-			var_list << "**Unused**";
+			var_list << "****";
 			toolTipList << "";
 			break;
 		case FLEXSEA_MANAGE_BASE:
@@ -1544,6 +1581,8 @@ void W_2DPlot::refreshStats(void)
 	ui->label_6_min->setText(QString::number(stats[5][STATS_MIN]));
 	ui->label_6_max->setText(QString::number(stats[5][STATS_MAX]));
 	ui->label_6_avg->setText(QString::number(stats[5][STATS_AVG]));
+
+	qDebug() << "Gmin:" << globalYmin << "Gmax:" << globalYmax;
 }
 
 //****************************************************************************

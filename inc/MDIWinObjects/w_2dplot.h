@@ -208,6 +208,7 @@ private:
 	bool pointsVisible;
 	void computeStats(void);
 	QLineSeries qlsDataBuffer[6];
+	int globalYmin, globalYmax;
 };
 
 
