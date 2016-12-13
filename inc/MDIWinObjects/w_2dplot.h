@@ -186,7 +186,6 @@ private:
 	void initUserInput(void);
 	void setChartAxis(void);
 	uint8_t select_plot_slave(uint8_t index);
-	void array_minmax(int *arr, int len, int *min, int *max);
 	void addMargins(int *ymin, int *ymax);
 	void updateVarList(uint8_t var, QComboBox *myCombo);
 	void saveCurrentSettings(void);
@@ -211,6 +210,7 @@ private:
 	QLineSeries qlsDataBuffer[6];
 	int globalYmin, globalYmax;
 	int vecLen;
+	void initData(void);
 };
 
 

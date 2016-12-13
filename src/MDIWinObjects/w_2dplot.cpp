@@ -80,7 +80,6 @@ W_2DPlot::~W_2DPlot()
 //Updates 6 buffers:
 void W_2DPlot::saveNewPoints(int myDataPoints[6])
 {
-	//static int vecLen = 0;
 	QPointF temp;
 
 	if(vecLen <= VECLEN-1)
@@ -332,8 +331,9 @@ void W_2DPlot::refreshControl(void)
 
 void W_2DPlot::initChart(void)
 {
-	//Data series:
 	vecLen = 0;
+
+	//Data series:
 	qlsData[0] = new QLineSeries();
 	qlsData[0]->append(0, 0);
 	qlsData[1] = new QLineSeries();
@@ -446,14 +446,6 @@ void W_2DPlot::initUserInput(void)
 		vtp[h].used = false;
 	}
 
-	/*
-	//Limits:
-	for(int i = 0; i < 2*VAR_NUM; i++)
-	{
-		graph_ylim[i] = 0;
-	}
-	*/
-
 	plotting_len = 0;
 
 	//Margin options:
@@ -517,6 +509,20 @@ void W_2DPlot::initUserInput(void)
 	globalYmin = 0;
 
 	saveCurrentSettings();
+}
+
+//Empties all the lists
+void W_2DPlot::initData(void)
+{
+	vecLen = 0;
+	for(int i = 0; i < VAR_NUM; i++)
+	{
+		//if(qlsData[i]->count() > 0)
+		{
+			qlsDataBuffer[i].clear();
+			qlsData[i]->replace(qlsDataBuffer[i].points());
+		}
+	}
 }
 
 //Each board type has a different variable list.
@@ -1479,21 +1485,6 @@ void W_2DPlot::setChartAxisAutomatic(void)
 	}
 }
 
-//Returns the min and max of an array. Used for the auto axis
-void W_2DPlot::array_minmax(int *arr, int len, int *min, int *max)
-{
-	(*min) = arr[0];
-	(*max) = arr[0];
-
-	for(int i = 0; i < len; i++)
-	{
-		if(arr[i] < (*min))
-			(*min) = arr[i];
-		if(arr[i] > (*max))
-			(*max) = arr[i];
-	}
-}
-
 bool W_2DPlot::allChannelUnused(void)
 {
 	for(int i = 0; i < VAR_NUM; i++)
@@ -1884,9 +1875,9 @@ void W_2DPlot::on_checkBoxD6_stateChanged(int arg1)
 
 void W_2DPlot::on_pushButtonClear_clicked()
 {
-	qDebug() << "Clear plot! - TODO**************";
+	qDebug() << "Clear plot!";
 
-	//ToDo: clear data and stats here
+	initData();
 }
 
 //Reset the 2D plot to default setting
