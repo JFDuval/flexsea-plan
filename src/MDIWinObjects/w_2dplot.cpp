@@ -80,7 +80,7 @@ W_2DPlot::~W_2DPlot()
 //Updates 6 buffers:
 void W_2DPlot::saveNewPoints(int myDataPoints[6])
 {
-	static int vecLen = 0;
+	//static int vecLen = 0;
 	QPointF temp;
 
 	if(vecLen <= VECLEN-1)
@@ -140,7 +140,7 @@ void W_2DPlot::computeStats(void)
 		min.setY(qlsDataBuffer[i].at(0).y());
 		max.setY(qlsDataBuffer[i].at(0).y());
 		avg = 0;
-		for(int j = 1; j < VECLEN-1; j++)
+		for(int j = 1; j < vecLen-1; j++)
 		{
 			//Minimum:
 			if(qlsDataBuffer[i].at(j).y() < min.y())
@@ -160,7 +160,7 @@ void W_2DPlot::computeStats(void)
 		}
 
 		//Average - result:
-		avg = avg / VECLEN;
+		avg = avg / vecLen;
 
 		//Save:
 		temp = min.toPoint();
@@ -329,6 +329,7 @@ void W_2DPlot::refreshControl(void)
 void W_2DPlot::initChart(void)
 {
 	//Data series:
+	vecLen = 0;
 	qlsData[0] = new QLineSeries();
 	qlsData[0]->append(0, 0);
 	qlsData[1] = new QLineSeries();
@@ -1582,7 +1583,7 @@ void W_2DPlot::refreshStats(void)
 	ui->label_6_max->setText(QString::number(stats[5][STATS_MAX]));
 	ui->label_6_avg->setText(QString::number(stats[5][STATS_AVG]));
 
-	qDebug() << "Gmin:" << globalYmin << "Gmax:" << globalYmax;
+	//qDebug() << "Gmin:" << globalYmin << "Gmax:" << globalYmax;
 }
 
 //****************************************************************************

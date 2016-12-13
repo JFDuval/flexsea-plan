@@ -209,6 +209,7 @@ private:
 	void computeStats(void);
 	QLineSeries qlsDataBuffer[6];
 	int globalYmin, globalYmax;
+	int vecLen;
 };
 
 
