@@ -356,10 +356,10 @@ void MainWindow::createView2DPlot(void)
 		sendWindowCreatedMsg(W_2DPlot::getDescription(), objectCount,
 							 W_2DPlot::getMaxWindow() - 1);
 
-		//Fixed rate, not based on serial reply:
+		//Fixed rate for the display, and variable rate for the data:
 		connect(myViewSlaveComm[0], SIGNAL(refresh2DPlot()), \
 				myView2DPlot[objectCount], SLOT(refresh2DPlot()));
-		connect(myViewSlaveComm[0], SIGNAL(refresh2DPlot()), \
+		connect(mySerialDriver, SIGNAL(newDataReady()), \
 				myView2DPlot[objectCount], SLOT(receiveNewData()));
 
 		//For the trapeze/control tool:
