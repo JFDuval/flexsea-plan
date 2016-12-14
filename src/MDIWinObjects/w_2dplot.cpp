@@ -359,7 +359,6 @@ void W_2DPlot::saveNewPoints(int myDataPoints[6])
 	QPointF temp;
 	QPoint tempInt;
 	long long avg = 0;
-	int test = 0;
 
 	if(vecLen <= plot_len-1)
 	{
@@ -368,6 +367,43 @@ void W_2DPlot::saveNewPoints(int myDataPoints[6])
 		for(int i = 0; i < VAR_NUM; i++)
 		{
 			qlsDataBuffer[i].append(vecLen, myDataPoints[i]);
+
+			min.setY(qlsDataBuffer[i].at(0).y());
+			max.setY(qlsDataBuffer[i].at(0).y());
+			avg = 0;
+			for(int j = 0; j < vecLen; j++)
+			{
+
+				//Minimum:
+				if(qlsDataBuffer[i].at(j).y() < min.y())
+				{
+					min.setY(qlsDataBuffer[i].at(j).y());
+				}
+
+				//Maximum:
+				if(qlsDataBuffer[i].at(j).y() > max.y())
+				{
+					max.setY(qlsDataBuffer[i].at(j).y());
+				}
+
+				//Average - sum:
+				tempInt = qlsDataBuffer[i].at(j).toPoint();
+				avg += tempInt.y();
+
+			}
+
+			if(vecLen > 0)
+			{
+				//Average - result:
+				avg = avg / vecLen;
+
+				//Save:
+				tempInt = min.toPoint();
+				stats[i][STATS_MIN] = tempInt.y();
+				tempInt = max.toPoint();
+				stats[i][STATS_MAX] = tempInt.y();
+				stats[i][STATS_AVG] = (int64_t) avg;
+			}
 		}
 
 		vecLen++;
@@ -377,8 +413,6 @@ void W_2DPlot::saveNewPoints(int myDataPoints[6])
 		//For each variable:
 		for(int i = 0; i < VAR_NUM; i++)
 		{
-			test = 0;
-
 			//For each point:
 			min.setY(qlsDataBuffer[i].at(0).y());
 			max.setY(qlsDataBuffer[i].at(0).y());
@@ -404,9 +438,6 @@ void W_2DPlot::saveNewPoints(int myDataPoints[6])
 				//Shift by one position:
 				temp = qlsDataBuffer[i].at(j);
 				qlsDataBuffer[i].replace(j-1, QPointF(j-1, temp.ry()));
-
-				//Test:
-				test++;
 			}
 
 			//Average - result:
@@ -424,7 +455,7 @@ void W_2DPlot::saveNewPoints(int myDataPoints[6])
 		}
 	}
 
-	qDebug() << "Test =" << test;
+	qDebug() << "Test, qlsData length =" << qlsDataBuffer[0].count() << "Veclen =" << vecLen;
 	plotting_len = vecLen;
 }
 
@@ -662,55 +693,6 @@ void W_2DPlot::setChartAxis(void)
 			initData();
 		}
 		lastPlotLen = plot_len;
-
-		/*
-		//Protection against empty LineEdit
-		QString xText = ui->lineEditXMax->text();
-		if(xText.length() <= 0)
-		{
-			xText = "1";
-		}
-		plot_xmin = ui->lineEditXMin->text().toInt();
-		plot_xmax = xText.toInt();
-
-		//Few safety checks on that number.
-		if(plot_xmax >= PLOT_BUF_LEN)
-		{
-			plot_len = PLOT_BUF_LEN;
-			plot_xmax = PLOT_BUF_LEN;
-			ui->lineEditXMax->setText(QString::number(plot_xmax));
-		}
-		else
-		{
-			plot_len = plot_xmax;
-		}
-
-		if(plot_xmin < 0)
-		{
-			plot_xmin = 0;
-			ui->lineEditXMin->setText(QString::number(plot_xmin));
-		}
-		else if(plot_xmin > plot_xmax)
-		{
-			if(plot_xmax > INIT_PLOT_LEN)
-			{
-				plot_xmin = plot_xmax - INIT_PLOT_LEN;
-			}
-			else
-			{
-				plot_xmin = 0;
-			}
-
-			ui->lineEditXMin->setText(QString::number(plot_xmin));
-		}
-		plot_len = plot_xmax - plot_xmin;
-
-		if(plot_len < lastPlotLen)
-		{
-			initData();
-		}
-		lastPlotLen = plot_len;
-		*/
 	}
 	else if(ui->radioButtonXA->isChecked())
 	{
