@@ -359,8 +359,9 @@ void W_2DPlot::saveNewPoints(int myDataPoints[6])
 	QPointF temp;
 	QPoint tempInt;
 	long long avg = 0;
+	int test = 0;
 
-	if(vecLen <= VECLEN-1)
+	if(vecLen <= plot_len-1)
 	{
 		//First VECLEN points: append
 		//For each variable:
@@ -370,20 +371,19 @@ void W_2DPlot::saveNewPoints(int myDataPoints[6])
 		}
 
 		vecLen++;
-
-		//Hack: force stats to 0 before it's ready:
-
 	}
 	else
 	{
 		//For each variable:
 		for(int i = 0; i < VAR_NUM; i++)
 		{
+			test = 0;
+
 			//For each point:
 			min.setY(qlsDataBuffer[i].at(0).y());
 			max.setY(qlsDataBuffer[i].at(0).y());
 			avg = 0;
-			for(int j = 1; j < VECLEN; j++)
+			for(int j = 1; j < plot_len; j++)
 			{
 				//Minimum:
 				if(qlsDataBuffer[i].at(j-1).y() < min.y())
@@ -404,6 +404,9 @@ void W_2DPlot::saveNewPoints(int myDataPoints[6])
 				//Shift by one position:
 				temp = qlsDataBuffer[i].at(j);
 				qlsDataBuffer[i].replace(j-1, QPointF(j-1, temp.ry()));
+
+				//Test:
+				test++;
 			}
 
 			//Average - result:
@@ -417,10 +420,11 @@ void W_2DPlot::saveNewPoints(int myDataPoints[6])
 			stats[i][STATS_AVG] = (int64_t) avg;
 
 			//Last (new):
-			qlsDataBuffer[i].replace(VECLEN-1, QPointF(VECLEN-1, myDataPoints[i]));
+			qlsDataBuffer[i].replace(plot_len-1, QPointF(plot_len-1, myDataPoints[i]));
 		}
 	}
 
+	qDebug() << "Test =" << test;
 	plotting_len = vecLen;
 }
 
@@ -502,6 +506,8 @@ void W_2DPlot::initData(void)
 		qlsDataBuffer[i].clear();
 		qlsData[i]->replace(qlsDataBuffer[i].points());
 	}
+
+	initStats();
 }
 
 //Based on the current state of comboBoxes, saves the info in variables
@@ -580,6 +586,8 @@ void W_2DPlot::addMargins(int *ymin, int *ymax)
 //setChartAxisAutomatic() will be refreshed by a timer
 void W_2DPlot::setChartAxis(void)
 {
+	static int lastPlotLen = 0;
+
 	//X:
 	if(ui->radioButtonXM->isChecked())
 	{
@@ -590,6 +598,72 @@ void W_2DPlot::setChartAxis(void)
 		//Manual:
 		//=======
 
+		QString xMinText = ui->lineEditXMin->text();
+		QString xMaxText = ui->lineEditXMax->text();
+
+		//Empty field?
+
+		if(xMinText.length() <= 0)
+		{
+			xMinText = "0";
+		}
+
+		if(xMaxText.length() <= 0)
+		{
+			xMaxText = "2";
+		}
+
+		//Convert to numbers:
+		int tmpXmin = xMinText.toInt();
+		int tmpXmax = xMaxText.toInt();
+
+		//Numbers can't be negative:
+
+		if(tmpXmin < 0)
+		{
+			tmpXmin = 0;
+		}
+
+		if(tmpXmax < 0)
+		{
+			tmpXmax = 0;
+		}
+
+		//Numbers can't be too long:
+
+		if(tmpXmin > PLOT_BUF_LEN-5)
+		{
+			tmpXmin = PLOT_BUF_LEN-5;
+		}
+
+		if(tmpXmax > PLOT_BUF_LEN)
+		{
+			tmpXmax = PLOT_BUF_LEN;
+		}
+
+		//Max can't be smaller than min:
+
+		if(tmpXmax <= tmpXmin)
+		{
+			tmpXmax = tmpXmin + 1;
+		}
+
+		//Update displays:
+		ui->lineEditXMin->setText(QString::number(tmpXmin));
+		ui->lineEditXMax->setText(QString::number(tmpXmax));
+
+		//Save values:
+		plot_xmin = tmpXmin;
+		plot_xmax = tmpXmax;
+		plot_len = 1+ plot_xmax - plot_xmin;
+
+		if(plot_len < lastPlotLen)
+		{
+			initData();
+		}
+		lastPlotLen = plot_len;
+
+		/*
 		//Protection against empty LineEdit
 		QString xText = ui->lineEditXMax->text();
 		if(xText.length() <= 0)
@@ -604,6 +678,7 @@ void W_2DPlot::setChartAxis(void)
 		{
 			plot_len = PLOT_BUF_LEN;
 			plot_xmax = PLOT_BUF_LEN;
+			ui->lineEditXMax->setText(QString::number(plot_xmax));
 		}
 		else
 		{
@@ -613,6 +688,7 @@ void W_2DPlot::setChartAxis(void)
 		if(plot_xmin < 0)
 		{
 			plot_xmin = 0;
+			ui->lineEditXMin->setText(QString::number(plot_xmin));
 		}
 		else if(plot_xmin > plot_xmax)
 		{
@@ -624,8 +700,17 @@ void W_2DPlot::setChartAxis(void)
 			{
 				plot_xmin = 0;
 			}
+
+			ui->lineEditXMin->setText(QString::number(plot_xmin));
 		}
 		plot_len = plot_xmax - plot_xmin;
+
+		if(plot_len < lastPlotLen)
+		{
+			initData();
+		}
+		lastPlotLen = plot_len;
+		*/
 	}
 	else if(ui->radioButtonXA->isChecked())
 	{

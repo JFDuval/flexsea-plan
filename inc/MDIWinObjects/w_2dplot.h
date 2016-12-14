@@ -75,7 +75,7 @@
 #define FORMAT_8S					5
 
 //Test code:
-#define VECLEN	200
+//#define VECLEN	200
 
 //VTP = Variable To Plot
 struct vtp_s
