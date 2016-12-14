@@ -157,6 +157,7 @@ private slots:
 	void myHoverHandler4(QPointF pt, bool state);
 	void myHoverHandler5(QPointF pt, bool state);
 	void myHoverHandlerAll(uint8_t ch, QPointF pt, QPoint cursor, bool state);
+	void on_checkBoxOpenGL_clicked(bool checked);
 
 signals:
 
@@ -213,6 +214,7 @@ private:
 	void initStats(void);
 	void refreshStats(void);
 	void refreshStatBar(float fDisp, float fData, QPoint xy);
+	void useOpenGL(bool yesNo);
 
 	void updateVarList(uint8_t var, QComboBox *myCombo);
 	void assignVariable(uint8_t var);

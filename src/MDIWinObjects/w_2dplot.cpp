@@ -380,6 +380,9 @@ void W_2DPlot::initUserInput(void)
 	ui->label_pointHovered->setTextFormat(Qt::RichText);
 	ui->label_pointHovered->setText("<font color=#808080>(--, --)</font>");
 
+	//No OpenGL by default:
+	ui->checkBoxOpenGL->setChecked(false);
+
 	saveCurrentSettings();
 }
 
@@ -2074,4 +2077,33 @@ void W_2DPlot::myHoverHandlerAll(uint8_t ch, QPointF pt, QPoint cursor, \
 	}
 
 	ui->label_pointHovered->setText(txt);
+}
+
+void W_2DPlot::on_checkBoxOpenGL_clicked(bool checked)
+{
+	useOpenGL(checked);
+}
+
+void W_2DPlot::useOpenGL(bool yesNo)
+{
+	if(yesNo == true)
+	{
+		//Turn OpenGL ON
+		qlsData[0]->setUseOpenGL(true);
+		qlsData[1]->setUseOpenGL(true);
+		qlsData[2]->setUseOpenGL(true);
+		qlsData[3]->setUseOpenGL(true);
+		qlsData[4]->setUseOpenGL(true);
+		qlsData[5]->setUseOpenGL(true);
+	}
+	else
+	{
+		//Turn OpenGL OFF
+		qlsData[0]->setUseOpenGL(false);
+		qlsData[1]->setUseOpenGL(false);
+		qlsData[2]->setUseOpenGL(false);
+		qlsData[3]->setUseOpenGL(false);
+		qlsData[4]->setUseOpenGL(false);
+		qlsData[5]->setUseOpenGL(false);
+	}
 }
