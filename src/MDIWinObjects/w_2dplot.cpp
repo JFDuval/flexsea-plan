@@ -417,27 +417,34 @@ void W_2DPlot::saveNewPoints(int myDataPoints[6])
 			min.setY(qlsDataBuffer[i].at(0).y());
 			max.setY(qlsDataBuffer[i].at(0).y());
 			avg = 0;
-			for(int j = 1; j < plot_len; j++)
+			int index = 0;
+			for(int j = 1; j < plot_len+1; j++)
 			{
+				index = j-1;
+				//qDebug() << "Index:" << index << "Plot len:" << plot_len;
+
 				//Minimum:
-				if(qlsDataBuffer[i].at(j-1).y() < min.y())
+				if(qlsDataBuffer[i].at(index).y() < min.y())
 				{
-					min.setY(qlsDataBuffer[i].at(j-1).y());
+					min.setY(qlsDataBuffer[i].at(index).y());
 				}
 
 				//Maximum:
-				if(qlsDataBuffer[i].at(j-1).y() > max.y())
+				if(qlsDataBuffer[i].at(index).y() > max.y())
 				{
-					max.setY(qlsDataBuffer[i].at(j-1).y());
+					max.setY(qlsDataBuffer[i].at(index).y());
 				}
 
 				//Average - sum:
-				tempInt = qlsDataBuffer[i].at(j-1).toPoint();
+				tempInt = qlsDataBuffer[i].at(index).toPoint();
 				avg += tempInt.y();
 
-				//Shift by one position:
-				temp = qlsDataBuffer[i].at(j);
-				qlsDataBuffer[i].replace(j-1, QPointF(j-1, temp.ry()));
+				//Shift by one position (all but last point):
+				if(j < plot_len)
+				{
+					temp = qlsDataBuffer[i].at(j);
+					qlsDataBuffer[i].replace(index, QPointF(index, temp.ry()));
+				}
 			}
 
 			//Average - result:
@@ -455,7 +462,7 @@ void W_2DPlot::saveNewPoints(int myDataPoints[6])
 		}
 	}
 
-	qDebug() << "Test, qlsData length =" << qlsDataBuffer[0].count() << "Veclen =" << vecLen;
+	//qDebug() << "Test, qlsData length =" << qlsDataBuffer[0].count() << "Veclen =" << vecLen;
 	plotting_len = vecLen;
 }
 
