@@ -157,7 +157,7 @@ void W_2DPlot::refresh2DPlot(void)
 		qlsData[4]->replace(qlsDataBuffer[4].points());
 		qlsData[5]->replace(qlsDataBuffer[5].points());
 
-		computeStats();
+		computeGlobalMinMax();
 		refreshStats();
 		setChartAxisAutomatic();
 	}
@@ -201,11 +201,9 @@ void W_2DPlot::initChart(void)
 	chart->addSeries(qlsData[4]);
 	chart->addSeries(qlsData[5]);
 
-	//chart->setTitle("Simple spline chart example");
 	chart->createDefaultAxes();
 	chart->axisX()->setRange(plot_xmin, plot_xmax);
 	chart->axisY()->setRange(plot_ymin, plot_ymax);
-	//chart->setAnimationOptions(QChart::AllAnimations);
 
 	//Colors:
 	chart->setTheme(QChart::ChartThemeDark);
@@ -354,100 +352,81 @@ void W_2DPlot::initUserInput(void)
 	saveCurrentSettings();
 }
 
-//Updates 6 buffers:
+//Updates 6 buffers, and compute stats (min/max/avg/...)
 void W_2DPlot::saveNewPoints(int myDataPoints[6])
 {
+	QPointF min, max;
 	QPointF temp;
+	QPoint tempInt;
+	long long avg = 0;
 
 	if(vecLen <= VECLEN-1)
 	{
 		//First VECLEN points: append
-		qlsDataBuffer[0].append(vecLen, myDataPoints[0]);
-		qlsDataBuffer[1].append(vecLen, myDataPoints[1]);
-		qlsDataBuffer[2].append(vecLen, myDataPoints[2]);
-		qlsDataBuffer[3].append(vecLen, myDataPoints[3]);
-		qlsDataBuffer[4].append(vecLen, myDataPoints[4]);
-		qlsDataBuffer[5].append(vecLen, myDataPoints[5]);
+		//For each variable:
+		for(int i = 0; i < VAR_NUM; i++)
+		{
+			qlsDataBuffer[i].append(vecLen, myDataPoints[i]);
+		}
+
 		vecLen++;
+
+		//Hack: force stats to 0 before it's ready:
+
 	}
 	else
 	{
-		//Full array, we start shifting:
-		for(int i = 1; i < VECLEN; i++)
+		//For each variable:
+		for(int i = 0; i < VAR_NUM; i++)
 		{
-			temp = qlsDataBuffer[0].at(i);
-			qlsDataBuffer[0].replace(i-1, QPointF(i-1, temp.ry()));
+			//For each point:
+			min.setY(qlsDataBuffer[i].at(0).y());
+			max.setY(qlsDataBuffer[i].at(0).y());
+			avg = 0;
+			for(int j = 1; j < VECLEN; j++)
+			{
+				//Minimum:
+				if(qlsDataBuffer[i].at(j-1).y() < min.y())
+				{
+					min.setY(qlsDataBuffer[i].at(j-1).y());
+				}
 
-			temp = qlsDataBuffer[1].at(i);
-			qlsDataBuffer[1].replace(i-1, QPointF(i-1, temp.ry()));
+				//Maximum:
+				if(qlsDataBuffer[i].at(j-1).y() > max.y())
+				{
+					max.setY(qlsDataBuffer[i].at(j-1).y());
+				}
 
-			temp = qlsDataBuffer[2].at(i);
-			qlsDataBuffer[2].replace(i-1, QPointF(i-1, temp.ry()));
+				//Average - sum:
+				tempInt = qlsDataBuffer[i].at(j-1).toPoint();
+				avg += tempInt.y();
 
-			temp = qlsDataBuffer[3].at(i);
-			qlsDataBuffer[3].replace(i-1, QPointF(i-1, temp.ry()));
+				//Shift by one position:
+				temp = qlsDataBuffer[i].at(j);
+				qlsDataBuffer[i].replace(j-1, QPointF(j-1, temp.ry()));
+			}
 
-			temp = qlsDataBuffer[4].at(i);
-			qlsDataBuffer[4].replace(i-1, QPointF(i-1, temp.ry()));
+			//Average - result:
+			avg = avg / vecLen;
 
-			temp = qlsDataBuffer[5].at(i);
-			qlsDataBuffer[5].replace(i-1, QPointF(i-1, temp.ry()));
+			//Save:
+			tempInt = min.toPoint();
+			stats[i][STATS_MIN] = tempInt.y();
+			tempInt = max.toPoint();
+			stats[i][STATS_MAX] = tempInt.y();
+			stats[i][STATS_AVG] = (int64_t) avg;
+
+			//Last (new):
+			qlsDataBuffer[i].replace(VECLEN-1, QPointF(VECLEN-1, myDataPoints[i]));
 		}
-		//Last (new):
-		qlsDataBuffer[0].replace(VECLEN-1, QPointF(VECLEN-1, myDataPoints[0]));
-		qlsDataBuffer[1].replace(VECLEN-1, QPointF(VECLEN-1, myDataPoints[1]));
-		qlsDataBuffer[2].replace(VECLEN-1, QPointF(VECLEN-1, myDataPoints[2]));
-		qlsDataBuffer[3].replace(VECLEN-1, QPointF(VECLEN-1, myDataPoints[3]));
-		qlsDataBuffer[4].replace(VECLEN-1, QPointF(VECLEN-1, myDataPoints[4]));
-		qlsDataBuffer[5].replace(VECLEN-1, QPointF(VECLEN-1, myDataPoints[5]));
 	}
 
 	plotting_len = vecLen;
 }
 
-//Dumb approach: we scan the whole buffers to find min/max/avg:
-void W_2DPlot::computeStats(void)
+//Get global min & max:
+void W_2DPlot::computeGlobalMinMax(void)
 {
-	QPointF min, max;
-	QPoint temp;
-	long long avg = 0;
-
-	//Stats for each channel:
-	for(int i = 0; i < VAR_NUM; i++)
-	{
-		min.setY(qlsDataBuffer[i].at(0).y());
-		max.setY(qlsDataBuffer[i].at(0).y());
-		avg = 0;
-		for(int j = 1; j < vecLen-1; j++)
-		{
-			//Minimum:
-			if(qlsDataBuffer[i].at(j).y() < min.y())
-			{
-				min.setY(qlsDataBuffer[i].at(j).y());
-			}
-
-			//Maximum:
-			if(qlsDataBuffer[i].at(j).y() > max.y())
-			{
-				max.setY(qlsDataBuffer[i].at(j).y());
-			}
-
-			//Average - sum:
-			temp = qlsDataBuffer[i].at(j).toPoint();
-			avg += temp.y();
-		}
-
-		//Average - result:
-		avg = avg / vecLen;
-
-		//Save:
-		temp = min.toPoint();
-		stats[i][STATS_MIN] = temp.y();
-		temp = max.toPoint();
-		stats[i][STATS_MAX] = temp.y();
-		stats[i][STATS_AVG] = (int64_t) avg;
-	}
-
 	//Stats for all channels:
 
 	if(allChannelUnused() == true)

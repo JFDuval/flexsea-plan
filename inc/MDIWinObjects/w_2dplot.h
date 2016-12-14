@@ -192,7 +192,7 @@ private:
 	void initChart(void);
 	void initUserInput(void);
 	void saveNewPoints(int myDataPoints[6]);
-	void computeStats(void);
+	void computeGlobalMinMax(void);
 	float getRefreshRate(void);
 	void initData(void);
 	void saveCurrentSettings(void);
