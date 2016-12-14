@@ -163,7 +163,7 @@ private:
 	QChartView *chartView;
 	QLineSeries *qlsData[VAR_NUM];
 	QLineSeries qlsDataBuffer[6];
-	QDateTime *myTime;
+	QDateTime *timerRefreshDisplay, *timerRefreshData;
 	int plot_xmin, plot_ymin, plot_xmax, plot_ymax, plot_len;
 	int globalYmin, globalYmax;
 	int vecLen;
@@ -193,7 +193,8 @@ private:
 	void initUserInput(void);
 	void saveNewPoints(int myDataPoints[6]);
 	void computeGlobalMinMax(void);
-	float getRefreshRate(void);
+	float getRefreshRateDisplay(void);
+	float getRefreshRateData(void);
 	void initData(void);
 	void saveCurrentSettings(void);
 	void addMargins(int *ymin, int *ymax);
@@ -202,6 +203,7 @@ private:
 	bool allChannelUnused(void);
 	void initStats(void);
 	void refreshStats(void);
+	void refreshStatBar(float fDisp, float fData, QPoint xy);
 
 	void updateVarList(uint8_t var, QComboBox *myCombo);
 	void assignVariable(uint8_t var);

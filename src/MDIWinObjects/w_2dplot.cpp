@@ -65,7 +65,9 @@ W_2DPlot::W_2DPlot(QWidget *parent) :
 	initChart();
 	initStats();
 
-	myTime = new QDateTime;
+	//Timers:
+	timerRefreshDisplay = new QDateTime;
+	timerRefreshData = new QDateTime;
 }
 
 W_2DPlot::~W_2DPlot()
@@ -85,14 +87,12 @@ W_2DPlot::~W_2DPlot()
 void W_2DPlot::refresh2DPlot(void)
 {
 	uint8_t index = 0, used = 0;
+	int val[6] = {0,0,0,0,0,0};
 
 	//genTestData();
 
-	int val[6] = {0,0,0,0,0,0};
-
-	//Display stats:
-	ui->label_refreshRate->setText(QString::number(getRefreshRate(), 'f', 2) \
-									+ " Hz");
+	//Refresh Stat Bar:
+	refreshStatBar(getRefreshRateDisplay(), 0.0, QPoint(0,0));
 
 	//For every variable:
 	for(index = 0; index < VAR_NUM; index++)
@@ -349,6 +349,14 @@ void W_2DPlot::initUserInput(void)
 	globalYmin = 0;
 	globalYmin = 0;
 
+	//Stats bar:
+	ui->label_refreshRateData->setTextFormat(Qt::RichText);
+	ui->label_refreshRateData->setText("-- Hz");
+	ui->label_refreshRateDisplay->setTextFormat(Qt::RichText);
+	ui->label_refreshRateDisplay->setText("-- Hz");
+	ui->label_pointHovered->setTextFormat(Qt::RichText);
+	ui->label_pointHovered->setText("(--, --)");
+
 	saveCurrentSettings();
 }
 
@@ -513,14 +521,38 @@ void W_2DPlot::computeGlobalMinMax(void)
 
 //Returns the rate at which it is called, in Hz
 //Average of 10 values
-float W_2DPlot::getRefreshRate(void)
+float W_2DPlot::getRefreshRateDisplay(void)
 {
 	static qint64 oldTime = 0;
 	qint64 newTime = 0, diffTime = 0;
 	float t_s = 0.0, f = 0.0, avg = 0.0;
 	static float oldAvg = 0.0;
 
-	newTime = myTime->currentMSecsSinceEpoch();
+	newTime = timerRefreshDisplay->currentMSecsSinceEpoch();
+	diffTime = newTime - oldTime;
+	oldTime = newTime;
+
+	t_s = diffTime/1000.0;
+	f = 1/t_s;
+
+	//Average:
+	avg = 0.9*oldAvg;
+	avg += 0.1*f;
+	oldAvg = avg;
+
+	return avg;
+}
+
+//Returns the rate at which it is called, in Hz
+//Average of 10 values
+float W_2DPlot::getRefreshRateData(void)
+{
+	static qint64 oldTime = 0;
+	qint64 newTime = 0, diffTime = 0;
+	float t_s = 0.0, f = 0.0, avg = 0.0;
+	static float oldAvg = 0.0;
+
+	newTime = timerRefreshData->currentMSecsSinceEpoch();
 	diffTime = newTime - oldTime;
 	oldTime = newTime;
 
@@ -833,6 +865,26 @@ void W_2DPlot::refreshStats(void)
 	ui->label_6_min->setText(QString::number(stats[5][STATS_MIN]));
 	ui->label_6_max->setText(QString::number(stats[5][STATS_MAX]));
 	ui->label_6_avg->setText(QString::number(stats[5][STATS_AVG]));
+}
+
+void W_2DPlot::refreshStatBar(float fDisp, float fData, QPoint xy)
+{
+	QString txt, num;
+	int x = 0, y = 0;
+
+	num = QString::number(fDisp, 'f', 2);
+	txt = "<font color=#808080>Display: " + num + " Hz </font>";
+	ui->label_refreshRateDisplay->setText(txt);
+
+	num = QString::number(fData, 'f', 2);
+	txt = "<font color=#808080>Data: " + num + " Hz </font>";
+	ui->label_refreshRateData->setText(txt);
+
+	x = (int)xy.x();
+	y = (int)xy.y();
+	txt = "<font color=#808080>Point = (" + QString::number(x) + ',' + \
+		  QString::number(y) + ")</font>";
+	ui->label_pointHovered->setText(txt);
 }
 
 //Each board type has a different variable list.
