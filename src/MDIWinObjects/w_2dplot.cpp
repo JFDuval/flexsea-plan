@@ -84,15 +84,96 @@ W_2DPlot::~W_2DPlot()
 // Public slot(s):
 //****************************************************************************
 
-void W_2DPlot::refresh2DPlot(void)
+void W_2DPlot::receiveNewData(void)
 {
 	uint8_t index = 0, used = 0;
 	int val[6] = {0,0,0,0,0,0};
 
+	dataRate = getRefreshRateData();
+
+	//For every variable:
+	for(index = 0; index < VAR_NUM; index++)
+	{
+		/*
+		if(vtp[index].used == false)
+		{
+			//This channel isn't used, we make it invisible
+			qlsData[index]->setVisible(false);
+			used = 0;
+		}
+		else
+		{
+			qlsData[index]->setVisible(true);
+			used = 1;
+		}
+		*/
+
+		if(vtp[index].decode == false)
+		{
+			switch(vtp[index].format)
+			{
+				case FORMAT_32S:
+					val[index] = (*vtp[index].ptr32s);
+					break;
+				case FORMAT_32U:
+					val[index] = (int)(*vtp[index].ptr32u);
+					break;
+				case FORMAT_16S:
+					val[index] = (int)(*vtp[index].ptr16s);
+					break;
+				case FORMAT_16U:
+					val[index] = (int)(*vtp[index].ptr16u);
+					break;
+				case FORMAT_8S:
+					val[index] = (int)(*vtp[index].ptr8s);
+					break;
+				case FORMAT_8U:
+					val[index] = (int)(*vtp[index].ptr8u);
+					break;
+				default:
+					val[index] = 0;
+					break;
+			}
+		}
+		else
+		{
+			//if(used)
+			{
+				val[index] = (*vtp[index].ptrD32s);
+			}
+		}
+	}
+
+	saveNewPoints(val);
+
+	/*
+	//And now update the display:
+	if(plotFreezed == false)
+	{
+		qlsData[0]->replace(qlsDataBuffer[0].points());
+		qlsData[1]->replace(qlsDataBuffer[1].points());
+		qlsData[2]->replace(qlsDataBuffer[2].points());
+		qlsData[3]->replace(qlsDataBuffer[3].points());
+		qlsData[4]->replace(qlsDataBuffer[4].points());
+		qlsData[5]->replace(qlsDataBuffer[5].points());
+
+		computeGlobalMinMax();
+		refreshStats();
+		setChartAxisAutomatic();
+	}
+	*/
+}
+
+void W_2DPlot::refresh2DPlot(void)
+{
+	uint8_t index = 0, used = 0;
+	//int val[6] = {0,0,0,0,0,0};
+
 	//genTestData();
 
 	//Refresh Stat Bar:
-	refreshStatBar(getRefreshRateDisplay(), 0.0, QPoint(0,0));
+	refreshStatBar(getRefreshRateDisplay(), dataRate, QPoint(0,0));
+
 
 	//For every variable:
 	for(index = 0; index < VAR_NUM; index++)
@@ -108,7 +189,9 @@ void W_2DPlot::refresh2DPlot(void)
 			qlsData[index]->setVisible(true);
 			used = 1;
 		}
+	}
 
+			/*
 		if(vtp[index].decode == false)
 		{
 			switch(vtp[index].format)
@@ -146,6 +229,7 @@ void W_2DPlot::refresh2DPlot(void)
 	}
 
 	saveNewPoints(val);
+	*/
 
 	//And now update the display:
 	if(plotFreezed == false)

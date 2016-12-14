@@ -112,6 +112,7 @@ public:
 
 public slots:
 
+	void receiveNewData(void);
 	void refresh2DPlot(void);
 	void refreshControl(void);
 
@@ -186,6 +187,7 @@ private:
 	uint8_t varIndex[VAR_NUM];
 	int64_t stats[VAR_NUM][STATS_FIELDS];
 	int32_t myFakeData;
+	float dataRate;
 
 	//Function(s):
 
