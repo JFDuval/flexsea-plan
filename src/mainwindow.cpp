@@ -55,7 +55,7 @@ MainWindow::MainWindow(QWidget *parent) :
 	setWindowTitle("FlexSEA Plan GUI v2.0 (Alpha Release - 12/2016)");
 	ui->statusBar->showMessage("Program launched. COM: Not Connected. \
 								Stream status: N/A", 0);
-	setWindowIcon(QIcon(":icons/d_logo_small.png"));
+	setWindowIcon(QIcon(":icons/d_logo_small_outlined.png"));
 
 	//Prepare FlexSEA Stack:
 	init_flexsea_payload_ptr();
