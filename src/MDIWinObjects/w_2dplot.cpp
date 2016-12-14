@@ -68,6 +68,10 @@ W_2DPlot::W_2DPlot(QWidget *parent) :
 	//Timers:
 	timerRefreshDisplay = new QDateTime;
 	timerRefreshData = new QDateTime;
+
+	//Trying to make it start in a good state, not really functional:
+	receiveNewData();
+	dataRate = 0;
 }
 
 W_2DPlot::~W_2DPlot()
@@ -86,7 +90,7 @@ W_2DPlot::~W_2DPlot()
 
 void W_2DPlot::receiveNewData(void)
 {
-	uint8_t index = 0, used = 0;
+	uint8_t index = 0;
 	int val[6] = {0,0,0,0,0,0};
 
 	dataRate = getRefreshRateData();
@@ -123,10 +127,7 @@ void W_2DPlot::receiveNewData(void)
 		}
 		else
 		{
-			//if(used)
-			{
-				val[index] = (*vtp[index].ptrD32s);
-			}
+			val[index] = (*vtp[index].ptrD32s);
 		}
 	}
 
@@ -135,7 +136,7 @@ void W_2DPlot::receiveNewData(void)
 
 void W_2DPlot::refresh2DPlot(void)
 {
-	uint8_t index = 0, used = 0;
+	uint8_t index = 0;
 
 	//Refresh Stat Bar:
 	refreshStatBar(getRefreshRateDisplay(), dataRate, QPoint(0,0));
@@ -148,12 +149,10 @@ void W_2DPlot::refresh2DPlot(void)
 		{
 			//This channel isn't used, we make it invisible
 			qlsData[index]->setVisible(false);
-			used = 0;
 		}
 		else
 		{
 			qlsData[index]->setVisible(true);
-			used = 1;
 		}
 	}
 
@@ -379,7 +378,7 @@ void W_2DPlot::initUserInput(void)
 	ui->label_refreshRateDisplay->setTextFormat(Qt::RichText);
 	ui->label_refreshRateDisplay->setText("-- Hz");
 	ui->label_pointHovered->setTextFormat(Qt::RichText);
-	ui->label_pointHovered->setText("(--, --)");
+	ui->label_pointHovered->setText("<font color=#808080>(--, --)</font>");
 
 	saveCurrentSettings();
 }
