@@ -246,6 +246,20 @@ void W_2DPlot::initChart(void)
 	chartView->setMinimumSize(500,300);
 	chartView->setMaximumSize(4000,2500);
 	chartView->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+
+	//Data indicator:
+	connect(qlsData[0], SIGNAL(hovered(const QPointF, bool)),\
+			this, SLOT(myHoverHandler0(QPointF, bool)));
+	connect(qlsData[1], SIGNAL(hovered(const QPointF, bool)),\
+			this, SLOT(myHoverHandler1(QPointF, bool)));
+	connect(qlsData[2], SIGNAL(hovered(const QPointF, bool)),\
+			this, SLOT(myHoverHandler2(QPointF, bool)));
+	connect(qlsData[3], SIGNAL(hovered(const QPointF, bool)),\
+			this, SLOT(myHoverHandler3(QPointF, bool)));
+	connect(qlsData[4], SIGNAL(hovered(const QPointF, bool)),\
+			this, SLOT(myHoverHandler4(QPointF, bool)));
+	connect(qlsData[5], SIGNAL(hovered(const QPointF, bool)),\
+			this, SLOT(myHoverHandler5(QPointF, bool)));
 }
 
 //Fills the fields and combo boxes:
@@ -880,7 +894,6 @@ void W_2DPlot::refreshStats(void)
 void W_2DPlot::refreshStatBar(float fDisp, float fData, QPoint xy)
 {
 	QString txt, num;
-	int x = 0, y = 0;
 
 	num = QString::number(fDisp, 'f', 2);
 	txt = "<font color=#808080>Display: " + num + " Hz </font>";
@@ -889,12 +902,6 @@ void W_2DPlot::refreshStatBar(float fDisp, float fData, QPoint xy)
 	num = QString::number(fData, 'f', 2);
 	txt = "<font color=#808080>Data: " + num + " Hz </font>";
 	ui->label_refreshRateData->setText(txt);
-
-	x = (int)xy.x();
-	y = (int)xy.y();
-	txt = "<font color=#808080>Point = (" + QString::number(x) + ',' + \
-		  QString::number(y) + ")</font>";
-	ui->label_pointHovered->setText(txt);
 }
 
 //Each board type has a different variable list.
@@ -2000,4 +2007,72 @@ void W_2DPlot::on_pbPoints_clicked()
 	{
 		qlsData[i]->setPointsVisible(pointsVisible);
 	}
+}
+
+//Point hovered, channel 0
+void W_2DPlot::myHoverHandler0(QPointF pt, bool state)
+{
+	QPoint curP = QCursor::pos();	//Cursor position
+	myHoverHandlerAll(0, pt, curP, state);
+}
+
+//Point hovered, channel 1
+void W_2DPlot::myHoverHandler1(QPointF pt, bool state)
+{
+	QPoint curP = QCursor::pos();	//Cursor position
+	myHoverHandlerAll(1, pt, curP, state);
+}
+
+//Point hovered, channel 2
+void W_2DPlot::myHoverHandler2(QPointF pt, bool state)
+{
+	QPoint curP = QCursor::pos();	//Cursor position
+	myHoverHandlerAll(2, pt, curP, state);
+}
+
+//Point hovered, channel 3
+void W_2DPlot::myHoverHandler3(QPointF pt, bool state)
+{
+	QPoint curP = QCursor::pos();	//Cursor position
+	myHoverHandlerAll(3, pt, curP, state);
+}
+
+//Point hovered, channel 4
+void W_2DPlot::myHoverHandler4(QPointF pt, bool state)
+{
+	QPoint curP = QCursor::pos();	//Cursor position
+	myHoverHandlerAll(4, pt, curP, state);
+}
+
+//Point hovered, channel 5
+void W_2DPlot::myHoverHandler5(QPointF pt, bool state)
+{
+	QPoint curP = QCursor::pos();	//Cursor position
+	myHoverHandlerAll(5, pt, curP, state);
+}
+
+//Point hovered, all channels (individual channels call this)
+void W_2DPlot::myHoverHandlerAll(uint8_t ch, QPointF pt, QPoint cursor, \
+									bool state)
+{
+	int x = 0, y = 0;
+	QPoint xy = pt.toPoint();
+	QString txt;
+	(void)cursor;
+
+	if(state == true)
+	{
+		//qDebug() << "Hovered over" << pt << "(ch" << ch << ") ";
+		x = (int)xy.x();
+		y = (int)xy.y();
+		txt = "<font color=#808080>Point = CH" + QString::number(ch) + \
+				"(" + QString::number(x) + ',' + QString::number(y) + ")</font>";
+
+	}
+	else
+	{
+		txt = "<font color=#808080>Point = CHx(--,--)</font>";
+	}
+
+	ui->label_pointHovered->setText(txt);
 }

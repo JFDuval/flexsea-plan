@@ -150,6 +150,13 @@ private slots:
 	void on_pbIMU_clicked();
 	void on_pbPoints_clicked();
 	void genTestData(void);
+	void myHoverHandler0(QPointF pt, bool state);
+	void myHoverHandler1(QPointF pt, bool state);
+	void myHoverHandler2(QPointF pt, bool state);
+	void myHoverHandler3(QPointF pt, bool state);
+	void myHoverHandler4(QPointF pt, bool state);
+	void myHoverHandler5(QPointF pt, bool state);
+	void myHoverHandlerAll(uint8_t ch, QPointF pt, QPoint cursor, bool state);
 
 signals:
 
