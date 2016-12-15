@@ -599,7 +599,7 @@ void DataLogger::writeIdentifier(FlexseaDevice *devicePtr, uint8_t item)
 			devicePtr->experimentName					+ QString(',') +
 
 			QString("Aquisition Frequency:")			+ QString(',') +
-			devicePtr->frequency						+ QString("\n");
+			QString::number(devicePtr->frequency)		+ QString("\n");
 
 	if(logRecordingFile[item].isOpen())
 	{

@@ -39,6 +39,7 @@
 #include "counter.h"
 #include <QtWidgets/QCheckBox>
 #include <QtWidgets/QPushButton>
+#include <qcombobox.h>
 #include "flexsea_generic.h"
 #include "flexseaDevice.h"
 #include "executeDevice.h"
@@ -135,6 +136,8 @@ private:
 
 	QList<ExecuteDevice> *exDevList;
 
+	FlexseaDevice *FlexSEADeviceList[MAX_SC_ITEMS];
+
 	QMetaObject::Connection sc_connections[MAX_SC_ITEMS];
 	int active_slave[MAX_SC_ITEMS], active_slave_index[MAX_SC_ITEMS];
 	int selected_exp_index[MAX_SC_ITEMS];
@@ -144,6 +147,9 @@ private:
 	bool logThisItem[MAX_SC_ITEMS];
 	QPushButton **on_off_pb_ptr[MAX_SC_ITEMS];
 	QCheckBox **log_cb_ptr[MAX_SC_ITEMS];
+	QComboBox **comboBoxSlavePtr[MAX_SC_ITEMS];
+	QComboBox **comboBoxExpPtr[MAX_SC_ITEMS];
+	QComboBox **comboBoxRefreshPtr[MAX_SC_ITEMS];
 	QTimer *master_timer;
 	bool sc_comPortOpen;
 	//Will change this, but for now the payloads will be stored in:
@@ -160,10 +166,11 @@ private:
 	void sc_read_all_ricnu(uint8_t item);
 	void sc_ankle2dof(uint8_t item);
 
+	FlexseaDevice* getDataObjectPtr(uint8_t slaveId, uint8_t slaveIndex);
 	void configSlaveComm(int item);
 	void updateStatusBar(QString txt);
 	//Function pointers to timer signals:
-	void connectSCItem(int item, int sig_idx, int breakB4make);
+	void connectSCItem(int item, int sig_idx);
 };
 
 #endif // W_SLAVECOMM_H

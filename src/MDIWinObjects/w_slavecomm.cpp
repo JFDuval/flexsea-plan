@@ -150,6 +150,18 @@ void W_SlaveComm::initSlaveCom(void)
 	log_cb_ptr[1] = &ui->checkBoxLog2;
 	log_cb_ptr[2] = &ui->checkBoxLog3;
 	log_cb_ptr[3] = &ui->checkBoxLog4;
+	comboBoxSlavePtr[0] = &ui->comboBoxSlave1;
+	comboBoxSlavePtr[1] = &ui->comboBoxSlave2;
+	comboBoxSlavePtr[2] = &ui->comboBoxSlave3;
+	comboBoxSlavePtr[3] = &ui->comboBoxSlave4;
+	comboBoxExpPtr[0] = &ui->comboBoxExp1;
+	comboBoxExpPtr[1] = &ui->comboBoxExp2;
+	comboBoxExpPtr[2] = &ui->comboBoxExp3;
+	comboBoxExpPtr[3] = &ui->comboBoxExp4;
+	comboBoxRefreshPtr[0] = &ui->comboBoxRefresh1;
+	comboBoxRefreshPtr[1] = &ui->comboBoxRefresh2;
+	comboBoxRefreshPtr[2] = &ui->comboBoxRefresh3;
+	comboBoxRefreshPtr[3] = &ui->comboBoxRefresh4;
 
 	//On/Off Button:
 	//==============
@@ -277,10 +289,10 @@ void W_SlaveComm::initSlaveCom(void)
 	allComboBoxesPopulated = true;
 
 	//Connect default slots:
-	connectSCItem(0, 2, 0);
-	connectSCItem(1, 2, 0);
-	connectSCItem(2, 2, 0);
-	connectSCItem(3, 2, 0);
+	connectSCItem(0, 2);
+	connectSCItem(1, 2);
+	connectSCItem(2, 2);
+	connectSCItem(3, 2);
 
 	//For now, Experiments 2-4 are disabled:
 	//======================================
@@ -411,14 +423,14 @@ void W_SlaveComm::updateStatusBar(QString txt)
 }
 
 //Connect a SlaveComm item with a timer
-void W_SlaveComm::connectSCItem(int item, int sig_idx, int breakB4make)
+void W_SlaveComm::connectSCItem(int item, int sig_idx)
 {
 	if(item == 0)
 	{
-		//Break old connection?
-		if(breakB4make)
+		//Break connection if there's already one?
+		if((bool)sc_connections[item] == true)
 		{
-			QObject::disconnect(sc_connections[item]);
+			disconnect(sc_connections[item]);
 		}
 
 		//New connection:
@@ -506,6 +518,40 @@ void W_SlaveComm::displayDataReceived(int idx, int status)
 	}
 }
 
+
+
+FlexseaDevice* W_SlaveComm::getDataObjectPtr(uint8_t base, uint8_t index)
+{
+	//Decodes some of the slave's fields
+	uint8_t bType = FlexSEA_Generic::getSlaveBoardType(base, index);
+
+	switch(bType)
+	{
+		case FLEXSEA_PLAN_BASE:
+
+			break;
+		case FLEXSEA_MANAGE_BASE:
+			//decodeManage(base, index);
+			break;
+		case FLEXSEA_EXECUTE_BASE:
+			return &((*exDevList)[bType % 10]);
+			// TODO How to handle ricnu?
+			// decodeRicnu(base, index);
+			break;
+		case FLEXSEA_BATTERY_BASE:
+			//decodeBattery(base, index);
+			break;
+		case FLEXSEA_STRAIN_BASE:
+			//decodeStrain(base, index);
+			break;
+		case FLEXSEA_GOSSIP_BASE:
+			//decodeGossip(base, index);
+			break;
+		default:
+			break;
+	}
+}
+
 //This function will connect a Timer signal and a Slot. Updated when
 //"something" changes.
 void W_SlaveComm::configSlaveComm(int item)
@@ -514,35 +560,42 @@ void W_SlaveComm::configSlaveComm(int item)
 
 	if(allComboBoxesPopulated == true)
 	{
-		//qDebug() << "[In fct ""configSlaveComm"", item=" << item << "].";
 
-		if(item == 0)
+		//Refresh all fields:
+		active_slave_index[item] = (*comboBoxSlavePtr[item])->currentIndex();
+		active_slave[item] = FlexSEA_Generic::getSlaveID(SL_BASE_ALL, \
+													active_slave_index[item]);
+		selected_exp_index[item] = (*comboBoxExpPtr[item])->currentIndex();
+		selected_refresh_index[item] = (*comboBoxRefreshPtr[item])->currentIndex();
+
+		FlexSEADeviceList[item] = getDataObjectPtr(SL_BASE_ALL, active_slave_index[item]);
+
+
+		QString name;
+
+		FlexSEADeviceList[item]->SlaveIndex = active_slave_index[item];
+		FlexSEA_Generic::getSlaveName(SL_BASE_ALL, active_slave_index[item], &name);
+		FlexSEADeviceList[item]->SlaveName = name;
+
+
+		FlexSEADeviceList[item]->experimentIndex = selected_exp_index[item];
+		FlexSEA_Generic::getExpName(selected_exp_index[item], &name);
+		FlexSEADeviceList[item]->experimentName = name;
+
+
+		FlexSEADeviceList[item]->frequency =
+				uint16_t(refreshRate.at(selected_refresh_index[item]));
+
+		FlexSEADeviceList[item]->dataloggingItem = item;
+
+
+		//Now we connect a time slot to that stream command:
+		if(previous_refresh_index[item] != selected_refresh_index[item])
 		{
-			//Refresh all fields:
-			active_slave_index[0] = ui->comboBoxSlave1->currentIndex();
-			active_slave[0] = FlexSEA_Generic::getSlaveID(SL_BASE_ALL, \
-														active_slave_index[0]);
-			selected_exp_index[0] = ui->comboBoxExp1->currentIndex();
-			selected_refresh_index[0] = ui->comboBoxRefresh1->currentIndex();
+			//Refresh changed, we need to update connections.
+			connectSCItem(item, selected_refresh_index[item]);
 
-			//Now we connect a time slot to that stream command:
-			if(previous_refresh_index[0] != selected_refresh_index[0])
-			{
-				//Refresh changed, we need to update connections.
-				connectSCItem(0, selected_refresh_index[0], 1);
-
-				msg_ref = "Changed connection.";
-			}
-			else
-			{
-				msg_ref = "";
-			}
-
-			//
-		}
-		else
-		{
-			//TODO deal with Items 2-4 here
+			msg_ref += "Changed connection.";
 		}
 
 		//Update status message:
@@ -550,6 +603,7 @@ void W_SlaveComm::configSlaveComm(int item)
 				+ QString::number(active_slave_index[item]) + ", " \
 				+ QString::number(selected_exp_index[item]) + ", " \
 				+ QString::number(selected_refresh_index[item]) + "). ";
+
 		if((*on_off_pb_ptr[0])->isChecked() == true)
 		{
 			msg += "Stream ON. ";
@@ -558,8 +612,8 @@ void W_SlaveComm::configSlaveComm(int item)
 		{
 			msg += "Stream OFF. ";
 		}
-		updateStatusBar(msg + msg_ref);
 
+		updateStatusBar(msg + msg_ref);
 		previous_refresh_index[item] = selected_refresh_index[item];
 	}
 }
@@ -581,14 +635,15 @@ void W_SlaveComm::sc_read_all(uint8_t item)
 	emit slaveReadWrite(numb, comm_str_usb, READ);
 
 	//2) Decode values
-	FlexSEA_Generic::decodeSlave(SL_BASE_ALL, slaveIndex);
+	FlexSEADeviceList[item]->decodeLastLine();
+	//FlexSEA_Generic::decodeSlave(SL_BASE_ALL, slaveIndex);
 	//(Uncertain about timings, probably delayed by 1 sample)
 
 
 	//3) Log
 	if(logThisItem[item] == true)
 	{
-		emit writeToLogFiledev(&(*exDevList)[0], item);
+		emit writeToLogFiledev(FlexSEADeviceList[item], item);
 		//emit writeToLogFile(item, slaveIndex, expIndex,
 							//uint16_t(refreshRate.at(ui->comboBoxRefresh1->currentIndex())));
 	}
