@@ -61,17 +61,14 @@ W_2DPlot::W_2DPlot(QWidget *parent) :
 	setWindowIcon(QIcon(":icons/d_logo_small.png"));
 
 	initFlag = true;
+	initStats();
 	initUserInput();
 	initChart();
-	initStats();
+	useOpenGL(false);
 
 	//Timers:
 	timerRefreshDisplay = new QDateTime;
 	timerRefreshData = new QDateTime;
-
-	//Trying to make it start in a good state, not really functional:
-	receiveNewData();
-	dataRate = 0;
 }
 
 W_2DPlot::~W_2DPlot()
@@ -200,6 +197,8 @@ void W_2DPlot::initChart(void)
 	qlsData[5] = new QLineSeries();
 	qlsData[5]->append(0, 0);
 
+	initData();
+
 	//Chart:
 	chart = new QChart();
 	chart->legend()->hide();
@@ -280,6 +279,7 @@ void W_2DPlot::initUserInput(void)
 		vtp[i].ptr16u = &nullVar16u;
 		vtp[i].ptr8s = &nullVar8s;
 		vtp[i].ptr8u = &nullVar8u;
+		vtp[i].used = false;
 	}
 
 	//Axis, limits, etc.:
@@ -304,11 +304,6 @@ void W_2DPlot::initUserInput(void)
 	ui->lineEditXMax->setDisabled(true);
 	ui->lineEditYMin->setDisabled(true);
 	ui->lineEditYMax->setDisabled(true);
-
-	for(int h = 0; h < VAR_NUM; h++)
-	{
-		vtp[h].used = false;
-	}
 
 	plotting_len = 0;
 
@@ -355,9 +350,6 @@ void W_2DPlot::initUserInput(void)
 	//By default, we track Slave 1:
 	ui->checkBoxTrack->setChecked(true);
 
-	//Init flag:
-	initFlag = false;
-
 	//Decode Checkbox tooltips:
 	QString ttip = "<html><head/><body><p>Plot data in physical units (instead \
 					of ticks)</p></body></html>";
@@ -382,8 +374,17 @@ void W_2DPlot::initUserInput(void)
 
 	//No OpenGL by default:
 	ui->checkBoxOpenGL->setChecked(false);
+	ttip = "<html><head/><body><p>Experimental. Can be faster, but has limited \
+			features (ex.: no visible points). To turn it off, close the \
+			window...</p></body></html>";
+	ui->checkBoxOpenGL->setToolTip(ttip);
+
+	dataRate = 0;
 
 	saveCurrentSettings();
+
+	//Init flag:
+	initFlag = false;
 }
 
 //Updates 6 buffers, and compute stats (min/max/avg/...)
@@ -767,7 +768,8 @@ void W_2DPlot::setChartAxis(void)
 
 		//Auto scale axis
 		plot_xmin = 0;
-		plot_xmax = plotting_len;
+		//plot_xmax = plotting_len;	//ToDo remove?
+		plot_xmax = vecLen;
 
 		//Notify user of value used:
 		ui->lineEditXMin->setText(QString::number(plot_xmin));;
@@ -836,10 +838,13 @@ bool W_2DPlot::allChannelUnused(void)
 //Init stats: all 0
 void W_2DPlot::initStats(void)
 {
+	/*
 	for(int i = 0; i < VAR_NUM; i++)
 	{
 		memset(stats[i], 0, STATS_FIELDS);
 	}
+	*/
+	memset(&stats, 0, sizeof stats);
 
 	ui->label_1_min->setText(QString::number(0));
 	ui->label_1_max->setText(QString::number(0));
@@ -2088,6 +2093,8 @@ void W_2DPlot::useOpenGL(bool yesNo)
 {
 	if(yesNo == true)
 	{
+		qDebug() << "OpenGL Enabled";
+
 		//Turn OpenGL ON
 		qlsData[0]->setUseOpenGL(true);
 		qlsData[1]->setUseOpenGL(true);
@@ -2098,6 +2105,8 @@ void W_2DPlot::useOpenGL(bool yesNo)
 	}
 	else
 	{
+		qDebug() << "OpenGL Disabled";
+
 		//Turn OpenGL OFF
 		qlsData[0]->setUseOpenGL(false);
 		qlsData[1]->setUseOpenGL(false);
