@@ -136,7 +136,7 @@ void W_2DPlot::refresh2DPlot(void)
 	uint8_t index = 0;
 
 	//Refresh Stat Bar:
-	refreshStatBar(getRefreshRateDisplay(), dataRate, QPoint(0,0));
+	refreshStatBar(getRefreshRateDisplay(), dataRate);
 
 
 	//For every variable:
@@ -547,49 +547,71 @@ void W_2DPlot::computeGlobalMinMax(void)
 }
 
 //Returns the rate at which it is called, in Hz
-//Average of 10 values
+//Average of 8 values
 float W_2DPlot::getRefreshRateDisplay(void)
 {
 	static qint64 oldTime = 0;
 	qint64 newTime = 0, diffTime = 0;
 	float t_s = 0.0, f = 0.0, avg = 0.0;
-	static float oldAvg = 0.0;
+	static int counter = 0;
+	static float fArray[8] = {0,0,0,0,0,0,0,0};
 
+	//Actual frequency:
 	newTime = timerRefreshDisplay->currentMSecsSinceEpoch();
 	diffTime = newTime - oldTime;
 	oldTime = newTime;
-
 	t_s = diffTime/1000.0;
 	f = 1/t_s;
 
 	//Average:
-	avg = 0.9*oldAvg;
-	avg += 0.1*f;
-	oldAvg = avg;
+	counter++;
+	counter %=8;
+	fArray[counter] = f;
+	avg = 0;
+	for(int i = 0; i < 8; i++)
+	{
+		avg += fArray[i];
+	}
+	avg = avg / 8;
 
 	return avg;
 }
 
-//Returns the rate at which it is called, in Hz
-//Average of 10 values
+//Returns the rate at which it is called, in Hz. Average of 8 values
+//Different approach than for the Display function because 200Hz
+//is fast for a ms timer.
 float W_2DPlot::getRefreshRateData(void)
 {
 	static qint64 oldTime = 0;
 	qint64 newTime = 0, diffTime = 0;
-	float t_s = 0.0, f = 0.0, avg = 0.0;
-	static float oldAvg = 0.0;
+	float t_s = 0.0, avg = 0.0;
+	static float f = 0.0;
+	static int counter = 0;
+	static float fArray[8] = {0,0,0,0,0,0,0,0};
+	static int callCounter = 0;
 
-	newTime = timerRefreshData->currentMSecsSinceEpoch();
-	diffTime = newTime - oldTime;
-	oldTime = newTime;
+	callCounter++;
+	callCounter %= 10;
+	if(!callCounter)
+	{
+		newTime = timerRefreshData->currentMSecsSinceEpoch();
+		diffTime = newTime - oldTime;
+		oldTime = newTime;
 
-	t_s = diffTime/1000.0;
-	f = 1/t_s;
+		t_s = diffTime/10/1000.0;
+		f = 1/t_s;
+	}
 
 	//Average:
-	avg = 0.9*oldAvg;
-	avg += 0.1*f;
-	oldAvg = avg;
+	counter++;
+	counter %=4;
+	fArray[counter] = f;
+	avg = 0;
+	for(int i = 0; i < 4; i++)
+	{
+		avg += fArray[i];
+	}
+	avg = avg / 4;
 
 	return avg;
 }
@@ -838,12 +860,6 @@ bool W_2DPlot::allChannelUnused(void)
 //Init stats: all 0
 void W_2DPlot::initStats(void)
 {
-	/*
-	for(int i = 0; i < VAR_NUM; i++)
-	{
-		memset(stats[i], 0, STATS_FIELDS);
-	}
-	*/
 	memset(&stats, 0, sizeof stats);
 
 	ui->label_1_min->setText(QString::number(0));
@@ -898,15 +914,16 @@ void W_2DPlot::refreshStats(void)
 	ui->label_6_avg->setText(QString::number(stats[5][STATS_AVG]));
 }
 
-void W_2DPlot::refreshStatBar(float fDisp, float fData, QPoint xy)
+//Displays the 2 refresh frequencies
+void W_2DPlot::refreshStatBar(float fDisp, float fData)
 {
 	QString txt, num;
 
-	num = QString::number(fDisp, 'f', 2);
+	num = QString::number(fDisp, 'f', 0);
 	txt = "<font color=#808080>Display: " + num + " Hz </font>";
 	ui->label_refreshRateDisplay->setText(txt);
 
-	num = QString::number(fData, 'f', 2);
+	num = QString::number(fData, 'f', 0);
 	txt = "<font color=#808080>Data: " + num + " Hz </font>";
 	ui->label_refreshRateData->setText(txt);
 }

@@ -213,7 +213,7 @@ private:
 	bool allChannelUnused(void);
 	void initStats(void);
 	void refreshStats(void);
-	void refreshStatBar(float fDisp, float fData, QPoint xy);
+	void refreshStatBar(float fDisp, float fData);
 	void useOpenGL(bool yesNo);
 
 	void updateVarList(uint8_t var, QComboBox *myCombo);

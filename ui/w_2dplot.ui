@@ -1530,13 +1530,18 @@
     <layout class="QGridLayout" name="gridLayout_5">
      <item row="0" column="1">
       <widget class="QLabel" name="label_refreshRateData">
-       <property name="text">
-        <string>TextLabel</string>
+       <property name="minimumSize">
+        <size>
+         <width>85</width>
+         <height>0</height>
+        </size>
        </property>
-      </widget>
-     </item>
-     <item row="0" column="2">
-      <widget class="QLabel" name="label_refreshRateDisplay">
+       <property name="maximumSize">
+        <size>
+         <width>85</width>
+         <height>16777215</height>
+        </size>
+       </property>
        <property name="text">
         <string>TextLabel</string>
        </property>
@@ -1544,10 +1549,54 @@
      </item>
      <item row="0" column="0">
       <widget class="QLabel" name="label_pointHovered">
+       <property name="minimumSize">
+        <size>
+         <width>125</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>125</width>
+         <height>16777215</height>
+        </size>
+       </property>
        <property name="text">
         <string>TextLabel</string>
        </property>
       </widget>
+     </item>
+     <item row="0" column="2">
+      <widget class="QLabel" name="label_refreshRateDisplay">
+       <property name="minimumSize">
+        <size>
+         <width>85</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>85</width>
+         <height>16777215</height>
+        </size>
+       </property>
+       <property name="text">
+        <string>TextLabel</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="3">
+      <spacer name="horizontalSpacer_3">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
      </item>
     </layout>
    </item>
