@@ -53,13 +53,14 @@ struct ManageStamp
 {
 	QString timeStampDate;
 	int32_t timeStamp_ms;
-	manage_s data;
+	manage_s *data;
 };
 
 class ManageDevice : public FlexseaDevice
 {
 public:
-	explicit ManageDevice(enum DataSourceFile dataSourceInit);
+	explicit ManageDevice(void);
+	explicit ManageDevice(manage_s *devicePtr);
 
 	// Interface implementation
 	QString getHeaderStr(void);

@@ -53,13 +53,14 @@ struct GossipStamp
 {
 	QString timeStampDate;
 	int32_t timeStamp_ms;
-	gossip_s data;
+	gossip_s *data;
 };
 
 class GossipDevice : public FlexseaDevice
 {
 public:
-	explicit GossipDevice(enum DataSourceFile dataSourceInit);
+	explicit GossipDevice(void);
+	explicit GossipDevice(gossip_s *devicePtr);
 
 	// Interface implementation
 	QString getHeaderStr(void);

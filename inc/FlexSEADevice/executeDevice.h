@@ -60,7 +60,7 @@ class ExecuteDevice : public FlexseaDevice
 {
 public:
 	explicit ExecuteDevice(void);
-	explicit ExecuteDevice(execute_s *execInit);
+	explicit ExecuteDevice(execute_s *devicePtr);
 
 	// Interface implementation
 	QString getHeaderStr(void);

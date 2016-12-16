@@ -41,9 +41,16 @@
 // Constructor & Destructor:
 //****************************************************************************
 
-GossipDevice::GossipDevice(enum DataSourceFile dataSourceInit): FlexseaDevice()
+GossipDevice::GossipDevice(void): FlexseaDevice()
 {
-	this->dataSource = dataSourceInit;
+	this->dataSource = LogDataFile;
+}
+
+GossipDevice::GossipDevice(gossip_s *devicePtr): FlexseaDevice()
+{
+	this->dataSource = LiveDataFile;
+	goList.append(GossipStamp());
+	goList.last().data = devicePtr;
 }
 
 //****************************************************************************
@@ -77,22 +84,22 @@ QString GossipDevice::getLastLineStr(void)
 	QString str;
 	QTextStream(&str) <<	goList.last().timeStampDate		<< ',' << \
 							goList.last().timeStamp_ms		<< ',' << \
-							goList.last().data.accel.x		<< ',' << \
-							goList.last().data.accel.y		<< ',' << \
-							goList.last().data.accel.z		<< ',' << \
-							goList.last().data.gyro.x		<< ',' << \
-							goList.last().data.gyro.y		<< ',' << \
-							goList.last().data.gyro.z		<< ',' << \
-							goList.last().data.magneto.x	<< ',' << \
-							goList.last().data.magneto.y	<< ',' << \
-							goList.last().data.magneto.z	<< ',' << \
-							goList.last().data.io[0]		<< ',' << \
-							goList.last().data.io[1]		<< ',' << \
-							goList.last().data.capsense[0]	<< ',' << \
-							goList.last().data.capsense[1]	<< ',' << \
-							goList.last().data.capsense[2]	<< ',' << \
-							goList.last().data.capsense[3]	<< ',' << \
-							goList.last().data.status;
+							goList.last().data->accel.x		<< ',' << \
+							goList.last().data->accel.y		<< ',' << \
+							goList.last().data->accel.z		<< ',' << \
+							goList.last().data->gyro.x		<< ',' << \
+							goList.last().data->gyro.y		<< ',' << \
+							goList.last().data->gyro.z		<< ',' << \
+							goList.last().data->magneto.x	<< ',' << \
+							goList.last().data->magneto.y	<< ',' << \
+							goList.last().data->magneto.z	<< ',' << \
+							goList.last().data->io[0]		<< ',' << \
+							goList.last().data->io[1]		<< ',' << \
+							goList.last().data->capsense[0]	<< ',' << \
+							goList.last().data->capsense[1]	<< ',' << \
+							goList.last().data->capsense[2]	<< ',' << \
+							goList.last().data->capsense[3]	<< ',' << \
+							goList.last().data->status;
 	return str;
 }
 
@@ -109,14 +116,14 @@ void GossipDevice::appendEmptyLine(void)
 
 void GossipDevice::decodeLastLine(void)
 {
-	decode(&goList.last().data);
+	decode(goList.last().data);
 }
 
 void GossipDevice::decodeAllLine(void)
 {
 	for(int i = 0; i < goList.size(); ++i)
 	{
-		decode(&goList[i].data);
+		decode(goList[i].data);
 	}
 }
 

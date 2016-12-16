@@ -52,7 +52,9 @@
 #include "w_strain.h"
 #include "w_gossip.h"
 #include "w_converter.h"
+
 #include "flexseaDevice.h"
+
 #include "main.h"
 
 namespace Ui {
@@ -85,9 +87,19 @@ public:
 	~MainWindow();
 
 private:
+	void initFlexSeaDeviceObject(void);
+
 	Ui::MainWindow *ui;
 
 	QList<ExecuteDevice> executeDevList;
+	QList<ManageDevice>	manageDevList;
+	QList<GossipDevice>	gossipDevList;
+	QList<BatteryDevice> batteryDevList;
+	QList<StrainDevice>	strainDevList;
+	QList<RicnuDevice> ricnuDevList;
+
+	QList<FlexseaDevice*> flexseaDevicePtrlist;
+
 
 	// Sub-Windows
 	W_Execute *myViewExecute[EX_VIEW_WINDOWS_MAX];

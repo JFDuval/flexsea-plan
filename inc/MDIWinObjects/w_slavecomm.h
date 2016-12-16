@@ -70,7 +70,7 @@ class W_SlaveComm : public QWidget, public Counter<W_SlaveComm>
 public:
 	//Constructor & Destructor:
 	explicit W_SlaveComm(QWidget *parent = 0,
-						 QList<ExecuteDevice> *exDevListPtr = nullptr);
+						 QList<FlexseaDevice*> *FlexSEADevListPtr = nullptr);
 	~W_SlaveComm();
 
 public slots:
@@ -125,6 +125,7 @@ signals:
 						uint8_t expIndex, uint16_t refreshRate);
 	void writeToLogFiledev(FlexseaDevice *devicePtr, uint8_t item);
 	void openRecordingFile(uint8_t item, QString fileName);
+	void openRecordingFile(FlexseaDevice *devicePtr, uint8_t item);
 	void closeRecordingFile(uint8_t item);
 	void slaveReadWrite(uint numb, uint8_t *dataPacket, uint8_t r_w);
 
@@ -134,9 +135,9 @@ private:
 	bool allComboBoxesPopulated;
 	//Store active connections:
 
-	QList<ExecuteDevice> *exDevList;
+	QList<FlexseaDevice*> *devList;
 
-	FlexseaDevice *FlexSEADeviceList[MAX_SC_ITEMS];
+	FlexseaDevice *selectedDeviceList[MAX_SC_ITEMS];
 
 	QMetaObject::Connection sc_connections[MAX_SC_ITEMS];
 	int active_slave[MAX_SC_ITEMS], active_slave_index[MAX_SC_ITEMS];
@@ -165,8 +166,6 @@ private:
 	void sc_read_all(uint8_t item);
 	void sc_read_all_ricnu(uint8_t item);
 	void sc_ankle2dof(uint8_t item);
-
-	FlexseaDevice* getDataObjectPtr(uint8_t slaveId, uint8_t slaveIndex);
 	void configSlaveComm(int item);
 	void updateStatusBar(QString txt);
 	//Function pointers to timer signals:

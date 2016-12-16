@@ -65,6 +65,7 @@ public:
 
 public slots:
 	void openRecordingFile(uint8_t item, QString fileName);
+	void openRecordingFile(FlexseaDevice *devicePtr, uint8_t item);
 	void closeRecordingFile(uint8_t item);
 	void openReadingFile(bool * isOpen);
 	void closeReadingFile(void);

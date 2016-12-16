@@ -46,11 +46,11 @@ ExecuteDevice::ExecuteDevice(void): FlexseaDevice()
 	this->dataSource = LogDataFile;
 }
 
-ExecuteDevice::ExecuteDevice(execute_s *execInit): FlexseaDevice()
+ExecuteDevice::ExecuteDevice(execute_s *devicePtr): FlexseaDevice()
 {
 	this->dataSource = LiveDataFile;
 	exList.append(ExecuteStamp());
-	exList.last().data = execInit;
+	exList.last().data = devicePtr;
 }
 
 //****************************************************************************

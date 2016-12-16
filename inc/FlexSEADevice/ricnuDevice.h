@@ -53,13 +53,15 @@ struct RicnuStamp
 {
 	QString timeStampDate;
 	int32_t timeStamp_ms;
-	ricnu_s data;
+	ricnu_s *data;
 };
 
 class RicnuDevice : public FlexseaDevice
 {
 public:
-	explicit RicnuDevice(enum DataSourceFile dataSourceInit);
+	explicit RicnuDevice(void);
+	explicit RicnuDevice(ricnu_s *devicePtr);
+
 
 	// Interface implementation
 	QString getHeaderStr(void);

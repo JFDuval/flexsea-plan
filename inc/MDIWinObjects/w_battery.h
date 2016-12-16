@@ -38,6 +38,7 @@
 #include <QWidget>
 #include "counter.h"
 #include "flexsea_generic.h"
+#include "batteryDevice.h"
 
 //****************************************************************************
 // Namespace & Class Definition:

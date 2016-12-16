@@ -41,9 +41,16 @@
 // Constructor & Destructor:
 //****************************************************************************
 
-StrainDevice::StrainDevice(enum DataSourceFile dataSourceInit): FlexseaDevice()
+StrainDevice::StrainDevice(void): FlexseaDevice()
 {
-	this->dataSource = dataSourceInit;
+	this->dataSource = LogDataFile;
+}
+
+StrainDevice::StrainDevice(strain_s *devicePtr): FlexseaDevice()
+{
+	this->dataSource = LiveDataFile;
+	stList.append(StrainStamp());
+	stList.last().data = devicePtr;
 }
 
 //****************************************************************************
@@ -67,12 +74,12 @@ QString StrainDevice::getLastLineStr(void)
 	QString str;
 	QTextStream(&str) <<	stList.last().timeStampDate << ',' << \
 							stList.last().timeStamp_ms << ',' << \
-							stList.last().data.ch[0].strain_filtered << ',' << \
-							stList.last().data.ch[1].strain_filtered << ',' << \
-							stList.last().data.ch[2].strain_filtered << ',' << \
-							stList.last().data.ch[3].strain_filtered << ',' << \
-							stList.last().data.ch[4].strain_filtered << ',' << \
-							stList.last().data.ch[5].strain_filtered;
+							stList.last().data->ch[0].strain_filtered << ',' << \
+							stList.last().data->ch[1].strain_filtered << ',' << \
+							stList.last().data->ch[2].strain_filtered << ',' << \
+							stList.last().data->ch[3].strain_filtered << ',' << \
+							stList.last().data->ch[4].strain_filtered << ',' << \
+							stList.last().data->ch[5].strain_filtered;
 	return str;
 }
 
@@ -89,14 +96,14 @@ void StrainDevice::appendEmptyLine(void)
 
 void StrainDevice::decodeLastLine(void)
 {
-	decode(&stList.last().data);
+	decode(stList.last().data);
 }
 
 void StrainDevice::decodeAllLine(void)
 {
 	for(int i = 0; i < stList.size(); ++i)
 	{
-		decode(&stList[i].data);
+		decode(stList[i].data);
 	}
 }
 

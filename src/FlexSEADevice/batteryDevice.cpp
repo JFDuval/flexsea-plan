@@ -41,9 +41,16 @@
 // Constructor & Destructor:
 //****************************************************************************
 
-BatteryDevice::BatteryDevice(enum DataSourceFile dataSourceInit): FlexseaDevice()
+BatteryDevice::BatteryDevice(void): FlexseaDevice()
 {
-	this->dataSource = dataSourceInit;
+	this->dataSource = LogDataFile;
+}
+
+BatteryDevice::BatteryDevice(battery_s *devicePtr): FlexseaDevice()
+{
+	this->dataSource = LiveDataFile;
+	baList.append(BatteryStamp());
+	baList.last().data = devicePtr;
 }
 
 //****************************************************************************
@@ -66,11 +73,11 @@ QString BatteryDevice::getLastLineStr(void)
 	QString str;
 	QTextStream(&str) <<	baList.last().timeStampDate		<< ',' << \
 							baList.last().timeStamp_ms		<< ',' << \
-							baList.last().data.voltage		<< ',' << \
-							baList.last().data.current		<< ',' << \
-							baList.last().data.temp			<< ',' << \
-							baList.last().data.pushbutton	<< ',' << \
-							baList.last().data.status;
+							baList.last().data->voltage		<< ',' << \
+							baList.last().data->current		<< ',' << \
+							baList.last().data->temp			<< ',' << \
+							baList.last().data->pushbutton	<< ',' << \
+							baList.last().data->status;
 	return str;
 }
 
@@ -87,14 +94,14 @@ void BatteryDevice::appendEmptyLine(void)
 
 void BatteryDevice::decodeLastLine(void)
 {
-	decode(&baList.last().data);
+	decode(baList.last().data);
 }
 
 void BatteryDevice::decodeAllLine(void)
 {
 	for(int i = 0; i < baList.size(); ++i)
 	{
-		decode(&baList[i].data);
+		decode(baList[i].data);
 	}
 }
 

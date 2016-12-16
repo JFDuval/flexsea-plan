@@ -53,13 +53,14 @@ struct BatteryStamp
 {
 	QString timeStampDate;
 	int32_t timeStamp_ms;
-	battery_s data;
+	battery_s *data;
 };
 
 class BatteryDevice : public FlexseaDevice
 {
 public:
-	explicit BatteryDevice(enum DataSourceFile dataSourceInit);
+	explicit BatteryDevice(void);
+	explicit BatteryDevice(battery_s *devicePtr);
 
 	// Interface implementation
 	QString getHeaderStr(void);

@@ -45,7 +45,7 @@
 //****************************************************************************
 
 W_SlaveComm::W_SlaveComm(QWidget *parent,
-						 QList<ExecuteDevice> *exDevListPtr) :
+						 QList<FlexseaDevice*> *flexSEADevListPtr) :
 	QWidget(parent),
 	ui(new Ui::W_SlaveComm)
 {
@@ -54,7 +54,7 @@ W_SlaveComm::W_SlaveComm(QWidget *parent,
 	setWindowTitle(this->getDescription());
 	setWindowIcon(QIcon(":icons/d_logo_small.png"));
 
-	exDevList = exDevListPtr;
+	devList = flexSEADevListPtr;
 	initSlaveCom();
 	initTimers();
 }
@@ -365,35 +365,20 @@ void W_SlaveComm::managePushButton(int idx, bool forceOff)
 								rgb(127, 127, 127); color: rgb(0, 0, 0)");
 	}
 
-	// Logging?
-	manageLogStatus(idx);
-
 	//All GUI events call configSlaveComm():
 	configSlaveComm(idx);
 }
 
-void W_SlaveComm::manageLogStatus(uint8_t idx)
+// Need to be called after configSlaveComm
+void W_SlaveComm::manageLogStatus(uint8_t item)
 {
 	//Logging?
-	if((*log_cb_ptr[idx])->isChecked() &&
-		(*on_off_pb_ptr[idx])->isChecked())
+	if((*log_cb_ptr[item])->isChecked() &&
+		(*on_off_pb_ptr[item])->isChecked())
 	{
-		QString slaveName, expName, refreshName;
+		emit openRecordingFile(selectedDeviceList[item] ,item);
 
-		//Get all feed information:
-		FlexSEA_Generic::getSlaveName(SL_BASE_ALL, \
-										ui->comboBoxSlave1->currentIndex(),
-										&slaveName);
-		FlexSEA_Generic::getExpName(ui->comboBoxExp1->currentIndex(),
-									&expName);
-		refreshName = var_list_refresh.at(ui->comboBoxRefresh1->currentIndex());
-
-
-		emit openRecordingFile(idx, slaveName + "_" +
-									expName + "_" +
-									refreshName +
-									".csv");
-		logThisItem[idx] = true;
+		logThisItem[item] = true;
 
 		// Update GUI
 		ui->comboBoxRefresh1->setDisabled(true);
@@ -405,11 +390,11 @@ void W_SlaveComm::manageLogStatus(uint8_t idx)
 
 	else
 	{
-		if(logThisItem[idx] == true)
+		if(logThisItem[item] == true)
 		{
 			ui->comboBoxRefresh1->setDisabled(false);
-			logThisItem[idx] = false;
-			emit closeRecordingFile(idx);
+			logThisItem[item] = false;
+			emit closeRecordingFile(item);
 
 			ui->comboBoxRefresh1->setToolTip("");
 		}
@@ -518,40 +503,6 @@ void W_SlaveComm::displayDataReceived(int idx, int status)
 	}
 }
 
-
-
-FlexseaDevice* W_SlaveComm::getDataObjectPtr(uint8_t base, uint8_t index)
-{
-	//Decodes some of the slave's fields
-	uint8_t bType = FlexSEA_Generic::getSlaveBoardType(base, index);
-
-	switch(bType)
-	{
-		case FLEXSEA_PLAN_BASE:
-
-			break;
-		case FLEXSEA_MANAGE_BASE:
-			//decodeManage(base, index);
-			break;
-		case FLEXSEA_EXECUTE_BASE:
-			return &((*exDevList)[bType % 10]);
-			// TODO How to handle ricnu?
-			// decodeRicnu(base, index);
-			break;
-		case FLEXSEA_BATTERY_BASE:
-			//decodeBattery(base, index);
-			break;
-		case FLEXSEA_STRAIN_BASE:
-			//decodeStrain(base, index);
-			break;
-		case FLEXSEA_GOSSIP_BASE:
-			//decodeGossip(base, index);
-			break;
-		default:
-			break;
-	}
-}
-
 //This function will connect a Timer signal and a Slot. Updated when
 //"something" changes.
 void W_SlaveComm::configSlaveComm(int item)
@@ -568,25 +519,26 @@ void W_SlaveComm::configSlaveComm(int item)
 		selected_exp_index[item] = (*comboBoxExpPtr[item])->currentIndex();
 		selected_refresh_index[item] = (*comboBoxRefreshPtr[item])->currentIndex();
 
-		FlexSEADeviceList[item] = getDataObjectPtr(SL_BASE_ALL, active_slave_index[item]);
 
+		// Fill the flexSEADevice Object metadata properly
+		selectedDeviceList[item] = (*devList)[active_slave_index[item]];
 
 		QString name;
 
-		FlexSEADeviceList[item]->SlaveIndex = active_slave_index[item];
-		FlexSEA_Generic::getSlaveName(SL_BASE_ALL, active_slave_index[item], &name);
-		FlexSEADeviceList[item]->SlaveName = name;
-
-
-		FlexSEADeviceList[item]->experimentIndex = selected_exp_index[item];
+		selectedDeviceList[item]->experimentIndex = selected_exp_index[item];
 		FlexSEA_Generic::getExpName(selected_exp_index[item], &name);
-		FlexSEADeviceList[item]->experimentName = name;
+		selectedDeviceList[item]->experimentName = name;
 
+		selectedDeviceList[item]->frequency =
+				uint16_t(refreshRate[selected_refresh_index[item]]);
 
-		FlexSEADeviceList[item]->frequency =
-				uint16_t(refreshRate.at(selected_refresh_index[item]));
+		selectedDeviceList[item]->shortFileName =
+				selectedDeviceList[item]->SlaveName + "_" +
+				selectedDeviceList[item]->experimentName + "_" +
+				var_list_refresh[selected_refresh_index[item]]; +
+				".csv";
 
-		FlexSEADeviceList[item]->dataloggingItem = item;
+		selectedDeviceList[item]->dataloggingItem = item;
 
 
 		//Now we connect a time slot to that stream command:
@@ -613,6 +565,8 @@ void W_SlaveComm::configSlaveComm(int item)
 			msg += "Stream OFF. ";
 		}
 
+		manageLogStatus(item);
+
 		updateStatusBar(msg + msg_ref);
 		previous_refresh_index[item] = selected_refresh_index[item];
 	}
@@ -627,7 +581,6 @@ void W_SlaveComm::sc_read_all(uint8_t item)
 	uint8_t info[2] = {PORT_USB, PORT_USB};
 	uint8_t slaveId = active_slave[item];
 	uint8_t slaveIndex = active_slave_index[item];
-	uint8_t expIndex = selected_exp_index[item];
 
 	//1) Stream
 	tx_cmd_data_read_all_r(TX_N_DEFAULT);
@@ -635,15 +588,14 @@ void W_SlaveComm::sc_read_all(uint8_t item)
 	emit slaveReadWrite(numb, comm_str_usb, READ);
 
 	//2) Decode values
-	FlexSEADeviceList[item]->decodeLastLine();
-	//FlexSEA_Generic::decodeSlave(SL_BASE_ALL, slaveIndex);
+	selectedDeviceList[item]->decodeLastLine();
 	//(Uncertain about timings, probably delayed by 1 sample)
 
 
 	//3) Log
 	if(logThisItem[item] == true)
 	{
-		emit writeToLogFiledev(FlexSEADeviceList[item], item);
+		emit writeToLogFiledev(selectedDeviceList[item], item);
 		//emit writeToLogFile(item, slaveIndex, expIndex,
 							//uint16_t(refreshRate.at(ui->comboBoxRefresh1->currentIndex())));
 	}
@@ -662,6 +614,7 @@ void W_SlaveComm::sc_read_all_ricnu(uint8_t item)
 	static uint8_t offset = 0;
 
 	//1) Stream
+
 	(!offset) ? offset = 1 : offset = 0;
 	tx_cmd_ricnu_r(TX_N_DEFAULT, offset);
 	pack(P_AND_S_DEFAULT, slaveId, info, &numb, comm_str_usb);
@@ -926,23 +879,23 @@ void W_SlaveComm::on_comboBoxRefresh4_currentIndexChanged(int index)
 void W_SlaveComm::on_checkBoxLog1_stateChanged(int arg1)
 {
 	(void)arg1;	//Unused for now
-	manageLogStatus(0);
+	configSlaveComm(0);
 }
 
 void W_SlaveComm::on_checkBoxLog2_stateChanged(int arg1)
 {
 	(void)arg1;	//Unused for now
-	manageLogStatus(1);
+	configSlaveComm(1);
 }
 
 void W_SlaveComm::on_checkBoxLog3_stateChanged(int arg1)
 {
 	(void)arg1;	//Unused for now
-	manageLogStatus(2);
+	configSlaveComm(2);
 }
 
 void W_SlaveComm::on_checkBoxLog4_stateChanged(int arg1)
 {
 	(void)arg1;	//Unused for now
-	manageLogStatus(3);
+	configSlaveComm(3);
 }

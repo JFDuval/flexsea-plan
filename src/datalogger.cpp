@@ -87,6 +87,30 @@ void DataLogger::openRecordingFile(uint8_t item, QString shortFileName)
 		openfile(item, shortFileName);
 	}
 }
+void DataLogger::openRecordingFile(FlexseaDevice *devicePtr, uint8_t item)
+{
+	QString shortFileName = devicePtr->shortFileName;
+
+	if(logRecordingFile[item].isOpen())
+	{
+		qDebug() << "File already open. Close it before opening a new one";
+	}
+
+	else
+	{
+		//Add .csv extension if not present
+		if(shortFileName.mid(shortFileName.length()-4) != ".csv")
+		{
+			shortFileName.append(".csv");
+		}
+
+		// Add date and time to the short file name
+		shortFileName.prepend(QDate::currentDate().toString("yyyy-MM-dd_") +
+							  QTime::currentTime().toString("HH'h'mm'm'ss's'_"));
+
+		openfile(item, shortFileName);
+	}
+}
 
 void DataLogger::openfile(uint8_t item, QString shortFileName)
 {

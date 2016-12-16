@@ -41,9 +41,16 @@
 // Constructor & Destructor:
 //****************************************************************************
 
-ManageDevice::ManageDevice(enum DataSourceFile dataSourceInit): FlexseaDevice()
+ManageDevice::ManageDevice(void): FlexseaDevice()
 {
-	this->dataSource = dataSourceInit;
+	this->dataSource = LogDataFile;
+}
+
+ManageDevice::ManageDevice(manage_s *devicePtr): FlexseaDevice()
+{
+	this->dataSource = LiveDataFile;
+	mnList.append(ManageStamp());
+	mnList.last().data = devicePtr;
 }
 
 //****************************************************************************
@@ -78,23 +85,23 @@ QString ManageDevice::getLastLineStr(void)
 	QString str;
 	QTextStream(&str) <<	mnList.last().timeStampDate		<< ',' << \
 							mnList.last().timeStamp_ms		<< ',' << \
-							mnList.last().data.accel.x		<< ',' << \
-							mnList.last().data.accel.y		<< ',' << \
-							mnList.last().data.accel.z		<< ',' << \
-							mnList.last().data.gyro.x		<< ',' << \
-							mnList.last().data.gyro.y		<< ',' << \
-							mnList.last().data.gyro.z		<< ',' << \
-							mnList.last().data.digitalIn	<< ',' << \
-							mnList.last().data.sw1			<< ',' << \
-							mnList.last().data.analog[0]	<< ',' << \
-							mnList.last().data.analog[1]	<< ',' << \
-							mnList.last().data.analog[2]	<< ',' << \
-							mnList.last().data.analog[3]	<< ',' << \
-							mnList.last().data.analog[4]	<< ',' << \
-							mnList.last().data.analog[5]	<< ',' << \
-							mnList.last().data.analog[6]	<< ',' << \
-							mnList.last().data.analog[7]	<< ',' << \
-							mnList.last().data.status1;
+							mnList.last().data->accel.x		<< ',' << \
+							mnList.last().data->accel.y		<< ',' << \
+							mnList.last().data->accel.z		<< ',' << \
+							mnList.last().data->gyro.x		<< ',' << \
+							mnList.last().data->gyro.y		<< ',' << \
+							mnList.last().data->gyro.z		<< ',' << \
+							mnList.last().data->digitalIn	<< ',' << \
+							mnList.last().data->sw1			<< ',' << \
+							mnList.last().data->analog[0]	<< ',' << \
+							mnList.last().data->analog[1]	<< ',' << \
+							mnList.last().data->analog[2]	<< ',' << \
+							mnList.last().data->analog[3]	<< ',' << \
+							mnList.last().data->analog[4]	<< ',' << \
+							mnList.last().data->analog[5]	<< ',' << \
+							mnList.last().data->analog[6]	<< ',' << \
+							mnList.last().data->analog[7]	<< ',' << \
+							mnList.last().data->status1;
 	return str;
 }
 
@@ -111,14 +118,14 @@ void ManageDevice::appendEmptyLine(void)
 
 void ManageDevice::decodeLastLine(void)
 {
-	decode(&mnList.last().data);
+	decode(mnList.last().data);
 }
 
 void ManageDevice::decodeAllLine(void)
 {
 	for(int i = 0; i < mnList.size(); ++i)
 	{
-		decode(&mnList[i].data);
+		decode(mnList[i].data);
 	}
 }
 

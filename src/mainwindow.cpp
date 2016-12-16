@@ -93,10 +93,7 @@ MainWindow::MainWindow(QWidget *parent) :
 	W_Strain::setDescription("6ch StrainAmp - Barebone");
 	W_UserRW::setDescription("User R/W");
 
-	executeDevList.append(ExecuteDevice(&exec1));
-	executeDevList.append(ExecuteDevice(&exec2));
-	executeDevList.append(ExecuteDevice(&exec3));
-	executeDevList.append(ExecuteDevice(&exec4));
+	initFlexSeaDeviceObject();
 
 	//SerialDriver:
 	mySerialDriver = new SerialDriver;
@@ -126,6 +123,66 @@ MainWindow::MainWindow(QWidget *parent) :
 MainWindow::~MainWindow()
 {
 	delete ui;
+}
+
+void MainWindow::initFlexSeaDeviceObject(void)
+{
+	// TODO Improve :Slave index here a prompt to error when addding new device.
+	executeDevList.append(ExecuteDevice(&exec1));
+	flexseaDevicePtrlist.append(&executeDevList.last());
+	executeDevList.last().SlaveName = "Execute 1";
+	executeDevList.last().SlaveIndex = 0;
+
+	executeDevList.append(ExecuteDevice(&exec2));
+	flexseaDevicePtrlist.append(&executeDevList.last());
+	executeDevList.last().SlaveName = "Execute 2";
+	executeDevList.last().SlaveIndex = 1;
+
+	executeDevList.append(ExecuteDevice(&exec3));
+	flexseaDevicePtrlist.append(&executeDevList.last());
+	executeDevList.last().SlaveName = "Execute 3";
+	executeDevList.last().SlaveIndex = 2;
+
+	executeDevList.append(ExecuteDevice(&exec4));
+	flexseaDevicePtrlist.append(&executeDevList.last());
+	executeDevList.last().SlaveName = "Execute 4";
+	executeDevList.last().SlaveIndex = 3;
+
+	manageDevList.append(ManageDevice(&manag1));
+	flexseaDevicePtrlist.append(&manageDevList.last());
+	manageDevList.last().SlaveName = "Manage 1";
+	manageDevList.last().SlaveIndex = 4;
+
+	manageDevList.append(ManageDevice(&manag2));
+	flexseaDevicePtrlist.append(&manageDevList.last());
+	manageDevList.last().SlaveName = "Manage 2";
+	manageDevList.last().SlaveIndex = 5;
+
+	//PLAN? incontrol?
+	//manageDevList.append(ManageDevice(&manag2));
+	//manageDevList.last().SlaveName = "Manage 2";
+	//manageDevList.last().SlaveIndex = 6;
+
+	gossipDevList.append(GossipDevice(&gossip1));
+	gossipDevList.last().SlaveName = "Gossip 1";
+	gossipDevList.last().SlaveIndex = 7;
+	gossipDevList.append(GossipDevice(&gossip2));
+	gossipDevList.last().SlaveName = "Gossip 2";
+	gossipDevList.last().SlaveIndex = 8;
+
+	batteryDevList.append(BatteryDevice(&batt1));
+	batteryDevList.last().SlaveName = "Battery 1";
+	batteryDevList.last().SlaveIndex = 9;
+
+	strainDevList.append(StrainDevice(&strain1));
+	strainDevList.last().SlaveName = "Strain 1";
+	strainDevList.last().SlaveIndex = 10;
+
+	ricnuDevList.append(RicnuDevice(&ricnu_1));
+	ricnuDevList.last().SlaveName = "RIC/NU 1";
+	ricnuDevList.last().SlaveIndex = 11;
+
+
 }
 
 //****************************************************************************
@@ -424,6 +481,10 @@ void MainWindow::createSlaveComm(void)
 		//Link SlaveComm and DataLogger
 		connect(myViewSlaveComm[0], SIGNAL(openRecordingFile(uint8_t,QString)), \
 				myDataLogger, SLOT(openRecordingFile(uint8_t,QString)));
+
+		connect(myViewSlaveComm[0], SIGNAL(openRecordingFile(FlexseaDevice *, uint8_t )), \
+				myDataLogger, SLOT(openRecordingFile(FlexseaDevice *, uint8_t )));
+
 		connect(myViewSlaveComm[0], SIGNAL(writeToLogFile(uint8_t,uint8_t, \
 														  uint8_t,uint16_t)), \
 				myDataLogger, SLOT(writeToFile(uint8_t,uint8_t,uint8_t,uint16_t)));

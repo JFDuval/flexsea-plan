@@ -38,6 +38,7 @@
 #include <QWidget>
 #include "counter.h"
 #include "flexsea_generic.h"
+#include "strainDevice.h"
 
 //****************************************************************************
 // Namespace & Class Definition:

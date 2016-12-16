@@ -53,13 +53,14 @@ struct StrainStamp
 {
 	QString timeStampDate;
 	int32_t timeStamp_ms;
-	strain_s data;
+	strain_s *data;
 };
 
 class StrainDevice : public FlexseaDevice
 {
 public:
-	explicit StrainDevice(enum DataSourceFile dataSourceInit);
+	explicit StrainDevice(void);
+	explicit StrainDevice(strain_s *devicePtr);
 
 	// Interface implementation
 	QString getHeaderStr(void);
