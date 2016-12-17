@@ -40,6 +40,7 @@
 #include <QtWidgets/QCheckBox>
 #include <QtWidgets/QPushButton>
 #include <qcombobox.h>
+#include <qlabel.h>
 #include "flexsea_generic.h"
 #include "flexseaDevice.h"
 #include "executeDevice.h"
@@ -151,6 +152,8 @@ private:
 	QComboBox **comboBoxSlavePtr[MAX_SC_ITEMS];
 	QComboBox **comboBoxExpPtr[MAX_SC_ITEMS];
 	QComboBox **comboBoxRefreshPtr[MAX_SC_ITEMS];
+	QLabel **labelStatusPtr[MAX_SC_ITEMS];
+
 	QTimer *master_timer;
 	bool sc_comPortOpen;
 	//Will change this, but for now the payloads will be stored in:
@@ -159,7 +162,6 @@ private:
 	//Function(s):
 	void initSlaveCom(void);
 	void initTimers(void);
-	void initDisplayDataReceived(void);
 	void managePushButton(int idx, bool forceOff);
 	void manageLogStatus(uint8_t idx);
 

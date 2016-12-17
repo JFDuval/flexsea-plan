@@ -33,7 +33,6 @@
 //****************************************************************************
 
 #include "w_execute.h"
-#include "flexsea_generic.h"
 #include "ui_w_execute.h"
 #include "main.h"
 #include <QString>
@@ -52,14 +51,16 @@ W_Execute::W_Execute(QWidget *parent,
 	ui(new Ui::W_Execute)
 {
 	ui->setupUi(this);
+	deviceList = deviceListPtr;
+	myLogFileRef  = logFileRef;
+	displayMode = mode;
 
 	setWindowTitle(this->getDescription());
 	setWindowIcon(QIcon(":icons/d_logo_small.png"));
 
-	myLogFileRef  = logFileRef;
-	displayMode = mode;
+
 	updateDisplayMode(displayMode);
-	deviceList = deviceListPtr;
+
 }
 
 W_Execute::~W_Execute()
@@ -120,8 +121,11 @@ void W_Execute::initLive(void)
 {
 	//Populates Slave list:
 	ui->comboBox_slave->clear();
-	FlexSEA_Generic::populateSlaveComboBox(ui->comboBox_slave, \
-											SL_BASE_EX, SL_LEN_EX);
+
+	for(int i = 0; i < (*deviceList).length(); i++)
+	{
+		ui->comboBox_slave->addItem((*deviceList)[i].SlaveName);
+	}
 }
 
 void W_Execute::initLog(void)

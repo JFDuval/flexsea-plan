@@ -157,50 +157,51 @@ void MainWindow::initFlexSeaDeviceObject(void)
 	flexseaDevicePtrlist.append(&manageDevList.last());
 	manageDevList.last().SlaveName = "Manage 1";
 	manageDevList.last().slaveIndex = 4;
-	executeDevList.last().slaveID = FLEXSEA_MANAGE_1;
+	manageDevList.last().slaveID = FLEXSEA_MANAGE_1;
 
 	manageDevList.append(ManageDevice(&manag2));
 	flexseaDevicePtrlist.append(&manageDevList.last());
 	manageDevList.last().SlaveName = "Manage 2";
 	manageDevList.last().slaveIndex = 5;
-	executeDevList.last().slaveID = FLEXSEA_MANAGE_2;
+	manageDevList.last().slaveID = FLEXSEA_MANAGE_2;
 
 	//PLAN? incontrol?
-	//manageDevList.append(ManageDevice(&manag2));
-	//manageDevList.last().SlaveName = "Manage 2";
-	//manageDevList.last().SlaveIndex = 6;
-	//executeDevList.last().slaveID = FLEXSEA_PLAN_1;
-	flexseaDevicePtrlist.append(nullptr);
+	manageDevList.append(ManageDevice(&manag2));// Todo Not the right way.
+	flexseaDevicePtrlist.append(&manageDevList.last());
+	manageDevList.last().SlaveName = "Plan 1";
+	manageDevList.last().slaveIndex = 6;
+	manageDevList.last().slaveID = FLEXSEA_PLAN_1;
+
 
 	gossipDevList.append(GossipDevice(&gossip1));
 	flexseaDevicePtrlist.append(&gossipDevList.last());
 	gossipDevList.last().SlaveName = "Gossip 1";
 	gossipDevList.last().slaveIndex = 7;
-	executeDevList.last().slaveID = FLEXSEA_GOSSIP_1;
+	gossipDevList.last().slaveID = FLEXSEA_GOSSIP_1;
 
 	gossipDevList.append(GossipDevice(&gossip2));
 	flexseaDevicePtrlist.append(&gossipDevList.last());
 	gossipDevList.last().SlaveName = "Gossip 2";
 	gossipDevList.last().slaveIndex = 8;
-	executeDevList.last().slaveID = FLEXSEA_GOSSIP_2;
+	gossipDevList.last().slaveID = FLEXSEA_GOSSIP_2;
 
 	batteryDevList.append(BatteryDevice(&batt1));
 	flexseaDevicePtrlist.append(&batteryDevList.last());
 	batteryDevList.last().SlaveName = "Battery 1";
 	batteryDevList.last().slaveIndex = 9;
-	executeDevList.last().slaveID = FLEXSEA_BATTERY_1;
+	batteryDevList.last().slaveID = FLEXSEA_BATTERY_1;
 
 	strainDevList.append(StrainDevice(&strain1));
 	flexseaDevicePtrlist.append(&strainDevList.last());
 	strainDevList.last().SlaveName = "Strain 1";
 	strainDevList.last().slaveIndex = 10;
-	executeDevList.last().slaveID = FLEXSEA_STRAIN_1;
+	strainDevList.last().slaveID = FLEXSEA_STRAIN_1;
 
 	ricnuDevList.append(RicnuDevice(&ricnu_1));
 	flexseaDevicePtrlist.append(&ricnuDevList.last());
 	ricnuDevList.last().SlaveName = "RIC/NU 1";
 	ricnuDevList.last().slaveIndex = 11;
-	executeDevList.last().slaveID = FLEXSEA_VIRTUAL_1;
+	ricnuDevList.last().slaveID = FLEXSEA_VIRTUAL_1;
 
 
 }

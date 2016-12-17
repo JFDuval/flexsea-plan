@@ -124,7 +124,7 @@ void W_SlaveComm::externalSlaveWrite(char numb, unsigned char *tx_data)
 
 void W_SlaveComm::initSlaveCom(void)
 {
-	QString ttip = "";
+	QString on_off_pb_ttip, log_cb_ptr_ttip, ttip, labelStatusttip = "";
 
 	//Safeguard - protected from signals emited during setup
 	allComboBoxesPopulated = false;
@@ -142,14 +142,6 @@ void W_SlaveComm::initSlaveCom(void)
 	logThisItem[1] = false;
 	logThisItem[2] = false;
 	logThisItem[3] = false;
-	on_off_pb_ptr[0] = &ui->pushButton1;
-	on_off_pb_ptr[1] = &ui->pushButton2;
-	on_off_pb_ptr[2] = &ui->pushButton3;
-	on_off_pb_ptr[3] = &ui->pushButton4;
-	log_cb_ptr[0] = &ui->checkBoxLog1;
-	log_cb_ptr[1] = &ui->checkBoxLog2;
-	log_cb_ptr[2] = &ui->checkBoxLog3;
-	log_cb_ptr[3] = &ui->checkBoxLog4;
 	comboBoxSlavePtr[0] = &ui->comboBoxSlave1;
 	comboBoxSlavePtr[1] = &ui->comboBoxSlave2;
 	comboBoxSlavePtr[2] = &ui->comboBoxSlave3;
@@ -162,138 +154,106 @@ void W_SlaveComm::initSlaveCom(void)
 	comboBoxRefreshPtr[1] = &ui->comboBoxRefresh2;
 	comboBoxRefreshPtr[2] = &ui->comboBoxRefresh3;
 	comboBoxRefreshPtr[3] = &ui->comboBoxRefresh4;
+	log_cb_ptr[0] = &ui->checkBoxLog1;
+	log_cb_ptr[1] = &ui->checkBoxLog2;
+	log_cb_ptr[2] = &ui->checkBoxLog3;
+	log_cb_ptr[3] = &ui->checkBoxLog4;
+	on_off_pb_ptr[0] = &ui->pushButton1;
+	on_off_pb_ptr[1] = &ui->pushButton2;
+	on_off_pb_ptr[2] = &ui->pushButton3;
+	on_off_pb_ptr[3] = &ui->pushButton4;
+	labelStatusPtr[0] = &ui->stat1;
+	labelStatusPtr[1] = &ui->stat2;
+	labelStatusPtr[2] = &ui->stat3;
+	labelStatusPtr[3] = &ui->stat4;
 
-	//On/Off Button:
+
+	// Serialized item init:
 	//==============
-
-	ttip = "<html><head/><body><p>Turn streaming on/off</p></body></html>";
-	ui->pushButton1->setText(QChar(0x2718));
-	ui->pushButton1->setAutoFillBackground(true);
-	ui->pushButton1->setStyleSheet("background-color: rgb(127, 127, 127); \
-									color: rgb(0, 0, 0)");
-	ui->pushButton1->setToolTip(ttip);
-	ui->pushButton2->setText(QChar(0x2718));
-	ui->pushButton2->setAutoFillBackground(true);
-	ui->pushButton2->setStyleSheet("background-color: rgb(127, 127, 127); \
-								   color: rgb(0, 0, 0)");
-	ui->pushButton2->setToolTip(ttip);
-	ui->pushButton3->setText(QChar(0x2718));
-	ui->pushButton3->setAutoFillBackground(true);
-	ui->pushButton3->setStyleSheet("background-color: rgb(127, 127, 127); \
-								  color: rgb(0, 0, 0)");
-	ui->pushButton3->setToolTip(ttip);
-	ui->pushButton4->setText(QChar(0x2718));
-	ui->pushButton4->setAutoFillBackground(true);
-	ui->pushButton4->setStyleSheet("background-color: rgb(127, 127, 127); \
-								  color: rgb(0, 0, 0)");
-	ui->pushButton4->setToolTip(ttip);
-
-	//Log checkboxes:
-	//===============
-	ui->checkBoxLog1->setChecked(false);
-	ui->checkBoxLog2->setChecked(false);
-	ui->checkBoxLog3->setChecked(false);
-	ui->checkBoxLog4->setChecked(false);
-	ui->checkBoxLog1->setEnabled(false);
-	ui->checkBoxLog2->setEnabled(false);
-	ui->checkBoxLog3->setEnabled(false);
-	ui->checkBoxLog4->setEnabled(false);
-
-	//Decode Checkbox tooltips:
-	ttip = "<html><head/><body><p>Check this box to log the stream. \
+	on_off_pb_ttip = "<html><head/><body><p>Turn streaming on/off</p></body></html>";
+	log_cb_ptr_ttip = "<html><head/><body><p>Check this box to log the stream. \
 			</p><p>It will log under the folder &quot;Plan-GUI-Logs&quot; \
 			when the stream is active.</p></body></html>";
-	ui->checkBoxLog1->setToolTip(ttip);
-	ui->checkBoxLog2->setToolTip(ttip);
-	ui->checkBoxLog3->setToolTip(ttip);
-	ui->checkBoxLog4->setToolTip(ttip);
-
-	//All pushbutton start disabled:
-	//==============================
-	ui->pushButton1->setDisabled(true);
-	ui->pushButton2->setDisabled(true);
-	ui->pushButton3->setDisabled(true);
-	ui->pushButton4->setDisabled(true);
-
-	//Receive indicators:
-	//===================
-	initDisplayDataReceived();
-	displayDataReceived(0,DATAIN_STATUS_GREY);
-	displayDataReceived(1,DATAIN_STATUS_GREY);
-	displayDataReceived(2,DATAIN_STATUS_GREY);
-	displayDataReceived(3,DATAIN_STATUS_GREY);
-
-	//Populates Slave list:
-	//=====================
-	FlexSEA_Generic::populateSlaveComboBox(ui->comboBoxSlave1, \
-										   SL_BASE_ALL, SL_LEN_ALL);
-	FlexSEA_Generic::populateSlaveComboBox(ui->comboBoxSlave2, \
-										   SL_BASE_ALL, SL_LEN_ALL);
-	FlexSEA_Generic::populateSlaveComboBox(ui->comboBoxSlave3, \
-										   SL_BASE_ALL, SL_LEN_ALL);
-	FlexSEA_Generic::populateSlaveComboBox(ui->comboBoxSlave4, \
-										   SL_BASE_ALL, SL_LEN_ALL);
-
-	//Populates Experiment/Command list:
-	//==================================
-
-	FlexSEA_Generic::populateExpComboBox(ui->comboBoxExp1);
-	FlexSEA_Generic::populateExpComboBox(ui->comboBoxExp2);
-	FlexSEA_Generic::populateExpComboBox(ui->comboBoxExp3);
-	FlexSEA_Generic::populateExpComboBox(ui->comboBoxExp4);
-
-	//Refresh Rate:
-	//==================================
+	labelStatusttip = "<html><head/><body><p>Stream Status.</p></body></html>";
+	QFont f( "Arial", 12, QFont::Bold);
 
 	var_list_refresh << "100Hz" << "50Hz" << "33Hz" << "20Hz" \
 					 << "10Hz" << "5Hz" << "1Hz";
 	refreshRate << 100 << 50 << 33 << 20
 				<< 10 << 5 << 1;
-	for(int index = 0; index < var_list_refresh.count(); index++)
-	{
-		ui->comboBoxRefresh1->addItem(var_list_refresh.at(index));
-		ui->comboBoxRefresh2->addItem(var_list_refresh.at(index));
-		ui->comboBoxRefresh3->addItem(var_list_refresh.at(index));
-		ui->comboBoxRefresh4->addItem(var_list_refresh.at(index));
-	}
 
-	//Start at 33Hz:
-	ui->comboBoxRefresh1->setCurrentIndex(2);
-	ui->comboBoxRefresh2->setCurrentIndex(2);
-	ui->comboBoxRefresh3->setCurrentIndex(2);
-	ui->comboBoxRefresh4->setCurrentIndex(2);
-	selected_refresh_index[0] = 2;
-	selected_refresh_index[1] = 2;
-	selected_refresh_index[2] = 2;
-	selected_refresh_index[3] = 2;
-	previous_refresh_index[0] = selected_refresh_index[0];
-	previous_refresh_index[1] = selected_refresh_index[1];
-	previous_refresh_index[2] = selected_refresh_index[2];
-	previous_refresh_index[3] = selected_refresh_index[3];
+	for(int item = 0; item < MAX_SC_ITEMS; item++)
+	{
+		//Log checkboxes:
+		//===============
+		(*log_cb_ptr[item])->setChecked(false);
+		(*log_cb_ptr[item])->setEnabled(false);
+		(*log_cb_ptr[item])->setToolTip(log_cb_ptr_ttip);
+
+		//On/Off Button init:
+		//==============
+		(*on_off_pb_ptr[item])->setText(QChar(0x2718));
+		(*on_off_pb_ptr[item])->setAutoFillBackground(true);
+		(*on_off_pb_ptr[item])->setStyleSheet("background-color: rgb(127, 127, 127); \
+										color: rgb(0, 0, 0)");
+		(*on_off_pb_ptr[item])->setToolTip(on_off_pb_ttip);
+		(*on_off_pb_ptr[item])->setDisabled(true);
+
+		//Populates Slave list:
+		//=====================
+		for(int i = 0; i < (*devList).length(); i++)
+		{
+			(*comboBoxSlavePtr[item])->addItem((*devList)[i]->SlaveName);
+		}
+
+		//Receive indicators:
+		//===================
+		(*labelStatusPtr[item])->setText(QChar(0x2B07));
+		(*labelStatusPtr[item])->setAlignment(Qt::AlignCenter);
+		(*labelStatusPtr[item])->setFont(f);
+		(*labelStatusPtr[item])->setToolTip(ttip);
+		displayDataReceived(item,DATAIN_STATUS_GREY);
+
+		//Populates Experiment/Command list:
+		//==================================
+		FlexSEA_Generic::populateExpComboBox((*comboBoxExpPtr[item]));
+
+		//Refresh Rate:
+		//==================================
+		for(int i = 0; i < var_list_refresh.count(); i++)
+		{
+			(*comboBoxRefreshPtr[item])->addItem(var_list_refresh.at(i));
+		}
+
+		//Start at 33Hz:
+		(*comboBoxRefreshPtr[item])->setCurrentIndex(2);
+		selected_refresh_index[item] = 2;
+		previous_refresh_index[item] = selected_refresh_index[item];
+
+		//Connect default slots:
+		connectSCItem(item, 2);
+
+
+	}
 
 	//ComboBoxes are all set:
 	allComboBoxesPopulated = true;
-
-	//Connect default slots:
-	connectSCItem(0, 2);
-	connectSCItem(1, 2);
-	connectSCItem(2, 2);
-	connectSCItem(3, 2);
+	for(int item = 0; item < MAX_SC_ITEMS; item++)
+	{
+		connectSCItem(item, 2);
+	}
 
 	//For now, Experiments 2-4 are disabled:
 	//======================================
-	ui->comboBoxSlave2->setDisabled(true);
-	ui->comboBoxExp2->setDisabled(true);
-	ui->comboBoxRefresh2->setDisabled(true);
-	ui->comboBoxSlave3->setDisabled(true);
-	ui->comboBoxExp3->setDisabled(true);
-	ui->comboBoxRefresh3->setDisabled(true);
-	ui->comboBoxSlave4->setDisabled(true);
-	ui->comboBoxExp4->setDisabled(true);
-	ui->comboBoxRefresh4->setDisabled(true);
-	ui->pushButton2->setDisabled(true);
-	ui->pushButton3->setDisabled(true);
-	ui->pushButton4->setDisabled(true);
+	for(int item = 1; item < MAX_SC_ITEMS; item++)
+	{
+		(*comboBoxSlavePtr[item])->setDisabled(true);
+		(*comboBoxExpPtr[item])->setDisabled(true);
+		(*comboBoxRefreshPtr[item])->setDisabled(true);
+		(*log_cb_ptr[item])->setDisabled(true);
+		(*on_off_pb_ptr[item])->setDisabled(true);
+		(*labelStatusPtr[item])->setDisabled(true);
+	}
 }
 
 void W_SlaveComm::initTimers(void)
@@ -301,33 +261,6 @@ void W_SlaveComm::initTimers(void)
 	master_timer = new QTimer(this);
 	connect(master_timer, SIGNAL(timeout()), this, SLOT(masterTimerEvent()));
 	master_timer->start(TIM_FREQ_TO_P(MASTER_TIMER));
-}
-
-//Place pictograms on labels:
-void W_SlaveComm::initDisplayDataReceived(void)
-{
-	QString ttip = "<html><head/><body><p>Stream Status.</p></body></html>";
-	QFont f( "Arial", 12, QFont::Bold);
-
-	ui->stat1->setText(QChar(0x2B07));
-	ui->stat1->setAlignment(Qt::AlignCenter);
-	ui->stat1->setFont(f);
-	ui->stat1->setToolTip(ttip);
-
-	ui->stat2->setText(QChar(0x2B07));
-	ui->stat2->setAlignment(Qt::AlignCenter);
-	ui->stat2->setFont(f);
-	ui->stat2->setToolTip(ttip);
-
-	ui->stat3->setText(QChar(0x2B07));
-	ui->stat3->setAlignment(Qt::AlignCenter);
-	ui->stat3->setFont(f);
-	ui->stat3->setToolTip(ttip);
-
-	ui->stat4->setText(QChar(0x2B07));
-	ui->stat4->setAlignment(Qt::AlignCenter);
-	ui->stat4->setFont(f);
-	ui->stat4->setToolTip(ttip);
 }
 
 //The 4 PB slots call this function:
@@ -445,45 +378,28 @@ void W_SlaveComm::connectSCItem(int item, int sig_idx)
 }
 
 //"Data Received" Arrows:
-void W_SlaveComm::displayDataReceived(int idx, int status)
+void W_SlaveComm::displayDataReceived(int item, int status)
 {
-	QLabel **label_ptr = &ui->stat1;
-	switch(idx)
-	{
-		case 0:
-			label_ptr = &ui->stat1;
-			break;
-		case 1:
-			label_ptr = &ui->stat2;
-			break;
-		case 2:
-			label_ptr = &ui->stat3;
-			break;
-		case 3:
-			label_ptr = &ui->stat4;
-			break;
-	}
-
 	switch(status)
 	{
 		case DATAIN_STATUS_GREY:
-			(*label_ptr)->setStyleSheet("QLabel { background-color: \
+			(*labelStatusPtr[item])->setStyleSheet("QLabel { background-color: \
 										rgb(127,127,127); color: black;}");
 			break;
 		case DATAIN_STATUS_GREEN:
-			(*label_ptr)->setStyleSheet("QLabel { background-color: \
+			(*labelStatusPtr[item])->setStyleSheet("QLabel { background-color: \
 										rgb(0,255,0); color: black;}");
 			break;
 		case DATAIN_STATUS_YELLOW:
-			(*label_ptr)->setStyleSheet("QLabel { background-color: \
+			(*labelStatusPtr[item])->setStyleSheet("QLabel { background-color: \
 										rgb(255,255,0); color: black;}");
 			break;
 		case DATAIN_STATUS_RED:
-			(*label_ptr)->setStyleSheet("QLabel { background-color: \
+			(*labelStatusPtr[item])->setStyleSheet("QLabel { background-color: \
 										rgb(255,0,0); color: black;}");
 			break;
 		default:
-			(*label_ptr)->setStyleSheet("QLabel { background-color: \
+			(*labelStatusPtr[item])->setStyleSheet("QLabel { background-color: \
 										black; color: white;}");
 			break;
 	}
@@ -625,6 +541,7 @@ void W_SlaveComm::sc_ankle2dof(uint8_t item)
 	emit slaveReadWrite(numb, comm_str_usb, READ);
 
 	//***ToDo: update for multiple slaves!***
+	//TODO Not sure if I support taht properly through the new flexseaDevice
 	if(sel_slave == 0)
 	{
 		sel_slave = 1;
@@ -641,7 +558,7 @@ void W_SlaveComm::sc_ankle2dof(uint8_t item)
 	//3) Log
 	if(logThisItem[item] == true)
 	{
-		selectedDeviceList[item]->decodeLastLine();
+		emit writeToLogFiledev(selectedDeviceList[item], item);
 	}
 }
 
