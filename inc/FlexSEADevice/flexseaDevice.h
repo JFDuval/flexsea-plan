@@ -71,8 +71,9 @@ public:
 	enum DataSourceFile dataSource;
 	QString shortFileName;
 	QString fileName;
-	int dataloggingItem;
-	int SlaveIndex;
+	int logItem;
+	int slaveIndex;
+	uint8_t slaveID;
 	QString SlaveName;
 	int experimentIndex;
 	QString experimentName;

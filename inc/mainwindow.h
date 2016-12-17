@@ -54,8 +54,11 @@
 #include "w_converter.h"
 
 #include "flexseaDevice.h"
+#include "manageDevice.h"
 
 #include "main.h"
+
+#include <QList>
 
 namespace Ui {
 class MainWindow;

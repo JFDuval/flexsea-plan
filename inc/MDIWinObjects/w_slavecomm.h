@@ -140,12 +140,12 @@ private:
 	FlexseaDevice *selectedDeviceList[MAX_SC_ITEMS];
 
 	QMetaObject::Connection sc_connections[MAX_SC_ITEMS];
-	int active_slave[MAX_SC_ITEMS], active_slave_index[MAX_SC_ITEMS];
 	int selected_exp_index[MAX_SC_ITEMS];
 	int selected_refresh_index[MAX_SC_ITEMS], previous_refresh_index[MAX_SC_ITEMS];
 	QStringList var_list_refresh;
 	QList<int> refreshRate;
 	bool logThisItem[MAX_SC_ITEMS];
+
 	QPushButton **on_off_pb_ptr[MAX_SC_ITEMS];
 	QCheckBox **log_cb_ptr[MAX_SC_ITEMS];
 	QComboBox **comboBoxSlavePtr[MAX_SC_ITEMS];

@@ -40,8 +40,9 @@
 
 FlexseaDevice::FlexseaDevice()
 {
-	dataloggingItem = 0;
-	SlaveIndex = 0;
+	logItem = 0;
+	slaveIndex = 0;
+	slaveID = 0;
 	experimentIndex = 0;
 	frequency = 0;
 }
@@ -54,8 +55,9 @@ void FlexseaDevice::clear(void)
 {
 	shortFileName.clear();
 	fileName.clear();
-	dataloggingItem = 0;
-	SlaveIndex = 0;
+	logItem = 0;
+	slaveIndex = 0;
+	slaveID = 0;
 	SlaveName.clear();
 	experimentIndex = 0;
 	experimentName.clear();

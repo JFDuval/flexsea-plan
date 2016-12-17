@@ -69,7 +69,7 @@ public:
 	void decodeAllLine(void);
 	void clear(void);
 	void appendEmptyLine(void);
-	QString getStatusStr(void);
+	QString getStatusStr(int index);
 
 	QList<struct GossipStamp> goList;
 	static void decode(struct gossip_s *goPtr);

@@ -234,20 +234,6 @@ void W_SlaveComm::initSlaveCom(void)
 	FlexSEA_Generic::populateSlaveComboBox(ui->comboBoxSlave4, \
 										   SL_BASE_ALL, SL_LEN_ALL);
 
-	//Variables:
-	active_slave_index[0] = ui->comboBoxSlave1->currentIndex();
-	active_slave_index[1] = ui->comboBoxSlave2->currentIndex();
-	active_slave_index[2] = ui->comboBoxSlave3->currentIndex();
-	active_slave_index[3] = ui->comboBoxSlave4->currentIndex();
-	active_slave[0] = FlexSEA_Generic::getSlaveID(SL_BASE_ALL, \
-												  active_slave_index[0]);
-	active_slave[1] = FlexSEA_Generic::getSlaveID(SL_BASE_ALL, \
-												  active_slave_index[1]);
-	active_slave[2] = FlexSEA_Generic::getSlaveID(SL_BASE_ALL, \
-												  active_slave_index[2]);
-	active_slave[3] = FlexSEA_Generic::getSlaveID(SL_BASE_ALL, \
-												  active_slave_index[3]);
-
 	//Populates Experiment/Command list:
 	//==================================
 
@@ -511,17 +497,15 @@ void W_SlaveComm::configSlaveComm(int item)
 
 	if(allComboBoxesPopulated == true)
 	{
-
+		int slaveindex = (*comboBoxSlavePtr[item])->currentIndex();
 		//Refresh all fields:
-		active_slave_index[item] = (*comboBoxSlavePtr[item])->currentIndex();
-		active_slave[item] = FlexSEA_Generic::getSlaveID(SL_BASE_ALL, \
-													active_slave_index[item]);
+
 		selected_exp_index[item] = (*comboBoxExpPtr[item])->currentIndex();
 		selected_refresh_index[item] = (*comboBoxRefreshPtr[item])->currentIndex();
 
 
 		// Fill the flexSEADevice Object metadata properly
-		selectedDeviceList[item] = (*devList)[active_slave_index[item]];
+		selectedDeviceList[item] = (*devList)[slaveindex];
 
 		QString name;
 
@@ -535,10 +519,10 @@ void W_SlaveComm::configSlaveComm(int item)
 		selectedDeviceList[item]->shortFileName =
 				selectedDeviceList[item]->SlaveName + "_" +
 				selectedDeviceList[item]->experimentName + "_" +
-				var_list_refresh[selected_refresh_index[item]]; +
+				var_list_refresh[selected_refresh_index[item]] +
 				".csv";
 
-		selectedDeviceList[item]->dataloggingItem = item;
+		selectedDeviceList[item]->logItem = item;
 
 
 		//Now we connect a time slot to that stream command:
@@ -552,7 +536,7 @@ void W_SlaveComm::configSlaveComm(int item)
 
 		//Update status message:
 		msg = "Updated #" + QString::number(item+1) + ": (" \
-				+ QString::number(active_slave_index[item]) + ", " \
+				+ QString::number(slaveindex) + ", " \
 				+ QString::number(selected_exp_index[item]) + ", " \
 				+ QString::number(selected_refresh_index[item]) + "). ";
 
@@ -579,12 +563,11 @@ void W_SlaveComm::sc_read_all(uint8_t item)
 {
 	uint16_t numb = 0;
 	uint8_t info[2] = {PORT_USB, PORT_USB};
-	uint8_t slaveId = active_slave[item];
-	uint8_t slaveIndex = active_slave_index[item];
 
 	//1) Stream
 	tx_cmd_data_read_all_r(TX_N_DEFAULT);
-	pack(P_AND_S_DEFAULT, slaveId, info, &numb, comm_str_usb);
+	pack(P_AND_S_DEFAULT, selectedDeviceList[item]->slaveID
+		 , info, &numb, comm_str_usb);
 	emit slaveReadWrite(numb, comm_str_usb, READ);
 
 	//2) Decode values
@@ -596,8 +579,6 @@ void W_SlaveComm::sc_read_all(uint8_t item)
 	if(logThisItem[item] == true)
 	{
 		emit writeToLogFiledev(selectedDeviceList[item], item);
-		//emit writeToLogFile(item, slaveIndex, expIndex,
-							//uint16_t(refreshRate.at(ui->comboBoxRefresh1->currentIndex())));
 	}
 }
 
@@ -608,27 +589,23 @@ void W_SlaveComm::sc_read_all_ricnu(uint8_t item)
 {
 	uint16_t numb = 0;
 	uint8_t info[2] = {PORT_USB, PORT_USB};
-	uint8_t slaveId = active_slave[item];
-	uint8_t slaveIndex = active_slave_index[item];
-	uint8_t expIndex = selected_exp_index[item];
 	static uint8_t offset = 0;
 
 	//1) Stream
-
 	(!offset) ? offset = 1 : offset = 0;
 	tx_cmd_ricnu_r(TX_N_DEFAULT, offset);
-	pack(P_AND_S_DEFAULT, slaveId, info, &numb, comm_str_usb);
+	pack(P_AND_S_DEFAULT, selectedDeviceList[item]->slaveID
+		 , info, &numb, comm_str_usb);
 	emit slaveReadWrite(numb, comm_str_usb, READ);
 
 	//2) Decode values
-	FlexSEA_Generic::decodeSlave(SL_BASE_ALL, slaveIndex);
+	selectedDeviceList[item]->decodeLastLine();
 	//(Uncertain about timings, probably delayed by 1 sample)
 
 	//3) Log
 	if(logThisItem[item] == true)
 	{
-		emit writeToLogFile(item, slaveIndex, expIndex,
-							refreshRate.at(ui->comboBoxRefresh1->currentIndex()));
+		emit writeToLogFiledev(selectedDeviceList[item], item);
 	}
 }
 
@@ -639,14 +616,12 @@ void W_SlaveComm::sc_ankle2dof(uint8_t item)
 {
 	uint16_t numb = 0;
 	uint8_t info[2] = {PORT_USB, PORT_USB};
-	uint8_t slaveId = active_slave[item];
-	uint8_t slaveIndex = active_slave_index[item];
-	uint8_t expIndex = selected_exp_index[item];
 	static uint8_t sel_slave = 0;
 
 	//1) Stream
 	tx_cmd_ankle2dof_r(TX_N_DEFAULT, sel_slave, 0, 0, 0);
-	pack(P_AND_S_DEFAULT, slaveId, info, &numb, comm_str_usb);
+	pack(P_AND_S_DEFAULT, selectedDeviceList[item]->slaveID
+		 , info, &numb, comm_str_usb);
 	emit slaveReadWrite(numb, comm_str_usb, READ);
 
 	//***ToDo: update for multiple slaves!***
@@ -660,15 +635,13 @@ void W_SlaveComm::sc_ankle2dof(uint8_t item)
 	}
 
 	//2) Decode values
-	//myFlexSEA_Generic.decodeSlave(SL_BASE_ALL, slaveIndex);
-	FlexSEA_Generic::decodeSlave(SL_BASE_EX, sel_slave);
+	(*devList)[sel_slave]->decodeLastLine();
 	//(Uncertain about timings, probably delayed by 1 sample)
 
 	//3) Log
 	if(logThisItem[item] == true)
 	{
-		emit writeToLogFile(item, slaveIndex, expIndex,
-							refreshRate.at(ui->comboBoxRefresh1->currentIndex()));
+		selectedDeviceList[item]->decodeLastLine();
 	}
 }
 

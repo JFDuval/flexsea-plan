@@ -611,7 +611,7 @@ void DataLogger::writeIdentifier(FlexseaDevice *devicePtr, uint8_t item)
 			QString::number(item)						+ QString(',') +
 
 			QString("Slave Index:")						+ QString(',') +
-			QString::number(devicePtr->SlaveIndex)		+ QString(',') +
+			QString::number(devicePtr->slaveIndex)		+ QString(',') +
 
 			QString("Slave Name:")						+ QString(',') +
 			devicePtr->SlaveName						+ QString(',') +

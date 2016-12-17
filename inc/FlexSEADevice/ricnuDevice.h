@@ -70,7 +70,7 @@ public:
 	void decodeAllLine(void);
 	void clear(void);
 	void appendEmptyLine(void);
-	QString getStatusStr(void);
+	QString getStatusStr(int index);
 
 	QList<struct RicnuStamp> riList;
 	static void decode(struct ricnu_s *riPtr);

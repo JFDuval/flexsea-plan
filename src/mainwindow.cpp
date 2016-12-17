@@ -131,56 +131,76 @@ void MainWindow::initFlexSeaDeviceObject(void)
 	executeDevList.append(ExecuteDevice(&exec1));
 	flexseaDevicePtrlist.append(&executeDevList.last());
 	executeDevList.last().SlaveName = "Execute 1";
-	executeDevList.last().SlaveIndex = 0;
+	executeDevList.last().slaveIndex = 0;
+	executeDevList.last().slaveID = FLEXSEA_EXECUTE_1;
 
 	executeDevList.append(ExecuteDevice(&exec2));
 	flexseaDevicePtrlist.append(&executeDevList.last());
 	executeDevList.last().SlaveName = "Execute 2";
-	executeDevList.last().SlaveIndex = 1;
+	executeDevList.last().slaveIndex = 1;
+	executeDevList.last().slaveID = FLEXSEA_EXECUTE_2;
 
 	executeDevList.append(ExecuteDevice(&exec3));
 	flexseaDevicePtrlist.append(&executeDevList.last());
 	executeDevList.last().SlaveName = "Execute 3";
-	executeDevList.last().SlaveIndex = 2;
+	executeDevList.last().slaveIndex = 2;
+	executeDevList.last().slaveID = FLEXSEA_EXECUTE_3;
 
 	executeDevList.append(ExecuteDevice(&exec4));
 	flexseaDevicePtrlist.append(&executeDevList.last());
 	executeDevList.last().SlaveName = "Execute 4";
-	executeDevList.last().SlaveIndex = 3;
+	executeDevList.last().slaveIndex = 3;
+	executeDevList.last().slaveID = FLEXSEA_EXECUTE_4;
+
 
 	manageDevList.append(ManageDevice(&manag1));
 	flexseaDevicePtrlist.append(&manageDevList.last());
 	manageDevList.last().SlaveName = "Manage 1";
-	manageDevList.last().SlaveIndex = 4;
+	manageDevList.last().slaveIndex = 4;
+	executeDevList.last().slaveID = FLEXSEA_MANAGE_1;
 
 	manageDevList.append(ManageDevice(&manag2));
 	flexseaDevicePtrlist.append(&manageDevList.last());
 	manageDevList.last().SlaveName = "Manage 2";
-	manageDevList.last().SlaveIndex = 5;
+	manageDevList.last().slaveIndex = 5;
+	executeDevList.last().slaveID = FLEXSEA_MANAGE_2;
 
 	//PLAN? incontrol?
 	//manageDevList.append(ManageDevice(&manag2));
 	//manageDevList.last().SlaveName = "Manage 2";
 	//manageDevList.last().SlaveIndex = 6;
+	//executeDevList.last().slaveID = FLEXSEA_PLAN_1;
+	flexseaDevicePtrlist.append(nullptr);
 
 	gossipDevList.append(GossipDevice(&gossip1));
+	flexseaDevicePtrlist.append(&gossipDevList.last());
 	gossipDevList.last().SlaveName = "Gossip 1";
-	gossipDevList.last().SlaveIndex = 7;
+	gossipDevList.last().slaveIndex = 7;
+	executeDevList.last().slaveID = FLEXSEA_GOSSIP_1;
+
 	gossipDevList.append(GossipDevice(&gossip2));
+	flexseaDevicePtrlist.append(&gossipDevList.last());
 	gossipDevList.last().SlaveName = "Gossip 2";
-	gossipDevList.last().SlaveIndex = 8;
+	gossipDevList.last().slaveIndex = 8;
+	executeDevList.last().slaveID = FLEXSEA_GOSSIP_2;
 
 	batteryDevList.append(BatteryDevice(&batt1));
+	flexseaDevicePtrlist.append(&batteryDevList.last());
 	batteryDevList.last().SlaveName = "Battery 1";
-	batteryDevList.last().SlaveIndex = 9;
+	batteryDevList.last().slaveIndex = 9;
+	executeDevList.last().slaveID = FLEXSEA_BATTERY_1;
 
 	strainDevList.append(StrainDevice(&strain1));
+	flexseaDevicePtrlist.append(&strainDevList.last());
 	strainDevList.last().SlaveName = "Strain 1";
-	strainDevList.last().SlaveIndex = 10;
+	strainDevList.last().slaveIndex = 10;
+	executeDevList.last().slaveID = FLEXSEA_STRAIN_1;
 
 	ricnuDevList.append(RicnuDevice(&ricnu_1));
+	flexseaDevicePtrlist.append(&ricnuDevList.last());
 	ricnuDevList.last().SlaveName = "RIC/NU 1";
-	ricnuDevList.last().SlaveIndex = 11;
+	ricnuDevList.last().slaveIndex = 11;
+	executeDevList.last().slaveID = FLEXSEA_VIRTUAL_1;
 
 
 }
@@ -455,7 +475,7 @@ void MainWindow::createSlaveComm(void)
 	if(objectCount < (SLAVECOMM_WINDOWS_MAX))
 	{
 		myViewSlaveComm[objectCount] = new W_SlaveComm(this,
-													   &executeDevList);
+													   &flexseaDevicePtrlist);
 		ui->mdiArea->addSubWindow(myViewSlaveComm[objectCount]);
 		myViewSlaveComm[objectCount]->show();
 

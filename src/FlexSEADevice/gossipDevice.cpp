@@ -127,7 +127,7 @@ void GossipDevice::decodeAllLine(void)
 	}
 }
 
-QString GossipDevice::getStatusStr(void)
+QString GossipDevice::getStatusStr(int index)
 {
 	return QString("No decoding available for this board");
 }
