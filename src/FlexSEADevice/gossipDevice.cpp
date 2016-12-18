@@ -82,8 +82,8 @@ QString GossipDevice::getHeaderStr(void)
 QString GossipDevice::getLastLineStr(void)
 {
 	QString str;
-	QTextStream(&str) <<	goList.last().timeStampDate		<< ',' << \
-							goList.last().timeStamp_ms		<< ',' << \
+	QTextStream(&str) <<	lastTimeStampDate				<< ',' << \
+							lastTimeStamp_ms				<< ',' << \
 							goList.last().data->accel.x		<< ',' << \
 							goList.last().data->accel.y		<< ',' << \
 							goList.last().data->accel.z		<< ',' << \

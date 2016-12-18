@@ -85,8 +85,8 @@ QString RicnuDevice::getLastLineStr(void)
 	unpackCompressed6ch(&riList.last().data->st);
 
 	QString str;
-	QTextStream(&str) <<	riList.last().timeStampDate					<< ',' << \
-							riList.last().timeStamp_ms					<< ',' << \
+	QTextStream(&str) <<	lastTimeStampDate							<< ',' << \
+							lastTimeStamp_ms						<< ',' << \
 							riList.last().data->ex.accel.x				<< ',' << \
 							riList.last().data->ex.accel.y				<< ',' << \
 							riList.last().data->ex.accel.z				<< ',' << \

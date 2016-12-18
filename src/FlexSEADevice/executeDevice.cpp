@@ -84,8 +84,8 @@ QString ExecuteDevice::getHeaderStr(void)
 QString ExecuteDevice::getLastLineStr(void)
 {
 	QString str;
-	QTextStream(&str) <<	exList.last().timeStampDate		<< ',' << \
-							exList.last().timeStamp_ms		<< ',' << \
+	QTextStream(&str) <<	lastTimeStampDate				<< ',' << \
+							lastTimeStamp_ms				<< ',' << \
 							exList.last().data->accel.x		<< ',' << \
 							exList.last().data->accel.y		<< ',' << \
 							exList.last().data->accel.z		<< ',' << \
@@ -100,8 +100,8 @@ QString ExecuteDevice::getLastLineStr(void)
 							exList.last().data->enc_control	<< ',' << \
 							exList.last().data->enc_commut	<< ',' << \
 							exList.last().data->volt_batt	<< ',' << \
-							exList.last().data->volt_int		<< ',' << \
-							exList.last().data->temp			<< ',' << \
+							exList.last().data->volt_int	<< ',' << \
+							exList.last().data->temp		<< ',' << \
 							exList.last().data->status1		<< ',' << \
 							exList.last().data->status2;
 	return str;

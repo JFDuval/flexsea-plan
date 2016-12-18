@@ -505,13 +505,9 @@ void MainWindow::createSlaveComm(void)
 
 		connect(myViewSlaveComm[0], SIGNAL(openRecordingFile(FlexseaDevice *, uint8_t )), \
 				myDataLogger, SLOT(openRecordingFile(FlexseaDevice *, uint8_t )));
-
-		connect(myViewSlaveComm[0], SIGNAL(writeToLogFile(uint8_t,uint8_t, \
-														  uint8_t,uint16_t)), \
-				myDataLogger, SLOT(writeToFile(uint8_t,uint8_t,uint8_t,uint16_t)));
-		connect(myViewSlaveComm[0], SIGNAL(writeToLogFiledev(FlexseaDevice *,\
+		connect(myViewSlaveComm[0], SIGNAL(writeToLogFile(FlexseaDevice *,\
 															 uint8_t )), \
-				myDataLogger, SLOT(writeToFiledev(FlexseaDevice *, uint8_t)));
+				myDataLogger, SLOT(writeToFile(FlexseaDevice *, uint8_t)));
 		connect(myViewSlaveComm[0], SIGNAL(closeRecordingFile(uint8_t)), \
 				myDataLogger, SLOT(closeRecordingFile(uint8_t)));
 

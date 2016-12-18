@@ -83,8 +83,8 @@ QString ManageDevice::getHeaderStr(void)
 QString ManageDevice::getLastLineStr(void)
 {
 	QString str;
-	QTextStream(&str) <<	mnList.last().timeStampDate		<< ',' << \
-							mnList.last().timeStamp_ms		<< ',' << \
+	QTextStream(&str) <<	lastTimeStampDate				<< ',' << \
+							lastTimeStamp_ms				<< ',' << \
 							mnList.last().data->accel.x		<< ',' << \
 							mnList.last().data->accel.y		<< ',' << \
 							mnList.last().data->accel.z		<< ',' << \

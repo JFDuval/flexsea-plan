@@ -271,7 +271,7 @@ void DataLogger::openReadingFile(bool * isOpen)
 	*isOpen = true;
 }
 
-void DataLogger::writeToFiledev(FlexseaDevice *devicePtr, uint8_t item)
+void DataLogger::writeToFile(FlexseaDevice *devicePtr, uint8_t item)
 {
 	// Verify that the log file is properly opened.
 	if(logRecordingFile[item].isOpen())
@@ -286,51 +286,6 @@ void DataLogger::writeToFiledev(FlexseaDevice *devicePtr, uint8_t item)
 
 		//And we add to the text file:
 		logReadAll(devicePtr, item);
-	}
-	else
-	{
-		emit setStatusBarMessage("Datalogger: no file selected.");
-	}
-}
-
-void DataLogger::writeToFile(uint8_t item, uint8_t slaveIndex,
-							 uint8_t expIndex, uint16_t refreshRate)
-{
-	qint64 t_ms = 0;
-	static qint64 t_ms_initial[4] = {0,0,0,0};
-
-	void (DataLogger::*headerFctPtr) (uint8_t item);
-	void (DataLogger::*logFctPtr) (QTextStream *filePtr, uint8_t slaveIndex, \
-					   char term, qint64 t_ms, QString t_text);
-
-	QString t_text = "";
-
-	/*ToDo: why are we constantly calling that? It should be done once,
-	 * the first time we start logging. The way it is now, we can switch board
-	 * in the middle of a log, corrupting the data.*/
-	getFctPtrs(slaveIndex, expIndex, &headerFctPtr, &logFctPtr);
-
-	// Verify that the log file is properly opened.
-	if(logRecordingFile[item].isOpen())
-	{
-		//Writting for the first time?
-		if(logRecordingFile[item].pos() == 0)
-		{
-			//Init timestamp ms:
-			logTimestamp(&t_ms, &t_text);
-			t_ms_initial[item] = t_ms;
-
-			//Header:
-			writeIdentifier(item, slaveIndex, expIndex, refreshRate);
-			(this->*headerFctPtr)(item);
-		}
-
-		//Timestamps:
-		logTimestamp(&t_ms, &t_text);
-		t_ms -= t_ms_initial[item];
-
-		//And we add to the text file:
-		(this->*logFctPtr)(&logFileStream, slaveIndex, '\n', t_ms, t_text);
 	}
 	else
 	{

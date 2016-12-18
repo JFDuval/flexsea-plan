@@ -39,6 +39,7 @@
 #include "main.h"
 #include <QDebug>
 #include <QTimer>
+#include <QDateTime>
 
 //****************************************************************************
 // Constructor & Destructor:
@@ -129,6 +130,8 @@ void W_SlaveComm::initSlaveCom(void)
 	//Safeguard - protected from signals emited during setup
 	allComboBoxesPopulated = false;
 
+	myTime = new QDateTime;
+
 	//Status bar:
 	//===========
 
@@ -138,10 +141,9 @@ void W_SlaveComm::initSlaveCom(void)
 	//State variables:
 	//================
 	sc_comPortOpen = false;
-	logThisItem[0] = false;
-	logThisItem[1] = false;
-	logThisItem[2] = false;
-	logThisItem[3] = false;
+
+	//Item serialized accessor
+	//================
 	comboBoxSlavePtr[0] = &ui->comboBoxSlave1;
 	comboBoxSlavePtr[1] = &ui->comboBoxSlave2;
 	comboBoxSlavePtr[2] = &ui->comboBoxSlave3;
@@ -167,7 +169,6 @@ void W_SlaveComm::initSlaveCom(void)
 	labelStatusPtr[2] = &ui->stat3;
 	labelStatusPtr[3] = &ui->stat4;
 
-
 	// Serialized item init:
 	//==============
 	on_off_pb_ttip = "<html><head/><body><p>Turn streaming on/off</p></body></html>";
@@ -175,7 +176,7 @@ void W_SlaveComm::initSlaveCom(void)
 			</p><p>It will log under the folder &quot;Plan-GUI-Logs&quot; \
 			when the stream is active.</p></body></html>";
 	labelStatusttip = "<html><head/><body><p>Stream Status.</p></body></html>";
-	QFont f( "Arial", 12, QFont::Bold);
+	QFont font( "Arial", 12, QFont::Bold);
 
 	var_list_refresh << "100Hz" << "50Hz" << "33Hz" << "20Hz" \
 					 << "10Hz" << "5Hz" << "1Hz";
@@ -184,6 +185,9 @@ void W_SlaveComm::initSlaveCom(void)
 
 	for(int item = 0; item < MAX_SC_ITEMS; item++)
 	{
+		logThisItem[item] = false;
+		previousLogThisItem[item] = false;
+
 		//Log checkboxes:
 		//===============
 		(*log_cb_ptr[item])->setChecked(false);
@@ -210,7 +214,7 @@ void W_SlaveComm::initSlaveCom(void)
 		//===================
 		(*labelStatusPtr[item])->setText(QChar(0x2B07));
 		(*labelStatusPtr[item])->setAlignment(Qt::AlignCenter);
-		(*labelStatusPtr[item])->setFont(f);
+		(*labelStatusPtr[item])->setFont(font);
 		(*labelStatusPtr[item])->setToolTip(ttip);
 		displayDataReceived(item,DATAIN_STATUS_GREY);
 
@@ -232,16 +236,10 @@ void W_SlaveComm::initSlaveCom(void)
 
 		//Connect default slots:
 		connectSCItem(item, 2);
-
-
 	}
 
 	//ComboBoxes are all set:
 	allComboBoxesPopulated = true;
-	for(int item = 0; item < MAX_SC_ITEMS; item++)
-	{
-		connectSCItem(item, 2);
-	}
 
 	//For now, Experiments 2-4 are disabled:
 	//======================================
@@ -261,6 +259,12 @@ void W_SlaveComm::initTimers(void)
 	master_timer = new QTimer(this);
 	connect(master_timer, SIGNAL(timeout()), this, SLOT(masterTimerEvent()));
 	master_timer->start(TIM_FREQ_TO_P(MASTER_TIMER));
+}
+
+void W_SlaveComm::logTimestamp(qint64 *t_ms, QString *t_text)
+{
+	*t_ms = myTime->currentMSecsSinceEpoch();
+	*t_text = myTime->currentDateTime().toString();
 }
 
 //The 4 PB slots call this function:
@@ -291,6 +295,8 @@ void W_SlaveComm::managePushButton(int idx, bool forceOff)
 // Need to be called after configSlaveComm
 void W_SlaveComm::manageLogStatus(uint8_t item)
 {
+	qint64 t_ms = 0;
+	QString t_text = "";
 	//Logging?
 	if((*log_cb_ptr[item])->isChecked() &&
 		(*on_off_pb_ptr[item])->isChecked())
@@ -304,7 +310,6 @@ void W_SlaveComm::manageLogStatus(uint8_t item)
 		QString ttip = "<html><head/><body><p>You can't change refresh rate while "
 					   "logging.</p></body></html>";
 		ui->comboBoxRefresh1->setToolTip(ttip);
-
 	}
 
 	else
@@ -486,16 +491,7 @@ void W_SlaveComm::sc_read_all(uint8_t item)
 		 , info, &numb, comm_str_usb);
 	emit slaveReadWrite(numb, comm_str_usb, READ);
 
-	//2) Decode values
-	selectedDeviceList[item]->decodeLastLine();
-	//(Uncertain about timings, probably delayed by 1 sample)
-
-
-	//3) Log
-	if(logThisItem[item] == true)
-	{
-		emit writeToLogFiledev(selectedDeviceList[item], item);
-	}
+	decodeAndLog(item);
 }
 
 //Argument is the item line (0-3)
@@ -514,15 +510,7 @@ void W_SlaveComm::sc_read_all_ricnu(uint8_t item)
 		 , info, &numb, comm_str_usb);
 	emit slaveReadWrite(numb, comm_str_usb, READ);
 
-	//2) Decode values
-	selectedDeviceList[item]->decodeLastLine();
-	//(Uncertain about timings, probably delayed by 1 sample)
-
-	//3) Log
-	if(logThisItem[item] == true)
-	{
-		emit writeToLogFiledev(selectedDeviceList[item], item);
-	}
+	decodeAndLog(item);
 }
 
 //Argument is the item line (0-3)
@@ -532,6 +520,8 @@ void W_SlaveComm::sc_ankle2dof(uint8_t item)
 {
 	uint16_t numb = 0;
 	uint8_t info[2] = {PORT_USB, PORT_USB};
+	qint64 t_ms = 0;
+	QString t_text = "";
 	static uint8_t sel_slave = 0;
 
 	//1) Stream
@@ -558,8 +548,53 @@ void W_SlaveComm::sc_ankle2dof(uint8_t item)
 	//3) Log
 	if(logThisItem[item] == true)
 	{
-		emit writeToLogFiledev(selectedDeviceList[item], item);
+		if(previousLogThisItem[item] == false)
+		{
+			logTimestamp(&t_ms, &t_text);
+			t_ms_initial[item] = t_ms;
+		}
+
+		//Timestamps:
+		logTimestamp(&t_ms, &t_text);
+		t_ms -= t_ms_initial[item];
+
+		selectedDeviceList[item]->lastTimeStampDate = t_text;
+		selectedDeviceList[item]->lastTimeStamp_ms = t_ms;
+		emit writeToLogFile(selectedDeviceList[item], item);
 	}
+
+	previousLogThisItem[item] = logThisItem[item];
+}
+
+void W_SlaveComm::decodeAndLog(uint8_t item)
+{
+	qint64 t_ms = 0;
+	QString t_text = "";
+
+	//2) Decode values
+	selectedDeviceList[item]->decodeLastLine();
+	//(Uncertain about timings, probably delayed by 1 sample)
+
+
+	//3) Log
+	if(logThisItem[item] == true)
+	{
+		if(previousLogThisItem[item] == false)
+		{
+			logTimestamp(&t_ms, &t_text);
+			t_ms_initial[item] = t_ms;
+		}
+
+		//Timestamps:
+		logTimestamp(&t_ms, &t_text);
+		t_ms -= t_ms_initial[item];
+
+		selectedDeviceList[item]->lastTimeStampDate = t_text;
+		selectedDeviceList[item]->lastTimeStamp_ms = t_ms;
+		emit writeToLogFile(selectedDeviceList[item], item);
+	}
+
+	previousLogThisItem[item] = logThisItem[item];
 }
 
 //

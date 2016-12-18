@@ -78,6 +78,9 @@ public:
 	int experimentIndex;
 	QString experimentName;
 	int frequency;
+	QString lastTimeStampDate;
+	int32_t lastTimeStamp_ms;
+
 };
 
 #endif // FLEXSEADEVICE_H

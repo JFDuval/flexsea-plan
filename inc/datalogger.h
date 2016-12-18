@@ -69,9 +69,7 @@ public slots:
 	void closeRecordingFile(uint8_t item);
 	void openReadingFile(bool * isOpen);
 	void closeReadingFile(void);
-	void writeToFiledev(FlexseaDevice *devicePtr, uint8_t item);
-	void writeToFile(uint8_t item, uint8_t slaveIndex,
-					 uint8_t expIndex, uint16_t refreshRate);
+	void writeToFile(FlexseaDevice *devicePtr, uint8_t item);
 
 private slots:
 

@@ -122,9 +122,7 @@ signals:
 	//Other:
 	void refresh2DPlot(void);
 	void windowClosed(void);
-	void writeToLogFile(uint8_t item, uint8_t slaveIndex,
-						uint8_t expIndex, uint16_t refreshRate);
-	void writeToLogFiledev(FlexseaDevice *devicePtr, uint8_t item);
+	void writeToLogFile(FlexseaDevice *devicePtr, uint8_t item);
 	void openRecordingFile(uint8_t item, QString fileName);
 	void openRecordingFile(FlexseaDevice *devicePtr, uint8_t item);
 	void closeRecordingFile(uint8_t item);
@@ -139,13 +137,15 @@ private:
 	QList<FlexseaDevice*> *devList;
 
 	FlexseaDevice *selectedDeviceList[MAX_SC_ITEMS];
+	QDateTime *myTime;
+	qint64 t_ms_initial[MAX_SC_ITEMS] = {0,0,0,0};
 
 	QMetaObject::Connection sc_connections[MAX_SC_ITEMS];
 	int selected_exp_index[MAX_SC_ITEMS];
 	int selected_refresh_index[MAX_SC_ITEMS], previous_refresh_index[MAX_SC_ITEMS];
 	QStringList var_list_refresh;
 	QList<int> refreshRate;
-	bool logThisItem[MAX_SC_ITEMS];
+	bool logThisItem[MAX_SC_ITEMS], previousLogThisItem[MAX_SC_ITEMS];
 
 	QPushButton **on_off_pb_ptr[MAX_SC_ITEMS];
 	QCheckBox **log_cb_ptr[MAX_SC_ITEMS];
@@ -164,10 +164,12 @@ private:
 	void initTimers(void);
 	void managePushButton(int idx, bool forceOff);
 	void manageLogStatus(uint8_t idx);
+	void logTimestamp(qint64 *t_ms, QString *t_text);
 
 	void sc_read_all(uint8_t item);
 	void sc_read_all_ricnu(uint8_t item);
 	void sc_ankle2dof(uint8_t item);
+	void decodeAndLog(uint8_t item);
 	void configSlaveComm(int item);
 	void updateStatusBar(QString txt);
 	//Function pointers to timer signals:

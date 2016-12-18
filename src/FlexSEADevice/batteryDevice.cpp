@@ -71,11 +71,11 @@ QString BatteryDevice::getHeaderStr(void)
 QString BatteryDevice::getLastLineStr(void)
 {
 	QString str;
-	QTextStream(&str) <<	baList.last().timeStampDate		<< ',' << \
-							baList.last().timeStamp_ms		<< ',' << \
+	QTextStream(&str) <<	lastTimeStampDate				<< ',' << \
+							lastTimeStamp_ms				<< ',' << \
 							baList.last().data->voltage		<< ',' << \
 							baList.last().data->current		<< ',' << \
-							baList.last().data->temp			<< ',' << \
+							baList.last().data->temp		<< ',' << \
 							baList.last().data->pushbutton	<< ',' << \
 							baList.last().data->status;
 	return str;

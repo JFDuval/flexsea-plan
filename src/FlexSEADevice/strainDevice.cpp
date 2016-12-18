@@ -72,8 +72,8 @@ QString StrainDevice::getHeaderStr(void)
 QString StrainDevice::getLastLineStr(void)
 {
 	QString str;
-	QTextStream(&str) <<	stList.last().timeStampDate << ',' << \
-							stList.last().timeStamp_ms << ',' << \
+	QTextStream(&str) <<	lastTimeStampDate << ',' << \
+							lastTimeStamp_ms << ',' << \
 							stList.last().data->ch[0].strain_filtered << ',' << \
 							stList.last().data->ch[1].strain_filtered << ',' << \
 							stList.last().data->ch[2].strain_filtered << ',' << \
