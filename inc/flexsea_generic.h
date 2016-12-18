@@ -126,18 +126,11 @@ public:
 	static void populateSlaveComboBox(QComboBox *cbox, uint8_t base, uint8_t len);
 	static void populateExpComboBox(QComboBox *cbox);
 	static uint8_t getSlaveBoardType(uint8_t base, uint8_t index);
-	static void getSlaveName(uint8_t base, uint8_t index, QString *slaveName);
 	static void getExpName(uint8_t index, QString *expName);
 	static uint8_t getSlaveID(uint8_t base, uint8_t index);
 	static void packetVisualizer(uint numb, uint8_t *packet);
-	static void decodeSlave(uint8_t base, uint8_t index);
-
-	static void decodeExecute(uint8_t base, uint8_t index);
 	static void decodeRicnu(uint8_t base, uint8_t index);
-	static void decodeManage(uint8_t base, uint8_t index);
-	static void decodeGossip(uint8_t base, uint8_t index);
-	static void decodeBattery(uint8_t base, uint8_t index);
-	static void decodeStrain(uint8_t base, uint8_t index);
+
 
 public slots:
 

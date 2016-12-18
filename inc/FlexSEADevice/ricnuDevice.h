@@ -49,18 +49,31 @@ namespace Ui
 	class RicnuDevice;
 }
 
+struct ricnu_s_plan
+{
+	//Execute:
+	struct execute_s *ex;
+
+	//Extra sensors (Strain):
+	//uint16_t ext_strain[6];
+	struct strain_s *st;
+
+	//Decoded values (ext_strain only)
+	struct decoded_ricnu_s decoded;
+};
+
 struct RicnuStamp
 {
 	QString timeStampDate;
 	int32_t timeStamp_ms;
-	ricnu_s *data;
+	ricnu_s_plan data;
 };
 
 class RicnuDevice : public FlexseaDevice
 {
 public:
 	explicit RicnuDevice(void);
-	explicit RicnuDevice(ricnu_s *devicePtr);
+	explicit RicnuDevice(execute_s *exPtr, strain_s *stPtr);
 
 
 	// Interface implementation
@@ -74,6 +87,7 @@ public:
 
 	QList<struct RicnuStamp> riList;
 	static void decode(struct ricnu_s *riPtr);
+	static void decode(struct ricnu_s_plan *riPtr);
 	static void unpackCompressed6ch(struct strain_s *stPtr);
 
 private:

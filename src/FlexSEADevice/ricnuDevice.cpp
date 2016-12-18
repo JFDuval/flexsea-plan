@@ -48,11 +48,12 @@ RicnuDevice::RicnuDevice(void): FlexseaDevice()
 	this->dataSource = LogDataFile;
 }
 
-RicnuDevice::RicnuDevice(ricnu_s *devicePtr): FlexseaDevice()
+RicnuDevice::RicnuDevice(execute_s *exPtr, strain_s *stPtr): FlexseaDevice()
 {
 	this->dataSource = LiveDataFile;
 	riList.append(RicnuStamp());
-	riList.last().data = devicePtr;
+	riList.last().data.ex = exPtr;
+	riList.last().data.st = stPtr;
 }
 
 //****************************************************************************
@@ -82,26 +83,26 @@ QString RicnuDevice::getHeaderStr(void)
 
 QString RicnuDevice::getLastLineStr(void)
 {
-	unpackCompressed6ch(&riList.last().data->st);
+	unpackCompressed6ch(riList.last().data.st);
 
 	QString str;
 	QTextStream(&str) <<	lastTimeStampDate							<< ',' << \
 							lastTimeStamp_ms						<< ',' << \
-							riList.last().data->ex.accel.x				<< ',' << \
-							riList.last().data->ex.accel.y				<< ',' << \
-							riList.last().data->ex.accel.z				<< ',' << \
-							riList.last().data->ex.gyro.x				<< ',' << \
-							riList.last().data->ex.gyro.y				<< ',' << \
-							riList.last().data->ex.gyro.z				<< ',' << \
-							riList.last().data->ex.current				<< ',' << \
-							riList.last().data->ex.enc_motor				<< ',' << \
-							riList.last().data->ex.enc_joint				<< ',' << \
-							riList.last().data->st.ch[0].strain_filtered	<< ',' << \
-							riList.last().data->st.ch[1].strain_filtered << ',' << \
-							riList.last().data->st.ch[2].strain_filtered << ',' << \
-							riList.last().data->st.ch[3].strain_filtered << ',' << \
-							riList.last().data->st.ch[4].strain_filtered << ',' << \
-							riList.last().data->st.ch[5].strain_filtered;
+							riList.last().data.ex->accel.x				<< ',' << \
+							riList.last().data.ex->accel.y				<< ',' << \
+							riList.last().data.ex->accel.z				<< ',' << \
+							riList.last().data.ex->gyro.x				<< ',' << \
+							riList.last().data.ex->gyro.y				<< ',' << \
+							riList.last().data.ex->gyro.z				<< ',' << \
+							riList.last().data.ex->current				<< ',' << \
+							riList.last().data.ex->enc_motor				<< ',' << \
+							riList.last().data.ex->enc_joint				<< ',' << \
+							riList.last().data.st->ch[0].strain_filtered	<< ',' << \
+							riList.last().data.st->ch[1].strain_filtered << ',' << \
+							riList.last().data.st->ch[2].strain_filtered << ',' << \
+							riList.last().data.st->ch[3].strain_filtered << ',' << \
+							riList.last().data.st->ch[4].strain_filtered << ',' << \
+							riList.last().data.st->ch[5].strain_filtered;
 	return str;
 }
 
@@ -118,14 +119,14 @@ void RicnuDevice::appendEmptyLine(void)
 
 void RicnuDevice::decodeLastLine(void)
 {
-	decode(riList.last().data);
+	decode(&riList.last().data);
 }
 
 void RicnuDevice::decodeAllLine(void)
 {
 	for(int i = 0; i < riList.size(); ++i)
 	{
-		decode(riList[i].data);
+		decode(&riList[i].data);
 	}
 }
 
@@ -133,6 +134,12 @@ void RicnuDevice::decode(struct ricnu_s *riPtr)
 {
 	ExecuteDevice::decode(&riPtr->ex);
 	StrainDevice::decode(&riPtr->st);
+}
+
+void RicnuDevice::decode(struct ricnu_s_plan *riPtr)
+{
+	ExecuteDevice::decode(riPtr->ex);
+	StrainDevice::decode(riPtr->st);
 }
 
 QString RicnuDevice::getStatusStr(int index)

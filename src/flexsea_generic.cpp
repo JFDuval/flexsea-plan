@@ -138,13 +138,6 @@ uint8_t FlexSEA_Generic::getSlaveBoardType(uint8_t base, uint8_t index)
 	return bType;
 }
 
-//Returns the slave name, as a QString
-void FlexSEA_Generic::getSlaveName(uint8_t base, uint8_t index, \
-								   QString *slaveName)
-{
-	*slaveName = var_list_slave.at(base+index);
-}
-
 //Returns the experiment name, as a QString
 void FlexSEA_Generic::getExpName(uint8_t index, QString *expName)
 {
@@ -200,16 +193,6 @@ void FlexSEA_Generic::packetVisualizer(uint numb, uint8_t *packet)
 	qDebug() << "-------------------------";
 }
 
-//TODO these decoding functions should be in the w_board files
-
-//Decodes some of Execute's fields
-void FlexSEA_Generic::decodeExecute(uint8_t base, uint8_t index)
-{
-	struct execute_s *exPtr;
-	assignExecutePtr(&exPtr, base, index);
-	ExecuteDevice::decode(exPtr);
-}
-
 //RIC/NU is a special case of Execute board. It use the first struct of execute
 // and strain.
 void FlexSEA_Generic::decodeRicnu(uint8_t base, uint8_t index)
@@ -222,66 +205,6 @@ void FlexSEA_Generic::decodeRicnu(uint8_t base, uint8_t index)
 	StrainDevice::decode(&ricnu_1.st);
 }
 
-void FlexSEA_Generic::decodeManage(uint8_t base, uint8_t index)
-{
-	struct manage_s *mnPtr;
-	assignManagePtr(&mnPtr, base, index);
-	ManageDevice::decode(mnPtr);
-}
-
-//Decodes some of Gossip's fields
-void FlexSEA_Generic::decodeGossip(uint8_t base, uint8_t index)
-{
-	struct gossip_s *goPtr;
-	assignGossipPtr(&goPtr, base, index);
-	GossipDevice::decode(goPtr);
-}
-
-void FlexSEA_Generic::decodeBattery(uint8_t base, uint8_t index)
-{
-	struct battery_s *baPtr;
-	assignBatteryPtr(&baPtr, base, index);
-	BatteryDevice::decode(baPtr);
-}
-
-//Decodes some of Strain's fields
-void FlexSEA_Generic::decodeStrain(uint8_t base, uint8_t index)
-{
-	struct strain_s *stPtr;
-	assignStrainPtr(&stPtr, base, index);
-	StrainDevice::decode(stPtr);
-}
-
-//Decodes some of the slave's fields
-void FlexSEA_Generic::decodeSlave(uint8_t base, uint8_t index)
-{
-	uint8_t bType = getSlaveBoardType(base, index);
-
-	switch(bType)
-	{
-		case FLEXSEA_PLAN_BASE:
-
-			break;
-		case FLEXSEA_MANAGE_BASE:
-			decodeManage(base, index);
-			break;
-		case FLEXSEA_EXECUTE_BASE:
-			decodeExecute(base, index);
-			decodeRicnu(base, index);
-			break;
-		case FLEXSEA_BATTERY_BASE:
-			decodeBattery(base, index);
-			break;
-		case FLEXSEA_STRAIN_BASE:
-			decodeStrain(base, index);
-			break;
-		case FLEXSEA_GOSSIP_BASE:
-			decodeGossip(base, index);
-			break;
-		default:
-			break;
-	}
-}
 
 //Assign pointer
 //TODO: should we use flexsea_system's executePtrXid instead?
