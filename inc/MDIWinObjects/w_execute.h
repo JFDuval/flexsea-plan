@@ -76,9 +76,11 @@ private:
 	Ui::W_Execute *ui;
 	LogFile *myLogFileRef;
 	int active_slave, active_slave_index;
+
 	DisplayMode displayMode;
+
 	QList<ExecuteDevice> *deviceList;
-	ExecuteDevice logDevice;
+	ExecuteDevice *deviceLog;
 
 	//Function(s):
 	void initLive(void);

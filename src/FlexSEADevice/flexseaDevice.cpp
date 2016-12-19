@@ -33,6 +33,7 @@
 //****************************************************************************
 
 #include "flexseaDevice.h"
+#include <QStringList>
 
 //****************************************************************************
 // Constructor & Destructor:
@@ -46,7 +47,7 @@ FlexseaDevice::FlexseaDevice()
 	experimentIndex = 0;
 	frequency = 0;
 	lastTimeStamp_ms = 0;
-
+	serializedLength = 0;
 }
 
 //****************************************************************************
@@ -60,13 +61,34 @@ void FlexseaDevice::clear(void)
 	logItem = 0;
 	slaveIndex = 0;
 	slaveID = 0;
-	SlaveName.clear();
+	slaveName.clear();
 	experimentIndex = 0;
 	experimentName.clear();
 	frequency = 0;
 	lastTimeStamp_ms = 0;
-
+	serializedLength = 0;
 }
+
+QString FlexseaDevice::getIdentifier(void)
+{
+	QStringList identifier = QStringList()
+							<< "Datalogging Item:"
+							<< QString::number(logItem)
+							<< "Slave Index:"
+							<< QString::number(slaveIndex)
+							<< "Slave Name:"
+							<< slaveName
+							<< "Experiment Index:"
+							<< QString::number(experimentIndex)
+							<< "Experiment Name:"
+							<< experimentName
+							<< "Aquisition Frequency:"
+							<< QString::number(frequency);
+
+	return identifier.join(',');
+}
+
+
 
 //****************************************************************************
 // Public slot(s):

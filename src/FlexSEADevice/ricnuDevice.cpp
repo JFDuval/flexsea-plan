@@ -46,6 +46,7 @@
 RicnuDevice::RicnuDevice(void): FlexseaDevice()
 {
 	this->dataSource = LogDataFile;
+	serializedLength = header.length();
 }
 
 RicnuDevice::RicnuDevice(execute_s *exPtr, strain_s *stPtr): FlexseaDevice()
@@ -54,6 +55,7 @@ RicnuDevice::RicnuDevice(execute_s *exPtr, strain_s *stPtr): FlexseaDevice()
 	riList.append(RicnuStamp());
 	riList.last().data.ex = exPtr;
 	riList.last().data.st = stPtr;
+	serializedLength = header.length();
 }
 
 //****************************************************************************
@@ -62,26 +64,29 @@ RicnuDevice::RicnuDevice(execute_s *exPtr, strain_s *stPtr): FlexseaDevice()
 
 QString RicnuDevice::getHeaderStr(void)
 {
-	return QString("Timestamp,")	+ \
-				   "Timestamp (ms),"+ \
-				   "accel.x,"		+ \
-				   "accel.y,"		+ \
-				   "accel.z,"		+ \
-				   "gyro.x,"		+ \
-				   "gyro.y,"		+ \
-				   "gyro.z,"		+ \
-				   "current,"		+ \
-				   "enc-mot,"		+ \
-				   "enc-joint,"		+ \
-				   "strain1,"		+ \
-				   "strain2,"		+ \
-				   "strain3,"		+ \
-				   "strain4,"		+ \
-				   "strain5,"		+ \
-				   "strain6";
+	return header.join(',');
 }
 
-QString RicnuDevice::getLastLineStr(void)
+QStringList RicnuDevice::header = QStringList()
+								<< "Timestamp,"
+								<< "Timestamp (ms),"
+								<< "accel.x,"
+								<< "accel.y,"
+								<< "accel.z,"
+								<< "gyro.x,"
+								<< "gyro.y,"
+								<< "gyro.z,"
+								<< "current,"
+								<< "enc-mot,"
+								<< "enc-joint,"
+								<< "strain1,"
+								<< "strain2,"
+								<< "strain3,"
+								<< "strain4,"
+								<< "strain5,"
+								<< "strain6";
+
+QString RicnuDevice::getLastSerializedStr(void)
 {
 	unpackCompressed6ch(riList.last().data.st);
 
@@ -104,6 +109,11 @@ QString RicnuDevice::getLastLineStr(void)
 							riList.last().data.st->ch[4].strain_filtered << ',' << \
 							riList.last().data.st->ch[5].strain_filtered;
 	return str;
+}
+
+void RicnuDevice::appendSerializedStr(QStringList *splitLine)
+{
+
 }
 
 void RicnuDevice::clear(void)

@@ -89,21 +89,23 @@ void W_Execute::trackVarEx(uint8_t var, uint8_t *varToPlotPtr8s)
 //Call this function to refresh the display
 void W_Execute::refresh(void)
 {
+
 	int index = ui->comboBox_slave->currentIndex();
 	displayExecute(&((*deviceList)[index]), 0);
 }
 
 void W_Execute::displayLogData(int index)
 {
-   if(myLogFileRef->data.isEmpty() == false)
+   if(deviceLog->exList.isEmpty() == false)
    {
-		displayExecute(&logDevice, index);
+		displayExecute(deviceLog, index);
    }
 }
 
 void W_Execute::updateDisplayMode(DisplayMode mode)
 {
-	if(mode == DisplayLogData)
+	displayMode = mode;
+	if(displayMode == DisplayLogData)
 	{
 		initLog();
 	}
@@ -124,7 +126,7 @@ void W_Execute::initLive(void)
 
 	for(int i = 0; i < (*deviceList).length(); i++)
 	{
-		ui->comboBox_slave->addItem((*deviceList)[i].SlaveName);
+		ui->comboBox_slave->addItem((*deviceList)[i].slaveName);
 	}
 }
 

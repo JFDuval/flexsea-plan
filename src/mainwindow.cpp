@@ -96,10 +96,16 @@ MainWindow::MainWindow(QWidget *parent) :
 	initFlexSeaDeviceObject();
 
 	//SerialDriver:
-	mySerialDriver = new SerialDriver;
+	mySerialDriver = new SerialDriver(this);
 
 	//Datalogger:
-	myDataLogger = new DataLogger;
+	myDataLogger = new DataLogger(this,
+								  &executeLog,
+								  &manageLog,
+								  &gossipLog,
+								  &batteryLog,
+								  &strainLog,
+								  &ricnuLog);
 
 	//Create default objects:
 	createConfig();
@@ -130,76 +136,76 @@ void MainWindow::initFlexSeaDeviceObject(void)
 	// TODO Improve :Slave index here a prompt to error when addding new device.
 	executeDevList.append(ExecuteDevice(&exec1));
 	flexseaDevicePtrlist.append(&executeDevList.last());
-	executeDevList.last().SlaveName = "Execute 1";
+	executeDevList.last().slaveName = "Execute 1";
 	executeDevList.last().slaveIndex = 0;
 	executeDevList.last().slaveID = FLEXSEA_EXECUTE_1;
 
 	executeDevList.append(ExecuteDevice(&exec2));
 	flexseaDevicePtrlist.append(&executeDevList.last());
-	executeDevList.last().SlaveName = "Execute 2";
+	executeDevList.last().slaveName = "Execute 2";
 	executeDevList.last().slaveIndex = 1;
 	executeDevList.last().slaveID = FLEXSEA_EXECUTE_2;
 
 	executeDevList.append(ExecuteDevice(&exec3));
 	flexseaDevicePtrlist.append(&executeDevList.last());
-	executeDevList.last().SlaveName = "Execute 3";
+	executeDevList.last().slaveName = "Execute 3";
 	executeDevList.last().slaveIndex = 2;
 	executeDevList.last().slaveID = FLEXSEA_EXECUTE_3;
 
 	executeDevList.append(ExecuteDevice(&exec4));
 	flexseaDevicePtrlist.append(&executeDevList.last());
-	executeDevList.last().SlaveName = "Execute 4";
+	executeDevList.last().slaveName = "Execute 4";
 	executeDevList.last().slaveIndex = 3;
 	executeDevList.last().slaveID = FLEXSEA_EXECUTE_4;
 
 
 	manageDevList.append(ManageDevice(&manag1));
 	flexseaDevicePtrlist.append(&manageDevList.last());
-	manageDevList.last().SlaveName = "Manage 1";
+	manageDevList.last().slaveName = "Manage 1";
 	manageDevList.last().slaveIndex = 4;
 	manageDevList.last().slaveID = FLEXSEA_MANAGE_1;
 
 	manageDevList.append(ManageDevice(&manag2));
 	flexseaDevicePtrlist.append(&manageDevList.last());
-	manageDevList.last().SlaveName = "Manage 2";
+	manageDevList.last().slaveName = "Manage 2";
 	manageDevList.last().slaveIndex = 5;
 	manageDevList.last().slaveID = FLEXSEA_MANAGE_2;
 
 	//PLAN? incontrol?
 	manageDevList.append(ManageDevice(&manag2));// Todo Not the right way.
 	flexseaDevicePtrlist.append(&manageDevList.last());
-	manageDevList.last().SlaveName = "Plan 1";
+	manageDevList.last().slaveName = "Plan 1";
 	manageDevList.last().slaveIndex = 6;
 	manageDevList.last().slaveID = FLEXSEA_PLAN_1;
 
 
 	gossipDevList.append(GossipDevice(&gossip1));
 	flexseaDevicePtrlist.append(&gossipDevList.last());
-	gossipDevList.last().SlaveName = "Gossip 1";
+	gossipDevList.last().slaveName = "Gossip 1";
 	gossipDevList.last().slaveIndex = 7;
 	gossipDevList.last().slaveID = FLEXSEA_GOSSIP_1;
 
 	gossipDevList.append(GossipDevice(&gossip2));
 	flexseaDevicePtrlist.append(&gossipDevList.last());
-	gossipDevList.last().SlaveName = "Gossip 2";
+	gossipDevList.last().slaveName = "Gossip 2";
 	gossipDevList.last().slaveIndex = 8;
 	gossipDevList.last().slaveID = FLEXSEA_GOSSIP_2;
 
 	batteryDevList.append(BatteryDevice(&batt1));
 	flexseaDevicePtrlist.append(&batteryDevList.last());
-	batteryDevList.last().SlaveName = "Battery 1";
+	batteryDevList.last().slaveName = "Battery 1";
 	batteryDevList.last().slaveIndex = 9;
 	batteryDevList.last().slaveID = FLEXSEA_BATTERY_1;
 
 	strainDevList.append(StrainDevice(&strain1));
 	flexseaDevicePtrlist.append(&strainDevList.last());
-	strainDevList.last().SlaveName = "Strain 1";
+	strainDevList.last().slaveName = "Strain 1";
 	strainDevList.last().slaveIndex = 10;
 	strainDevList.last().slaveID = FLEXSEA_STRAIN_1;
 
 	ricnuDevList.append(RicnuDevice(&exec1, &strain1));
 	flexseaDevicePtrlist.append(&ricnuDevList.last());
-	ricnuDevList.last().SlaveName = "RIC/NU 1";
+	ricnuDevList.last().slaveName = "RIC/NU 1";
 	ricnuDevList.last().slaveIndex = 11;
 	ricnuDevList.last().slaveID = FLEXSEA_VIRTUAL_1;
 }
@@ -498,9 +504,6 @@ void MainWindow::createSlaveComm(void)
 				myViewSlaveComm[0], SLOT(updateIndicatorTimeout(bool)));
 
 		//Link SlaveComm and DataLogger
-		connect(myViewSlaveComm[0], SIGNAL(openRecordingFile(uint8_t,QString)), \
-				myDataLogger, SLOT(openRecordingFile(uint8_t,QString)));
-
 		connect(myViewSlaveComm[0], SIGNAL(openRecordingFile(FlexseaDevice *, uint8_t )), \
 				myDataLogger, SLOT(openRecordingFile(FlexseaDevice *, uint8_t )));
 		connect(myViewSlaveComm[0], SIGNAL(writeToLogFile(FlexseaDevice *,\
@@ -566,7 +569,17 @@ void MainWindow::createViewRicnu(void)
 	//Limited number of windows:
 	if(objectCount < (RICNU_VIEW_WINDOWS_MAX))
 	{
-		myViewRicnu[objectCount] = new W_Ricnu(this);
+		DisplayMode status = DisplayLiveData;
+		if(W_Config::howManyInstance() > 0)
+		{
+			if(myViewConfig[0]->getDataSourceStatus() == FromLogFile)
+			{
+				status = DisplayLogData;
+			}
+		}
+
+		myViewRicnu[objectCount] = new W_Ricnu(this, &ricnuLog,
+											   status, &ricnuDevList);;
 		ui->mdiArea->addSubWindow(myViewRicnu[objectCount]);
 		myViewRicnu[objectCount]->show();
 

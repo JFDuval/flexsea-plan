@@ -44,6 +44,7 @@
 GossipDevice::GossipDevice(void): FlexseaDevice()
 {
 	this->dataSource = LogDataFile;
+	serializedLength = header.length();
 }
 
 GossipDevice::GossipDevice(gossip_s *devicePtr): FlexseaDevice()
@@ -51,6 +52,7 @@ GossipDevice::GossipDevice(gossip_s *devicePtr): FlexseaDevice()
 	this->dataSource = LiveDataFile;
 	goList.append(GossipStamp());
 	goList.last().data = devicePtr;
+	serializedLength = header.length();
 }
 
 //****************************************************************************
@@ -59,27 +61,30 @@ GossipDevice::GossipDevice(gossip_s *devicePtr): FlexseaDevice()
 
 QString GossipDevice::getHeaderStr(void)
 {
-	return QString("Timestamp,")	+ \
-				   "Timestamp (ms),"+ \
-				   "accel.x,"		+ \
-				   "accel.y,"		+ \
-				   "accel.z,"		+ \
-				   "gyro.x,"		+ \
-				   "gyro.y,"		+ \
-				   "gyro.z,"		+ \
-				   "magneto.x,"		+ \
-				   "magneto.y,"		+ \
-				   "magneto.z,"		+ \
-				   "io1,"			+ \
-				   "io2,"			+ \
-				   "capsense1,"		+ \
-				   "capsense2,"		+ \
-				   "capsense3,"		+ \
-				   "capsense4,"		+ \
-				   "Status1";
+	return header.join(',');
 }
 
-QString GossipDevice::getLastLineStr(void)
+QStringList GossipDevice::header = QStringList()
+								<< "Timestamp"
+								<< "Timestamp (ms)"
+								<< "accel.x"
+								<< "accel.y"
+								<< "accel.z"
+								<< "gyro.x"
+								<< "gyro.y"
+								<< "gyro.z"
+								<< "magneto.x"
+								<< "magneto.y"
+								<< "magneto.z"
+								<< "io1"
+								<< "io2"
+								<< "capsense1"
+								<< "capsense2"
+								<< "capsense3"
+								<< "capsense4"
+								<< "Status1";
+
+QString GossipDevice::getLastSerializedStr(void)
 {
 	QString str;
 	QTextStream(&str) <<	lastTimeStampDate				<< ',' << \
@@ -101,6 +106,11 @@ QString GossipDevice::getLastLineStr(void)
 							goList.last().data->capsense[3]	<< ',' << \
 							goList.last().data->status;
 	return str;
+}
+
+void GossipDevice::appendSerializedStr(QStringList *splitLine)
+{
+
 }
 
 void GossipDevice::clear(void)

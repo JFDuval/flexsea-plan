@@ -64,20 +64,19 @@ public:
 
 	// Interface implementation
 	QString getHeaderStr(void);
-	QString getLastLineStr(void);
+	QString getLastSerializedStr(void);
+	void appendSerializedStr(QStringList *splitLine);
 	void decodeLastLine(void);
 	void decodeAllLine(void);
 	void clear(void);
 	void appendEmptyLine(void);
 	QString getStatusStr(int index);
 
-
 	QList<struct ExecuteStamp> exList;
 	static void decode(struct execute_s *exPtr);
 
-
 private:
-
+	static QStringList header;
 };
 
 

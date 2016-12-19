@@ -39,6 +39,8 @@
 #include "counter.h"
 #include "flexsea_generic.h"
 #include "ricnuDevice.h"
+#include "define.h"
+#include "logFile.h"
 
 //****************************************************************************
 // Namespace & Class Definition:
@@ -54,11 +56,16 @@ class W_Ricnu : public QWidget, public Counter<W_Ricnu>
 
 public:
 	//Constructor & Destructor:
-	explicit W_Ricnu(QWidget *parent = 0);
+	explicit W_Ricnu(QWidget *parent = 0,
+					 RicnuDevice *deviceLogPtr = nullptr,
+					 DisplayMode mode = DisplayLiveData,
+					 QList<RicnuDevice> *deviceListPtr = nullptr);
 	~W_Ricnu();
 
 public slots:
 	void refreshDisplayRicnu(void);
+	void displayLogData(int index);
+	void updateDisplayMode(DisplayMode mode);
 
 signals:
 	void windowClosed(void);
@@ -68,9 +75,15 @@ private:
 	Ui::W_Ricnu *ui;
 	int active_slave, active_slave_index;
 
+	DisplayMode displayMode;
+
+	QList<RicnuDevice> * deviceList;
+	RicnuDevice *deviceLog;
+
 	//Function(s):
-	void init(void);
-	void displayRicnu(struct ricnu_s *ricnu);
+	void initLive(void);
+	void initLog(void);
+	void displayRicnu(RicnuDevice *devicePtr, int index);
 };
 
 //****************************************************************************

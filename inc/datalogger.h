@@ -46,6 +46,11 @@
 #include "logFile.h"
 
 #include "executeDevice.h"
+#include "manageDevice.h"
+#include "gossipDevice.h"
+#include "batteryDevice.h"
+#include "strainDevice.h"
+#include "ricnuDevice.h"
 
 //****************************************************************************
 // Namespace & Class
@@ -60,7 +65,14 @@ class DataLogger : public QWidget
 	Q_OBJECT
 
 public:
-	explicit DataLogger(QWidget *parent = 0);
+	explicit DataLogger(QWidget *parent = 0,
+						ExecuteDevice *executeInitPtr = nullptr,
+						ManageDevice *manageInitPtr = nullptr,
+						GossipDevice *gossipInitPtr = nullptr,
+						BatteryDevice *batteryInitPtr = nullptr,
+						StrainDevice *strainInitPtr = nullptr,
+						RicnuDevice *ricnuInitPtr = nullptr);
+
 	LogFile * getLogFilePtr(void) {return &myLogFile;}
 
 public slots:
@@ -77,7 +89,14 @@ private:
 	QFile logRecordingFile[4];
 	QFile logReadingFile;
 
-	ExecuteDevice executeData = ExecuteDevice();
+	ExecuteDevice *executeDevPtr;
+	ManageDevice *manageDevPtr;
+	GossipDevice *gossipDevPtr;
+	BatteryDevice *batteryDevPtr;
+	StrainDevice *strainDevPtr;
+	RicnuDevice *ricnuDevPtr;
+
+
 
 	QString planGUIRootPath;
 	QString logFolder;
@@ -93,9 +112,9 @@ private:
 	//Function(s):
 	void init(void);
 	void logTimestamp(qint64 *t_ms, QString *t_text);
-	void writeIdentifier(FlexseaDevice *devicePtr, uint8_t item);
 	void openfile(uint8_t item, QString shortFileName);
 	void initLogDirectory(void);
+	void setStatus(QString str);
 
 signals:
 	void setStatusBarMessage(QString msg);

@@ -61,12 +61,15 @@ class FlexseaDevice
 public:
 	explicit FlexseaDevice();
 	virtual QString getHeaderStr(void) = 0;
-	virtual QString getLastLineStr(void) = 0;
+	virtual QString getLastSerializedStr(void) = 0;
+	virtual void appendSerializedStr(QStringList *splitLine) = 0;
 	virtual void decodeLastLine(void) = 0;
 	virtual void decodeAllLine(void) = 0;
 	virtual void appendEmptyLine(void) = 0;
 	virtual QString getStatusStr(int index) = 0;
 	virtual void clear(void);
+
+	QString getIdentifier(void);
 
 	enum DataSourceFile dataSource;
 	QString shortFileName;
@@ -74,13 +77,13 @@ public:
 	int logItem;
 	int slaveIndex;
 	uint8_t slaveID;
-	QString SlaveName;
+	QString slaveName;
 	int experimentIndex;
 	QString experimentName;
 	int frequency;
 	QString lastTimeStampDate;
-	int32_t lastTimeStamp_ms;
-
+	int lastTimeStamp_ms;
+	int serializedLength;
 };
 
 #endif // FLEXSEADEVICE_H

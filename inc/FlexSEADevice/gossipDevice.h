@@ -64,7 +64,8 @@ public:
 
 	// Interface implementation
 	QString getHeaderStr(void);
-	QString getLastLineStr(void);
+	QString getLastSerializedStr(void);
+	void appendSerializedStr(QStringList *splitLine);
 	void decodeLastLine(void);
 	void decodeAllLine(void);
 	void clear(void);
@@ -75,6 +76,7 @@ public:
 	static void decode(struct gossip_s *goPtr);
 
 private:
+	static QStringList header;
 
 };
 

@@ -207,7 +207,7 @@ void W_SlaveComm::initSlaveCom(void)
 		//=====================
 		for(int i = 0; i < (*devList).length(); i++)
 		{
-			(*comboBoxSlavePtr[item])->addItem((*devList)[i]->SlaveName);
+			(*comboBoxSlavePtr[item])->addItem((*devList)[i]->slaveName);
 		}
 
 		//Receive indicators:
@@ -295,8 +295,6 @@ void W_SlaveComm::managePushButton(int idx, bool forceOff)
 // Need to be called after configSlaveComm
 void W_SlaveComm::manageLogStatus(uint8_t item)
 {
-	qint64 t_ms = 0;
-	QString t_text = "";
 	//Logging?
 	if((*log_cb_ptr[item])->isChecked() &&
 		(*on_off_pb_ptr[item])->isChecked())
@@ -438,7 +436,7 @@ void W_SlaveComm::configSlaveComm(int item)
 				uint16_t(refreshRate[selected_refresh_index[item]]);
 
 		selectedDeviceList[item]->shortFileName =
-				selectedDeviceList[item]->SlaveName + "_" +
+				selectedDeviceList[item]->slaveName + "_" +
 				selectedDeviceList[item]->experimentName + "_" +
 				var_list_refresh[selected_refresh_index[item]] +
 				".csv";

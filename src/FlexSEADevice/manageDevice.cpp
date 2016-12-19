@@ -44,6 +44,7 @@
 ManageDevice::ManageDevice(void): FlexseaDevice()
 {
 	this->dataSource = LogDataFile;
+	serializedLength = header.length();
 }
 
 ManageDevice::ManageDevice(manage_s *devicePtr): FlexseaDevice()
@@ -51,6 +52,7 @@ ManageDevice::ManageDevice(manage_s *devicePtr): FlexseaDevice()
 	this->dataSource = LiveDataFile;
 	mnList.append(ManageStamp());
 	mnList.last().data = devicePtr;
+	serializedLength = header.length();
 }
 
 //****************************************************************************
@@ -59,28 +61,30 @@ ManageDevice::ManageDevice(manage_s *devicePtr): FlexseaDevice()
 
 QString ManageDevice::getHeaderStr(void)
 {
-	return QString("Timestamp,")	+ \
-				   "Timestamp (ms),"+ \
-				   "accel.x,"		+ \
-				   "accel.y,"		+ \
-				   "accel.z,"		+ \
-				   "gyro.x,"		+ \
-				   "gyro.y,"		+ \
-				   "gyro.z,"		+ \
-				   "digitalIn,"		+ \
-				   "sw1,"			+ \
-				   "analog0,"		+ \
-				   "analog1,"		+ \
-				   "analog2,"		+ \
-				   "analog3,"		+ \
-				   "analog4,"		+ \
-				   "analog5,"		+ \
-				   "analog6,"		+ \
-				   "analog7,"		+ \
-				   "Status1";
+	return header.join(',');
 }
+QStringList ManageDevice::header = QStringList()
+								<< "Timestamp"
+								<< "Timestamp (ms)"
+								<< "accel.x"
+								<< "accel.y"
+								<< "accel.z"
+								<< "gyro.x"
+								<< "gyro.y"
+								<< "gyro.z"
+								<< "digitalIn"
+								<< "sw1"
+								<< "analog0"
+								<< "analog1"
+								<< "analog2"
+								<< "analog3"
+								<< "analog4"
+								<< "analog5"
+								<< "analog6"
+								<< "analog7"
+								<< "Status1";
 
-QString ManageDevice::getLastLineStr(void)
+QString ManageDevice::getLastSerializedStr(void)
 {
 	QString str;
 	QTextStream(&str) <<	lastTimeStampDate				<< ',' << \
@@ -103,6 +107,11 @@ QString ManageDevice::getLastLineStr(void)
 							mnList.last().data->analog[7]	<< ',' << \
 							mnList.last().data->status1;
 	return str;
+}
+
+void ManageDevice::appendSerializedStr(QStringList *splitLine)
+{
+
 }
 
 void ManageDevice::clear(void)

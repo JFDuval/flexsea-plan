@@ -91,9 +91,11 @@ public:
 
 private:
 	void initFlexSeaDeviceObject(void);
+	void initFlexSeaDeviceLog(void);
 
 	Ui::MainWindow *ui;
 
+	// Device Object
 	QList<ExecuteDevice> executeDevList;
 	QList<ManageDevice>	manageDevList;
 	QList<GossipDevice>	gossipDevList;
@@ -102,6 +104,14 @@ private:
 	QList<RicnuDevice> ricnuDevList;
 
 	QList<FlexseaDevice*> flexseaDevicePtrlist;
+
+	// Log Object
+	ExecuteDevice executeLog = ExecuteDevice();
+	ManageDevice manageLog = ManageDevice();
+	GossipDevice gossipLog = GossipDevice();
+	BatteryDevice batteryLog = BatteryDevice();
+	StrainDevice strainLog = StrainDevice();
+	RicnuDevice ricnuLog = RicnuDevice();
 
 
 	// Sub-Windows
