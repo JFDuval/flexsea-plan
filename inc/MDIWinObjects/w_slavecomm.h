@@ -103,6 +103,8 @@ private slots:
 	void on_checkBoxLog3_stateChanged(int arg1);
 	void on_checkBoxLog4_stateChanged(int arg1);
 
+	void on_lineEdit_returnPressed();
+
 signals:
 
 	//Timers:
@@ -142,6 +144,11 @@ private:
 	bool sc_comPortOpen;
 	//Will change this, but for now the payloads will be stored in:
 	uint8_t tmp_payload_xmit[48];
+
+	//Command line (only for RIC/NU as of today):
+	uint8_t cmdLineOffsetEntries = 0;
+	char cmdLineOffsetArray[10];
+	QString defaultCmdLineText;
 
 	//Function(s):
 	void initSlaveCom(void);

@@ -296,6 +296,14 @@ void W_SlaveComm::initSlaveCom(void)
 	ui->pushButton2->setDisabled(true);
 	ui->pushButton3->setDisabled(true);
 	ui->pushButton4->setDisabled(true);
+
+	//Default command line settings, RIC/NU:
+	cmdLineOffsetEntries = 2;
+	cmdLineOffsetArray[0] = 0;
+	cmdLineOffsetArray[1] = 1;
+	defaultCmdLineText = "o=0,1;";
+	ui->lineEdit->setEnabled(false);
+	ui->lineEdit->setText(" ");
 }
 
 void W_SlaveComm::initTimers(void)
@@ -542,7 +550,17 @@ void W_SlaveComm::configSlaveComm(int item)
 				msg_ref = "";
 			}
 
-			//
+			//RIC/NU has a command line input:
+			if(selected_exp_index[0] == 2)
+			{
+				ui->lineEdit->setEnabled(true);
+				ui->lineEdit->setText(defaultCmdLineText);
+			}
+			else
+			{
+				ui->lineEdit->setEnabled(false);
+				ui->lineEdit->setText(" ");
+			}
 		}
 		else
 		{
@@ -609,7 +627,9 @@ void W_SlaveComm::sc_read_all_ricnu(uint8_t item)
 	static uint8_t offset = 0;
 
 	//1) Stream
-	(!offset) ? offset = 1 : offset = 0;
+	//(!offset) ? offset = 1 : offset = 0;
+
+
 	tx_cmd_ricnu_r(TX_N_DEFAULT, offset);
 	pack(P_AND_S_DEFAULT, slaveId, info, &numb, comm_str_usb);
 	emit slaveReadWrite(numb, comm_str_usb, READ);
@@ -970,4 +990,53 @@ void W_SlaveComm::on_checkBoxLog4_stateChanged(int arg1)
 {
 	(void)arg1;	//Unused for now
 	manageLogStatus(3);
+}
+
+//Command line input: enter pressed
+void W_SlaveComm::on_lineEdit_returnPressed()
+{
+	qDebug() << "Command line:";
+	QString txt = ui->lineEdit->text();
+	QChar offset = 0;
+	QChar cmd = txt.at(0);
+	int cmdInt = cmd.toLatin1();
+	int len = txt.length();
+
+	if(txt.at(len-1) == ';')
+	{
+		qDebug() << "Properly terminated command.";
+	}
+	else
+	{
+		return;
+	}
+
+	len -= 3;	//We only care about the offsets, not the framing
+	cmdLineOffsetEntries = (len+1)/2;
+	qDebug() << "Entries:" << cmdLineOffsetEntries;
+
+	switch(cmdInt)
+	{
+		case 'o':
+			for(int i = 0; i < cmdLineOffsetEntries; i++)
+			{
+				if(txt.at(2 + 2*i).isDigit())
+				{
+					offset = txt.at(2 + 2*i);
+					cmdLineOffsetArray[i] = offset.toLatin1();
+					qDebug() << "[o]ffset[:" << i << "] =" << offset;
+				}
+				else
+				{
+					qDebug() << "Invalid [o]ffset";
+				}
+			}
+			break;
+
+		default:
+			qDebug() << "Unknown command";
+			break;
+	}
+
+	//qDebug() << "Result: " << offsetArray;
 }
