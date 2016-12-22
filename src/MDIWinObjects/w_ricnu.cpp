@@ -114,6 +114,7 @@ void W_Ricnu::displayRicnu(struct ricnu_s *ricnu)
 
 	ui->enc_mot->setText(QString::number(ricnu->ex.enc_motor));
 	ui->enc_joint->setText(QString::number(ricnu->ex.enc_joint));
+	ui->pwm->setText(QString::number(ricnu->ex.sine_commut_pwm));
 
 	ui->strain1->setText(QString::number(ricnu->st.ch[0].strain_filtered));
 	ui->strain2->setText(QString::number(ricnu->st.ch[1].strain_filtered));
@@ -121,15 +122,6 @@ void W_Ricnu::displayRicnu(struct ricnu_s *ricnu)
 	ui->strain4->setText(QString::number(ricnu->st.ch[3].strain_filtered));
 	ui->strain5->setText(QString::number(ricnu->st.ch[4].strain_filtered));
 	ui->strain6->setText(QString::number(ricnu->st.ch[5].strain_filtered));
-
-	/*
-	ui->strain1->setText(QString::number(ricnu->ext_strain[0]));
-	ui->strain2->setText(QString::number(ricnu->ext_strain[1]));
-	ui->strain3->setText(QString::number(ricnu->ext_strain[2]));
-	ui->strain4->setText(QString::number(ricnu->ext_strain[3]));
-	ui->strain5->setText(QString::number(ricnu->ext_strain[4]));
-	ui->strain6->setText(QString::number(ricnu->ext_strain[5]));
-	*/
 
 	ui->disp_current->setText(QString::number(ricnu->ex.current));
 
@@ -155,14 +147,6 @@ void W_Ricnu::displayRicnu(struct ricnu_s *ricnu)
 	ui->strain6d->setText(QString::number(ricnu->st.decoded.strain[5],'i',0));
 
 	strain1 = ricnu->st;
-	/*
-	strain1.ch[0].strain_filtered = ricnu->ext_strain[0];
-	strain1.ch[1].strain_filtered = ricnu->ext_strain[1];
-	strain1.ch[2].strain_filtered = ricnu->ext_strain[2];
-	strain1.ch[3].strain_filtered = ricnu->ext_strain[3];
-	strain1.ch[4].strain_filtered = ricnu->ext_strain[4];
-	strain1.ch[5].strain_filtered = ricnu->ext_strain[5];
-*/
 }
 
 //Unpack from buffer

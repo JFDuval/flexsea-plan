@@ -1006,12 +1006,13 @@ void W_2DPlot::updateVarList(uint8_t var, QComboBox *myCombo)
 			var_list << "**Unused**" << "Accel X" << "Accel Y" << "Accel Z" \
 					<< "Gyro X" << "Gyro Y" << "Gyro Z" << "Encoder Motor" \
 					<< "Encoder Joint" << "Motor current" << "Strain[0]" << "Strain[1]" \
-					<< "Strain[2]" << "Strain[3]" << "Strain[4]" << "Strain[5]";
+					<< "Strain[2]" << "Strain[3]" << "Strain[4]" << "Strain[5]" \
+					<< "PWM";
 			toolTipList << "Unused" << "Decoded: mg" << "Decoded: mg" << "Decoded: mg" \
 					<< "Decoded: deg/s" << "Decoded: deg/s" << "Decoded: deg/s" << "Raw Value Only" \
 					<< "Raw value only" << "Decoded: mA" << "Decoded: ±100%" << "Decoded: ±100%" \
 					<< "Decoded: ±100%"<< "Decoded: ±100%"<< "Decoded: ±100%"\
-					<< "Decoded: ±100%";
+					<< "Decoded: ±100%" << "PWM, -1024 to 1024";
 			break;
 		default:
 			var_list << "Invalid";
@@ -1318,6 +1319,11 @@ void W_2DPlot::assignVariableRicnu(uint8_t var, struct ricnu_s *myPtr)
 			vtp[var].format = FORMAT_16U;
 			vtp[var].ptr16u = &myPtr->st.ch[5].strain_filtered;
 			vtp[var].ptrD32s = &myPtr->decoded.ext_strain[5];
+			break;
+		case 16: //"PWM"
+			vtp[var].format = FORMAT_16S;
+			vtp[var].ptr16s = &myPtr->ex.sine_commut_pwm;
+			vtp[var].ptrD32s = &nullVar32s;
 			break;
 	}
 }

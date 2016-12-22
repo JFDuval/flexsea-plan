@@ -458,6 +458,8 @@ void DataLogger::logReadAllRicnu(QTextStream *filePtr, uint8_t slaveIndex, \
 						&myPtr->st.ch[4].strain_filtered, \
 						&myPtr->st.ch[5].strain_filtered);
 
+	//ToDo: decode battery?*************
+
 	(*filePtr) << t_text << ',' << \
 				t_ms << ',' << \
 				myPtr->ex.accel.x << ',' << \
@@ -469,12 +471,22 @@ void DataLogger::logReadAllRicnu(QTextStream *filePtr, uint8_t slaveIndex, \
 				myPtr->ex.current << ',' << \
 				myPtr->ex.enc_motor << ',' << \
 				myPtr->ex.enc_joint << ',' << \
+				myPtr->ex.sine_commut_pwm << ',' << \
 				myPtr->st.ch[0].strain_filtered << ',' << \
 				myPtr->st.ch[1].strain_filtered << ',' << \
 				myPtr->st.ch[2].strain_filtered << ',' << \
 				myPtr->st.ch[3].strain_filtered << ',' << \
 				myPtr->st.ch[4].strain_filtered << ',' << \
 				myPtr->st.ch[5].strain_filtered << ',' << \
+				myPtr->gen_var[0] << ',' << \
+				myPtr->gen_var[1] << ',' << \
+				myPtr->gen_var[2] << ',' << \
+				myPtr->gen_var[3] << ',' << \
+				myPtr->gen_var[4] << ',' << \
+				myPtr->gen_var[5] << ',' << \
+				batt1.voltage << ',' << \
+				batt1.current << ',' << \
+				batt1.temp << ',' << \
 				term;
 }
 
@@ -894,12 +906,22 @@ void DataLogger::writeReadAllRicnuHeader(uint8_t item)
 						"current," << \
 						"enc-mot," << \
 						"enc-joint," << \
+						"pwm," << \
 						"strain1," << \
 						"strain2," << \
 						"strain3," << \
 						"strain4," << \
 						"strain5," << \
-						"strain6" << \
+						"strain6," << \
+						"gen_var[0]," << \
+						"gen_var[1]," << \
+						"gen_var[2]," << \
+						"gen_var[3]," << \
+						"gen_var[4]," << \
+						"gen_var[5]," << \
+						"batt.volt," << \
+						"batt.current," << \
+						"batt.temp" << \
 						endl;
 	}
 }
