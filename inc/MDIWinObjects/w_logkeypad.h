@@ -60,7 +60,7 @@ public:
 
 signals:
 	void windowClosed(void);
-	void logTimeSliderValueChanged(int value);
+	void logTimeSliderValueChanged(int value, FlexseaDevice *);
 
 private slots:
 

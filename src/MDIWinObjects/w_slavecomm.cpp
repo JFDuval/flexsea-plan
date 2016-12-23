@@ -556,7 +556,7 @@ void W_SlaveComm::sc_ankle2dof(uint8_t item)
 		logTimestamp(&t_ms, &t_text);
 		t_ms -= t_ms_initial[item];
 
-		selectedDeviceList[item]->timeStamp.last().Date = t_text;
+		selectedDeviceList[item]->timeStamp.last().date = t_text;
 		selectedDeviceList[item]->timeStamp.last().ms = t_ms;
 		emit writeToLogFile(selectedDeviceList[item], item);
 	}
@@ -587,7 +587,7 @@ void W_SlaveComm::decodeAndLog(uint8_t item)
 		logTimestamp(&t_ms, &t_text);
 		t_ms -= t_ms_initial[item];
 
-		selectedDeviceList[item]->timeStamp.last().Date = t_text;
+		selectedDeviceList[item]->timeStamp.last().date = t_text;
 		selectedDeviceList[item]->timeStamp.last().ms = t_ms;
 		emit writeToLogFile(selectedDeviceList[item], item);
 	}

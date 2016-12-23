@@ -77,18 +77,21 @@ W_Ricnu::~W_Ricnu()
 //****************************************************************************
 
 //Call this function to refresh the display
-void W_Ricnu::refreshDisplayRicnu(void)
+void W_Ricnu::refreshDisplay(void)
 {
 	int index = ui->comboBox_slave->currentIndex();
-	displayRicnu(&((*deviceList)[index]), 0);
+	display(&((*deviceList)[index]), 0);
 }
 
-void W_Ricnu::displayLogData(int index)
+void W_Ricnu::refreshDisplayLog(int index, FlexseaDevice * devPtr)
 {
-   if(deviceLog->riList.isEmpty() == false)
-   {
-		displayRicnu(deviceLog, index);
-   }
+	if(devPtr->slaveName == deviceLog->slaveName)
+	{
+	   if(deviceLog->riList.isEmpty() == false)
+	   {
+			display(deviceLog, index);
+	   }
+	}
 }
 
 void W_Ricnu::updateDisplayMode(DisplayMode mode)
@@ -123,10 +126,9 @@ void W_Ricnu::initLog(void)
 	//Populates Slave list:
 	ui->comboBox_slave->clear();
 	ui->comboBox_slave->addItem("Log 1");
-	//displayLogData(0);
 }
 
-void W_Ricnu::displayRicnu(RicnuDevice *devicePtr, int index)
+void W_Ricnu::display(RicnuDevice *devicePtr, int index)
 {
 	struct ricnu_s_plan *ricnu = &devicePtr->riList[index].data;
 

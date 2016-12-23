@@ -88,19 +88,21 @@ void W_Execute::trackVarEx(uint8_t var, uint8_t *varToPlotPtr8s)
 //****************************************************************************
 
 //Call this function to refresh the display
-void W_Execute::refresh(void)
+void W_Execute::refreshDisplay(void)
 {
-
 	int index = ui->comboBox_slave->currentIndex();
-	displayExecute(&((*deviceList)[index]), 0);
+	display(&((*deviceList)[index]), 0);
 }
 
-void W_Execute::displayLogData(int index)
+void W_Execute::refreshDisplayLog(int index, FlexseaDevice * devPtr)
 {
-   if(deviceLog->exList.isEmpty() == false)
-   {
-		displayExecute(deviceLog, index);
-   }
+	if(devPtr->slaveName == deviceLog->slaveName)
+	{
+		if(deviceLog->exList.isEmpty() == false)
+		{
+			 display(deviceLog, index);
+		}
+	}
 }
 
 void W_Execute::updateDisplayMode(DisplayMode mode)
@@ -135,11 +137,10 @@ void W_Execute::initLog(void)
 {
 	//Populates Slave list:
 	ui->comboBox_slave->clear();
-	ui->comboBox_slave->addItem("Log 1");
-	displayLogData(0);
+	ui->comboBox_slave->addItem(deviceLog->slaveName);
 }
 
-void W_Execute::displayExecute(ExecuteDevice *devicePtr, int index)
+void W_Execute::display(ExecuteDevice *devicePtr, int index)
 {
 	int combined_status = 0;
 

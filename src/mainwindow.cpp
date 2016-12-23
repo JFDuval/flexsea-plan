@@ -234,9 +234,6 @@ void MainWindow::translatorUpdateDataSourceStatus(DataSource status)
 				myViewLogKeyPad[0]->parentWidget()->close();
 		}
 	}
-
-
-
 }
 
 void MainWindow::manageLogKeyPad(DataSource status, FlexseaDevice *devPtr)
@@ -270,18 +267,18 @@ void MainWindow::createViewExecute(void)
 
 		//Link SerialDriver and Execute:
 		connect(mySerialDriver, SIGNAL(newDataReady()), \
-				myViewExecute[objectCount], SLOT(refresh()));
+				myViewExecute[objectCount], SLOT(refreshDisplay()));
 
 		//Link to MainWindow for the close signal:
 		connect(myViewExecute[objectCount], SIGNAL(windowClosed()), \
 				this, SLOT(closeViewExecute()));
 
-		// Link to the slider of 2DPlot. Intermediate signal (connector) to
+		// Link to the slider of logKeyPad. Intermediate signal (connector) to
 		// allow opening of window asynchroniously
-		connect(this, SIGNAL(connectorRefreshLogTimeSlider(int)), \
-				myViewExecute[objectCount], SLOT(displayLogData(int)));
-		//connect(this, SIGNAL(connectorUpdateDisplayMode(DisplayMode)), \
-		//		myViewExecute[objectCount], SLOT(updateDisplayMode(DisplayMode)));
+		connect(this, SIGNAL(connectorRefreshLogTimeSlider(int, FlexseaDevice *)), \
+				myViewExecute[objectCount], SLOT(refreshDisplayLog(int, FlexseaDevice *)));
+		connect(this, SIGNAL(connectorUpdateDisplayMode(DisplayMode)), \
+				myViewExecute[objectCount], SLOT(updateDisplayMode(DisplayMode)));
 	}
 
 	else
@@ -584,11 +581,18 @@ void MainWindow::createViewRicnu(void)
 
 		//Link SerialDriver and RIC/NU:
 		connect(mySerialDriver, SIGNAL(newDataReady()), \
-				myViewRicnu[objectCount], SLOT(refreshDisplayRicnu()));
+				myViewRicnu[objectCount], SLOT(refreshDisplay()));
 
 		//Link to MainWindow for the close signal:
 		connect(myViewRicnu[objectCount], SIGNAL(windowClosed()), \
 				this, SLOT(closeViewRicnu()));
+
+		// Link to the slider of logKeyPad. Intermediate signal (connector) to
+		// allow opening of window asynchroniously
+		connect(this, SIGNAL(connectorRefreshLogTimeSlider(int, FlexseaDevice *)), \
+				myViewRicnu[objectCount], SLOT(refreshDisplayLog(int, FlexseaDevice *)));
+		connect(this, SIGNAL(connectorUpdateDisplayMode(DisplayMode)), \
+				myViewRicnu[objectCount], SLOT(updateDisplayMode(DisplayMode)));
 	}
 
 	else
@@ -824,8 +828,8 @@ void MainWindow::createLogKeyPad(FlexseaDevice *devPtr)
 							 W_LogKeyPad::getMaxWindow() - 1);
 
 		// Link for the data slider
-		connect(myViewLogKeyPad[objectCount], SIGNAL(logTimeSliderValueChanged(int)), \
-				this, SIGNAL(connectorRefreshLogTimeSlider(int)));
+		connect(myViewLogKeyPad[objectCount], SIGNAL(logTimeSliderValueChanged(int, FlexseaDevice *)), \
+				this, SIGNAL(connectorRefreshLogTimeSlider(int, FlexseaDevice*)));
 
 		//Link to MainWindow for the close signal:
 		connect(myViewLogKeyPad[objectCount], SIGNAL(windowClosed()), \

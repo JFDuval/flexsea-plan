@@ -45,14 +45,17 @@ StrainDevice::StrainDevice(void): FlexseaDevice()
 {
 	this->dataSource = LogDataFile;
 	serializedLength = header.length();
+	slaveType = "strain";
 }
 
 StrainDevice::StrainDevice(strain_s *devicePtr): FlexseaDevice()
 {
 	this->dataSource = LiveDataFile;
+	timeStamp.append(TimeStamp());
 	stList.append(StrainStamp());
 	stList.last().data = devicePtr;
 	serializedLength = header.length();
+	slaveType = "strain";
 }
 
 //****************************************************************************
@@ -77,8 +80,8 @@ QStringList StrainDevice::header = QStringList()
 QString StrainDevice::getLastSerializedStr(void)
 {
 	QString str;
-	QTextStream(&str) <<	lastTimeStampDate << ',' << \
-							lastTimeStamp_ms << ',' << \
+	QTextStream(&str) <<	timeStamp.last().date					 << ',' << \
+							timeStamp.last().ms						 << ',' << \
 							stList.last().data->ch[0].strain_filtered << ',' << \
 							stList.last().data->ch[1].strain_filtered << ',' << \
 							stList.last().data->ch[2].strain_filtered << ',' << \
@@ -97,10 +100,12 @@ void StrainDevice::clear(void)
 {
 	FlexseaDevice::clear();
 	stList.clear();
+	timeStamp.clear();
 }
 
 void StrainDevice::appendEmptyLine(void)
 {
+	timeStamp.append(TimeStamp());
 	stList.append(StrainStamp());
 }
 

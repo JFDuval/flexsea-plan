@@ -36,6 +36,7 @@
 #include "ricnuDevice.h"
 #include <QDebug>
 #include <QString>
+#include <QStringList>
 #include <QFileDialog>
 #include <QTextStream>
 #include <QDateTime>
@@ -144,6 +145,7 @@ void DataLogger::openfile(uint8_t item, QString shortFileName)
 void DataLogger::openReadingFile(bool * isOpen, FlexseaDevice **devPtr)
 {
 	*isOpen = false;
+	FlexseaDevice *flexSEAPtr;
 
 	//File Dialog (returns the selected file name):
 	QDir::setCurrent(planGUIRootPath + "\\" + logFolder);
@@ -183,29 +185,47 @@ void DataLogger::openReadingFile(bool * isOpen, FlexseaDevice **devPtr)
 	splitLine = line.split(',', QString::KeepEmptyParts);
 
 	//Check if the file header contain the expected number of data
-	if(splitLine.length() < 12)
+	if(splitLine.length() < 14)
 	{
-		setStatus("Error : Loaded file format was not compatible");
+		setStatus(\
+		"Error : Loaded file header was not compatible (Header's too short)");
 		return;
 	}
 
-	executeDevPtr->logItem			= splitLine[1].toInt();
-	executeDevPtr->slaveIndex		= splitLine[3].toInt();
-	executeDevPtr->slaveName		= splitLine[5];
-	executeDevPtr->experimentIndex	= splitLine[7].toInt();
-	executeDevPtr->experimentName	= splitLine[9];
-	executeDevPtr->frequency		= splitLine[11].toInt();
-	executeDevPtr->shortFileName	= shortFileName;
-	executeDevPtr->fileName			= filename;
+	QString slavetype = splitLine[13];
+	slavetype = slavetype.simplified();
+
+	// Choose the right device class based on the slave Type.
+	if	   (slavetype == executeDevPtr->slaveType)	{flexSEAPtr = executeDevPtr;}
+	else if(slavetype == manageDevPtr->slaveType)	{flexSEAPtr = manageDevPtr;}
+	else if(slavetype == gossipDevPtr->slaveType)	{flexSEAPtr = gossipDevPtr;}
+	else if(slavetype == batteryDevPtr->slaveType)	{flexSEAPtr = batteryDevPtr;}
+	else if(slavetype == strainDevPtr->slaveType)	{flexSEAPtr = strainDevPtr;}
+	else if(slavetype == ricnuDevPtr->slaveType)	{flexSEAPtr = ricnuDevPtr;}
+	else
+	{
+		setStatus("Error : Loaded file Slave Type is not supported.");
+		return;
+	}
+
+	flexSEAPtr->clear();
+	flexSEAPtr->logItem			= splitLine[1].toInt();
+	flexSEAPtr->slaveIndex		= splitLine[3].toInt();
+	flexSEAPtr->slaveName		= splitLine[5];
+	flexSEAPtr->experimentIndex	= splitLine[7].toInt();
+	flexSEAPtr->experimentName	= splitLine[9];
+	flexSEAPtr->frequency		= splitLine[11].toInt();
+	flexSEAPtr->shortFileName	= shortFileName;
+	flexSEAPtr->fileName		= filename;
 
 	//Clear the column's header.
 	line = logReadingFile.readLine();
 	splitLine = line.split(',', QString::KeepEmptyParts);
 	//Check if data header contain the number of expected field
-	if(splitLine.length() < executeDevPtr->serializedLength)
+	if(splitLine.length() < flexSEAPtr->serializedLength)
 	{
-		setStatus("File format is not compatible");
-		executeDevPtr->clear();
+		setStatus("Column header it too short. Not supported");
+		flexSEAPtr->clear();
 		return;
 	}
 
@@ -214,15 +234,15 @@ void DataLogger::openReadingFile(bool * isOpen, FlexseaDevice **devPtr)
 		line = logReadingFile.readLine();
 		splitLine = line.split(',', QString::KeepEmptyParts);
 
-		executeDevPtr->appendSerializedStr(&splitLine);
+		flexSEAPtr->appendSerializedStr(&splitLine);
 	}
 
-	executeDevPtr->decodeAllLine();
+	flexSEAPtr->decodeAllLine();
 
 	setStatus(tr("Opened '") + filename + "'.");
 
 	*isOpen = true;
-	*devPtr = executeDevPtr;
+	*devPtr = flexSEAPtr;
 }
 
 void DataLogger::writeToFile(FlexseaDevice *devicePtr, uint8_t item)
@@ -263,6 +283,7 @@ void DataLogger::closeReadingFile(void)
 		logReadingFile.close();
 	}
 
+	// TODO = Clear the proper structure.
 	executeDevPtr->clear();
 }
 

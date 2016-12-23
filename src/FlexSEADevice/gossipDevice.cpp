@@ -45,14 +45,17 @@ GossipDevice::GossipDevice(void): FlexseaDevice()
 {
 	this->dataSource = LogDataFile;
 	serializedLength = header.length();
+	slaveType = "gossip";
 }
 
 GossipDevice::GossipDevice(gossip_s *devicePtr): FlexseaDevice()
 {
 	this->dataSource = LiveDataFile;
+	timeStamp.append(TimeStamp());
 	goList.append(GossipStamp());
 	goList.last().data = devicePtr;
 	serializedLength = header.length();
+	slaveType = "gossip";
 }
 
 //****************************************************************************
@@ -87,8 +90,8 @@ QStringList GossipDevice::header = QStringList()
 QString GossipDevice::getLastSerializedStr(void)
 {
 	QString str;
-	QTextStream(&str) <<	lastTimeStampDate				<< ',' << \
-							lastTimeStamp_ms				<< ',' << \
+	QTextStream(&str) <<	timeStamp.last().date			<< ',' << \
+							timeStamp.last().ms				<< ',' << \
 							goList.last().data->accel.x		<< ',' << \
 							goList.last().data->accel.y		<< ',' << \
 							goList.last().data->accel.z		<< ',' << \
@@ -117,10 +120,12 @@ void GossipDevice::clear(void)
 {
 	FlexseaDevice::clear();
 	goList.clear();
+	timeStamp.clear();
 }
 
 void GossipDevice::appendEmptyLine(void)
 {
+	timeStamp.append(TimeStamp());
 	goList.append(GossipStamp());
 }
 

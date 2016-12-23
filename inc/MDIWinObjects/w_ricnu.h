@@ -63,8 +63,8 @@ public:
 	~W_Ricnu();
 
 public slots:
-	void refreshDisplayRicnu(void);
-	void displayLogData(int index);
+	void refreshDisplay(void);
+	void refreshDisplayLog(int index, FlexseaDevice * devPtr);
 	void updateDisplayMode(DisplayMode mode);
 
 signals:
@@ -83,7 +83,7 @@ private:
 	//Function(s):
 	void initLive(void);
 	void initLog(void);
-	void displayRicnu(RicnuDevice *devicePtr, int index);
+	void display(RicnuDevice *devicePtr, int index);
 };
 
 //****************************************************************************

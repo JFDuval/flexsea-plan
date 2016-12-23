@@ -47,15 +47,18 @@ RicnuDevice::RicnuDevice(void): FlexseaDevice()
 {
 	this->dataSource = LogDataFile;
 	serializedLength = header.length();
+	slaveType = "ricnu";
 }
 
 RicnuDevice::RicnuDevice(execute_s *exPtr, strain_s *stPtr): FlexseaDevice()
 {
 	this->dataSource = LiveDataFile;
+	timeStamp.append(TimeStamp());
 	riList.append(RicnuStamp());
 	riList.last().data.ex = exPtr;
 	riList.last().data.st = stPtr;
 	serializedLength = header.length();
+	slaveType = "ricnu";
 }
 
 //****************************************************************************
@@ -68,22 +71,22 @@ QString RicnuDevice::getHeaderStr(void)
 }
 
 QStringList RicnuDevice::header = QStringList()
-								<< "Timestamp,"
-								<< "Timestamp (ms),"
-								<< "accel.x,"
-								<< "accel.y,"
-								<< "accel.z,"
-								<< "gyro.x,"
-								<< "gyro.y,"
-								<< "gyro.z,"
-								<< "current,"
-								<< "enc-mot,"
-								<< "enc-joint,"
-								<< "strain1,"
-								<< "strain2,"
-								<< "strain3,"
-								<< "strain4,"
-								<< "strain5,"
+								<< "Timestamp"
+								<< "Timestamp (ms)"
+								<< "accel.x"
+								<< "accel.y"
+								<< "accel.z"
+								<< "gyro.x"
+								<< "gyro.y"
+								<< "gyro.z"
+								<< "current"
+								<< "enc-mot"
+								<< "enc-joint"
+								<< "strain1"
+								<< "strain2"
+								<< "strain3"
+								<< "strain4"
+								<< "strain5"
 								<< "strain6";
 
 QString RicnuDevice::getLastSerializedStr(void)
@@ -91,8 +94,8 @@ QString RicnuDevice::getLastSerializedStr(void)
 	unpackCompressed6ch(riList.last().data.st);
 
 	QString str;
-	QTextStream(&str) <<	lastTimeStampDate							<< ',' << \
-							lastTimeStamp_ms							<< ',' << \
+	QTextStream(&str) <<	timeStamp.last().date						<< ',' << \
+							timeStamp.last().ms							<< ',' << \
 							riList.last().data.ex->accel.x				<< ',' << \
 							riList.last().data.ex->accel.y				<< ',' << \
 							riList.last().data.ex->accel.z				<< ',' << \
@@ -113,18 +116,52 @@ QString RicnuDevice::getLastSerializedStr(void)
 
 void RicnuDevice::appendSerializedStr(QStringList *splitLine)
 {
+	//Check if data line contain the number of data expected
+	if(splitLine->length() >= serializedLength)
+	{
+		// Because of the pointer architecture of ricnu_s_plan , we need to
+		// also add execute and strain structure
+		appendEmptyLineWithExAndStStruct();
 
+		timeStamp.last().date						= (*splitLine)[0];
+		timeStamp.last().ms							= (*splitLine)[1].toInt();
+		riList.last().data.ex->accel.x				= (*splitLine)[2].toInt();
+		riList.last().data.ex->accel.y				= (*splitLine)[3].toInt();
+		riList.last().data.ex->accel.z				= (*splitLine)[4].toInt();
+		riList.last().data.ex->gyro.x				= (*splitLine)[5].toInt();
+		riList.last().data.ex->gyro.y				= (*splitLine)[6].toInt();
+		riList.last().data.ex->gyro.z				= (*splitLine)[7].toInt();
+		riList.last().data.ex->current				= (*splitLine)[8].toInt();
+		riList.last().data.ex->enc_motor			= (*splitLine)[9].toInt();
+		riList.last().data.ex->enc_joint			= (*splitLine)[10].toInt();
+		riList.last().data.st->ch[0].strain_filtered = (*splitLine)[11].toInt();
+		riList.last().data.st->ch[1].strain_filtered = (*splitLine)[12].toInt();
+		riList.last().data.st->ch[2].strain_filtered = (*splitLine)[13].toInt();
+		riList.last().data.st->ch[3].strain_filtered = (*splitLine)[14].toInt();
+		riList.last().data.st->ch[4].strain_filtered = (*splitLine)[15].toInt();
+		riList.last().data.st->ch[5].strain_filtered = (*splitLine)[16].toInt();
+	}
 }
 
 void RicnuDevice::clear(void)
 {
 	FlexseaDevice::clear();
 	riList.clear();
+	timeStamp.clear();
 }
 
 void RicnuDevice::appendEmptyLine(void)
 {
+	timeStamp.append(TimeStamp());
 	riList.append(RicnuStamp());
+}
+
+void RicnuDevice::appendEmptyLineWithExAndStStruct(void)
+{
+	timeStamp.append(TimeStamp());
+	riList.append(RicnuStamp());
+	riList.last().data.ex = new execute_s();
+	riList.last().data.st = new strain_s();
 }
 
 void RicnuDevice::decodeLastLine(void)

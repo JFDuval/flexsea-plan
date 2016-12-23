@@ -45,14 +45,17 @@ BatteryDevice::BatteryDevice(void): FlexseaDevice()
 {
 	this->dataSource = LogDataFile;
 	serializedLength = header.length();
+	slaveType = "battery";
 }
 
 BatteryDevice::BatteryDevice(battery_s *devicePtr): FlexseaDevice()
 {
 	this->dataSource = LiveDataFile;
+	timeStamp.append(TimeStamp());
 	baList.append(BatteryStamp());
 	baList.last().data = devicePtr;
 	serializedLength = header.length();
+	slaveType = "battery";
 }
 
 //****************************************************************************
@@ -66,7 +69,7 @@ QString BatteryDevice::getHeaderStr(void)
 
 QStringList BatteryDevice::header =	QStringList()
 									<< "Timestamp"
-									<< "Timestamp (ms"
+									<< "Timestamp (ms)"
 									<< "voltage"
 									<< "current"
 									<< "temp"
@@ -76,8 +79,8 @@ QStringList BatteryDevice::header =	QStringList()
 QString BatteryDevice::getLastSerializedStr(void)
 {
 	QString str;
-	QTextStream(&str) <<	lastTimeStampDate				<< ',' << \
-							lastTimeStamp_ms				<< ',' << \
+	QTextStream(&str) <<	timeStamp.last().date			<< ',' << \
+							timeStamp.last().ms				<< ',' << \
 							baList.last().data->voltage		<< ',' << \
 							baList.last().data->current		<< ',' << \
 							baList.last().data->temp		<< ',' << \
@@ -95,10 +98,12 @@ void BatteryDevice::clear(void)
 {
 	FlexseaDevice::clear();
 	baList.clear();
+	timeStamp.clear();
 }
 
 void BatteryDevice::appendEmptyLine(void)
 {
+	timeStamp.append(TimeStamp());
 	baList.append(BatteryStamp());
 }
 

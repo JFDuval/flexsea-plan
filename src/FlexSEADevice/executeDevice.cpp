@@ -45,6 +45,7 @@ ExecuteDevice::ExecuteDevice(void): FlexseaDevice()
 {
 	this->dataSource = LogDataFile;
 	serializedLength = header.length();
+	slaveType = "execute";
 }
 
 ExecuteDevice::ExecuteDevice(execute_s *exPtr): FlexseaDevice()
@@ -53,6 +54,7 @@ ExecuteDevice::ExecuteDevice(execute_s *exPtr): FlexseaDevice()
 	timeStamp.append(TimeStamp());
 	exList.append(exPtr);
 	serializedLength = header.length();
+	slaveType = "execute";
 }
 
 //****************************************************************************
@@ -89,7 +91,7 @@ QStringList ExecuteDevice::header = QStringList()
 QString ExecuteDevice::getLastSerializedStr(void)
 {
 	QString str;
-	QTextStream(&str) <<	timeStamp.last().Date		<< ',' << \
+	QTextStream(&str) <<	timeStamp.last().date		<< ',' << \
 							timeStamp.last().ms			<< ',' << \
 							exList.last()->accel.x		<< ',' << \
 							exList.last()->accel.y		<< ',' << \
@@ -118,7 +120,7 @@ void ExecuteDevice::appendSerializedStr(QStringList *splitLine)
 	if(splitLine->length() >= serializedLength)
 	{
 		appendEmptyLine();
-		timeStamp.last().Date		= (*splitLine)[0];
+		timeStamp.last().date		= (*splitLine)[0];
 		timeStamp.last().ms			= (*splitLine)[1].toInt();
 		exList.last()->accel.x		= (*splitLine)[2].toInt();
 		exList.last()->accel.y		= (*splitLine)[3].toInt();
@@ -145,6 +147,7 @@ void ExecuteDevice::clear(void)
 {
 	FlexseaDevice::clear();
 	exList.clear();
+	timeStamp.clear();
 }
 
 void ExecuteDevice::appendEmptyLine(void)

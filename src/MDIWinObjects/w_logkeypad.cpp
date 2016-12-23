@@ -111,7 +111,7 @@ void W_LogKeyPad::on_TimeSlider_valueChanged(int value)
 	QString cursor;
 	int pctVal = 0;
 
-	emit logTimeSliderValueChanged(value);
+	emit logTimeSliderValueChanged(value, devicePtr);
 
 	pctVal = (value * 100.0) / (devicePtr->timeStamp.length()-1);
 	cursor = QString::number(devicePtr->timeStamp[value].ms) + \

@@ -59,7 +59,7 @@ namespace Ui
 
 struct TimeStamp
 {
-	QString Date;
+	QString date;
 	int32_t ms;
 };
 
@@ -84,6 +84,7 @@ public:
 	int logItem;
 	int slaveIndex;
 	uint8_t slaveID;
+	QString slaveType;
 	QString slaveName;
 	int experimentIndex;
 	QString experimentName;

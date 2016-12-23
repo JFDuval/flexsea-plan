@@ -45,14 +45,17 @@ ManageDevice::ManageDevice(void): FlexseaDevice()
 {
 	this->dataSource = LogDataFile;
 	serializedLength = header.length();
+	slaveType = "manage";
 }
 
 ManageDevice::ManageDevice(manage_s *devicePtr): FlexseaDevice()
 {
 	this->dataSource = LiveDataFile;
+	timeStamp.append(TimeStamp());
 	mnList.append(ManageStamp());
 	mnList.last().data = devicePtr;
 	serializedLength = header.length();
+	slaveType = "manage";
 }
 
 //****************************************************************************
@@ -87,8 +90,8 @@ QStringList ManageDevice::header = QStringList()
 QString ManageDevice::getLastSerializedStr(void)
 {
 	QString str;
-	QTextStream(&str) <<	lastTimeStampDate				<< ',' << \
-							lastTimeStamp_ms				<< ',' << \
+	QTextStream(&str) <<	timeStamp.last().date			<< ',' << \
+							timeStamp.last().ms				<< ',' << \
 							mnList.last().data->accel.x		<< ',' << \
 							mnList.last().data->accel.y		<< ',' << \
 							mnList.last().data->accel.z		<< ',' << \
@@ -118,10 +121,12 @@ void ManageDevice::clear(void)
 {
 	FlexseaDevice::clear();
 	mnList.clear();
+	timeStamp.clear();
 }
 
 void ManageDevice::appendEmptyLine(void)
 {
+	timeStamp.append(TimeStamp());
 	mnList.append(ManageStamp());
 }
 

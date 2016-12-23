@@ -67,8 +67,8 @@ public:
 
 
 public slots:
-	void refresh(void);
-	void displayLogData(int index);
+	void refreshDisplay(void);
+	void refreshDisplayLog(int index, FlexseaDevice * devPtr);
 	void updateDisplayMode(DisplayMode mode);
 
 private:
@@ -84,7 +84,7 @@ private:
 	//Function(s):
 	void initLive(void);
 	void initLog(void);
-	void displayExecute(ExecuteDevice *devicePtr, int index);
+	void display(ExecuteDevice *devicePtr, int index);
 
 signals:
 	void windowClosed(void);
