@@ -36,6 +36,7 @@
 //****************************************************************************
 
 #include <QString>
+#include <QList>
 
 //****************************************************************************
 // Definition(s)
@@ -55,6 +56,12 @@ namespace Ui
 {
 	class FlexseaDevice;
 }
+
+struct TimeStamp
+{
+	QString Date;
+	int32_t ms;
+};
 
 class FlexseaDevice
 {
@@ -81,6 +88,8 @@ public:
 	int experimentIndex;
 	QString experimentName;
 	int frequency;
+
+	QList<struct TimeStamp> timeStamp;
 	QString lastTimeStampDate;
 	int lastTimeStamp_ms;
 	int serializedLength;

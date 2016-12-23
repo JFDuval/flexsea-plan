@@ -44,15 +44,17 @@
 //****************************************************************************
 
 W_Execute::W_Execute(QWidget *parent,
-					 LogFile *logFileRef,
+					 ExecuteDevice *deviceLogPtr,
 					 DisplayMode mode,
 					 QList<ExecuteDevice> *deviceListPtr) :
 	QWidget(parent),
 	ui(new Ui::W_Execute)
 {
 	ui->setupUi(this);
+
+	deviceLog  = deviceLogPtr;
 	deviceList = deviceListPtr;
-	myLogFileRef  = logFileRef;
+
 	displayMode = mode;
 
 	setWindowTitle(this->getDescription());
@@ -60,7 +62,6 @@ W_Execute::W_Execute(QWidget *parent,
 
 
 	updateDisplayMode(displayMode);
-
 }
 
 W_Execute::~W_Execute()
@@ -142,7 +143,7 @@ void W_Execute::displayExecute(ExecuteDevice *devicePtr, int index)
 {
 	int combined_status = 0;
 
-	struct execute_s *ex = devicePtr->exList[index].data;
+	struct execute_s *ex = devicePtr->exList[index];
 
 	//Raw values:
 	//===========

@@ -144,7 +144,7 @@ signals:
 public slots:
 
 	void translatorUpdateDataSourceStatus(DataSource status);
-	void manageLogKeyPad(DataSource status);
+	void manageLogKeyPad(DataSource status, FlexseaDevice *);
 
 	//MDI Windows (create):
 	void createViewExecute(void);
@@ -160,7 +160,7 @@ public slots:
 	void createViewStrain(void);
 	void createViewGossip(void);
 	void createViewBattery(void);
-	void createLogKeyPad(void);
+	void createLogKeyPad(FlexseaDevice * devPtr);
 	void createUserRW(void);
 
 	//MDI Windows (closed):

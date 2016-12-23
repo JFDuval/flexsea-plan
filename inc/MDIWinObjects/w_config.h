@@ -37,6 +37,7 @@
 
 #include <QWidget>
 #include "counter.h"
+#include "flexseaDevice.h"
 
 //****************************************************************************
 // Namespace & Class Definition:
@@ -91,7 +92,8 @@ private:
  signals:
 	void openCom(QString name, int tries, int delay);
 	void closeCom(void);
-	void openReadingFile(bool * isOpen);
+	void openReadingFile(bool *, FlexseaDevice **);
+	void createlogkeypad(DataSource, FlexseaDevice *);
 	void closeReadingFile(void);
 	void updateDataSourceStatus(DataSource status);
 	void windowClosed(void);

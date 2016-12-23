@@ -57,7 +57,7 @@ class W_Execute : public QWidget, public Counter<W_Execute>
 public:
 	//Constructor & Destructor:
 	explicit W_Execute(	QWidget *parent = 0,
-						LogFile *logFileRef = nullptr,
+						ExecuteDevice *deviceLogPtr = nullptr,
 						DisplayMode mode = DisplayLiveData,
 						QList<ExecuteDevice> *execListPtr = nullptr);
 	~W_Execute();
@@ -74,7 +74,6 @@ public slots:
 private:
 	//Variables & Objects:
 	Ui::W_Execute *ui;
-	LogFile *myLogFileRef;
 	int active_slave, active_slave_index;
 
 	DisplayMode displayMode;

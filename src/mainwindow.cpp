@@ -228,24 +228,20 @@ void MainWindow::translatorUpdateDataSourceStatus(DataSource status)
 	else
 	{
 		emit connectorUpdateDisplayMode(DisplayLiveData);
-	}
 
-}
-
-void MainWindow::manageLogKeyPad(DataSource status)
-{
-
-	if(status == FromLogFile)
-	{
-		createLogKeyPad();
-	}
-	else
-	{
 		if(W_LogKeyPad::howManyInstance() > 0)
 		{
 				myViewLogKeyPad[0]->parentWidget()->close();
 		}
 	}
+
+
+
+}
+
+void MainWindow::manageLogKeyPad(DataSource status, FlexseaDevice *devPtr)
+{
+	createLogKeyPad(devPtr);
 }
 
 
@@ -267,7 +263,7 @@ void MainWindow::createViewExecute(void)
 		}
 
 		myViewExecute[objectCount] = \
-				new W_Execute(this, myDataLogger->getLogFilePtr(),
+				new W_Execute(this, &executeLog,
 							  status, &executeDevList);
 		ui->mdiArea->addSubWindow(myViewExecute[objectCount]);
 		myViewExecute[objectCount]->show();
@@ -284,8 +280,8 @@ void MainWindow::createViewExecute(void)
 		// allow opening of window asynchroniously
 		connect(this, SIGNAL(connectorRefreshLogTimeSlider(int)), \
 				myViewExecute[objectCount], SLOT(displayLogData(int)));
-		connect(this, SIGNAL(connectorUpdateDisplayMode(DisplayMode)), \
-				myViewExecute[objectCount], SLOT(updateDisplayMode(DisplayMode)));
+		//connect(this, SIGNAL(connectorUpdateDisplayMode(DisplayMode)), \
+		//		myViewExecute[objectCount], SLOT(updateDisplayMode(DisplayMode)));
 	}
 
 	else
@@ -356,8 +352,8 @@ void MainWindow::createConfig(void)
 				this, SLOT(closeConfig()));
 
 		//Link to DataLogger
-		connect(myViewConfig[0], SIGNAL(openReadingFile(bool *)), \
-				myDataLogger, SLOT(openReadingFile(bool *)));
+		connect(myViewConfig[0], SIGNAL(openReadingFile(bool *, FlexseaDevice **)), \
+				myDataLogger, SLOT(openReadingFile(bool *, FlexseaDevice **)));
 		connect(myViewConfig[0], SIGNAL(closeReadingFile()), \
 				myDataLogger, SLOT(closeReadingFile()));
 
@@ -370,8 +366,8 @@ void MainWindow::createConfig(void)
 				myViewConfig[0], SLOT(setComProgress(int,int)));
 		connect(myViewConfig[0], SIGNAL(updateDataSourceStatus(DataSource)),
 				this, SLOT(translatorUpdateDataSourceStatus(DataSource)));
-		connect(myViewConfig[0], SIGNAL(updateDataSourceStatus(DataSource)),
-				this, SLOT(manageLogKeyPad(DataSource)));
+		connect(myViewConfig[0], SIGNAL(createlogkeypad(DataSource, FlexseaDevice *)),
+				this, SLOT(manageLogKeyPad(DataSource, FlexseaDevice *)));
 	}
 
 	else
@@ -811,14 +807,14 @@ void MainWindow::closeViewBattery(void)
 }
 
 //Creates a new LogKeyPad
-void MainWindow::createLogKeyPad(void)
+void MainWindow::createLogKeyPad(FlexseaDevice *devPtr)
 {
 	int objectCount = W_LogKeyPad::howManyInstance();
 
 	//Limited number of windows:
 	if(objectCount < (LOGKEYPAD_WINDOWS_MAX))
 	{
-		myViewLogKeyPad[objectCount] = new W_LogKeyPad(this, myDataLogger->getLogFilePtr());
+		myViewLogKeyPad[objectCount] = new W_LogKeyPad(this, devPtr);
 		ui->mdiArea->addSubWindow(myViewLogKeyPad[objectCount]);
 		myViewLogKeyPad[objectCount]->show();
 		myViewLogKeyPad[objectCount]->parentWidget()->setWindowFlags(

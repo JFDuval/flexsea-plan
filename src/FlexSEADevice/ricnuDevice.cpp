@@ -92,7 +92,7 @@ QString RicnuDevice::getLastSerializedStr(void)
 
 	QString str;
 	QTextStream(&str) <<	lastTimeStampDate							<< ',' << \
-							lastTimeStamp_ms						<< ',' << \
+							lastTimeStamp_ms							<< ',' << \
 							riList.last().data.ex->accel.x				<< ',' << \
 							riList.last().data.ex->accel.y				<< ',' << \
 							riList.last().data.ex->accel.z				<< ',' << \
@@ -100,9 +100,9 @@ QString RicnuDevice::getLastSerializedStr(void)
 							riList.last().data.ex->gyro.y				<< ',' << \
 							riList.last().data.ex->gyro.z				<< ',' << \
 							riList.last().data.ex->current				<< ',' << \
-							riList.last().data.ex->enc_motor				<< ',' << \
-							riList.last().data.ex->enc_joint				<< ',' << \
-							riList.last().data.st->ch[0].strain_filtered	<< ',' << \
+							riList.last().data.ex->enc_motor			<< ',' << \
+							riList.last().data.ex->enc_joint			<< ',' << \
+							riList.last().data.st->ch[0].strain_filtered << ',' << \
 							riList.last().data.st->ch[1].strain_filtered << ',' << \
 							riList.last().data.st->ch[2].strain_filtered << ',' << \
 							riList.last().data.st->ch[3].strain_filtered << ',' << \

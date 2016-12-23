@@ -53,6 +53,7 @@ W_Ricnu::W_Ricnu(QWidget *parent,
 
 	deviceLog = deviceLogPtr;
 	deviceList = deviceListPtr;
+
 	displayMode = mode;
 
 	setWindowTitle(this->getDescription());

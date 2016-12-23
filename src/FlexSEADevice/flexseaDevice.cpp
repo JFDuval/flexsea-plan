@@ -46,8 +46,6 @@ FlexseaDevice::FlexseaDevice()
 	slaveID = 0;
 	experimentIndex = 0;
 	frequency = 0;
-	lastTimeStamp_ms = 0;
-	serializedLength = 0;
 }
 
 //****************************************************************************
@@ -65,8 +63,7 @@ void FlexseaDevice::clear(void)
 	experimentIndex = 0;
 	experimentName.clear();
 	frequency = 0;
-	lastTimeStamp_ms = 0;
-	serializedLength = 0;
+	timeStamp.clear();
 }
 
 QString FlexseaDevice::getIdentifier(void)

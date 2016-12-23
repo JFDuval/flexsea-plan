@@ -141,7 +141,7 @@ void DataLogger::openfile(uint8_t item, QString shortFileName)
 	}
 }
 
-void DataLogger::openReadingFile(bool * isOpen)
+void DataLogger::openReadingFile(bool * isOpen, FlexseaDevice **devPtr)
 {
 	*isOpen = false;
 
@@ -222,6 +222,7 @@ void DataLogger::openReadingFile(bool * isOpen)
 	setStatus(tr("Opened '") + filename + "'.");
 
 	*isOpen = true;
+	*devPtr = executeDevPtr;
 }
 
 void DataLogger::writeToFile(FlexseaDevice *devicePtr, uint8_t item)

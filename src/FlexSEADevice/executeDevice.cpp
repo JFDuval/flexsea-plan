@@ -47,11 +47,11 @@ ExecuteDevice::ExecuteDevice(void): FlexseaDevice()
 	serializedLength = header.length();
 }
 
-ExecuteDevice::ExecuteDevice(execute_s *devicePtr): FlexseaDevice()
+ExecuteDevice::ExecuteDevice(execute_s *exPtr): FlexseaDevice()
 {
 	this->dataSource = LiveDataFile;
-	exList.append(ExecuteStamp());
-	exList.last().data = devicePtr;
+	timeStamp.append(TimeStamp());
+	exList.append(exPtr);
 	serializedLength = header.length();
 }
 
@@ -89,92 +89,87 @@ QStringList ExecuteDevice::header = QStringList()
 QString ExecuteDevice::getLastSerializedStr(void)
 {
 	QString str;
-	QTextStream(&str) <<	lastTimeStampDate				<< ',' << \
-							lastTimeStamp_ms				<< ',' << \
-							exList.last().data->accel.x		<< ',' << \
-							exList.last().data->accel.y		<< ',' << \
-							exList.last().data->accel.z		<< ',' << \
-							exList.last().data->gyro.x		<< ',' << \
-							exList.last().data->gyro.y		<< ',' << \
-							exList.last().data->gyro.z		<< ',' << \
-							exList.last().data->strain		<< ',' << \
-							exList.last().data->analog[0]	<< ',' << \
-							exList.last().data->analog[1]	<< ',' << \
-							exList.last().data->current		<< ',' << \
-							exList.last().data->enc_display	<< ',' << \
-							exList.last().data->enc_control	<< ',' << \
-							exList.last().data->enc_commut	<< ',' << \
-							exList.last().data->volt_batt	<< ',' << \
-							exList.last().data->volt_int	<< ',' << \
-							exList.last().data->temp		<< ',' << \
-							exList.last().data->status1		<< ',' << \
-							exList.last().data->status2;
+	QTextStream(&str) <<	timeStamp.last().Date		<< ',' << \
+							timeStamp.last().ms			<< ',' << \
+							exList.last()->accel.x		<< ',' << \
+							exList.last()->accel.y		<< ',' << \
+							exList.last()->accel.z		<< ',' << \
+							exList.last()->gyro.x		<< ',' << \
+							exList.last()->gyro.y		<< ',' << \
+							exList.last()->gyro.z		<< ',' << \
+							exList.last()->strain		<< ',' << \
+							exList.last()->analog[0]	<< ',' << \
+							exList.last()->analog[1]	<< ',' << \
+							exList.last()->current		<< ',' << \
+							exList.last()->enc_display	<< ',' << \
+							exList.last()->enc_control	<< ',' << \
+							exList.last()->enc_commut	<< ',' << \
+							exList.last()->volt_batt	<< ',' << \
+							exList.last()->volt_int		<< ',' << \
+							exList.last()->temp			<< ',' << \
+							exList.last()->status1		<< ',' << \
+							exList.last()->status2;
 	return str;
 }
 
 void ExecuteDevice::appendSerializedStr(QStringList *splitLine)
 {
-	appendEmptyLine();
-
 	//Check if data line contain the number of data expected
 	if(splitLine->length() >= serializedLength)
 	{
-		exList.last().timeStampDate		= (*splitLine)[0];
-		exList.last().timeStamp_ms		= (*splitLine)[1].toInt();
-		exList.last().data->accel.x		= (*splitLine)[2].toInt();
-		exList.last().data->accel.y		= (*splitLine)[3].toInt();
-		exList.last().data->accel.z		= (*splitLine)[4].toInt();
-		exList.last().data->gyro.x		= (*splitLine)[5].toInt();
-		exList.last().data->gyro.y		= (*splitLine)[6].toInt();
-		exList.last().data->gyro.z		= (*splitLine)[7].toInt();
-		exList.last().data->strain		= (*splitLine)[8].toInt();
-		exList.last().data->analog[0]	= (*splitLine)[9].toInt();
-		exList.last().data->analog[1]	= (*splitLine)[10].toInt();
-		exList.last().data->current		= (*splitLine)[11].toInt();
-		exList.last().data->enc_display	= (*splitLine)[12].toInt();
-		exList.last().data->enc_control	= (*splitLine)[13].toInt();
-		exList.last().data->enc_commut	= (*splitLine)[14].toInt();
-		exList.last().data->volt_batt	= (*splitLine)[15].toInt();
-		exList.last().data->volt_int	= (*splitLine)[16].toInt();
-		exList.last().data->temp		= (*splitLine)[17].toInt();
-		exList.last().data->status1		= (*splitLine)[18].toInt();
-		exList.last().data->status2		= (*splitLine)[19].toInt();
+		appendEmptyLine();
+		timeStamp.last().Date		= (*splitLine)[0];
+		timeStamp.last().ms			= (*splitLine)[1].toInt();
+		exList.last()->accel.x		= (*splitLine)[2].toInt();
+		exList.last()->accel.y		= (*splitLine)[3].toInt();
+		exList.last()->accel.z		= (*splitLine)[4].toInt();
+		exList.last()->gyro.x		= (*splitLine)[5].toInt();
+		exList.last()->gyro.y		= (*splitLine)[6].toInt();
+		exList.last()->gyro.z		= (*splitLine)[7].toInt();
+		exList.last()->strain		= (*splitLine)[8].toInt();
+		exList.last()->analog[0]	= (*splitLine)[9].toInt();
+		exList.last()->analog[1]	= (*splitLine)[10].toInt();
+		exList.last()->current		= (*splitLine)[11].toInt();
+		exList.last()->enc_display	= (*splitLine)[12].toInt();
+		exList.last()->enc_control	= (*splitLine)[13].toInt();
+		exList.last()->enc_commut	= (*splitLine)[14].toInt();
+		exList.last()->volt_batt	= (*splitLine)[15].toInt();
+		exList.last()->volt_int		= (*splitLine)[16].toInt();
+		exList.last()->temp			= (*splitLine)[17].toInt();
+		exList.last()->status1		= (*splitLine)[18].toInt();
+		exList.last()->status2		= (*splitLine)[19].toInt();
 	}
 }
 
 void ExecuteDevice::clear(void)
 {
 	FlexseaDevice::clear();
-	for(int i = 0; i < exList.size(); ++i)
-	{
-		delete exList[i].data;
-	}
 	exList.clear();
 }
 
 void ExecuteDevice::appendEmptyLine(void)
 {
-	exList.append(ExecuteStamp());
-	exList.last().data = new execute_s();
+	timeStamp.append(TimeStamp());
+	exList.append(new execute_s());
 }
 
 void ExecuteDevice::decodeLastLine(void)
 {
-	decode(exList.last().data);
+	decode(exList.last());
 }
 
 void ExecuteDevice::decodeAllLine(void)
 {
 	for(int i = 0; i < exList.size(); ++i)
 	{
-		decode(exList[i].data);
+		decode(exList[i]);
 	}
 }
 
 QString ExecuteDevice::getStatusStr(int index)
 {
 	QString str;
-	uint8_t status1 = exList[index].data->status1;
+	uint8_t status1 = exList[index]->status1;
 
 	//WDCLK:
 	if(GET_WDCLK_FLAG(status1))

@@ -43,7 +43,6 @@
 #include <qlabel.h>
 #include "flexsea_generic.h"
 #include "flexseaDevice.h"
-#include "executeDevice.h"
 
 //****************************************************************************
 // Definition(s)

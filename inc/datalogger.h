@@ -73,12 +73,10 @@ public:
 						StrainDevice *strainInitPtr = nullptr,
 						RicnuDevice *ricnuInitPtr = nullptr);
 
-	LogFile * getLogFilePtr(void) {return &myLogFile;}
-
 public slots:
 	void openRecordingFile(FlexseaDevice *devicePtr, uint8_t item);
 	void closeRecordingFile(uint8_t item);
-	void openReadingFile(bool * isOpen);
+	void openReadingFile(bool * isOpen, FlexseaDevice **devPtr);
 	void closeReadingFile(void);
 	void writeToFile(FlexseaDevice *devicePtr, uint8_t item);
 
@@ -106,8 +104,6 @@ private:
 	QDateTime *myTime;
 
 	bool fileOpened[4];
-
-	LogFile myLogFile;
 
 	//Function(s):
 	void init(void);

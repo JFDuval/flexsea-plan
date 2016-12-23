@@ -221,7 +221,8 @@ void W_Config::on_closeComButton_clicked()
 void W_Config::on_pbLoadLogFile_clicked()
 {
 	bool isOpen;
-	emit openReadingFile(&isOpen);
+	FlexseaDevice *devPtr;
+	emit openReadingFile(&isOpen, &devPtr);
 
 	if(isOpen)
 	{
@@ -230,7 +231,8 @@ void W_Config::on_pbLoadLogFile_clicked()
 		ui->openComButton->setDisabled(true);
 		//ui->pushButtonBTCon->setDisabled(true);
 		dataSourceState = FromLogFile;
-		emit updateDataSourceStatus(dataSourceState);
+		//emit updateDataSourceStatus(dataSourceState);
+		emit createlogkeypad(dataSourceState, devPtr);
 	}
 
 }
