@@ -179,6 +179,10 @@ public slots:
 	void closeLogKeyPad(void);
 	void closeUserRW(void);
 
+	//Miscelaneous
+
+	DisplayMode getDisplayMode(void);
+
 	//Messages Status Bar + debug
 	void sendWindowCreatedMsg(QString windowName, int index, int maxIndex);
 	void sendWindowCreatedFailedMsg(QString windowName, int maxWindow);

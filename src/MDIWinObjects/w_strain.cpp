@@ -44,16 +44,24 @@
 // Constructor & Destructor:
 //****************************************************************************
 
-W_Strain::W_Strain(QWidget *parent) :
+W_Strain::W_Strain(QWidget *parent,
+				   StrainDevice *deviceLogPtr,
+				   DisplayMode mode,
+				   QList<StrainDevice> *deviceListPtr) :
 	QWidget(parent),
 	ui(new Ui::W_Strain)
 {
 	ui->setupUi(this);
 
+	deviceLog  = deviceLogPtr;
+	deviceList = deviceListPtr;
+
+	displayMode = mode;
+
 	setWindowTitle(this->getDescription());
 	setWindowIcon(QIcon(":icons/d_logo_small.png"));
 
-	init();
+	updateDisplayMode(displayMode);
 }
 
 W_Strain::~W_Strain()
@@ -71,34 +79,61 @@ W_Strain::~W_Strain()
 //****************************************************************************
 
 //Call this function to refresh the display
-void W_Strain::refreshDisplayStrain(void)
+void W_Strain::refreshDisplay(void)
 {
-	struct strain_s *stPtr;
-	FlexSEA_Generic::assignStrainPtr(&stPtr, SL_BASE_ALL, \
-									   ui->comboBoxSlave->currentIndex());
-	displayStrain(stPtr);
+	int index = ui->comboBoxSlave->currentIndex();
+	display(&((*deviceList)[index]), 0);
+}
+
+void W_Strain::refreshDisplayLog(int index, FlexseaDevice * devPtr)
+{
+	if(devPtr->slaveName == deviceLog->slaveName)
+	{
+		if(deviceLog->stList.isEmpty() == false)
+		{
+			 display(deviceLog, index);
+		}
+	}
+}
+
+void W_Strain::updateDisplayMode(DisplayMode mode)
+{
+	displayMode = mode;
+	if(displayMode == DisplayLogData)
+	{
+		initLog();
+	}
+	else
+	{
+		initLive();
+	}
 }
 
 //****************************************************************************
 // Private function(s):
 //****************************************************************************
 
-void W_Strain::init(void)
+void W_Strain::initLive(void)
 {
 	//Populates Slave list:
-	FlexSEA_Generic::populateSlaveComboBox(ui->comboBoxSlave, \
-											SL_BASE_STRAIN, SL_LEN_STRAIN);
+	ui->comboBoxSlave->clear();
+
+	for(int i = 0; i < (*deviceList).length(); i++)
+	{
+		ui->comboBoxSlave->addItem((*deviceList)[i].slaveName);
+	}
 }
 
-void W_Strain::displayStrain(struct strain_s *st)
+void W_Strain::initLog(void)
 {
-	//Unpack:
-	//=======
+	//Populates Slave list:
+	ui->comboBoxSlave->clear();
+	ui->comboBoxSlave->addItem(deviceLog->slaveName);
+}
 
-	unpackCompressed6ch(st->compressedBytes, &st->ch[0].strain_filtered,
-						&st->ch[1].strain_filtered, &st->ch[2].strain_filtered,
-						&st->ch[3].strain_filtered, &st->ch[4].strain_filtered,
-						&st->ch[5].strain_filtered);
+void W_Strain::display(StrainDevice *devicePtr, int index)
+{
+	struct strain_s *st = devicePtr->stList[index];
 
 	//Raw values:
 	//===========
@@ -121,18 +156,6 @@ void W_Strain::displayStrain(struct strain_s *st)
 	ui->disp_strain_ch6_d->setText(QString::number(st->decoded.strain[5],'i',0));
 
 	//==========
-}
-
-//Unpack from buffer
-void W_Strain::unpackCompressed6ch(uint8_t *buf, uint16_t *v0, uint16_t *v1, uint16_t *v2, \
-							uint16_t *v3, uint16_t *v4, uint16_t *v5)
-{
-	*v0 = ((*(buf+0) << 8 | *(buf+1)) >> 4);
-	*v1 = (((*(buf+1) << 8 | *(buf+2))) & 0xFFF);
-	*v2 = ((*(buf+3) << 8 | *(buf+4)) >> 4);
-	*v3 = (((*(buf+4) << 8 | *(buf+5))) & 0xFFF);
-	*v4 = ((*(buf+6) << 8 | *(buf+7)) >> 4);
-	*v5 = (((*(buf+7) << 8 | *(buf+8))) & 0xFFF);
 }
 
 

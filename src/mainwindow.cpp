@@ -250,20 +250,14 @@ void MainWindow::createViewExecute(void)
 	//Limited number of windows:
 	if(objectCount < EX_VIEW_WINDOWS_MAX)
 	{
-		DisplayMode status = DisplayLiveData;
-		if(W_Config::howManyInstance() > 0)
-		{
-			if(myViewConfig[0]->getDataSourceStatus() == FromLogFile)
-			{
-				status = DisplayLogData;
-			}
-		}
-
 		myViewExecute[objectCount] = \
 				new W_Execute(this, &executeLog,
-							  status, &executeDevList);
+							  getDisplayMode(), &executeDevList);
 		ui->mdiArea->addSubWindow(myViewExecute[objectCount]);
 		myViewExecute[objectCount]->show();
+
+		sendWindowCreatedMsg(W_Execute::getDescription(), objectCount,
+							 W_Execute::getMaxWindow() - 1);
 
 		//Link SerialDriver and Execute:
 		connect(mySerialDriver, SIGNAL(newDataReady()), \
@@ -301,7 +295,8 @@ void MainWindow::createViewManage(void)
 	//Limited number of windows:
 	if(objectCount < (MN_VIEW_WINDOWS_MAX))
 	{
-		myViewManage[objectCount] = new W_Manage(this);
+		myViewManage[objectCount] = new W_Manage(this, &manageLog,
+												 getDisplayMode(), &manageDevList);
 		ui->mdiArea->addSubWindow(myViewManage[objectCount]);
 		myViewManage[objectCount]->show();
 
@@ -310,11 +305,18 @@ void MainWindow::createViewManage(void)
 
 		//Link SerialDriver and Manage:
 		connect(mySerialDriver, SIGNAL(newDataReady()), \
-				myViewManage[objectCount], SLOT(refreshDisplayManage()));
+				myViewManage[objectCount], SLOT(refreshDisplay()));
 
 		//Link to MainWindow for the close signal:
 		connect(myViewManage[objectCount], SIGNAL(windowClosed()), \
 				this, SLOT(closeViewManage()));
+
+		// Link to the slider of logKeyPad. Intermediate signal (connector) to
+		// allow opening of window asynchroniously
+		connect(this, SIGNAL(connectorRefreshLogTimeSlider(int, FlexseaDevice *)), \
+				myViewManage[objectCount], SLOT(refreshDisplayLog(int, FlexseaDevice *)));
+		connect(this, SIGNAL(connectorUpdateDisplayMode(DisplayMode)), \
+				myViewManage[objectCount], SLOT(updateDisplayMode(DisplayMode)));
 	}
 
 	else
@@ -562,17 +564,8 @@ void MainWindow::createViewRicnu(void)
 	//Limited number of windows:
 	if(objectCount < (RICNU_VIEW_WINDOWS_MAX))
 	{
-		DisplayMode status = DisplayLiveData;
-		if(W_Config::howManyInstance() > 0)
-		{
-			if(myViewConfig[0]->getDataSourceStatus() == FromLogFile)
-			{
-				status = DisplayLogData;
-			}
-		}
-
 		myViewRicnu[objectCount] = new W_Ricnu(this, &ricnuLog,
-											   status, &ricnuDevList);;
+											   getDisplayMode(), &ricnuDevList);;
 		ui->mdiArea->addSubWindow(myViewRicnu[objectCount]);
 		myViewRicnu[objectCount]->show();
 
@@ -746,7 +739,8 @@ void MainWindow::createViewStrain(void)
 	//Limited number of windows:
 	if(objectCount < (STRAIN_WINDOWS_MAX))
 	{
-		myViewStrain[objectCount] = new W_Strain(this);
+		myViewStrain[objectCount] = new W_Strain(this, &strainLog,
+												 getDisplayMode(), &strainDevList);
 		ui->mdiArea->addSubWindow(myViewStrain[objectCount]);
 		myViewStrain[objectCount]->show();
 
@@ -755,11 +749,18 @@ void MainWindow::createViewStrain(void)
 
 		//Link SerialDriver and Strain:
 		connect(mySerialDriver, SIGNAL(newDataReady()), \
-				myViewStrain[objectCount], SLOT(refreshDisplayStrain()));
+				myViewStrain[objectCount], SLOT(refreshDisplay()));
 
 		//Link to MainWindow for the close signal:
 		connect(myViewStrain[objectCount], SIGNAL(windowClosed()), \
 				this, SLOT(closeViewStrain()));
+
+		// Link to the slider of logKeyPad. Intermediate signal (connector) to
+		// allow opening of window asynchroniously
+		connect(this, SIGNAL(connectorRefreshLogTimeSlider(int, FlexseaDevice *)), \
+				myViewStrain[objectCount], SLOT(refreshDisplayLog(int, FlexseaDevice *)));
+		connect(this, SIGNAL(connectorUpdateDisplayMode(DisplayMode)), \
+				myViewStrain[objectCount], SLOT(updateDisplayMode(DisplayMode)));
 	}
 
 	else
@@ -846,6 +847,19 @@ void MainWindow::createLogKeyPad(FlexseaDevice *devPtr)
 void MainWindow::closeLogKeyPad(void)
 {
 	sendCloseWindowMsg(W_LogKeyPad::getDescription());
+}
+
+DisplayMode MainWindow::getDisplayMode(void)
+{
+	DisplayMode status = DisplayLiveData;
+	if(W_Config::howManyInstance() > 0)
+	{
+		if(myViewConfig[0]->getDataSourceStatus() == FromLogFile)
+		{
+			status = DisplayLogData;
+		}
+	}
+	return status;
 }
 
 void MainWindow::sendWindowCreatedMsg(QString windowName, int index, int maxIndex)

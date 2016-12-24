@@ -80,7 +80,7 @@ QString StrainDevice::getLastSerializedStr(void)
 {
 	QString str;
 	QTextStream(&str) <<	timeStamp.last().date					<< ',' << \
-							timeStamp.last().ms						<< ',' << \
+							timeStamp.last().ms						 << ',' << \
 							stList.last()->ch[0].strain_filtered	<< ',' << \
 							stList.last()->ch[1].strain_filtered	<< ',' << \
 							stList.last()->ch[2].strain_filtered	<< ',' << \
@@ -122,6 +122,7 @@ void StrainDevice::appendEmptyLine(void)
 
 void StrainDevice::decodeLastLine(void)
 {
+	if(dataSource == LiveDataFile){decompressbytes6ch(stList.last());}
 	decode(stList.last());
 }
 
@@ -129,6 +130,7 @@ void StrainDevice::decodeAllLine(void)
 {
 	for(int i = 0; i < stList.size(); ++i)
 	{
+		if(dataSource == LiveDataFile){decompressbytes6ch(stList.last());}
 		decode(stList[i]);
 	}
 }
@@ -148,6 +150,18 @@ void StrainDevice::decode(struct strain_s *stPtr)
 	stPtr->decoded.strain[5] = (100*(stPtr->ch[5].strain_filtered-STRAIN_MIDPOINT)/STRAIN_MIDPOINT);
 }
 
+void StrainDevice::decompressbytes6ch(struct strain_s *stPtr)
+{
+	uint8_t *buf = stPtr->compressedBytes;
+
+	stPtr->ch[0].strain_filtered = ((*(buf+0) << 8 | *(buf+1)) >> 4);
+	stPtr->ch[1].strain_filtered = (((*(buf+1) << 8 | *(buf+2))) & 0xFFF);
+	stPtr->ch[2].strain_filtered = ((*(buf+3) << 8 | *(buf+4)) >> 4);
+	stPtr->ch[3].strain_filtered = (((*(buf+4) << 8 | *(buf+5))) & 0xFFF);
+	stPtr->ch[4].strain_filtered = ((*(buf+6) << 8 | *(buf+7)) >> 4);
+	stPtr->ch[5].strain_filtered = (((*(buf+7) << 8 | *(buf+8))) & 0xFFF);
+}
+
 //****************************************************************************
 // Public slot(s):
 //****************************************************************************
@@ -156,7 +170,6 @@ void StrainDevice::decode(struct strain_s *stPtr)
 //****************************************************************************
 // Private function(s):
 //****************************************************************************
-
 
 //****************************************************************************
 // Private slot(s):

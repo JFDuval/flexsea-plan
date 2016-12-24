@@ -37,7 +37,6 @@
 #include "main.h"
 #include <QString>
 #include <QTextStream>
-#include <QDebug>
 
 //****************************************************************************
 // Constructor & Destructor:
@@ -59,7 +58,6 @@ W_Execute::W_Execute(QWidget *parent,
 
 	setWindowTitle(this->getDescription());
 	setWindowIcon(QIcon(":icons/d_logo_small.png"));
-
 
 	updateDisplayMode(displayMode);
 }

@@ -37,9 +37,8 @@
 
 #include <QWidget>
 #include "counter.h"
-#include "datalogger.h"
-#include "define.h"
 #include "executeDevice.h"
+#include "define.h"
 
 //****************************************************************************
 // Namespace & Class Definition:
@@ -58,7 +57,7 @@ public:
 	explicit W_Execute(	QWidget *parent = 0,
 						ExecuteDevice *deviceLogPtr = nullptr,
 						DisplayMode mode = DisplayLiveData,
-						QList<ExecuteDevice> *execListPtr = nullptr);
+						QList<ExecuteDevice> *deviceListPtr = nullptr);
 	~W_Execute();
 
 	//Function(s):
@@ -70,10 +69,12 @@ public slots:
 	void refreshDisplayLog(int index, FlexseaDevice * devPtr);
 	void updateDisplayMode(DisplayMode mode);
 
+signals:
+	void windowClosed(void);
+
 private:
 	//Variables & Objects:
 	Ui::W_Execute *ui;
-	int active_slave, active_slave_index;
 
 	DisplayMode displayMode;
 
@@ -84,9 +85,6 @@ private:
 	void initLive(void);
 	void initLog(void);
 	void display(ExecuteDevice *devicePtr, int index);
-
-signals:
-	void windowClosed(void);
 };
 
 //****************************************************************************

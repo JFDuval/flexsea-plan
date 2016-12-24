@@ -72,7 +72,6 @@ signals:
 private:
 	//Variables & Objects:
 	Ui::W_Ricnu *ui;
-	int active_slave, active_slave_index;
 
 	DisplayMode displayMode;
 

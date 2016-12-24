@@ -39,6 +39,7 @@
 #include "counter.h"
 #include "flexsea_generic.h"
 #include "manageDevice.h"
+#include "define.h"
 
 //****************************************************************************
 // Namespace & Class Definition:
@@ -54,13 +55,18 @@ class W_Manage : public QWidget, public Counter<W_Manage>
 
 public:
 	//Constructor & Destructor:
-	explicit W_Manage(QWidget *parent = 0);
+	explicit W_Manage(QWidget *parent = 0,
+					  ManageDevice *deviceLogPtr = nullptr,
+					  DisplayMode mode = DisplayLiveData,
+					  QList<ManageDevice> *deviceListPtr = nullptr);
 	~W_Manage();
 
 	//Function(s):
 
 public slots:
-	void refreshDisplayManage(void);
+	void refreshDisplay(void);
+	void refreshDisplayLog(int index, FlexseaDevice * devPtr);
+	void updateDisplayMode(DisplayMode mode);
 
 signals:
 	void windowClosed(void);
@@ -68,11 +74,16 @@ signals:
 private:
 	//Variables & Objects:
 	Ui::W_Manage *ui;
-	int active_slave, active_slave_index;
+
+	DisplayMode displayMode;
+
+	QList<ManageDevice> *deviceList;
+	ManageDevice *deviceLog;
 
 	//Function(s):
-	void init(void);
-	void displayManage(struct manage_s *mn);
+	void initLive(void);
+	void initLog(void);
+	void display(ManageDevice *devicePtr, int index);
 };
 
 //****************************************************************************

@@ -132,10 +132,6 @@ void W_Ricnu::display(RicnuDevice *devicePtr, int index)
 {
 	struct ricnu_s_plan *ricnu = devicePtr->riList[index];
 
-	//Unpack:
-	//=======
-	RicnuDevice::unpackCompressed6ch(ricnu->st);
-
 	//Raw values:
 	//===========
 

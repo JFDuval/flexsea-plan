@@ -91,8 +91,6 @@ QStringList RicnuDevice::header = QStringList()
 
 QString RicnuDevice::getLastSerializedStr(void)
 {
-	unpackCompressed6ch(riList.last()->st);
-
 	QString str;
 	QTextStream(&str) <<	timeStamp.last().date						<< ',' << \
 							timeStamp.last().ms							<< ',' << \
@@ -166,6 +164,7 @@ void RicnuDevice::appendEmptyLineWithExAndStStruct(void)
 
 void RicnuDevice::decodeLastLine(void)
 {
+	if(dataSource == LiveDataFile){StrainDevice::decompressbytes6ch(riList.last()->st);}
 	decode(riList.last());
 }
 
@@ -173,6 +172,7 @@ void RicnuDevice::decodeAllLine(void)
 {
 	for(int i = 0; i < riList.size(); ++i)
 	{
+		if(dataSource == LiveDataFile){StrainDevice::decompressbytes6ch(riList[i]->st);}
 		decode(riList[i]);
 	}
 }
@@ -192,18 +192,6 @@ void RicnuDevice::decode(struct ricnu_s_plan *riPtr)
 QString RicnuDevice::getStatusStr(int index)
 {
 	return QString("No decoding available for this board");
-}
-
-//Unpack from buffer
-void RicnuDevice::unpackCompressed6ch(struct strain_s *stPtr)
-{
-	uint8_t *buf = stPtr->compressedBytes;
-	stPtr->ch[0].strain_filtered = ((*(buf+0) << 8 | *(buf+1)) >> 4);
-	stPtr->ch[1].strain_filtered = (((*(buf+1) << 8 | *(buf+2))) & 0xFFF);
-	stPtr->ch[2].strain_filtered = ((*(buf+3) << 8 | *(buf+4)) >> 4);
-	stPtr->ch[3].strain_filtered = (((*(buf+4) << 8 | *(buf+5))) & 0xFFF);
-	stPtr->ch[4].strain_filtered = ((*(buf+6) << 8 | *(buf+7)) >> 4);
-	stPtr->ch[5].strain_filtered = (((*(buf+7) << 8 | *(buf+8))) & 0xFFF);
 }
 
 //****************************************************************************

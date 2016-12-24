@@ -84,7 +84,6 @@ public:
 	QList<struct ricnu_s_plan*> riList;
 	static void decode(struct ricnu_s *riPtr);
 	static void decode(struct ricnu_s_plan *riPtr);
-	static void unpackCompressed6ch(struct strain_s *stPtr);
 
 private:
 	static QStringList header;
