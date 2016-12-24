@@ -62,13 +62,6 @@ struct ricnu_s_plan
 	struct decoded_ricnu_s decoded;
 };
 
-struct RicnuStamp
-{
-	QString timeStampDate;
-	int32_t timeStamp_ms;
-	ricnu_s_plan data;
-};
-
 class RicnuDevice : public FlexseaDevice
 {
 public:
@@ -88,7 +81,7 @@ public:
 
 	void appendEmptyLineWithExAndStStruct(void);
 
-	QList<struct RicnuStamp> riList;
+	QList<struct ricnu_s_plan*> riList;
 	static void decode(struct ricnu_s *riPtr);
 	static void decode(struct ricnu_s_plan *riPtr);
 	static void unpackCompressed6ch(struct strain_s *stPtr);

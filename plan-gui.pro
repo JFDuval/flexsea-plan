@@ -74,7 +74,6 @@ SOURCES += src/main.cpp \
 	src/MDIWinObjects/w_config.cpp \
 	src/MDIWinObjects/w_logkeypad.cpp \
 	src/MDIWinObjects/w_userrw.cpp \
-	src/logFile.cpp \
 	src/FlexSEADevice/executeDevice.cpp \
     src/FlexSEADevice/flexseaDevice.cpp \
     src/FlexSEADevice/batteryDevice.cpp \
@@ -125,7 +124,6 @@ HEADERS  += inc/main.h \
 	inc/MDIWinObjects/w_logkeypad.h \
 	inc/MDIWinObjects/w_userrw.h \
 	inc/counter.h \
-	inc/logFile.h \
 	inc/flexsea_generic.h \
 	inc/FlexSEADevice/executeDevice.h \
 	inc/FlexSEADevice/flexseaDevice.h \

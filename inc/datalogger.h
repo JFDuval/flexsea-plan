@@ -43,7 +43,6 @@
 #include <QList>
 #include "flexsea_generic.h"
 #include "main.h"
-#include "logFile.h"
 
 #include "executeDevice.h"
 #include "manageDevice.h"

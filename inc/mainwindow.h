@@ -34,7 +34,6 @@
 
 #include <QMainWindow>
 #include "flexsea_generic.h"
-#include "logFile.h"
 #include "serialdriver.h"
 #include "datalogger.h"
 #include "w_slavecomm.h"

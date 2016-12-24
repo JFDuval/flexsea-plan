@@ -241,6 +241,7 @@ void DataLogger::openReadingFile(bool * isOpen, FlexseaDevice **devPtr)
 
 	setStatus(tr("Opened '") + filename + "'.");
 
+	// Return variable
 	*isOpen = true;
 	*devPtr = flexSEAPtr;
 }

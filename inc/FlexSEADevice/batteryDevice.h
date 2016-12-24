@@ -49,13 +49,6 @@ namespace Ui
 	class BatteryDevice;
 }
 
-struct BatteryStamp
-{
-	QString timeStampDate;
-	int32_t timeStamp_ms;
-	battery_s *data;
-};
-
 class BatteryDevice : public FlexseaDevice
 {
 public:
@@ -72,7 +65,7 @@ public:
 	void appendEmptyLine(void);
 	QString getStatusStr(int index);
 
-	QList<struct BatteryStamp> baList;
+	QList<struct battery_s*> baList;
 	static void decode(struct battery_s *baPtr);
 
 private:

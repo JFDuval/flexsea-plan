@@ -39,7 +39,6 @@
 #include "counter.h"
 #include "datalogger.h"
 #include "define.h"
-#include "logFile.h"
 #include "executeDevice.h"
 
 //****************************************************************************

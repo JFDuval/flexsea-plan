@@ -54,9 +54,9 @@ RicnuDevice::RicnuDevice(execute_s *exPtr, strain_s *stPtr): FlexseaDevice()
 {
 	this->dataSource = LiveDataFile;
 	timeStamp.append(TimeStamp());
-	riList.append(RicnuStamp());
-	riList.last().data.ex = exPtr;
-	riList.last().data.st = stPtr;
+	riList.append(new ricnu_s_plan());
+	riList.last()->ex = exPtr;
+	riList.last()->st = stPtr;
 	serializedLength = header.length();
 	slaveType = "ricnu";
 }
@@ -91,26 +91,26 @@ QStringList RicnuDevice::header = QStringList()
 
 QString RicnuDevice::getLastSerializedStr(void)
 {
-	unpackCompressed6ch(riList.last().data.st);
+	unpackCompressed6ch(riList.last()->st);
 
 	QString str;
 	QTextStream(&str) <<	timeStamp.last().date						<< ',' << \
 							timeStamp.last().ms							<< ',' << \
-							riList.last().data.ex->accel.x				<< ',' << \
-							riList.last().data.ex->accel.y				<< ',' << \
-							riList.last().data.ex->accel.z				<< ',' << \
-							riList.last().data.ex->gyro.x				<< ',' << \
-							riList.last().data.ex->gyro.y				<< ',' << \
-							riList.last().data.ex->gyro.z				<< ',' << \
-							riList.last().data.ex->current				<< ',' << \
-							riList.last().data.ex->enc_motor			<< ',' << \
-							riList.last().data.ex->enc_joint			<< ',' << \
-							riList.last().data.st->ch[0].strain_filtered << ',' << \
-							riList.last().data.st->ch[1].strain_filtered << ',' << \
-							riList.last().data.st->ch[2].strain_filtered << ',' << \
-							riList.last().data.st->ch[3].strain_filtered << ',' << \
-							riList.last().data.st->ch[4].strain_filtered << ',' << \
-							riList.last().data.st->ch[5].strain_filtered;
+							riList.last()->ex->accel.x					<< ',' << \
+							riList.last()->ex->accel.y					<< ',' << \
+							riList.last()->ex->accel.z					<< ',' << \
+							riList.last()->ex->gyro.x					<< ',' << \
+							riList.last()->ex->gyro.y					<< ',' << \
+							riList.last()->ex->gyro.z					<< ',' << \
+							riList.last()->ex->current					<< ',' << \
+							riList.last()->ex->enc_motor				<< ',' << \
+							riList.last()->ex->enc_joint				<< ',' << \
+							riList.last()->st->ch[0].strain_filtered	<< ',' << \
+							riList.last()->st->ch[1].strain_filtered	<< ',' << \
+							riList.last()->st->ch[2].strain_filtered	<< ',' << \
+							riList.last()->st->ch[3].strain_filtered	<< ',' << \
+							riList.last()->st->ch[4].strain_filtered	<< ',' << \
+							riList.last()->st->ch[5].strain_filtered;
 	return str;
 }
 
@@ -125,21 +125,21 @@ void RicnuDevice::appendSerializedStr(QStringList *splitLine)
 
 		timeStamp.last().date						= (*splitLine)[0];
 		timeStamp.last().ms							= (*splitLine)[1].toInt();
-		riList.last().data.ex->accel.x				= (*splitLine)[2].toInt();
-		riList.last().data.ex->accel.y				= (*splitLine)[3].toInt();
-		riList.last().data.ex->accel.z				= (*splitLine)[4].toInt();
-		riList.last().data.ex->gyro.x				= (*splitLine)[5].toInt();
-		riList.last().data.ex->gyro.y				= (*splitLine)[6].toInt();
-		riList.last().data.ex->gyro.z				= (*splitLine)[7].toInt();
-		riList.last().data.ex->current				= (*splitLine)[8].toInt();
-		riList.last().data.ex->enc_motor			= (*splitLine)[9].toInt();
-		riList.last().data.ex->enc_joint			= (*splitLine)[10].toInt();
-		riList.last().data.st->ch[0].strain_filtered = (*splitLine)[11].toInt();
-		riList.last().data.st->ch[1].strain_filtered = (*splitLine)[12].toInt();
-		riList.last().data.st->ch[2].strain_filtered = (*splitLine)[13].toInt();
-		riList.last().data.st->ch[3].strain_filtered = (*splitLine)[14].toInt();
-		riList.last().data.st->ch[4].strain_filtered = (*splitLine)[15].toInt();
-		riList.last().data.st->ch[5].strain_filtered = (*splitLine)[16].toInt();
+		riList.last()->ex->accel.x					= (*splitLine)[2].toInt();
+		riList.last()->ex->accel.y					= (*splitLine)[3].toInt();
+		riList.last()->ex->accel.z					= (*splitLine)[4].toInt();
+		riList.last()->ex->gyro.x					= (*splitLine)[5].toInt();
+		riList.last()->ex->gyro.y					= (*splitLine)[6].toInt();
+		riList.last()->ex->gyro.z					= (*splitLine)[7].toInt();
+		riList.last()->ex->current					= (*splitLine)[8].toInt();
+		riList.last()->ex->enc_motor				= (*splitLine)[9].toInt();
+		riList.last()->ex->enc_joint				= (*splitLine)[10].toInt();
+		riList.last()->st->ch[0].strain_filtered	= (*splitLine)[11].toInt();
+		riList.last()->st->ch[1].strain_filtered	= (*splitLine)[12].toInt();
+		riList.last()->st->ch[2].strain_filtered	= (*splitLine)[13].toInt();
+		riList.last()->st->ch[3].strain_filtered	= (*splitLine)[14].toInt();
+		riList.last()->st->ch[4].strain_filtered	= (*splitLine)[15].toInt();
+		riList.last()->st->ch[5].strain_filtered	= (*splitLine)[16].toInt();
 	}
 }
 
@@ -153,27 +153,27 @@ void RicnuDevice::clear(void)
 void RicnuDevice::appendEmptyLine(void)
 {
 	timeStamp.append(TimeStamp());
-	riList.append(RicnuStamp());
+	riList.append(new ricnu_s_plan());
 }
 
 void RicnuDevice::appendEmptyLineWithExAndStStruct(void)
 {
 	timeStamp.append(TimeStamp());
-	riList.append(RicnuStamp());
-	riList.last().data.ex = new execute_s();
-	riList.last().data.st = new strain_s();
+	riList.append(new ricnu_s_plan());
+	riList.last()->ex = new execute_s();
+	riList.last()->st = new strain_s();
 }
 
 void RicnuDevice::decodeLastLine(void)
 {
-	decode(&riList.last().data);
+	decode(riList.last());
 }
 
 void RicnuDevice::decodeAllLine(void)
 {
 	for(int i = 0; i < riList.size(); ++i)
 	{
-		decode(&riList[i].data);
+		decode(riList[i]);
 	}
 }
 

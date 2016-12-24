@@ -49,13 +49,6 @@ namespace Ui
 	class ManageDevice;
 }
 
-struct ManageStamp
-{
-	QString timeStampDate;
-	int32_t timeStamp_ms;
-	manage_s *data;
-};
-
 class ManageDevice : public FlexseaDevice
 {
 public:
@@ -72,7 +65,7 @@ public:
 	void appendEmptyLine(void);
 	QString getStatusStr(int index);
 
-	QList<struct ManageStamp> mnList;
+	QList<struct manage_s*> mnList;
 	static void decode(struct manage_s *mnPtr);
 
 private:

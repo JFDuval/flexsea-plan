@@ -53,7 +53,7 @@ class ExecuteDevice : public FlexseaDevice
 {
 public:
 	explicit ExecuteDevice(void);
-	explicit ExecuteDevice(execute_s *exPtr);
+	explicit ExecuteDevice(execute_s *devicePtr);
 
 	// Interface implementation
 	QString getHeaderStr(void);
@@ -65,7 +65,7 @@ public:
 	void appendEmptyLine(void);
 	QString getStatusStr(int index);
 
-	QList<execute_s*> exList;
+	QList<struct execute_s*> exList;
 	static void decode(struct execute_s *exPtr);
 
 private:

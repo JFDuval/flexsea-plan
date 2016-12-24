@@ -52,8 +52,7 @@ BatteryDevice::BatteryDevice(battery_s *devicePtr): FlexseaDevice()
 {
 	this->dataSource = LiveDataFile;
 	timeStamp.append(TimeStamp());
-	baList.append(BatteryStamp());
-	baList.last().data = devicePtr;
+	baList.append(devicePtr);
 	serializedLength = header.length();
 	slaveType = "battery";
 }
@@ -79,19 +78,30 @@ QStringList BatteryDevice::header =	QStringList()
 QString BatteryDevice::getLastSerializedStr(void)
 {
 	QString str;
-	QTextStream(&str) <<	timeStamp.last().date			<< ',' << \
-							timeStamp.last().ms				<< ',' << \
-							baList.last().data->voltage		<< ',' << \
-							baList.last().data->current		<< ',' << \
-							baList.last().data->temp		<< ',' << \
-							baList.last().data->pushbutton	<< ',' << \
-							baList.last().data->status;
+	QTextStream(&str) <<	timeStamp.last().date		<< ',' << \
+							timeStamp.last().ms			<< ',' << \
+							baList.last()->voltage		<< ',' << \
+							baList.last()->current		<< ',' << \
+							baList.last()->temp			<< ',' << \
+							baList.last()->pushbutton	<< ',' << \
+							baList.last()->status;
 	return str;
 }
 
 void BatteryDevice::appendSerializedStr(QStringList *splitLine)
 {
-
+	//Check if data line contain the number of data expected
+	if(splitLine->length() >= serializedLength)
+	{
+		appendEmptyLine();
+		timeStamp.last().date		= (*splitLine)[0];
+		timeStamp.last().ms			= (*splitLine)[1].toInt();
+		baList.last()->voltage		= (*splitLine)[2].toInt();
+		baList.last()->current		= (*splitLine)[3].toInt();
+		baList.last()->temp			= (*splitLine)[4].toInt();
+		baList.last()->pushbutton	= (*splitLine)[5].toInt();
+		baList.last()->status		= (*splitLine)[6].toInt();
+	}
 }
 
 void BatteryDevice::clear(void)
@@ -104,19 +114,19 @@ void BatteryDevice::clear(void)
 void BatteryDevice::appendEmptyLine(void)
 {
 	timeStamp.append(TimeStamp());
-	baList.append(BatteryStamp());
+	baList.append(new battery_s());
 }
 
 void BatteryDevice::decodeLastLine(void)
 {
-	decode(baList.last().data);
+	decode(baList.last());
 }
 
 void BatteryDevice::decodeAllLine(void)
 {
 	for(int i = 0; i < baList.size(); ++i)
 	{
-		decode(baList[i].data);
+		decode(baList[i]);
 	}
 }
 

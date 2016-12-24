@@ -48,11 +48,11 @@ ExecuteDevice::ExecuteDevice(void): FlexseaDevice()
 	slaveType = "execute";
 }
 
-ExecuteDevice::ExecuteDevice(execute_s *exPtr): FlexseaDevice()
+ExecuteDevice::ExecuteDevice(execute_s *devicePtr): FlexseaDevice()
 {
 	this->dataSource = LiveDataFile;
 	timeStamp.append(TimeStamp());
-	exList.append(exPtr);
+	exList.append(devicePtr);
 	serializedLength = header.length();
 	slaveType = "execute";
 }

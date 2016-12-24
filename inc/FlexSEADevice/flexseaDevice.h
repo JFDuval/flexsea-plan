@@ -79,20 +79,23 @@ public:
 	QString getIdentifier(void);
 
 	enum DataSourceFile dataSource;
+
 	QString shortFileName;
 	QString fileName;
-	int logItem;
-	int slaveIndex;
+
+	int		logItem;
+
+	int		slaveIndex;
 	uint8_t slaveID;
 	QString slaveType;
 	QString slaveName;
-	int experimentIndex;
+
+	int		experimentIndex;
 	QString experimentName;
-	int frequency;
+
+	int		frequency;
 
 	QList<struct TimeStamp> timeStamp;
-	QString lastTimeStampDate;
-	int lastTimeStamp_ms;
 	int serializedLength;
 };
 

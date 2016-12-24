@@ -40,7 +40,6 @@
 #include "flexsea_generic.h"
 #include "ricnuDevice.h"
 #include "define.h"
-#include "logFile.h"
 
 //****************************************************************************
 // Namespace & Class Definition:

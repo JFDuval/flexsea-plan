@@ -52,8 +52,7 @@ StrainDevice::StrainDevice(strain_s *devicePtr): FlexseaDevice()
 {
 	this->dataSource = LiveDataFile;
 	timeStamp.append(TimeStamp());
-	stList.append(StrainStamp());
-	stList.last().data = devicePtr;
+	stList.append(devicePtr);
 	serializedLength = header.length();
 	slaveType = "strain";
 }
@@ -80,20 +79,32 @@ QStringList StrainDevice::header = QStringList()
 QString StrainDevice::getLastSerializedStr(void)
 {
 	QString str;
-	QTextStream(&str) <<	timeStamp.last().date					 << ',' << \
-							timeStamp.last().ms						 << ',' << \
-							stList.last().data->ch[0].strain_filtered << ',' << \
-							stList.last().data->ch[1].strain_filtered << ',' << \
-							stList.last().data->ch[2].strain_filtered << ',' << \
-							stList.last().data->ch[3].strain_filtered << ',' << \
-							stList.last().data->ch[4].strain_filtered << ',' << \
-							stList.last().data->ch[5].strain_filtered;
+	QTextStream(&str) <<	timeStamp.last().date					<< ',' << \
+							timeStamp.last().ms						<< ',' << \
+							stList.last()->ch[0].strain_filtered	<< ',' << \
+							stList.last()->ch[1].strain_filtered	<< ',' << \
+							stList.last()->ch[2].strain_filtered	<< ',' << \
+							stList.last()->ch[3].strain_filtered	<< ',' << \
+							stList.last()->ch[4].strain_filtered	<< ',' << \
+							stList.last()->ch[5].strain_filtered;
 	return str;
 }
 
 void StrainDevice::appendSerializedStr(QStringList *splitLine)
 {
-
+	//Check if data line contain the number of data expected
+	if(splitLine->length() >= serializedLength)
+	{
+		appendEmptyLine();
+		timeStamp.last().date					= (*splitLine)[0];
+		timeStamp.last().ms						= (*splitLine)[1].toInt();
+		stList.last()->ch[0].strain_filtered	= (*splitLine)[2].toInt();
+		stList.last()->ch[1].strain_filtered	= (*splitLine)[3].toInt();
+		stList.last()->ch[2].strain_filtered	= (*splitLine)[4].toInt();
+		stList.last()->ch[3].strain_filtered	= (*splitLine)[5].toInt();
+		stList.last()->ch[4].strain_filtered	= (*splitLine)[6].toInt();
+		stList.last()->ch[5].strain_filtered	= (*splitLine)[7].toInt();
+	}
 }
 
 void StrainDevice::clear(void)
@@ -106,19 +117,19 @@ void StrainDevice::clear(void)
 void StrainDevice::appendEmptyLine(void)
 {
 	timeStamp.append(TimeStamp());
-	stList.append(StrainStamp());
+	stList.append(new strain_s());
 }
 
 void StrainDevice::decodeLastLine(void)
 {
-	decode(stList.last().data);
+	decode(stList.last());
 }
 
 void StrainDevice::decodeAllLine(void)
 {
 	for(int i = 0; i < stList.size(); ++i)
 	{
-		decode(stList[i].data);
+		decode(stList[i]);
 	}
 }
 

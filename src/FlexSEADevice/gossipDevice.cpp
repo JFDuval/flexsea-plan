@@ -52,8 +52,7 @@ GossipDevice::GossipDevice(gossip_s *devicePtr): FlexseaDevice()
 {
 	this->dataSource = LiveDataFile;
 	timeStamp.append(TimeStamp());
-	goList.append(GossipStamp());
-	goList.last().data = devicePtr;
+	goList.append(devicePtr);
 	serializedLength = header.length();
 	slaveType = "gossip";
 }
@@ -90,30 +89,52 @@ QStringList GossipDevice::header = QStringList()
 QString GossipDevice::getLastSerializedStr(void)
 {
 	QString str;
-	QTextStream(&str) <<	timeStamp.last().date			<< ',' << \
-							timeStamp.last().ms				<< ',' << \
-							goList.last().data->accel.x		<< ',' << \
-							goList.last().data->accel.y		<< ',' << \
-							goList.last().data->accel.z		<< ',' << \
-							goList.last().data->gyro.x		<< ',' << \
-							goList.last().data->gyro.y		<< ',' << \
-							goList.last().data->gyro.z		<< ',' << \
-							goList.last().data->magneto.x	<< ',' << \
-							goList.last().data->magneto.y	<< ',' << \
-							goList.last().data->magneto.z	<< ',' << \
-							goList.last().data->io[0]		<< ',' << \
-							goList.last().data->io[1]		<< ',' << \
-							goList.last().data->capsense[0]	<< ',' << \
-							goList.last().data->capsense[1]	<< ',' << \
-							goList.last().data->capsense[2]	<< ',' << \
-							goList.last().data->capsense[3]	<< ',' << \
-							goList.last().data->status;
+	QTextStream(&str) <<	timeStamp.last().date		<< ',' << \
+							timeStamp.last().ms			<< ',' << \
+							goList.last()->accel.x		<< ',' << \
+							goList.last()->accel.y		<< ',' << \
+							goList.last()->accel.z		<< ',' << \
+							goList.last()->gyro.x		<< ',' << \
+							goList.last()->gyro.y		<< ',' << \
+							goList.last()->gyro.z		<< ',' << \
+							goList.last()->magneto.x	<< ',' << \
+							goList.last()->magneto.y	<< ',' << \
+							goList.last()->magneto.z	<< ',' << \
+							goList.last()->io[0]		<< ',' << \
+							goList.last()->io[1]		<< ',' << \
+							goList.last()->capsense[0]	<< ',' << \
+							goList.last()->capsense[1]	<< ',' << \
+							goList.last()->capsense[2]	<< ',' << \
+							goList.last()->capsense[3]	<< ',' << \
+							goList.last()->status;
 	return str;
 }
 
 void GossipDevice::appendSerializedStr(QStringList *splitLine)
 {
-
+	//Check if data line contain the number of data expected
+	if(splitLine->length() >= serializedLength)
+	{
+		appendEmptyLine();
+		timeStamp.last().date		= (*splitLine)[0];
+		timeStamp.last().ms			= (*splitLine)[1].toInt();
+		goList.last()->accel.x		= (*splitLine)[2].toInt();
+		goList.last()->accel.y		= (*splitLine)[3].toInt();
+		goList.last()->accel.z		= (*splitLine)[4].toInt();
+		goList.last()->gyro.x		= (*splitLine)[5].toInt();
+		goList.last()->gyro.y		= (*splitLine)[6].toInt();
+		goList.last()->gyro.z		= (*splitLine)[7].toInt();
+		goList.last()->magneto.x	= (*splitLine)[8].toInt();
+		goList.last()->magneto.y	= (*splitLine)[9].toInt();
+		goList.last()->magneto.z	= (*splitLine)[10].toInt();
+		goList.last()->io[0]		= (*splitLine)[11].toInt();
+		goList.last()->io[1]		= (*splitLine)[12].toInt();
+		goList.last()->capsense[0]	= (*splitLine)[13].toInt();
+		goList.last()->capsense[1]	= (*splitLine)[14].toInt();
+		goList.last()->capsense[2]	= (*splitLine)[15].toInt();
+		goList.last()->capsense[3]	= (*splitLine)[16].toInt();
+		goList.last()->status		= (*splitLine)[17].toInt();
+	}
 }
 
 void GossipDevice::clear(void)
@@ -126,19 +147,19 @@ void GossipDevice::clear(void)
 void GossipDevice::appendEmptyLine(void)
 {
 	timeStamp.append(TimeStamp());
-	goList.append(GossipStamp());
+	goList.append(new gossip_s());
 }
 
 void GossipDevice::decodeLastLine(void)
 {
-	decode(goList.last().data);
+	decode(goList.last());
 }
 
 void GossipDevice::decodeAllLine(void)
 {
 	for(int i = 0; i < goList.size(); ++i)
 	{
-		decode(goList[i].data);
+		decode(goList[i]);
 	}
 }
 

@@ -52,8 +52,7 @@ ManageDevice::ManageDevice(manage_s *devicePtr): FlexseaDevice()
 {
 	this->dataSource = LiveDataFile;
 	timeStamp.append(TimeStamp());
-	mnList.append(ManageStamp());
-	mnList.last().data = devicePtr;
+	mnList.append(devicePtr);
 	serializedLength = header.length();
 	slaveType = "manage";
 }
@@ -90,31 +89,54 @@ QStringList ManageDevice::header = QStringList()
 QString ManageDevice::getLastSerializedStr(void)
 {
 	QString str;
-	QTextStream(&str) <<	timeStamp.last().date			<< ',' << \
-							timeStamp.last().ms				<< ',' << \
-							mnList.last().data->accel.x		<< ',' << \
-							mnList.last().data->accel.y		<< ',' << \
-							mnList.last().data->accel.z		<< ',' << \
-							mnList.last().data->gyro.x		<< ',' << \
-							mnList.last().data->gyro.y		<< ',' << \
-							mnList.last().data->gyro.z		<< ',' << \
-							mnList.last().data->digitalIn	<< ',' << \
-							mnList.last().data->sw1			<< ',' << \
-							mnList.last().data->analog[0]	<< ',' << \
-							mnList.last().data->analog[1]	<< ',' << \
-							mnList.last().data->analog[2]	<< ',' << \
-							mnList.last().data->analog[3]	<< ',' << \
-							mnList.last().data->analog[4]	<< ',' << \
-							mnList.last().data->analog[5]	<< ',' << \
-							mnList.last().data->analog[6]	<< ',' << \
-							mnList.last().data->analog[7]	<< ',' << \
-							mnList.last().data->status1;
+	QTextStream(&str) <<	timeStamp.last().date		<< ',' << \
+							timeStamp.last().ms			<< ',' << \
+							mnList.last()->accel.x		<< ',' << \
+							mnList.last()->accel.y		<< ',' << \
+							mnList.last()->accel.z		<< ',' << \
+							mnList.last()->gyro.x		<< ',' << \
+							mnList.last()->gyro.y		<< ',' << \
+							mnList.last()->gyro.z		<< ',' << \
+							mnList.last()->digitalIn	<< ',' << \
+							mnList.last()->sw1			<< ',' << \
+							mnList.last()->analog[0]	<< ',' << \
+							mnList.last()->analog[1]	<< ',' << \
+							mnList.last()->analog[2]	<< ',' << \
+							mnList.last()->analog[3]	<< ',' << \
+							mnList.last()->analog[4]	<< ',' << \
+							mnList.last()->analog[5]	<< ',' << \
+							mnList.last()->analog[6]	<< ',' << \
+							mnList.last()->analog[7]	<< ',' << \
+							mnList.last()->status1;
 	return str;
 }
 
 void ManageDevice::appendSerializedStr(QStringList *splitLine)
 {
-
+	//Check if data line contain the number of data expected
+	if(splitLine->length() >= serializedLength)
+	{
+		appendEmptyLine();
+		timeStamp.last().date		= (*splitLine)[0];
+		timeStamp.last().ms			= (*splitLine)[1].toInt();
+		mnList.last()->accel.x		= (*splitLine)[2].toInt();
+		mnList.last()->accel.y		= (*splitLine)[3].toInt();
+		mnList.last()->accel.z		= (*splitLine)[4].toInt();
+		mnList.last()->gyro.x		= (*splitLine)[5].toInt();
+		mnList.last()->gyro.y		= (*splitLine)[6].toInt();
+		mnList.last()->gyro.z		= (*splitLine)[7].toInt();
+		mnList.last()->digitalIn	= (*splitLine)[8].toInt();
+		mnList.last()->sw1			= (*splitLine)[9].toInt();
+		mnList.last()->analog[0]	= (*splitLine)[10].toInt();
+		mnList.last()->analog[1]	= (*splitLine)[11].toInt();
+		mnList.last()->analog[2]	= (*splitLine)[12].toInt();
+		mnList.last()->analog[3]	= (*splitLine)[13].toInt();
+		mnList.last()->analog[4]	= (*splitLine)[14].toInt();
+		mnList.last()->analog[5]	= (*splitLine)[15].toInt();
+		mnList.last()->analog[6]	= (*splitLine)[16].toInt();
+		mnList.last()->analog[7]	= (*splitLine)[17].toInt();
+		mnList.last()->status1		= (*splitLine)[18].toInt();
+	}
 }
 
 void ManageDevice::clear(void)
@@ -127,19 +149,19 @@ void ManageDevice::clear(void)
 void ManageDevice::appendEmptyLine(void)
 {
 	timeStamp.append(TimeStamp());
-	mnList.append(ManageStamp());
+	mnList.append(new manage_s());
 }
 
 void ManageDevice::decodeLastLine(void)
 {
-	decode(mnList.last().data);
+	decode(mnList.last());
 }
 
 void ManageDevice::decodeAllLine(void)
 {
 	for(int i = 0; i < mnList.size(); ++i)
 	{
-		decode(mnList[i].data);
+		decode(mnList[i]);
 	}
 }
 

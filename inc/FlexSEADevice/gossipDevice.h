@@ -49,13 +49,6 @@ namespace Ui
 	class GossipDevice;
 }
 
-struct GossipStamp
-{
-	QString timeStampDate;
-	int32_t timeStamp_ms;
-	gossip_s *data;
-};
-
 class GossipDevice : public FlexseaDevice
 {
 public:
@@ -72,7 +65,7 @@ public:
 	void appendEmptyLine(void);
 	QString getStatusStr(int index);
 
-	QList<struct GossipStamp> goList;
+	QList<struct gossip_s *> goList;
 	static void decode(struct gossip_s *goPtr);
 
 private:

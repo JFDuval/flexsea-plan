@@ -49,13 +49,6 @@ namespace Ui
 	class StrainDevice;
 }
 
-struct StrainStamp
-{
-	QString timeStampDate;
-	int32_t timeStamp_ms;
-	strain_s *data;
-};
-
 class StrainDevice : public FlexseaDevice
 {
 public:
@@ -72,7 +65,7 @@ public:
 	void appendEmptyLine(void);
 	QString getStatusStr(int index);
 
-	QList<struct StrainStamp> stList;
+	QList<struct strain_s*> stList;
 	static void decode(struct strain_s *stPtr);
 
 private:
