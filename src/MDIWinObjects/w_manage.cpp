@@ -34,9 +34,6 @@
 
 #include "w_manage.h"
 #include "ui_w_manage.h"
-#include "main.h"
-#include <QString>
-#include <QTextStream>
 
 //****************************************************************************
 // Constructor & Destructor:

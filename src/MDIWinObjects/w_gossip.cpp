@@ -33,27 +33,30 @@
 //****************************************************************************
 
 #include "w_gossip.h"
-#include "flexsea_generic.h"
 #include "ui_w_gossip.h"
-#include "main.h"
-#include <QString>
-#include <QTextStream>
-#include <QDebug>
 
 //****************************************************************************
 // Constructor & Destructor:
 //****************************************************************************
 
-W_Gossip::W_Gossip(QWidget *parent) :
+W_Gossip::W_Gossip(QWidget *parent,
+				   GossipDevice *deviceLogPtr,
+				   DisplayMode mode,
+				   QList<GossipDevice> *deviceListPtr) :
 	QWidget(parent),
 	ui(new Ui::W_Gossip)
 {
 	ui->setupUi(this);
 
+	deviceLog  = deviceLogPtr;
+	deviceList = deviceListPtr;
+
+	displayMode = mode;
+
 	setWindowTitle(this->getDescription());
 	setWindowIcon(QIcon(":icons/d_logo_small.png"));
 
-	init();
+	updateDisplayMode(displayMode);
 }
 
 W_Gossip::~W_Gossip()
@@ -71,27 +74,61 @@ W_Gossip::~W_Gossip()
 //****************************************************************************
 
 //Call this function to refresh the display
-void W_Gossip::refreshDisplayGossip(void)
+void W_Gossip::refreshDisplay(void)
 {
-	struct gossip_s *goPtr;
-	FlexSEA_Generic::assignGossipPtr(&goPtr, SL_BASE_GOSSIP, \
-									  ui->comboBox_slave->currentIndex());
-	displayGossip(goPtr);
+	int index = ui->comboBox_slave->currentIndex();
+	display(&((*deviceList)[index]), 0);
+}
+
+void W_Gossip::refreshDisplayLog(int index, FlexseaDevice * devPtr)
+{
+	if(devPtr->slaveName == deviceLog->slaveName)
+	{
+		if(deviceLog->goList.isEmpty() == false)
+		{
+			 display(deviceLog, index);
+		}
+	}
+}
+
+void W_Gossip::updateDisplayMode(DisplayMode mode)
+{
+	displayMode = mode;
+	if(displayMode == DisplayLogData)
+	{
+		initLog();
+	}
+	else
+	{
+		initLive();
+	}
 }
 
 //****************************************************************************
 // Private function(s):
 //****************************************************************************
 
-void W_Gossip::init(void)
+void W_Gossip::initLive(void)
 {
 	//Populates Slave list:
-	FlexSEA_Generic::populateSlaveComboBox(ui->comboBox_slave, \
-											SL_BASE_GOSSIP, SL_LEN_GOSSIP);
+	ui->comboBox_slave->clear();
+
+	for(int i = 0; i < (*deviceList).length(); i++)
+	{
+		ui->comboBox_slave->addItem((*deviceList)[i].slaveName);
+	}
 }
 
-void W_Gossip::displayGossip(struct gossip_s *go)
+void W_Gossip::initLog(void)
 {
+	//Populates Slave list:
+	ui->comboBox_slave->clear();
+	ui->comboBox_slave->addItem(deviceLog->slaveName);
+}
+
+void W_Gossip::display(GossipDevice *devicePtr, int index)
+{
+	struct gossip_s *go = devicePtr->goList[index];
 	//Raw values:
 	//===========
 

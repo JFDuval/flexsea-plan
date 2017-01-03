@@ -33,7 +33,6 @@
 //****************************************************************************
 
 #include "executeDevice.h"
-#include "flexsea_generic.h"
 #include <QDebug>
 #include <QTextStream>
 

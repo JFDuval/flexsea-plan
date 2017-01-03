@@ -34,9 +34,6 @@
 
 #include "w_execute.h"
 #include "ui_w_execute.h"
-#include "main.h"
-#include <QString>
-#include <QTextStream>
 
 //****************************************************************************
 // Constructor & Destructor:

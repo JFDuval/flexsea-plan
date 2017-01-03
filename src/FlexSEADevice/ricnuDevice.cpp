@@ -33,7 +33,6 @@
 //****************************************************************************
 
 #include "ricnuDevice.h"
-#include "flexsea_generic.h"
 #include <QDebug>
 #include <QTextStream>
 #include "executeDevice.h"

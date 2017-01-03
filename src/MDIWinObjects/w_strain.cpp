@@ -33,12 +33,7 @@
 //****************************************************************************
 
 #include "w_strain.h"
-#include "flexsea_generic.h"
 #include "ui_w_strain.h"
-#include "main.h"
-#include <QString>
-#include <QDebug>
-#include <QTextStream>
 
 //****************************************************************************
 // Constructor & Destructor:

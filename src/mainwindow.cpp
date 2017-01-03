@@ -703,7 +703,8 @@ void MainWindow::createViewGossip(void)
 	//Limited number of windows:
 	if(objectCount < (GOSSIP_WINDOWS_MAX))
 	{
-		myViewGossip[objectCount] = new W_Gossip(this);
+		myViewGossip[objectCount] = new W_Gossip(this, &gossipLog,
+												 getDisplayMode(), &gossipDevList);
 		ui->mdiArea->addSubWindow(myViewGossip[objectCount]);
 		myViewGossip[objectCount]->show();
 
@@ -712,11 +713,18 @@ void MainWindow::createViewGossip(void)
 
 		//Link SerialDriver and Gossip:
 		connect(mySerialDriver, SIGNAL(newDataReady()), \
-				myViewGossip[objectCount], SLOT(refreshDisplayGossip()));
+				myViewGossip[objectCount], SLOT(refreshDisplay()));
 
 		//Link to MainWindow for the close signal:
 		connect(myViewGossip[objectCount], SIGNAL(windowClosed()), \
 				this, SLOT(closeViewGossip()));
+
+		// Link to the slider of logKeyPad. Intermediate signal (connector) to
+		// allow opening of window asynchroniously
+		connect(this, SIGNAL(connectorRefreshLogTimeSlider(int, FlexseaDevice *)), \
+				myViewGossip[objectCount], SLOT(refreshDisplayLog(int, FlexseaDevice *)));
+		connect(this, SIGNAL(connectorUpdateDisplayMode(DisplayMode)), \
+				myViewGossip[objectCount], SLOT(updateDisplayMode(DisplayMode)));
 	}
 
 	else

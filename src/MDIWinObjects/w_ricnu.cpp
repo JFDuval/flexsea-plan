@@ -33,10 +33,7 @@
 //****************************************************************************
 
 #include "w_ricnu.h"
-#include "flexsea_generic.h"
 #include "ui_w_ricnu.h"
-#include "ricnuDevice.h"
-#include "main.h"
 
 //****************************************************************************
 // Constructor & Destructor:
