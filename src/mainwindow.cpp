@@ -791,7 +791,8 @@ void MainWindow::createViewBattery(void)
 	//Limited number of windows:
 	if(objectCount < (BATT_WINDOWS_MAX))
 	{
-		myViewBatt[objectCount] = new W_Battery(this);
+		myViewBatt[objectCount] = new W_Battery(this, &batteryLog,
+												getDisplayMode(), &batteryDevList);
 		ui->mdiArea->addSubWindow(myViewBatt[objectCount]);
 		myViewBatt[objectCount]->show();
 
@@ -805,6 +806,13 @@ void MainWindow::createViewBattery(void)
 		//Link to MainWindow for the close signal:
 		connect(myViewBatt[objectCount], SIGNAL(windowClosed()), \
 				this, SLOT(closeViewBattery()));
+
+		// Link to the slider of logKeyPad. Intermediate signal (connector) to
+		// allow opening of window asynchroniously
+		connect(this, SIGNAL(connectorRefreshLogTimeSlider(int, FlexseaDevice *)), \
+				myViewBatt[objectCount], SLOT(refreshDisplayLog(int, FlexseaDevice *)));
+		connect(this, SIGNAL(connectorUpdateDisplayMode(DisplayMode)), \
+				myViewBatt[objectCount], SLOT(updateDisplayMode(DisplayMode)));
 	}
 
 	else
