@@ -137,7 +137,7 @@ private:
 	//Store active connections:
 
 	QList<FlexseaDevice*> *devList;
-	QList<FlexseaDevice*> *testBenchList;
+	QList<FlexseaDevice*> testBenchList;
 
 	FlexseaDevice *selectedDeviceList[MAX_SC_ITEMS];
 	QDateTime *myTime;

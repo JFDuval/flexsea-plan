@@ -105,24 +105,23 @@ void W_Converter::zero32bitsBytes(void)
 
 void W_Converter::on_lineEdituint32_returnPressed()
 {
-	uint8_t tmp0 = 0, tmp1 = 0, tmp2, tmp3;
 	int val_entered = ui->lineEdituint32->text().toInt();
-	uint32_t val = 0;
+	uint16_t index = 0;
+	uint8_t buf[4] = {0,0,0,0};
 
 	//Convert and display
-	val = (uint32_t)val_entered;
-	uint32_to_bytes(val, &tmp0, &tmp1, &tmp2, &tmp3);
-	ui->label_32b0->setText(QString::number(tmp0));
-	ui->label_32b1->setText(QString::number(tmp1));
-	ui->label_32b2->setText(QString::number(tmp2));
-	ui->label_32b3->setText(QString::number(tmp3));
+	SPLIT_32((uint32_t)val_entered, buf, &index);
+	ui->label_32b0->setText(QString::number(buf[0]));
+	ui->label_32b1->setText(QString::number(buf[1]));
+	ui->label_32b2->setText(QString::number(buf[2]));
+	ui->label_32b3->setText(QString::number(buf[3]));
 }
 
 void W_Converter::on_lineEdituint16_returnPressed()
 {
-	uint8_t tmp0 = 0, tmp1 = 0;
 	int val_entered = ui->lineEdituint16->text().toInt();
-	uint16_t val = 0;
+	uint16_t index = 0;
+	uint8_t buf[2] = {0,0};
 
 	//Not in range?
 	if((val_entered < MIN_16BITS) || (val_entered > MAX_16BITS))
@@ -133,10 +132,9 @@ void W_Converter::on_lineEdituint16_returnPressed()
 	}
 
 	//Convert and display
-	val = (uint16_t)val_entered;
-	uint16_to_bytes(val, &tmp0, &tmp1);
-	ui->label_16b0->setText(QString::number(tmp0));
-	ui->label_16b1->setText(QString::number(tmp1));
+	SPLIT_16((uint16_t)val_entered, buf, &index);
+	ui->label_16b0->setText(QString::number(buf[0]));
+	ui->label_16b1->setText(QString::number(buf[1]));
 }
 
 void W_Converter::on_lineEdituint32_textChanged(const QString &arg1)

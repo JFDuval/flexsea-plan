@@ -80,7 +80,17 @@ SOURCES += src/main.cpp \
     src/FlexSEADevice/gossipDevice.cpp \
     src/FlexSEADevice/manageDevice.cpp \
     src/FlexSEADevice/ricnuDevice.cpp \
-    src/FlexSEADevice/strainDevice.cpp
+    src/FlexSEADevice/strainDevice.cpp \
+    flexsea-user/MIT_2DoF_Ankle_v1/src/user-ex-MIT_2DoF_Ankle_v1.c \
+    flexsea-user/MIT_2DoF_Ankle_v1/src/user-mn-MIT_2DoF_Ankle_v1.c \
+    flexsea-user/MotorTestBench/src/cmd-MotorTestBench.c \
+    flexsea-user/MotorTestBench/src/user-ex-MotorTestBench.c \
+    flexsea-user/MotorTestBench/src/user-mn-MotorTestBench.c \
+    flexsea-user/RICNU_Knee_v1/src/user-ex-RICNU_Knee_v1.c \
+    flexsea-user/RICNU_Knee_v1/src/user-mn-RICNU_Knee_v1.c \
+    flexsea-user/src/flexsea_user_structs.c \
+    flexsea-user/src/user-ex.c \
+    flexsea-user/src/user-mn.c
 
 HEADERS  += inc/main.h \
 	inc/mainwindow.h \
@@ -131,7 +141,17 @@ HEADERS  += inc/main.h \
     inc/FlexSEADevice/gossipDevice.h \
     inc/FlexSEADevice/manageDevice.h \
     inc/FlexSEADevice/ricnuDevice.h \
-    inc/FlexSEADevice/strainDevice.h
+    inc/FlexSEADevice/strainDevice.h \
+    flexsea-user/inc/flexsea_user_structs.h \
+    flexsea-user/inc/user-ex.h \
+    flexsea-user/inc/user-mn.h \
+    flexsea-user/MIT_2DoF_Ankle_v1/inc/user-ex-MIT_2DoF_Ankle_v1.h \
+    flexsea-user/MIT_2DoF_Ankle_v1/inc/user-mn-MIT_2DoF_Ankle_v1.h \
+    flexsea-user/MotorTestBench/inc/cmd-MotorTestBench.h \
+    flexsea-user/MotorTestBench/inc/user-ex-MotorTestBench.h \
+    flexsea-user/MotorTestBench/inc/user-mn-MotorTestBench.h \
+    flexsea-user/RICNU_Knee_v1/inc/user-ex-RICNU_Knee_v1.h \
+    flexsea-user/RICNU_Knee_v1/inc/user-mn-RICNU_Knee_v1.h
 
 FORMS    += ui/mainwindow.ui \
 	ui/w_execute.ui \
@@ -166,3 +186,8 @@ QMAKE_CFLAGS = $$QMAKE_CFLAGS -Wno-unused-but-set-variable
 #	flexsea-system/GPL-3.0.txt \
 #	flexsea-comm/README.md \
 #	flexsea-system/README.md
+
+DISTFILES += \
+    flexsea-user/flexsea.gitignore \
+    flexsea-user/GPL-3.0.txt \
+    flexsea-user/README.md

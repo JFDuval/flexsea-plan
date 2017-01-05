@@ -57,9 +57,9 @@ W_SlaveComm::W_SlaveComm(QWidget *parent,
 
 	devList = flexSEADevListPtr;
 	//TODO Probably not the best way to do this
-	testBenchList->append(devList[0]);
-	testBenchList->append(devList[1]);
-	testBenchList->append(devList[9]);
+	testBenchList.append((*devList)[0]);
+	testBenchList.append((*devList)[1]);
+	testBenchList.append((*devList)[9]);
 
 	initSlaveCom();
 	initTimers();
@@ -613,7 +613,7 @@ void W_SlaveComm::sc_battery(uint8_t item)
 	emit slaveReadWrite(numb, comm_str_usb, READ);
 
 	//2) Decode values
-	(*devList)[sel_slave]->decodeLastLine();
+	selectedDeviceList[item]->decodeLastLine();
 
 	//3) Log
 	/*
@@ -654,7 +654,7 @@ void W_SlaveComm::sc_testbench(uint8_t item)
 //		FlexSEA_Generic::decodeSlave(SL_BASE_ALL, 9);
 //	}
 
-	(*testBenchList)[index]->decodeLastLine();
+	testBenchList[index]->decodeLastLine();
 
 	//3) Log
 	if(logThisItem[item] == true)
