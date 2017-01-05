@@ -49,8 +49,8 @@
 //****************************************************************************
 
 #define MAX_SC_ITEMS            4
-#define MAX_SLAVES              10
-#define MASTER_TIMER            100 //Hz
+#define MAX_SLAVES				10
+#define MASTER_TIMER            200 //Hz
 #define MAX_EXPERIMENTS         10
 
 #define TIM_FREQ_TO_P(f)		(1000/f)	//f in Hz, return in ms
@@ -78,7 +78,7 @@ public slots:
 	void receiveNewDataReady(void);
 	void receiveComPortStatus(bool status);
 	void updateIndicatorTimeout(bool rst);
-	void externalSlaveWrite(char numb, unsigned char *tx_data);
+	void externalSlaveReadWrite(uint8_t numb, uint8_t *tx_data, uint8_t r_w);
 
 private slots:
 
@@ -107,9 +107,12 @@ private slots:
 	void on_checkBoxLog3_stateChanged(int arg1);
 	void on_checkBoxLog4_stateChanged(int arg1);
 
+	void on_lineEdit_returnPressed();
+
 signals:
 
 	//Timers:
+	void masterTimer200Hz(void);
 	void masterTimer100Hz(void);
 	void masterTimer50Hz(void);
 	void masterTimer20Hz(void);
@@ -134,6 +137,7 @@ private:
 	//Store active connections:
 
 	QList<FlexseaDevice*> *devList;
+	QList<FlexseaDevice*> *testBenchList;
 
 	FlexseaDevice *selectedDeviceList[MAX_SC_ITEMS];
 	QDateTime *myTime;
@@ -158,6 +162,11 @@ private:
 	//Will change this, but for now the payloads will be stored in:
 	uint8_t tmp_payload_xmit[48];
 
+	//Command line (only for RIC/NU as of today):
+	uint8_t cmdLineOffsetEntries = 0;
+	char cmdLineOffsetArray[10];
+	QString defaultCmdLineText;
+
 	//Function(s):
 	void initSlaveCom(void);
 	void initTimers(void);
@@ -168,6 +177,8 @@ private:
 	void sc_read_all(uint8_t item);
 	void sc_read_all_ricnu(uint8_t item);
 	void sc_ankle2dof(uint8_t item);
+	void sc_battery(uint8_t item);
+	void sc_testbench(uint8_t item);
 	void decodeAndLog(uint8_t item);
 	void configSlaveComm(int item);
 	void updateStatusBar(QString txt);

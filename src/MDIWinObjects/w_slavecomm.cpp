@@ -56,6 +56,11 @@ W_SlaveComm::W_SlaveComm(QWidget *parent,
 	setWindowIcon(QIcon(":icons/d_logo_small.png"));
 
 	devList = flexSEADevListPtr;
+	//TODO Probably not the best way to do this
+	testBenchList->append(devList[0]);
+	testBenchList->append(devList[1]);
+	testBenchList->append(devList[9]);
+
 	initSlaveCom();
 	initTimers();
 }
@@ -111,12 +116,14 @@ void W_SlaveComm::receiveComPortStatus(bool status)
 }
 
 //A 3rd party is using SlaveComm to write to a slave (ex.: Control, Any Command)
-void W_SlaveComm::externalSlaveWrite(char numb, unsigned char *tx_data)
+void W_SlaveComm::externalSlaveReadWrite(uint8_t numb, uint8_t *tx_data, uint8_t r_w)
 {
-	//First test: send right away
-	//***TODO Fix***
-	FlexSEA_Generic::packetVisualizer(numb, tx_data);
-	emit slaveReadWrite(numb, tx_data, WRITE);
+	//First test: send right away //***TODO Fix***, should be in queue
+
+	emit slaveReadWrite(numb, tx_data, r_w);
+
+	//Enable the following line to inspect the packet:
+	//FlexSEA_Generic::packetVisualizer(numb, tx_data);
 }
 
 //****************************************************************************
@@ -178,10 +185,9 @@ void W_SlaveComm::initSlaveCom(void)
 	labelStatusttip = "<html><head/><body><p>Stream Status.</p></body></html>";
 	QFont font( "Arial", 12, QFont::Bold);
 
-	var_list_refresh << "100Hz" << "50Hz" << "33Hz" << "20Hz" \
-					 << "10Hz" << "5Hz" << "1Hz";
-	refreshRate << 100 << 50 << 33 << 20
-				<< 10 << 5 << 1;
+	var_list_refresh << "200Hz" << "100Hz" << "50Hz" << "33Hz" \
+					 << "20Hz" << "10Hz" << "5Hz" << "1Hz";
+	refreshRate << 200 << 100 << 50 << 33 << 20 << 10 << 5 << 1;
 
 	for(int item = 0; item < MAX_SC_ITEMS; item++)
 	{
@@ -230,8 +236,8 @@ void W_SlaveComm::initSlaveCom(void)
 		}
 
 		//Start at 33Hz:
-		(*comboBoxRefreshPtr[item])->setCurrentIndex(2);
-		selected_refresh_index[item] = 2;
+		(*comboBoxRefreshPtr[item])->setCurrentIndex(3);
+		selected_refresh_index[item] = 3;
 		previous_refresh_index[item] = selected_refresh_index[item];
 
 		//Connect default slots:
@@ -252,6 +258,14 @@ void W_SlaveComm::initSlaveCom(void)
 		(*on_off_pb_ptr[item])->setDisabled(true);
 		(*labelStatusPtr[item])->setDisabled(true);
 	}
+
+	//Default command line settings, RIC/NU:
+	cmdLineOffsetEntries = 2;
+	cmdLineOffsetArray[0] = 0;
+	cmdLineOffsetArray[1] = 1;
+	defaultCmdLineText = "o=0,1;";
+	ui->lineEdit->setEnabled(false);
+	ui->lineEdit->setText(" ");
 }
 
 void W_SlaveComm::initTimers(void)
@@ -344,30 +358,34 @@ void W_SlaveComm::connectSCItem(int item, int sig_idx)
 		switch(sig_idx)
 		{
 			case 0:
-				sc_connections[item] = connect(this, SIGNAL(masterTimer100Hz()), \
+				sc_connections[item] = connect(this, SIGNAL(masterTimer200Hz()), \
 										this, SLOT(sc_item1_slot()));
 				break;
 			case 1:
-				sc_connections[item] = connect(this, SIGNAL(masterTimer50Hz()), \
+				sc_connections[item] = connect(this, SIGNAL(masterTimer100Hz()), \
 										this, SLOT(sc_item1_slot()));
 				break;
 			case 2:
-				sc_connections[item] = connect(this, SIGNAL(masterTimer33Hz()), \
+				sc_connections[item] = connect(this, SIGNAL(masterTimer50Hz()), \
 										this, SLOT(sc_item1_slot()));
 				break;
 			case 3:
-				sc_connections[item] = connect(this, SIGNAL(masterTimer20Hz()), \
+				sc_connections[item] = connect(this, SIGNAL(masterTimer33Hz()), \
 										this, SLOT(sc_item1_slot()));
 				break;
 			case 4:
-				sc_connections[item] = connect(this, SIGNAL(masterTimer10Hz()), \
+				sc_connections[item] = connect(this, SIGNAL(masterTimer20Hz()), \
 										this, SLOT(sc_item1_slot()));
 				break;
 			case 5:
-				sc_connections[item] = connect(this, SIGNAL(masterTimer5Hz()), \
+				sc_connections[item] = connect(this, SIGNAL(masterTimer10Hz()), \
 										this, SLOT(sc_item1_slot()));
 				break;
 			case 6:
+				sc_connections[item] = connect(this, SIGNAL(masterTimer5Hz()), \
+										this, SLOT(sc_item1_slot()));
+				break;
+			case 7:
 				sc_connections[item] = connect(this, SIGNAL(masterTimer1Hz()), \
 										this, SLOT(sc_item1_slot()));
 				break;
@@ -453,6 +471,18 @@ void W_SlaveComm::configSlaveComm(int item)
 			msg_ref += "Changed connection.";
 		}
 
+		//RIC/NU has a command line input:
+		if(selected_exp_index[item] == 2)
+		{
+			ui->lineEdit->setEnabled(true);
+			ui->lineEdit->setText(defaultCmdLineText);
+		}
+		else
+		{
+			ui->lineEdit->setEnabled(false);
+			ui->lineEdit->setText(" ");
+		}
+
 		//Update status message:
 		msg = "Updated #" + QString::number(item+1) + ": (" \
 				+ QString::number(slaveindex) + ", " \
@@ -499,10 +529,15 @@ void W_SlaveComm::sc_read_all_ricnu(uint8_t item)
 {
 	uint16_t numb = 0;
 	uint8_t info[2] = {PORT_USB, PORT_USB};
-	static uint8_t offset = 0;
+	static uint8_t index = 0;
+	uint8_t offset = 0;
 
 	//1) Stream
-	(!offset) ? offset = 1 : offset = 0;
+	index++;
+	index %= cmdLineOffsetEntries;
+	offset = cmdLineOffsetArray[index];
+	//qDebug() << "Reading offset " << offset;
+
 	tx_cmd_ricnu_r(TX_N_DEFAULT, offset);
 	pack(P_AND_S_DEFAULT, selectedDeviceList[item]->slaveID
 		 , info, &numb, comm_str_usb);
@@ -512,8 +547,8 @@ void W_SlaveComm::sc_read_all_ricnu(uint8_t item)
 }
 
 //Argument is the item line (0-3)
-//Read All should be programmed for all boards - it returns all the onboard
-//sensor values
+//Communicates with a Manage, MIT's 2DoF ankle
+
 void W_SlaveComm::sc_ankle2dof(uint8_t item)
 {
 	uint16_t numb = 0;
@@ -562,6 +597,83 @@ void W_SlaveComm::sc_ankle2dof(uint8_t item)
 	}
 
 	previousLogThisItem[item] = logThisItem[item];
+}
+
+//Argument is the item line (0-3)
+//Read the Battery board connected to a Manage
+void W_SlaveComm::sc_battery(uint8_t item)
+{
+	uint16_t numb = 0;
+	uint8_t info[2] = {PORT_USB, PORT_USB};
+
+	//1) Stream
+	tx_cmd_exp_batt_r(TX_N_DEFAULT);
+	pack(P_AND_S_DEFAULT, selectedDeviceList[item]->slaveID
+		 , info, &numb, comm_str_usb);
+	emit slaveReadWrite(numb, comm_str_usb, READ);
+
+	//2) Decode values
+	(*devList)[sel_slave]->decodeLastLine();
+
+	//3) Log
+	/*
+	if(logThisItem[item] == true)
+	{
+		emit writeToLogFile(item, slaveIndex, expIndex,
+							refreshRate.at(ui->comboBoxRefresh1->currentIndex()));
+	}
+	*/
+}
+
+//Argument is the item line (0-3)
+//Communicates with a Manage, as part of our motor test bench
+void W_SlaveComm::sc_testbench(uint8_t item)
+{
+	uint16_t numb = 0;
+	uint8_t info[2] = {PORT_USB, PORT_USB};
+	qint64 t_ms = 0;
+	QString t_text = "";
+	static uint8_t index = 0;
+
+	//1) Stream
+	tx_cmd_motortb_r(TX_N_DEFAULT, index, 0, 0, 0);
+	pack(P_AND_S_DEFAULT, selectedDeviceList[item]->slaveID
+		 , info, &numb, comm_str_usb);
+	emit slaveReadWrite(numb, comm_str_usb, READ);
+
+	index++;
+	index %= 3;
+
+	//2) Decode values
+//	if(offset == 0 || offset == 1)
+//	{
+//		FlexSEA_Generic::decodeSlave(SL_BASE_EX, offset);
+//	}
+//	else if(offset == 2)
+//	{
+//		FlexSEA_Generic::decodeSlave(SL_BASE_ALL, 9);
+//	}
+
+	(*testBenchList)[index]->decodeLastLine();
+
+	//3) Log
+	if(logThisItem[item] == true)
+	{
+		// TODO Not sure it's right?
+		if(previousLogThisItem[item] == false)
+		{
+			logTimestamp(&t_ms, &t_text);
+			t_ms_initial[item] = t_ms;
+		}
+
+		//Timestamps:
+		logTimestamp(&t_ms, &t_text);
+		t_ms -= t_ms_initial[item];
+
+		selectedDeviceList[item]->timeStamp.last().date = t_text;
+		selectedDeviceList[item]->timeStamp.last().ms = t_ms;
+		emit writeToLogFile(selectedDeviceList[item], item);
+	}
 }
 
 void W_SlaveComm::decodeAndLog(uint8_t item)
@@ -644,19 +756,28 @@ void W_SlaveComm::sc_item1_slot(void)
 			case 4: //2DOF Ankle
 				sc_ankle2dof(0);
 				break;
+			case 5:	//Battery Board
+				sc_battery(0);
+				break;
+			case 6:	//Test Bench
+				sc_testbench(0);
+				break;
 			default:
 				break;
 		}
 	}
 }
 
-//Master timebase is 100Hz. We divide is to get [100, 50, 33, 20, 10, 5, 1]Hz
+
+/* Master timebase is 200Hz. We divide is to get
+ * [200, 100, 50, 33, 20, 10, 5, 1]Hz */
 void W_SlaveComm::masterTimerEvent(void)
 {
-	static int tb50Hz = 0, tb33Hz = 0, tb20Hz = 0;
+	static int tb100Hz = 0, tb50Hz = 0, tb33Hz = 0, tb20Hz = 0;
 	static int tb10Hz = 0, tb5Hz = 0, tb1Hz = 0;
 
 	//Increment all counters:
+	tb100Hz++;
 	tb50Hz++;
 	tb33Hz++;
 	tb20Hz++;
@@ -666,41 +787,47 @@ void W_SlaveComm::masterTimerEvent(void)
 
 	//Emit signals:
 
-	emit masterTimer100Hz();
+	emit masterTimer200Hz();
 	updateIndicatorTimeout(false);
 
-	if(tb50Hz > 1)
+	if(tb100Hz > 1)
+	{
+		tb100Hz = 0;
+		emit masterTimer100Hz();
+	}
+
+	if(tb50Hz > 3)
 	{
 		tb50Hz = 0;
 		emit masterTimer50Hz();
 	}
 
-	if(tb33Hz > 2)
+	if(tb33Hz > 5)
 	{
 		tb33Hz = 0;
 		emit masterTimer33Hz();
 		emit refresh2DPlot();   //Move to desired slot
 	}
 
-	if(tb20Hz > 4)
+	if(tb20Hz > 9)
 	{
 		tb20Hz = 0;
 		emit masterTimer20Hz();
 	}
 
-	if(tb10Hz > 9)
+	if(tb10Hz > 19)
 	{
 		tb10Hz = 0;
 		emit masterTimer10Hz();
 	}
 
-	if(tb5Hz > 19)
+	if(tb5Hz > 39)
 	{
 		tb5Hz = 0;
 		emit masterTimer5Hz();
 	}
 
-	if(tb1Hz > 99)
+	if(tb1Hz > 199)
 	{
 		tb1Hz = 0;
 		emit masterTimer1Hz();
@@ -821,4 +948,53 @@ void W_SlaveComm::on_checkBoxLog4_stateChanged(int arg1)
 {
 	(void)arg1;	//Unused for now
 	configSlaveComm(3);
+}
+
+//Command line input: enter pressed
+void W_SlaveComm::on_lineEdit_returnPressed()
+{
+	qDebug() << "Command line:";
+	QString txt = ui->lineEdit->text();
+	QChar offset = 0;
+	QChar cmd = txt.at(0);
+	int cmdInt = cmd.toLatin1();
+	int len = txt.length();
+
+	if(txt.at(len-1) == ';')
+	{
+		qDebug() << "Properly terminated command.";
+	}
+	else
+	{
+		return;
+	}
+
+	len -= 3;	//We only care about the offsets, not the framing
+	cmdLineOffsetEntries = (len+1)/2;
+	qDebug() << "Entries:" << cmdLineOffsetEntries;
+
+	switch(cmdInt)
+	{
+		case 'o':
+			for(int i = 0; i < cmdLineOffsetEntries; i++)
+			{
+				if(txt.at(2 + 2*i).isDigit())
+				{
+					offset = txt.at(2 + 2*i);
+					cmdLineOffsetArray[i] = offset.toLatin1() - '0';
+					qDebug() << "[o]ffset[:" << i << "] =" << offset;
+				}
+				else
+				{
+					qDebug() << "Invalid [o]ffset";
+				}
+			}
+			break;
+
+		default:
+			qDebug() << "Unknown command";
+			break;
+	}
+
+	//qDebug() << "Result: " << offsetArray;
 }
