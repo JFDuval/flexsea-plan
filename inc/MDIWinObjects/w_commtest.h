@@ -65,10 +65,11 @@ signals:
 	void writeCommand(uint8_t numb, uint8_t *tx_data, uint8_t r_w);
 
 private slots:
-	void on_pushButton_w0_clicked();
 	void refreshDisplay(void);
-
+	void readCommTest(void);
 	void on_comboBox_slave_currentIndexChanged(int index);
+	void on_pushButtonStartStop_clicked();
+	void on_pushButtonReset_clicked();
 
 private:
 	// Static Variable
@@ -76,15 +77,22 @@ private:
 	//Variables & Objects:
 	Ui::W_CommTest *ui;
 	int active_slave, active_slave_index;
-	QTimer *refreshDelayTimer;
+	QTimer *experimentTimer, *displayTimer;
+	float successRate, lossRate;
+	int32_t receivedPackets;
+	int32_t experimentTimerFreq;
 
 	//Function(s):
 	void init(void);
-	void readCommTest(void);
+	void initTimers(void);
 };
 
 //****************************************************************************
 // Definition(s)
 //****************************************************************************
+
+#define TIM_FREQ_TO_P(f)				(1000/f)	//f in Hz, return in ms
+#define DISPLAY_TIMER					25	//Hz
+#define DEFAULT_EXPERIMENT_TIMER_FREQ	25
 
 #endif // W_COMMTEST_H
