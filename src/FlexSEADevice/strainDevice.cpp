@@ -121,7 +121,7 @@ void StrainDevice::appendEmptyLine(void)
 
 void StrainDevice::decodeLastLine(void)
 {
-	if(dataSource == LiveDataFile){decompressbytes6ch(stList.last());}
+	if(dataSource == LiveDataFile){decompressRawBytes(stList.last());}
 	decode(stList.last());
 }
 
@@ -129,7 +129,6 @@ void StrainDevice::decodeAllLine(void)
 {
 	for(int i = 0; i < stList.size(); ++i)
 	{
-		if(dataSource == LiveDataFile){decompressbytes6ch(stList.last());}
 		decode(stList[i]);
 	}
 }
@@ -139,6 +138,9 @@ QString StrainDevice::getStatusStr(int index)
 	return QString("No decoding available for this board");
 }
 
+// TODO When everybody will use device class, change this function to
+// remove static attribute and move the decompress call here.
+// Do the same in the other device.
 void StrainDevice::decode(struct strain_s *stPtr)
 {
 	stPtr->decoded.strain[0] = (100*(stPtr->ch[0].strain_filtered-STRAIN_MIDPOINT)/STRAIN_MIDPOINT);
@@ -149,7 +151,7 @@ void StrainDevice::decode(struct strain_s *stPtr)
 	stPtr->decoded.strain[5] = (100*(stPtr->ch[5].strain_filtered-STRAIN_MIDPOINT)/STRAIN_MIDPOINT);
 }
 
-void StrainDevice::decompressbytes6ch(struct strain_s *stPtr)
+void StrainDevice::decompressRawBytes(struct strain_s *stPtr)
 {
 	uint8_t *buf = stPtr->compressedBytes;
 

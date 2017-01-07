@@ -118,6 +118,7 @@ void BatteryDevice::appendEmptyLine(void)
 
 void BatteryDevice::decodeLastLine(void)
 {
+	if(dataSource == LiveDataFile){decompressRawBytes(baList.last());}
 	decode(baList.last());
 }
 
@@ -140,6 +141,17 @@ void BatteryDevice::decode(struct battery_s *baPtr)
 	baPtr->decoded.current = baPtr->current;    //TODO mA
 	baPtr->decoded.power = baPtr->voltage * baPtr->current; // mW
 	baPtr->decoded.temp = baPtr->temp;          //TODO C*10
+}
+
+void BatteryDevice::decompressRawBytes(struct battery_s *baPtr)
+{
+	//Raw bytes to raw values:
+	//========================
+
+	baPtr->status = baPtr->rawBytes[0];
+	baPtr->voltage = (baPtr->rawBytes[2] << 8) + baPtr->rawBytes[3];
+	baPtr->current = (baPtr->rawBytes[4] << 8) + baPtr->rawBytes[5];
+	baPtr->temp = baPtr->rawBytes[6];
 }
 
 //****************************************************************************

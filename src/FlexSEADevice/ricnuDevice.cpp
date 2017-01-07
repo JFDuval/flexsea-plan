@@ -163,7 +163,7 @@ void RicnuDevice::appendEmptyLineWithExAndStStruct(void)
 
 void RicnuDevice::decodeLastLine(void)
 {
-	if(dataSource == LiveDataFile){StrainDevice::decompressbytes6ch(riList.last()->st);}
+	if(dataSource == LiveDataFile){StrainDevice::decompressRawBytes(riList.last()->st);}
 	decode(riList.last());
 }
 
@@ -171,7 +171,7 @@ void RicnuDevice::decodeAllLine(void)
 {
 	for(int i = 0; i < riList.size(); ++i)
 	{
-		if(dataSource == LiveDataFile){StrainDevice::decompressbytes6ch(riList[i]->st);}
+		if(dataSource == LiveDataFile){StrainDevice::decompressRawBytes(riList[i]->st);}
 		decode(riList[i]);
 	}
 }

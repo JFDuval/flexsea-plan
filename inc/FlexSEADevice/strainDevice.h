@@ -74,7 +74,7 @@ public:
 
 	QList<struct strain_s*> stList;
 	static void decode(struct strain_s *stPtr);
-	static void decompressbytes6ch(struct strain_s *stPtr);
+	static void decompressRawBytes(struct strain_s *stPtr);
 
 private:
 	static QStringList header;

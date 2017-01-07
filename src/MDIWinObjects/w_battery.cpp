@@ -60,6 +60,18 @@ W_Battery::W_Battery(QWidget *parent,
 	ui->comboBox_slaveM->addItem("Not implemented");
 
 	updateDisplayMode(displayMode);
+
+	//Disable modules that aren't programmed yet:
+	ui->dispVmin->setDisabled(true);
+	ui->dispVminD->setDisabled(true);
+	ui->dispVmax->setDisabled(true);
+	ui->dispVmaxD->setDisabled(true);
+	ui->dispICont->setDisabled(true);
+	ui->dispIContD->setDisabled(true);
+	ui->dispIP->setDisabled(true);
+	ui->dispIPD->setDisabled(true);
+	ui->dispStatus1->setDisabled(true);
+	ui->labelStatus->setText("");
 }
 
 W_Battery::~W_Battery()
@@ -155,8 +167,8 @@ void W_Battery::display(BatteryDevice *devicePtr, int index)
 
 	ui->dispVd->setText(QString::number((float)ba->decoded.voltage/1000,'f',2));
 	ui->dispId->setText(QString::number((float)ba->decoded.current/1000,'f',2));
-	ui->dispVd->setText(QString::number((float)ba->decoded.temp/10,'f',1));
-	ui->dispPd->setText(QString::number((float)ba->decoded.power/1000,'f',2));
+	ui->dispTempD->setText(QString::number(ba->decoded.temp));
+	ui->dispPd->setText(QString::number((float)ba->decoded.power/1000000, 'f', 1));
 }
 
 //****************************************************************************

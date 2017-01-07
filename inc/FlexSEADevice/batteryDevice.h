@@ -71,6 +71,7 @@ public:
 
 	QList<struct battery_s*> baList;
 	static void decode(struct battery_s *baPtr);
+	void decompressRawBytes(struct battery_s *baPtr);
 
 private:
 	static QStringList header;
