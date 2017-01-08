@@ -62,6 +62,7 @@ public slots:
 
 signals:
 	void windowClosed(void);
+	void writeCommand(uint8_t numb, uint8_t *tx_data, uint8_t r_w);
 
 private slots:
 	void on_pushButton_w0_clicked();
@@ -69,6 +70,9 @@ private slots:
 	void on_pushButton_w2_clicked();
 	void on_pushButton_w3_clicked();
 	void on_pushButton_refresh_clicked();
+	void refreshDisplay(void);
+
+	void on_comboBox_slave_currentIndexChanged(int index);
 
 private:
 	// Static Variable
@@ -76,7 +80,7 @@ private:
 	//Variables & Objects:
 	Ui::W_UserRW *ui;
 	int active_slave, active_slave_index;
-
+	QTimer *refreshDelayTimer;
 
 	//Function(s):
 	void init(void);

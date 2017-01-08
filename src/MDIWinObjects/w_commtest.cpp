@@ -1,7 +1,7 @@
 /****************************************************************************
 	[Project] FlexSEA: Flexible & Scalable Electronics Architecture
 	[Sub-project] 'plan-gui' Graphical User Interface
-	Copyright (C) 2016 Dephy, Inc. <http://dephy.com/>
+	Copyright (C) 2017 Dephy, Inc. <http://dephy.com/>
 
 	This program is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -21,10 +21,10 @@
 	Biomechatronics research group <http://biomech.media.mit.edu/>
 	[Contributors]
 *****************************************************************************
-	[This file] userrw.h: User Read/Write Tool
+	[This file] w_commtest.h: Communication Testing Tool
 *****************************************************************************
 	[Change log] (Convention: YYYY-MM-DD | author | comment)
-	* 2016-11-22 | jfduval | New code, initial release
+	* 2017-01-05 | jfduval | New code, initial release
 	*
 ****************************************************************************/
 
@@ -32,22 +32,25 @@
 // Include(s)
 //****************************************************************************
 
-#include "w_userrw.h"
+#include "flexsea.h"
+#include "flexsea_comm.h"
+#include "w_commtest.h"
 #include "flexsea_generic.h"
-#include "ui_w_userrw.h"
+#include "ui_w_commtest.h"
 #include "main.h"
 #include <QString>
 #include <QTextStream>
 #include <QTimer>
 #include <QDebug>
+#include <QDateTime>
 
 //****************************************************************************
 // Constructor & Destructor:
 //****************************************************************************
 
-W_UserRW::W_UserRW(QWidget *parent) :
+W_CommTest::W_CommTest(QWidget *parent) :
 	QWidget(parent),
-	ui(new Ui::W_UserRW)
+	ui(new Ui::W_CommTest)
 {
 	ui->setupUi(this);
 
@@ -55,9 +58,10 @@ W_UserRW::W_UserRW(QWidget *parent) :
 	setWindowIcon(QIcon(":icons/d_logo_small.png"));
 
 	init();
+	initTimers();
 }
 
-W_UserRW::~W_UserRW()
+W_CommTest::~W_CommTest()
 {
 	emit windowClosed();
 	delete ui;
@@ -76,111 +80,134 @@ W_UserRW::~W_UserRW()
 // Private function(s):
 //****************************************************************************
 
-void W_UserRW::init(void)
+void W_CommTest::init(void)
 {
 	//Populates Slave list:
 	FlexSEA_Generic::populateSlaveComboBox(ui->comboBox_slave, SL_BASE_ALL, \
 											SL_LEN_ALL);
-	ui->comboBox_slave->setCurrentIndex(4);	//Manage 1 by default
+	ui->comboBox_slave->setCurrentIndex(0);	//Execute 1 by default
 
 	//Variables:
 	active_slave_index = ui->comboBox_slave->currentIndex();
 	active_slave = FlexSEA_Generic::getSlaveID(SL_BASE_ALL, active_slave_index);
 
-	//All W boxes to 0:
-	ui->w0->setText("0");
-	ui->w1->setText("0");
-	ui->w2->setText("0");
-	ui->w3->setText("0");
+	//Displays:
+	ui->labelSentPackets->setText("0");
+	ui->labelReceivedPackets->setText("0");
+	ui->labelGoodPackets->setText("0");
+	ui->labelSuccess->setText("0");
+	ui->labelLossRate->setText("0");
+	ui->lineEdit->setText(QString::number(DEFAULT_EXPERIMENT_TIMER_FREQ));
 
-	//All R boxes to 0:
-	ui->r0->setText("0");
-	ui->r1->setText("0");
-	ui->r2->setText("0");
-	ui->r3->setText("0");
-
-	//Timer used to refresh the received data:
-	refreshDelayTimer = new QTimer(this);
-	connect(refreshDelayTimer, SIGNAL(timeout()), this, SLOT(refreshDisplay()));
+	//Seed:
+	QTime myTime;
+	initRandomGenerator(myTime.msecsSinceStartOfDay());
 }
 
-//Send a Write command:
-void W_UserRW::writeUserData(uint8_t index)
+void W_CommTest::initTimers(void)
 {
-	uint8_t info[2] = {PORT_USB, PORT_USB};
-	uint16_t numb = 0;
+	experimentTimerFreq = DEFAULT_EXPERIMENT_TIMER_FREQ;
 
-	//Refresh variable:
-	user_data_1.w[0] = (int16_t)ui->w0->text().toInt();
-	user_data_1.w[1] = (int16_t)ui->w1->text().toInt();
-	user_data_1.w[2] = (int16_t)ui->w2->text().toInt();
-	user_data_1.w[3] = (int16_t)ui->w3->text().toInt();
+	displayTimer = new QTimer(this);
+	connect(displayTimer, SIGNAL(timeout()), this, SLOT(refreshDisplay()));
+	displayTimer->start(TIM_FREQ_TO_P(DISPLAY_TIMER));
 
-	//qDebug() << "Write user data" << index << ":" << user_data_1.w[index];
-
-	//Prepare and send command:
-	tx_cmd_data_user_w(TX_N_DEFAULT, index);
-	pack(P_AND_S_DEFAULT, active_slave, info, &numb, comm_str_usb);
-	emit writeCommand(numb, comm_str_usb, WRITE);
+	experimentTimer = new QTimer(this);
+	connect(experimentTimer, SIGNAL(timeout()), this, SLOT(readCommTest()));
+	experimentTimer->stop();
 }
 
 //Send a Read command:
-void W_UserRW::readUserData(void)
+void W_CommTest::readCommTest(void)
 {
 	uint8_t info[2] = {PORT_USB, PORT_USB};
 	uint16_t numb = 0;
 
 	//Prepare and send command:
-	tx_cmd_data_user_r(TX_N_DEFAULT);
+	tx_cmd_tools_comm_test_r(TX_N_DEFAULT, 1, 20);
 	pack(P_AND_S_DEFAULT, active_slave, info, &numb, comm_str_usb);
 	emit writeCommand(numb, comm_str_usb, READ);
 
-	//Display will be refreshed in 75ms:
-	refreshDelayTimer->start(75);
+	//FlexSEA_Generic::packetVisualizer(numb, comm_str_usb);
 }
 
 //****************************************************************************
 // Private slot(s):
 //****************************************************************************
 
-void W_UserRW::on_pushButton_w0_clicked()
-{
-	writeUserData(0);
-}
-
-void W_UserRW::on_pushButton_w1_clicked()
-{
-	writeUserData(1);
-}
-
-void W_UserRW::on_pushButton_w2_clicked()
-{
-	writeUserData(2);
-}
-
-void W_UserRW::on_pushButton_w3_clicked()
-{
-	writeUserData(3);
-}
-
-void W_UserRW::on_pushButton_refresh_clicked()
-{
-	readUserData();
-}
-
 //Refreshes the User R values (display only):
-void W_UserRW::refreshDisplay(void)
+void W_CommTest::refreshDisplay(void)
 {
-	refreshDelayTimer->stop();
+	receivedPackets = goodPackets + badPackets;
+	if(sentPackets == 0 || receivedPackets == 0)
+	{
+		//Avoid /0
+		successRate = 0;
+		lossRate = 0;
+	}
+	else
+	{
+		successRate = goodPackets/receivedPackets;
+		lossRate = (sentPackets-receivedPackets) / sentPackets;
+	}
 
-	ui->r0->setText(QString::number(user_data_1.r[0]));
-	ui->r1->setText(QString::number(user_data_1.r[1]));
-	ui->r2->setText(QString::number(user_data_1.r[2]));
-	ui->r3->setText(QString::number(user_data_1.r[3]));
+	ui->labelSentPackets->setText(QString::number(sentPackets));
+	ui->labelReceivedPackets->setText(QString::number(receivedPackets));
+	ui->labelGoodPackets->setText(QString::number(goodPackets));
+
+	ui->labelSuccess->setText(QString::number(successRate, 'f',2));
+	ui->labelLossRate->setText(QString::number(lossRate, 'f',2));
 }
 
-void W_UserRW::on_comboBox_slave_currentIndexChanged(int index)
+void W_CommTest::on_comboBox_slave_currentIndexChanged(int index)
 {
 	active_slave_index = ui->comboBox_slave->currentIndex();
 	active_slave = FlexSEA_Generic::getSlaveID(SL_BASE_ALL, active_slave_index);
+}
+
+void W_CommTest::on_pushButtonStartStop_clicked()
+{
+	static bool status = false;
+	int32_t tmpFreq = 0;
+
+	if(status == false)
+	{
+		//We were showing Start.
+		ui->pushButtonStartStop->setText("Stop test");
+		ui->lineEdit->setEnabled(false);
+
+		tmpFreq = ui->lineEdit->text().toInt();
+		if(tmpFreq < 1)
+		{
+			tmpFreq = 1;
+		}
+
+		if(tmpFreq > 100000)
+		{
+			tmpFreq = 100000;
+		}
+		ui->lineEdit->setText(QString::number(tmpFreq));
+
+		experimentTimer->start(TIM_FREQ_TO_P(tmpFreq));
+		status = true;
+	}
+	else
+	{
+		//We were showing Stop.
+		ui->pushButtonStartStop->setText("Start test");
+		ui->lineEdit->setEnabled(true);
+		experimentTimer->stop();
+		status = false;
+	}
+
+	readCommTest();
+}
+
+void W_CommTest::on_pushButtonReset_clicked()
+{
+	sentPackets = 0;
+	goodPackets = 0;
+	badPackets = 0;
+	receivedPackets = 0;
+	successRate = 0.0;
 }

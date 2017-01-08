@@ -41,6 +41,7 @@
 #include <QtCharts>
 #include <QtCharts/QChartView>
 #include "flexsea_generic.h"
+#include <QtCharts/QXYSeries>
 
 //****************************************************************************
 // Definition(s)
@@ -48,8 +49,8 @@
 
 #define INIT_PLOT_XMIN				0
 #define INIT_PLOT_XMAX				200
-#define INIT_PLOT_YMIN				-10000
-#define INIT_PLOT_YMAX				10000
+#define INIT_PLOT_YMIN				-1000
+#define INIT_PLOT_YMAX				1000
 #define INIT_PLOT_LEN				((INIT_PLOT_XMAX-INIT_PLOT_XMIN)+1)
 #define VAR_NUM						6
 #define PLOT_BUF_LEN				1000
@@ -72,6 +73,9 @@
 #define FORMAT_16S					3
 #define FORMAT_8U					4
 #define FORMAT_8S					5
+
+//Test code:
+//#define VECLEN	200
 
 //VTP = Variable To Plot
 struct vtp_s
@@ -106,13 +110,14 @@ public:
 	explicit W_2DPlot(QWidget *parent = 0);
 	~W_2DPlot();
 
-	//Function(s):
-
 public slots:
+
+	void receiveNewData(void);
 	void refresh2DPlot(void);
 	void refreshControl(void);
 
 private slots:
+
 	void on_radioButtonXA_clicked();
 	void on_radioButtonXM_clicked();
 	void on_radioButtonYA_clicked();
@@ -142,29 +147,40 @@ private slots:
 	void on_checkBoxD6_stateChanged(int arg1);
 	void on_pushButtonClear_clicked();
 	void on_pbReset_clicked();
-	void genTestData(void);
-
 	void on_pbIMU_clicked();
+	void on_pbPoints_clicked();
+	void genTestData(void);
+	void myHoverHandler0(QPointF pt, bool state);
+	void myHoverHandler1(QPointF pt, bool state);
+	void myHoverHandler2(QPointF pt, bool state);
+	void myHoverHandler3(QPointF pt, bool state);
+	void myHoverHandler4(QPointF pt, bool state);
+	void myHoverHandler5(QPointF pt, bool state);
+	void myHoverHandlerAll(uint8_t ch, QPointF pt, QPoint cursor, bool state);
+	void on_checkBoxOpenGL_clicked(bool checked);
 
 signals:
+
 	void windowClosed(void);
 
 private:
+
 	//Variables & Objects:
+
 	Ui::W_2DPlot *ui;
 	QChart *chart;
 	QChartView *chartView;
 	QLineSeries *qlsData[VAR_NUM];
-	QLineSeries *mySeriesTest;
-	int graph_xarray[PLOT_BUF_LEN];
-	int graph_yarray[VAR_NUM][PLOT_BUF_LEN];
+	QLineSeries qlsDataBuffer[6];
+	QDateTime *timerRefreshDisplay, *timerRefreshData;
 	int plot_xmin, plot_ymin, plot_xmax, plot_ymax, plot_len;
-	uint8_t data_to_plot[VAR_NUM];
-	int graph_ylim[2*VAR_NUM];
-	bool allChannelUnused(void);
+	int globalYmin, globalYmax;
+	int vecLen;
+
 	int plotting_len;
 	QStringList var_list_margin;
 	bool plotFreezed, initFlag;
+	bool pointsVisible;
 
 	struct vtp_s vtp[6];
 	uint8_t varToPlotFormat[6];
@@ -179,21 +195,28 @@ private:
 	uint8_t varIndex[VAR_NUM];
 	int64_t stats[VAR_NUM][STATS_FIELDS];
 	int32_t myFakeData;
+	float dataRate;
 
 	//Function(s):
+
 	void initChart(void);
 	void initUserInput(void);
-	void gen_graph_xarray(void);
-	void init_yarrays(void);
-	void setChartAxis(void);
-	void refreshData2DPlot(int *x, int *y, int len, uint8_t plot_index);
-	void update_plot_buf_single(int *buf, int *idx, int new_data);
-	void update_graph_array(int graph, int new_data);
-	uint8_t select_plot_slave(uint8_t index);
-	void array_minmax(int *arr, int len, int *min, int *max);
-	void addMargins(int *ymin, int *ymax);
-	void updateVarList(uint8_t var, QComboBox *myCombo);
+	void saveNewPoints(int myDataPoints[6]);
+	void computeGlobalMinMax(void);
+	float getRefreshRateDisplay(void);
+	float getRefreshRateData(void);
+	void initData(void);
 	void saveCurrentSettings(void);
+	void addMargins(int *ymin, int *ymax);
+	void setChartAxis(void);
+	void setChartAxisAutomatic(void);
+	bool allChannelUnused(void);
+	void initStats(void);
+	void refreshStats(void);
+	void refreshStatBar(float fDisp, float fData);
+	void useOpenGL(bool yesNo);
+
+	void updateVarList(uint8_t var, QComboBox *myCombo);
 	void assignVariable(uint8_t var);
 	void assignVariableEx(uint8_t var, struct execute_s *myPtr);
 	void assignVariableMn(uint8_t var, struct manage_s *myPtr);
@@ -201,10 +224,6 @@ private:
 	void assignVariableBa(uint8_t var, struct battery_s *myPtr);
 	void assignVariableSt(uint8_t var, struct strain_s *myPtr);
 	void assignVariableRicnu(uint8_t var, struct ricnu_s *myPtr);
-	void initStats(void);
-	void refreshStats(void);
 };
-
-
 
 #endif // W_2DPLOT_H

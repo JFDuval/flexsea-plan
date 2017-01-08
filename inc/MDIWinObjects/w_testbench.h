@@ -21,15 +21,11 @@
 	Biomechatronics research group <http://biomech.media.mit.edu/>
 	[Contributors]
 *****************************************************************************
-	[This file] w_control.cpp: Control Window
-*****************************************************************************
-	[Change log] (Convention: YYYY-MM-DD | author | comment)
-	* 2016-09-09 | jfduval | Initial GPL-3.0 release
-	*
+	[This file] w_testbench.h: Test Bench View Window
 ****************************************************************************/
 
-#ifndef W_CONTROL_H
-#define W_CONTROL_H
+#ifndef W_TESTBENCH_H
+#define W_TESTBENCH_H
 
 //****************************************************************************
 // Include(s)
@@ -44,65 +40,39 @@
 //****************************************************************************
 
 namespace Ui {
-class W_Control;
+class W_TestBench;
 }
 
-class W_Control : public QWidget, public Counter<W_Control>
+class W_TestBench : public QWidget, public Counter<W_TestBench>
 {
 	Q_OBJECT
 
 public:
 	//Constructor & Destructor:
-	explicit W_Control(QWidget *parent = 0);
-	~W_Control();
-	static int getSetp(void);
+	explicit W_TestBench(QWidget *parent = 0);
+	~W_TestBench();
+
+	//Function(s):
+
 
 public slots:
 
+	void refreshDisplayTestBench(void);
+
 signals:
 	void windowClosed(void);
-	void writeCommand(uint8_t numb, uint8_t *tx_data, uint8_t r_w);
-
-private slots:
-	void timerCtrlEvent(void);
-	void on_pushButton_SetController_clicked();
-	void on_pushButton_setp_a_go_clicked();
-	void on_pushButton_setp_b_go_clicked();
-	void on_pushButton_toggle_clicked();
-	void on_pushButton_CtrlMinMax_clicked();
-	void on_hSlider_Ctrl_valueChanged(int value);
-	void on_pushButton_SetGains_clicked();
-	void on_comboBox_ctrl_list_currentIndexChanged(int index);
-	void on_comboBox_slave_currentIndexChanged(int index);
 
 private:
 	//Variables & Objects:
-	Ui::W_Control *ui;
+	Ui::W_TestBench *ui;
 	int active_slave, active_slave_index;
-	int wanted_controller = 0, selected_controller = 0, active_controller = 0;
-	int trap_pos = 0, trap_posi = 0, trap_posf = 0, trap_spd = 0, trap_acc = 0;
-	int ctrl_setpoint = 0, ctrl_setpoint_trap = 0;
-	int ctrl_toggle_state = 0;
-	int ctrl_gains[6][6];
-	int trapez_steps = 0;
-	uint8_t toggle_output_state = 0;
-	QStringList var_list_controllers, var_list_enc_disp;
-	QTimer *timerCtrl;
-	uint8_t transferBuf[48];
-	static int setp;
 
 	//Function(s):
-	void initControl(void);
-	void init_ctrl_gains(void);
-	void save_ctrl_gains(int controller, int16_t *gains);
-	void controller_setpoint(int val);
-	void initTimers(void);
-	void stream_ctrl(void);
-	void refreshStatusGain(void);
-	void control_trapeze(void);
+	void init(void);
 };
 
-#define CONTROLLERS         6
-#define GAIN_FIELDS         6
+//****************************************************************************
+// Definition(s)
+//****************************************************************************
 
-#endif // W_CONTROL_H
+#endif // W_TESTBENCH_H

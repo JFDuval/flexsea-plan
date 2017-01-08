@@ -64,6 +64,8 @@ struct ricnu_s_plan
 
 	//Decoded values (ext_strain only)
 	struct decoded_ricnu_s decoded;
+
+	int16_t gen_var[6];
 };
 
 class RicnuDevice : public FlexseaDevice

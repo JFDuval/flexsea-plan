@@ -1,7 +1,7 @@
 /****************************************************************************
 	[Project] FlexSEA: Flexible & Scalable Electronics Architecture
 	[Sub-project] 'plan-gui' Graphical User Interface
-	Copyright (C) 2016 Dephy, Inc. <http://dephy.com/>
+	Copyright (C) 2017 Dephy, Inc. <http://dephy.com/>
 
 	This program is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -21,15 +21,15 @@
 	Biomechatronics research group <http://biomech.media.mit.edu/>
 	[Contributors]
 *****************************************************************************
-	[This file] w_control.cpp: Control Window
+	[This file] w_commtest.h: Communication Testing Tool
 *****************************************************************************
 	[Change log] (Convention: YYYY-MM-DD | author | comment)
-	* 2016-09-09 | jfduval | Initial GPL-3.0 release
+	* 2017-01-05 | jfduval | New code, initial release
 	*
 ****************************************************************************/
 
-#ifndef W_CONTROL_H
-#define W_CONTROL_H
+#ifndef W_COMMTEST_H
+#define W_COMMTEST_H
 
 //****************************************************************************
 // Include(s)
@@ -44,18 +44,19 @@
 //****************************************************************************
 
 namespace Ui {
-class W_Control;
+class W_CommTest;
 }
 
-class W_Control : public QWidget, public Counter<W_Control>
+class W_CommTest : public QWidget, public Counter<W_CommTest>
 {
 	Q_OBJECT
 
 public:
 	//Constructor & Destructor:
-	explicit W_Control(QWidget *parent = 0);
-	~W_Control();
-	static int getSetp(void);
+	explicit W_CommTest(QWidget *parent = 0);
+	~W_CommTest();
+
+	//Function(s):
 
 public slots:
 
@@ -64,45 +65,34 @@ signals:
 	void writeCommand(uint8_t numb, uint8_t *tx_data, uint8_t r_w);
 
 private slots:
-	void timerCtrlEvent(void);
-	void on_pushButton_SetController_clicked();
-	void on_pushButton_setp_a_go_clicked();
-	void on_pushButton_setp_b_go_clicked();
-	void on_pushButton_toggle_clicked();
-	void on_pushButton_CtrlMinMax_clicked();
-	void on_hSlider_Ctrl_valueChanged(int value);
-	void on_pushButton_SetGains_clicked();
-	void on_comboBox_ctrl_list_currentIndexChanged(int index);
+	void refreshDisplay(void);
+	void readCommTest(void);
 	void on_comboBox_slave_currentIndexChanged(int index);
+	void on_pushButtonStartStop_clicked();
+	void on_pushButtonReset_clicked();
 
 private:
+	// Static Variable
+
 	//Variables & Objects:
-	Ui::W_Control *ui;
+	Ui::W_CommTest *ui;
 	int active_slave, active_slave_index;
-	int wanted_controller = 0, selected_controller = 0, active_controller = 0;
-	int trap_pos = 0, trap_posi = 0, trap_posf = 0, trap_spd = 0, trap_acc = 0;
-	int ctrl_setpoint = 0, ctrl_setpoint_trap = 0;
-	int ctrl_toggle_state = 0;
-	int ctrl_gains[6][6];
-	int trapez_steps = 0;
-	uint8_t toggle_output_state = 0;
-	QStringList var_list_controllers, var_list_enc_disp;
-	QTimer *timerCtrl;
-	uint8_t transferBuf[48];
-	static int setp;
+	QTimer *experimentTimer, *displayTimer;
+	float successRate, lossRate;
+	int32_t receivedPackets;
+	int32_t experimentTimerFreq;
 
 	//Function(s):
-	void initControl(void);
-	void init_ctrl_gains(void);
-	void save_ctrl_gains(int controller, int16_t *gains);
-	void controller_setpoint(int val);
+	void init(void);
 	void initTimers(void);
-	void stream_ctrl(void);
-	void refreshStatusGain(void);
-	void control_trapeze(void);
 };
 
-#define CONTROLLERS         6
-#define GAIN_FIELDS         6
+//****************************************************************************
+// Definition(s)
+//****************************************************************************
 
-#endif // W_CONTROL_H
+#define TIM_FREQ_TO_P(f)				(1000/f)	//f in Hz, return in ms
+#define DISPLAY_TIMER					25	//Hz
+#define DEFAULT_EXPERIMENT_TIMER_FREQ	25
+
+#endif // W_COMMTEST_H

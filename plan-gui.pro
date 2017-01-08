@@ -90,7 +90,11 @@ SOURCES += src/main.cpp \
     flexsea-user/RICNU_Knee_v1/src/user-mn-RICNU_Knee_v1.c \
     flexsea-user/src/flexsea_user_structs.c \
     flexsea-user/src/user-ex.c \
-    flexsea-user/src/user-mn.c
+    flexsea-user/src/user-mn.c \
+    src/MDIWinObjects/w_testbench.cpp \
+    src/MDIWinObjects/w_commtest.cpp \
+    flexsea-system/src/flexsea_cmd_tools.c \
+    flexsea-system/test/test-flexsea_cmd_tools.c
 
 HEADERS  += inc/main.h \
 	inc/mainwindow.h \
@@ -151,7 +155,10 @@ HEADERS  += inc/main.h \
     flexsea-user/MotorTestBench/inc/user-ex-MotorTestBench.h \
     flexsea-user/MotorTestBench/inc/user-mn-MotorTestBench.h \
     flexsea-user/RICNU_Knee_v1/inc/user-ex-RICNU_Knee_v1.h \
-    flexsea-user/RICNU_Knee_v1/inc/user-mn-RICNU_Knee_v1.h
+    flexsea-user/RICNU_Knee_v1/inc/user-mn-RICNU_Knee_v1.h \
+    inc/MDIWinObjects/w_commtest.h \
+    inc/MDIWinObjects/w_testbench.h \
+    flexsea-system/inc/flexsea_cmd_tools.h
 
 FORMS    += ui/mainwindow.ui \
 	ui/w_execute.ui \
@@ -168,7 +175,9 @@ FORMS    += ui/mainwindow.ui \
 	ui/w_strain.ui \
 	ui/w_config.ui \
 	ui/w_logkeypad.ui \
-	ui/w_userrw.ui
+	ui/w_userrw.ui \
+    ui/w_commtest.ui \
+    ui/w_testbench.ui
 
 RESOURCES += \
 	misc/icons.qrc
@@ -190,4 +199,18 @@ QMAKE_CFLAGS = $$QMAKE_CFLAGS -Wno-unused-but-set-variable
 DISTFILES += \
     flexsea-user/flexsea.gitignore \
     flexsea-user/GPL-3.0.txt \
-    flexsea-user/README.md
+    flexsea-user/README.md \
+    flexsea-comm/flexsea.gitignore \
+    flexsea-comm/GPL-3.0.txt \
+    flexsea-shared/unity/readme.txt \
+    flexsea-shared/flexsea.gitignore \
+    flexsea-shared/GPL-3.0.txt \
+    flexsea-system/flexsea.gitignore \
+    flexsea-system/GPL-3.0.txt \
+    .gitignore \
+    .gitmodules \
+    GPL-3.0.txt \
+    flexsea-comm/README.md \
+    flexsea-shared/README.md \
+    flexsea-system/README.md \
+    README.md

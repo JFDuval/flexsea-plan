@@ -107,6 +107,8 @@ private:
 	//Function(s):
 	void init(void);
 	void logTimestamp(qint64 *t_ms, QString *t_text);
+	void writeManageA2DOFHeader(uint8_t item);
+	void writeManageTestBenchHeader(uint8_t item);
 	void openfile(uint8_t item, QString shortFileName);
 	void initLogDirectory(void);
 	void setStatus(QString str);

@@ -26,6 +26,7 @@
 	[Change log] (Convention: YYYY-MM-DD | author | comment)
 	* 2016-09-09 | jfduval | Initial GPL-3.0 release
 	* 2016-09-12 | jfduval | Added Freeze/Release
+	* 2016-12-1x | jfduval | Major refactoring
 ****************************************************************************/
 
 //****************************************************************************
@@ -40,6 +41,7 @@
 #include <QtCharts/QChartView>
 #include <QtCharts/QSplineSeries>
 #include <QDebug>
+#include <QDateTime>
 #include "flexsea_generic.h"
 #include "main.h"
 
@@ -59,9 +61,14 @@ W_2DPlot::W_2DPlot(QWidget *parent) :
 	setWindowIcon(QIcon(":icons/d_logo_small.png"));
 
 	initFlag = true;
+	initStats();
 	initUserInput();
 	initChart();
-	initStats();
+	useOpenGL(false);
+
+	//Timers:
+	timerRefreshDisplay = new QDateTime;
+	timerRefreshData = new QDateTime;
 }
 
 W_2DPlot::~W_2DPlot()
@@ -74,11 +81,63 @@ W_2DPlot::~W_2DPlot()
 // Public function(s):
 //****************************************************************************
 
+//****************************************************************************
+// Public slot(s):
+//****************************************************************************
+
+void W_2DPlot::receiveNewData(void)
+{
+	uint8_t index = 0;
+	int val[6] = {0,0,0,0,0,0};
+
+	dataRate = getRefreshRateData();
+
+	//For every variable:
+	for(index = 0; index < VAR_NUM; index++)
+	{
+		if(vtp[index].decode == false)
+		{
+			switch(vtp[index].format)
+			{
+				case FORMAT_32S:
+					val[index] = (*vtp[index].ptr32s);
+					break;
+				case FORMAT_32U:
+					val[index] = (int)(*vtp[index].ptr32u);
+					break;
+				case FORMAT_16S:
+					val[index] = (int)(*vtp[index].ptr16s);
+					break;
+				case FORMAT_16U:
+					val[index] = (int)(*vtp[index].ptr16u);
+					break;
+				case FORMAT_8S:
+					val[index] = (int)(*vtp[index].ptr8s);
+					break;
+				case FORMAT_8U:
+					val[index] = (int)(*vtp[index].ptr8u);
+					break;
+				default:
+					val[index] = 0;
+					break;
+			}
+		}
+		else
+		{
+			val[index] = (*vtp[index].ptrD32s);
+		}
+	}
+
+	saveNewPoints(val);
+}
+
 void W_2DPlot::refresh2DPlot(void)
 {
-	uint8_t index = 0, used = 0;
+	uint8_t index = 0;
 
-	genTestData();
+	//Refresh Stat Bar:
+	refreshStatBar(getRefreshRateDisplay(), dataRate);
+
 
 	//For every variable:
 	for(index = 0; index < VAR_NUM; index++)
@@ -87,62 +146,28 @@ void W_2DPlot::refresh2DPlot(void)
 		{
 			//This channel isn't used, we make it invisible
 			qlsData[index]->setVisible(false);
-			used = 0;
 		}
 		else
 		{
 			qlsData[index]->setVisible(true);
-			used = 1;
-		}
-
-		if(vtp[index].decode == false)
-		{
-			switch(vtp[index].format)
-			{
-				case FORMAT_32S:
-					update_graph_array(index, (*vtp[index].ptr32s));
-					break;
-				case FORMAT_32U:
-					update_graph_array(index, (int)(*vtp[index].ptr32u));
-					break;
-				case FORMAT_16S:
-					update_graph_array(index, (int)(*vtp[index].ptr16s));
-					break;
-				case FORMAT_16U:
-					update_graph_array(index, (int)(*vtp[index].ptr16u));
-					break;
-				case FORMAT_8S:
-					update_graph_array(index, (int)(*vtp[index].ptr8s));
-					break;
-				case FORMAT_8U:
-					update_graph_array(index, (int)(*vtp[index].ptr8u));
-					break;
-				default:
-					update_graph_array(index, 0);
-					break;
-			}
-		}
-		else
-		{
-			if(used)
-			{
-				update_graph_array(index, (*vtp[index].ptrD32s));
-			}
-		}
-
-		if(used)
-		{
-			//Plot it:
-			refreshData2DPlot(graph_xarray, graph_yarray[index], plot_len, index);
 		}
 	}
 
-	refreshStats();
-}
+	//And now update the display:
+	if(plotFreezed == false)
+	{
+		qlsData[0]->replace(qlsDataBuffer[0].points());
+		qlsData[1]->replace(qlsDataBuffer[1].points());
+		qlsData[2]->replace(qlsDataBuffer[2].points());
+		qlsData[3]->replace(qlsDataBuffer[3].points());
+		qlsData[4]->replace(qlsDataBuffer[4].points());
+		qlsData[5]->replace(qlsDataBuffer[5].points());
 
-//****************************************************************************
-// Public slot(s):
-//****************************************************************************
+		computeGlobalMinMax();
+		refreshStats();
+		setChartAxisAutomatic();
+	}
+}
 
 //We use this function for the trapeze setpoints. Refreshed at 100Hz.
 void W_2DPlot::refreshControl(void)
@@ -156,13 +181,13 @@ void W_2DPlot::refreshControl(void)
 
 void W_2DPlot::initChart(void)
 {
+	vecLen = 0;
+
 	//Data series:
 	qlsData[0] = new QLineSeries();
 	qlsData[0]->append(0, 0);
 	qlsData[1] = new QLineSeries();
 	qlsData[1]->append(0, 0);
-	mySeriesTest = new QLineSeries();
-	mySeriesTest->append(0, 0);
 	qlsData[2] = new QLineSeries();
 	qlsData[2]->append(0, 0);
 	qlsData[3] = new QLineSeries();
@@ -171,6 +196,8 @@ void W_2DPlot::initChart(void)
 	qlsData[4]->append(0, 0);
 	qlsData[5] = new QLineSeries();
 	qlsData[5]->append(0, 0);
+
+	initData();
 
 	//Chart:
 	chart = new QChart();
@@ -182,11 +209,9 @@ void W_2DPlot::initChart(void)
 	chart->addSeries(qlsData[4]);
 	chart->addSeries(qlsData[5]);
 
-	//chart->setTitle("Simple spline chart example");
 	chart->createDefaultAxes();
 	chart->axisX()->setRange(plot_xmin, plot_xmax);
 	chart->axisY()->setRange(plot_ymin, plot_ymax);
-	//chart->setAnimationOptions(QChart::AllAnimations);
 
 	//Colors:
 	chart->setTheme(QChart::ChartThemeDark);
@@ -219,6 +244,20 @@ void W_2DPlot::initChart(void)
 	chartView->setMinimumSize(500,300);
 	chartView->setMaximumSize(4000,2500);
 	chartView->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+
+	//Data indicator:
+	connect(qlsData[0], SIGNAL(hovered(const QPointF, bool)),\
+			this, SLOT(myHoverHandler0(QPointF, bool)));
+	connect(qlsData[1], SIGNAL(hovered(const QPointF, bool)),\
+			this, SLOT(myHoverHandler1(QPointF, bool)));
+	connect(qlsData[2], SIGNAL(hovered(const QPointF, bool)),\
+			this, SLOT(myHoverHandler2(QPointF, bool)));
+	connect(qlsData[3], SIGNAL(hovered(const QPointF, bool)),\
+			this, SLOT(myHoverHandler3(QPointF, bool)));
+	connect(qlsData[4], SIGNAL(hovered(const QPointF, bool)),\
+			this, SLOT(myHoverHandler4(QPointF, bool)));
+	connect(qlsData[5], SIGNAL(hovered(const QPointF, bool)),\
+			this, SLOT(myHoverHandler5(QPointF, bool)));
 }
 
 //Fills the fields and combo boxes:
@@ -240,6 +279,7 @@ void W_2DPlot::initUserInput(void)
 		vtp[i].ptr16u = &nullVar16u;
 		vtp[i].ptr8s = &nullVar8s;
 		vtp[i].ptr8u = &nullVar8u;
+		vtp[i].used = false;
 	}
 
 	//Axis, limits, etc.:
@@ -265,18 +305,6 @@ void W_2DPlot::initUserInput(void)
 	ui->lineEditYMin->setDisabled(true);
 	ui->lineEditYMax->setDisabled(true);
 
-	for(int h = 0; h < VAR_NUM; h++)
-	{
-		data_to_plot[h] = 0;
-		vtp[h].used = false;
-	}
-
-	//Limits:
-	for(int i = 0; i < 2*VAR_NUM; i++)
-	{
-		graph_ylim[i] = 0;
-	}
-
 	plotting_len = 0;
 
 	//Margin options:
@@ -293,9 +321,6 @@ void W_2DPlot::initUserInput(void)
 
 	//Data fields and variables:
 	//==========================
-
-	gen_graph_xarray();
-	init_yarrays();
 
 	//Note: Color coded labels will be defined based on the chart.
 
@@ -325,9 +350,6 @@ void W_2DPlot::initUserInput(void)
 	//By default, we track Slave 1:
 	ui->checkBoxTrack->setChecked(true);
 
-	//Init flag:
-	initFlag = false;
-
 	//Decode Checkbox tooltips:
 	QString ttip = "<html><head/><body><p>Plot data in physical units (instead \
 					of ticks)</p></body></html>";
@@ -338,7 +360,572 @@ void W_2DPlot::initUserInput(void)
 	ui->checkBoxD5->setToolTip(ttip);
 	ui->checkBoxD6->setToolTip(ttip);
 
+	pointsVisible = false;
+	globalYmin = 0;
+	globalYmin = 0;
+
+	//Stats bar:
+	ui->label_refreshRateData->setTextFormat(Qt::RichText);
+	ui->label_refreshRateData->setText("-- Hz");
+	ui->label_refreshRateDisplay->setTextFormat(Qt::RichText);
+	ui->label_refreshRateDisplay->setText("-- Hz");
+	ui->label_pointHovered->setTextFormat(Qt::RichText);
+	ui->label_pointHovered->setText("<font color=#808080>(--, --)</font>");
+
+	//No OpenGL by default:
+	ui->checkBoxOpenGL->setChecked(false);
+	ttip = "<html><head/><body><p>Experimental. Can be faster, but has limited \
+			features (ex.: no visible points). To turn it off, close the \
+			window...</p></body></html>";
+	ui->checkBoxOpenGL->setToolTip(ttip);
+
+	dataRate = 0;
+
 	saveCurrentSettings();
+
+	//Init flag:
+	initFlag = false;
+}
+
+//Updates 6 buffers, and compute stats (min/max/avg/...)
+void W_2DPlot::saveNewPoints(int myDataPoints[6])
+{
+	QPointF min, max;
+	QPointF temp;
+	QPoint tempInt;
+	long long avg = 0;
+
+	if(vecLen <= plot_len-1)
+	{
+		//First VECLEN points: append
+		//For each variable:
+		for(int i = 0; i < VAR_NUM; i++)
+		{
+			qlsDataBuffer[i].append(vecLen, myDataPoints[i]);
+
+			min.setY(qlsDataBuffer[i].at(0).y());
+			max.setY(qlsDataBuffer[i].at(0).y());
+			avg = 0;
+			for(int j = 0; j < vecLen; j++)
+			{
+
+				//Minimum:
+				if(qlsDataBuffer[i].at(j).y() < min.y())
+				{
+					min.setY(qlsDataBuffer[i].at(j).y());
+				}
+
+				//Maximum:
+				if(qlsDataBuffer[i].at(j).y() > max.y())
+				{
+					max.setY(qlsDataBuffer[i].at(j).y());
+				}
+
+				//Average - sum:
+				tempInt = qlsDataBuffer[i].at(j).toPoint();
+				avg += tempInt.y();
+
+			}
+
+			if(vecLen > 0)
+			{
+				//Average - result:
+				avg = avg / vecLen;
+
+				//Save:
+				tempInt = min.toPoint();
+				stats[i][STATS_MIN] = tempInt.y();
+				tempInt = max.toPoint();
+				stats[i][STATS_MAX] = tempInt.y();
+				stats[i][STATS_AVG] = (int64_t) avg;
+			}
+		}
+
+		vecLen++;
+	}
+	else
+	{
+		//For each variable:
+		for(int i = 0; i < VAR_NUM; i++)
+		{
+			//For each point:
+			min.setY(qlsDataBuffer[i].at(0).y());
+			max.setY(qlsDataBuffer[i].at(0).y());
+			avg = 0;
+			int index = 0;
+			for(int j = 1; j < plot_len+1; j++)
+			{
+				index = j-1;
+				//qDebug() << "Index:" << index << "Plot len:" << plot_len;
+
+				//Minimum:
+				if(qlsDataBuffer[i].at(index).y() < min.y())
+				{
+					min.setY(qlsDataBuffer[i].at(index).y());
+				}
+
+				//Maximum:
+				if(qlsDataBuffer[i].at(index).y() > max.y())
+				{
+					max.setY(qlsDataBuffer[i].at(index).y());
+				}
+
+				//Average - sum:
+				tempInt = qlsDataBuffer[i].at(index).toPoint();
+				avg += tempInt.y();
+
+				//Shift by one position (all but last point):
+				if(j < plot_len)
+				{
+					temp = qlsDataBuffer[i].at(j);
+					qlsDataBuffer[i].replace(index, QPointF(index, temp.ry()));
+				}
+			}
+
+			//Average - result:
+			avg = avg / vecLen;
+
+			//Save:
+			tempInt = min.toPoint();
+			stats[i][STATS_MIN] = tempInt.y();
+			tempInt = max.toPoint();
+			stats[i][STATS_MAX] = tempInt.y();
+			stats[i][STATS_AVG] = (int64_t) avg;
+
+			//Last (new):
+			qlsDataBuffer[i].replace(plot_len-1, QPointF(plot_len-1, myDataPoints[i]));
+		}
+	}
+
+	//qDebug() << "Test, qlsData length =" << qlsDataBuffer[0].count() << "Veclen =" << vecLen;
+	plotting_len = vecLen;
+}
+
+//Get global min & max:
+void W_2DPlot::computeGlobalMinMax(void)
+{
+	//Stats for all channels:
+
+	if(allChannelUnused() == true)
+	{
+		globalYmin = -10;
+		globalYmax = 10;
+	}
+	else
+	{
+		//First, we use the 1st used channel to initialize the global min/max:
+		for(int i = 0; i < VAR_NUM; i++)
+		{
+			if(vtp[i].used == true)
+			{
+				globalYmin = stats[i][STATS_MIN];
+				globalYmax = stats[i][STATS_MAX];
+				break;
+			}
+		}
+
+		//Now we can compare:
+		for(int i = 0; i < VAR_NUM; i++)
+		{
+			//We only use the 'used' channels for the global min/max:
+			if(vtp[i].used == true)
+			{
+				//Minimum:
+				if(stats[i][STATS_MIN] < globalYmin)
+				{
+					globalYmin = stats[i][STATS_MIN];
+				}
+
+				//Maximum:
+				if(stats[i][STATS_MAX] > globalYmax)
+				{
+					globalYmax = stats[i][STATS_MAX];
+				}
+			}
+		}
+	}
+}
+
+//Returns the rate at which it is called, in Hz
+//Average of 8 values
+float W_2DPlot::getRefreshRateDisplay(void)
+{
+	static qint64 oldTime = 0;
+	qint64 newTime = 0, diffTime = 0;
+	float t_s = 0.0, f = 0.0, avg = 0.0;
+	static int counter = 0;
+	static float fArray[8] = {0,0,0,0,0,0,0,0};
+
+	//Actual frequency:
+	newTime = timerRefreshDisplay->currentMSecsSinceEpoch();
+	diffTime = newTime - oldTime;
+	oldTime = newTime;
+	t_s = diffTime/1000.0;
+	f = 1/t_s;
+
+	//Average:
+	counter++;
+	counter %=8;
+	fArray[counter] = f;
+	avg = 0;
+	for(int i = 0; i < 8; i++)
+	{
+		avg += fArray[i];
+	}
+	avg = avg / 8;
+
+	return avg;
+}
+
+//Returns the rate at which it is called, in Hz. Average of 8 values
+//Different approach than for the Display function because 200Hz
+//is fast for a ms timer.
+float W_2DPlot::getRefreshRateData(void)
+{
+	static qint64 oldTime = 0;
+	qint64 newTime = 0, diffTime = 0;
+	float t_s = 0.0, avg = 0.0;
+	static float f = 0.0;
+	static int counter = 0;
+	static float fArray[8] = {0,0,0,0,0,0,0,0};
+	static int callCounter = 0;
+
+	callCounter++;
+	callCounter %= 10;
+	if(!callCounter)
+	{
+		newTime = timerRefreshData->currentMSecsSinceEpoch();
+		diffTime = newTime - oldTime;
+		oldTime = newTime;
+
+		t_s = diffTime/10/1000.0;
+		f = 1/t_s;
+	}
+
+	//Average:
+	counter++;
+	counter %=4;
+	fArray[counter] = f;
+	avg = 0;
+	for(int i = 0; i < 4; i++)
+	{
+		avg += fArray[i];
+	}
+	avg = avg / 4;
+
+	return avg;
+}
+
+//Empties all the lists
+void W_2DPlot::initData(void)
+{
+	vecLen = 0;
+	for(int i = 0; i < VAR_NUM; i++)
+	{
+		qlsDataBuffer[i].clear();
+		qlsData[i]->replace(qlsDataBuffer[i].points());
+	}
+
+	initStats();
+}
+
+//Based on the current state of comboBoxes, saves the info in variables
+void W_2DPlot::saveCurrentSettings(void)
+{
+	//Slave:
+	slaveIndex[0] = ui->cBoxvar1slave->currentIndex();
+	slaveIndex[1] = ui->cBoxvar2slave->currentIndex();
+	slaveIndex[2] = ui->cBoxvar3slave->currentIndex();
+	slaveIndex[3] = ui->cBoxvar4slave->currentIndex();
+	slaveIndex[4] = ui->cBoxvar5slave->currentIndex();
+	slaveIndex[5] = ui->cBoxvar6slave->currentIndex();
+
+	for(int i = 0; i < VAR_NUM; i++)
+	{
+		slaveAddr[i] = FlexSEA_Generic::getSlaveID(SL_BASE_ALL, slaveIndex[i]);
+		slaveBType[i] = FlexSEA_Generic::getSlaveBoardType(SL_BASE_ALL, \
+														   slaveIndex[i]);
+	}
+
+	//Variable:
+	varIndex[0] = ui->cBoxvar1->currentIndex();
+	varIndex[1] = ui->cBoxvar2->currentIndex();
+	varIndex[2] = ui->cBoxvar3->currentIndex();
+	varIndex[3] = ui->cBoxvar4->currentIndex();
+	varIndex[4] = ui->cBoxvar5->currentIndex();
+	varIndex[5] = ui->cBoxvar6->currentIndex();
+
+	//Decode:
+	vtp[0].decode = ui->checkBoxD1->isChecked();
+	vtp[1].decode = ui->checkBoxD2->isChecked();
+	vtp[2].decode = ui->checkBoxD3->isChecked();
+	vtp[3].decode = ui->checkBoxD4->isChecked();
+	vtp[4].decode = ui->checkBoxD5->isChecked();
+	vtp[5].decode = ui->checkBoxD6->isChecked();
+}
+
+//We use a bigger Y scale than the minimum span to make it clearer
+void W_2DPlot::addMargins(int *ymin, int *ymax)
+{
+	switch(ui->comboBoxMargin->currentIndex())
+	{
+		case 0: //2%
+			*ymin = (*ymin-(abs(*ymin)/50));
+			*ymax = (*ymax+(abs(*ymax)/50));
+			break;
+		case 1: //5%
+			*ymin = (*ymin-(abs(*ymin)/20));
+			*ymax = (*ymax+(abs(*ymax)/20));
+			break;
+		case 2: //10%
+			*ymin = (*ymin-(abs(*ymin)/10));
+			*ymax = (*ymax+(abs(*ymax)/10));
+			break;
+		case 3: //10 ticks
+			*ymin = (*ymin-10);
+			*ymax = (*ymax+10);
+			break;
+		case 4: //25 ticks
+			*ymin = (*ymin-25);
+			*ymax = (*ymax+25);
+			break;
+		case 5: //100 ticks
+			*ymin = (*ymin-100);
+			*ymax = (*ymax+100);
+			break;
+		case 6: //1000 ticks
+			*ymin = (*ymin-1000);
+			*ymax = (*ymax+1000);
+			break;
+	}
+}
+
+//Manages the chart axis, including auto-scaling
+//This function is called when the user makes a change.
+//setChartAxisAutomatic() will be refreshed by a timer
+void W_2DPlot::setChartAxis(void)
+{
+	static int lastPlotLen = 0;
+
+	//X:
+	if(ui->radioButtonXM->isChecked())
+	{
+		//Enable manual input fields:
+		ui->lineEditXMin->setEnabled(true);
+		ui->lineEditXMax->setEnabled(true);
+
+		//Manual:
+		//=======
+
+		QString xMinText = ui->lineEditXMin->text();
+		QString xMaxText = ui->lineEditXMax->text();
+
+		//Empty field?
+
+		if(xMinText.length() <= 0)
+		{
+			xMinText = "0";
+		}
+
+		if(xMaxText.length() <= 0)
+		{
+			xMaxText = "2";
+		}
+
+		//Convert to numbers:
+		int tmpXmin = xMinText.toInt();
+		int tmpXmax = xMaxText.toInt();
+
+		//Numbers can't be negative:
+
+		if(tmpXmin < 0)
+		{
+			tmpXmin = 0;
+		}
+
+		if(tmpXmax < 0)
+		{
+			tmpXmax = 0;
+		}
+
+		//Numbers can't be too long:
+
+		if(tmpXmin > PLOT_BUF_LEN-5)
+		{
+			tmpXmin = PLOT_BUF_LEN-5;
+		}
+
+		if(tmpXmax > PLOT_BUF_LEN)
+		{
+			tmpXmax = PLOT_BUF_LEN;
+		}
+
+		//Max can't be smaller than min:
+
+		if(tmpXmax <= tmpXmin)
+		{
+			tmpXmax = tmpXmin + 1;
+		}
+
+		//Update displays:
+		ui->lineEditXMin->setText(QString::number(tmpXmin));
+		ui->lineEditXMax->setText(QString::number(tmpXmax));
+
+		//Save values:
+		plot_xmin = tmpXmin;
+		plot_xmax = tmpXmax;
+		plot_len = 1+ plot_xmax - plot_xmin;
+
+		if(plot_len < lastPlotLen)
+		{
+			initData();
+		}
+		lastPlotLen = plot_len;
+	}
+	else if(ui->radioButtonXA->isChecked())
+	{
+		//Disable manual input fields:
+		ui->lineEditXMin->setEnabled(false);
+		ui->lineEditXMax->setEnabled(false);
+
+		//Auto scale axis
+		plot_xmin = 0;
+		//plot_xmax = plotting_len;	//ToDo remove?
+		plot_xmax = vecLen;
+
+		//Notify user of value used:
+		ui->lineEditXMin->setText(QString::number(plot_xmin));;
+		ui->lineEditXMax->setText(QString::number(plot_xmax));;
+	}
+
+	//Y:
+	if(ui->radioButtonYM->isChecked())
+	{
+		//Enable manual input fields:
+		ui->lineEditYMin->setEnabled(true);
+		ui->lineEditYMax->setEnabled(true);
+
+		//Manual
+		plot_ymin = ui->lineEditYMin->text().toInt();
+		plot_ymax = ui->lineEditYMax->text().toInt();
+	}
+	else if(ui->radioButtonYA->isChecked())
+	{
+		//Disable manual input fields:
+		ui->lineEditYMin->setEnabled(false);
+		ui->lineEditYMax->setEnabled(false);
+
+		//Auto scale Y axis:
+		//==================
+		//(all done in Automatic function)
+	}
+
+	//Update chart:
+	chart->axisX()->setRange(plot_xmin, plot_xmax);
+	chart->axisY()->setRange(plot_ymin, plot_ymax);
+}
+
+void W_2DPlot::setChartAxisAutomatic(void)
+{
+	if(ui->radioButtonYA->isChecked())
+	{
+		plot_ymin = globalYmin;
+		plot_ymax = globalYmax;
+
+		//Apply a margin:
+		addMargins(&plot_ymin, &plot_ymax);
+
+		//Update chart:
+		//chart->axisX()->setRange(plot_xmin, plot_xmax);
+		chart->axisY()->setRange(plot_ymin, plot_ymax);
+
+		//Display values used:
+		ui->lineEditYMin->setText(QString::number(plot_ymin));
+		ui->lineEditYMax->setText(QString::number(plot_ymax));
+	}
+}
+
+bool W_2DPlot::allChannelUnused(void)
+{
+	for(int i = 0; i < VAR_NUM; i++)
+	{
+		if(vtp[i].used == true)
+		{
+			return false;
+		}
+	}
+	return true;
+}
+
+//Init stats: all 0
+void W_2DPlot::initStats(void)
+{
+	memset(&stats, 0, sizeof stats);
+
+	ui->label_1_min->setText(QString::number(0));
+	ui->label_1_max->setText(QString::number(0));
+	ui->label_1_avg->setText(QString::number(0));
+
+	ui->label_2_min->setText(QString::number(0));
+	ui->label_2_max->setText(QString::number(0));
+	ui->label_2_avg->setText(QString::number(0));
+
+	ui->label_3_min->setText(QString::number(0));
+	ui->label_3_max->setText(QString::number(0));
+	ui->label_3_avg->setText(QString::number(0));
+
+	ui->label_4_min->setText(QString::number(0));
+	ui->label_4_max->setText(QString::number(0));
+	ui->label_4_avg->setText(QString::number(0));
+
+	ui->label_5_min->setText(QString::number(0));
+	ui->label_5_max->setText(QString::number(0));
+	ui->label_5_avg->setText(QString::number(0));
+
+	ui->label_6_min->setText(QString::number(0));
+	ui->label_6_max->setText(QString::number(0));
+	ui->label_6_avg->setText(QString::number(0));
+}
+
+void W_2DPlot::refreshStats(void)
+{
+	ui->label_1_min->setText(QString::number(stats[0][STATS_MIN]));
+	ui->label_1_max->setText(QString::number(stats[0][STATS_MAX]));
+	ui->label_1_avg->setText(QString::number(stats[0][STATS_AVG]));
+
+	ui->label_2_min->setText(QString::number(stats[1][STATS_MIN]));
+	ui->label_2_max->setText(QString::number(stats[1][STATS_MAX]));
+	ui->label_2_avg->setText(QString::number(stats[1][STATS_AVG]));
+
+	ui->label_3_min->setText(QString::number(stats[2][STATS_MIN]));
+	ui->label_3_max->setText(QString::number(stats[2][STATS_MAX]));
+	ui->label_3_avg->setText(QString::number(stats[2][STATS_AVG]));
+
+	ui->label_4_min->setText(QString::number(stats[3][STATS_MIN]));
+	ui->label_4_max->setText(QString::number(stats[3][STATS_MAX]));
+	ui->label_4_avg->setText(QString::number(stats[3][STATS_AVG]));
+
+	ui->label_5_min->setText(QString::number(stats[4][STATS_MIN]));
+	ui->label_5_max->setText(QString::number(stats[4][STATS_MAX]));
+	ui->label_5_avg->setText(QString::number(stats[4][STATS_AVG]));
+
+	ui->label_6_min->setText(QString::number(stats[5][STATS_MIN]));
+	ui->label_6_max->setText(QString::number(stats[5][STATS_MAX]));
+	ui->label_6_avg->setText(QString::number(stats[5][STATS_AVG]));
+}
+
+//Displays the 2 refresh frequencies
+void W_2DPlot::refreshStatBar(float fDisp, float fData)
+{
+	QString txt, num;
+
+	num = QString::number(fDisp, 'f', 0);
+	txt = "<font color=#808080>Display: " + num + " Hz </font>";
+	ui->label_refreshRateDisplay->setText(txt);
+
+	num = QString::number(fData, 'f', 0);
+	txt = "<font color=#808080>Data: " + num + " Hz </font>";
+	ui->label_refreshRateData->setText(txt);
 }
 
 //Each board type has a different variable list.
@@ -353,7 +940,7 @@ void W_2DPlot::updateVarList(uint8_t var, QComboBox *myCombo)
 	switch(bType)
 	{
 		case FLEXSEA_PLAN_BASE:
-			var_list << "**Unused**";
+			var_list << "****";
 			toolTipList << "";
 			break;
 		case FLEXSEA_MANAGE_BASE:
@@ -419,12 +1006,13 @@ void W_2DPlot::updateVarList(uint8_t var, QComboBox *myCombo)
 			var_list << "**Unused**" << "Accel X" << "Accel Y" << "Accel Z" \
 					<< "Gyro X" << "Gyro Y" << "Gyro Z" << "Encoder Motor" \
 					<< "Encoder Joint" << "Motor current" << "Strain[0]" << "Strain[1]" \
-					<< "Strain[2]" << "Strain[3]" << "Strain[4]" << "Strain[5]";
+					<< "Strain[2]" << "Strain[3]" << "Strain[4]" << "Strain[5]" \
+					<< "PWM";
 			toolTipList << "Unused" << "Decoded: mg" << "Decoded: mg" << "Decoded: mg" \
 					<< "Decoded: deg/s" << "Decoded: deg/s" << "Decoded: deg/s" << "Raw Value Only" \
 					<< "Raw value only" << "Decoded: mA" << "Decoded: ±100%" << "Decoded: ±100%" \
 					<< "Decoded: ±100%"<< "Decoded: ±100%"<< "Decoded: ±100%"\
-					<< "Decoded: ±100%";
+					<< "Decoded: ±100%" << "PWM, -1024 to 1024";
 			break;
 		default:
 			var_list << "Invalid";
@@ -507,11 +1095,6 @@ void W_2DPlot::assignVariableEx(uint8_t var, struct execute_s *myPtr)
 	//'Used' as default, 'false' when set at Unused
 	vtp[var].used = true;
 	vtp[var].format = FORMAT_32S;
-
-	//Quick test - ToDo remove
-//	uint8_t *testPtr;
-//	W_Execute::trackVarEx(0, &testPtr);
-	//qDebug() << *(testPtr);
 
 	//Assign pointer:
 	switch(varIndex[var])
@@ -736,6 +1319,11 @@ void W_2DPlot::assignVariableRicnu(uint8_t var, struct ricnu_s *myPtr)
 			vtp[var].format = FORMAT_16U;
 			vtp[var].ptr16u = &myPtr->st.ch[5].strain_filtered;
 			vtp[var].ptrD32s = &myPtr->decoded.ext_strain[5];
+			break;
+		case 16: //"PWM"
+			vtp[var].format = FORMAT_16S;
+			vtp[var].ptr16s = &myPtr->ex.sine_commut_pwm;
+			vtp[var].ptrD32s = &nullVar32s;
 			break;
 	}
 }
@@ -1091,432 +1679,6 @@ void W_2DPlot::assignVariableSt(uint8_t var, struct strain_s *myPtr)
 	}
 }
 
-//Based on the current state of comboBoxes, saves the info in variables
-void W_2DPlot::saveCurrentSettings(void)
-{
-	//Slave:
-	slaveIndex[0] = ui->cBoxvar1slave->currentIndex();
-	slaveIndex[1] = ui->cBoxvar2slave->currentIndex();
-	slaveIndex[2] = ui->cBoxvar3slave->currentIndex();
-	slaveIndex[3] = ui->cBoxvar4slave->currentIndex();
-	slaveIndex[4] = ui->cBoxvar5slave->currentIndex();
-	slaveIndex[5] = ui->cBoxvar6slave->currentIndex();
-
-	for(int i = 0; i < VAR_NUM; i++)
-	{
-		slaveAddr[i] = FlexSEA_Generic::getSlaveID(SL_BASE_ALL, slaveIndex[i]);
-		slaveBType[i] = FlexSEA_Generic::getSlaveBoardType(SL_BASE_ALL, \
-														   slaveIndex[i]);
-	}
-
-	//Variable:
-	varIndex[0] = ui->cBoxvar1->currentIndex();
-	varIndex[1] = ui->cBoxvar2->currentIndex();
-	varIndex[2] = ui->cBoxvar3->currentIndex();
-	varIndex[3] = ui->cBoxvar4->currentIndex();
-	varIndex[4] = ui->cBoxvar5->currentIndex();
-	varIndex[5] = ui->cBoxvar6->currentIndex();
-
-	//Decode:
-	vtp[0].decode = ui->checkBoxD1->isChecked();
-	vtp[1].decode = ui->checkBoxD2->isChecked();
-	vtp[2].decode = ui->checkBoxD3->isChecked();
-	vtp[3].decode = ui->checkBoxD4->isChecked();
-	vtp[4].decode = ui->checkBoxD5->isChecked();
-	vtp[5].decode = ui->checkBoxD6->isChecked();
-}
-
-//We use a bigger Y scale than the minimum span to make it clearer
-void W_2DPlot::addMargins(int *ymin, int *ymax)
-{
-	switch(ui->comboBoxMargin->currentIndex())
-	{
-		case 0: //2%
-			*ymin = (*ymin-(abs(*ymin)/50));
-			*ymax = (*ymax+(abs(*ymax)/50));
-			break;
-		case 1: //5%
-			*ymin = (*ymin-(abs(*ymin)/20));
-			*ymax = (*ymax+(abs(*ymax)/20));
-			break;
-		case 2: //10%
-			*ymin = (*ymin-(abs(*ymin)/10));
-			*ymax = (*ymax+(abs(*ymax)/10));
-			break;
-		case 3: //10 ticks
-			*ymin = (*ymin-10);
-			*ymax = (*ymax+10);
-			break;
-		case 4: //25 ticks
-			*ymin = (*ymin-25);
-			*ymax = (*ymax+25);
-			break;
-		case 5: //100 ticks
-			*ymin = (*ymin-100);
-			*ymax = (*ymax+100);
-			break;
-		case 6: //1000 ticks
-			*ymin = (*ymin-1000);
-			*ymax = (*ymax+1000);
-			break;
-	}
-}
-
-//Buffer management for the N variables that we can plot.
-void W_2DPlot::update_graph_array(int graph, int new_data)
-{
-	static int idx_plot[VAR_NUM] = {0,0,0,0,0,0};
-
-	//Updating buffer with one new data point
-	update_plot_buf_single(graph_yarray[graph], &idx_plot[graph], new_data);
-}
-
-//Add one byte to the FIFO buffer
-//Do not call that function directly
-void W_2DPlot::update_plot_buf_single(int *buf, int *idx, int new_data)
-{
-	if((*idx) < plot_len)
-	{
-		//Buffer isn't full yet, no need to discard "old" bytes
-		buf[(*idx)] = new_data;
-		(*idx)++;
-	}
-	else
-	{
-		//Shift buffer to clear one spot
-		for(int i = 1; i < plot_len; i++)
-		{
-			buf[i-1] = buf[i];
-		}
-		//Add last byte to the buffer
-		buf[plot_len-1] = new_data;
-	}
-
-	//buf[] is now up to date
-}
-
-//What slave are we plotting for this variable?
-uint8_t W_2DPlot::select_plot_slave(uint8_t index)
-{
-	uint8_t retval = 0;
-
-	switch(index)
-	{
-		case 0:
-			retval = ui->cBoxvar1slave->currentIndex();
-			break;
-		case 1:
-			retval = ui->cBoxvar2slave->currentIndex();
-			break;
-		case 2:
-			retval = ui->cBoxvar3slave->currentIndex();
-			break;
-		case 3:
-			retval = ui->cBoxvar4slave->currentIndex();
-			break;
-		case 4:
-			retval = ui->cBoxvar5slave->currentIndex();
-			break;
-		case 5:
-			retval = ui->cBoxvar6slave->currentIndex();
-			break;
-	}
-
-	return retval;
-}
-
-//All graphs use the same X data. Call this once at startup.
-void W_2DPlot::gen_graph_xarray(void)
-{
-	for(int i = 0; i < PLOT_BUF_LEN; i++)
-	{
-		graph_xarray[i] = i;
-	}
-}
-
-//Initialize all the graphs at 0:
-void W_2DPlot::init_yarrays(void)
-{
-	for(int i = 0; i < VAR_NUM; i++)
-	{
-		memset(graph_yarray[i], 0, PLOT_BUF_LEN);
-	}
-}
-
-//Manages the chart axis, including auto-scaling
-void W_2DPlot::setChartAxis(void)
-{
-	//X:
-	if(ui->radioButtonXM->isChecked())
-	{
-		//Enable manual input fields:
-		ui->lineEditXMin->setEnabled(true);
-		ui->lineEditXMax->setEnabled(true);
-
-		//Manual:
-		//=======
-
-		//Protection against empty LineEdit
-		QString xText = ui->lineEditXMax->text();
-		if(xText.length() <= 0)
-		{
-			xText = "1";
-		}
-		plot_xmin = ui->lineEditXMin->text().toInt();
-		plot_xmax = xText.toInt();
-
-		//Few safety checks on that number.
-		if(plot_xmax >= PLOT_BUF_LEN)
-		{
-			plot_len = PLOT_BUF_LEN;
-			plot_xmax = PLOT_BUF_LEN;
-		}
-		else
-		{
-			plot_len = plot_xmax;
-		}
-
-		if(plot_xmin < 0)
-		{
-			plot_xmin = 0;
-		}
-		else if(plot_xmin > plot_xmax)
-		{
-			if(plot_xmax > INIT_PLOT_LEN)
-			{
-				plot_xmin = plot_xmax - INIT_PLOT_LEN;
-			}
-			else
-			{
-				plot_xmin = 0;
-			}
-		}
-		plot_len = plot_xmax - plot_xmin;
-	}
-	else if(ui->radioButtonXA->isChecked())
-	{
-		//Disable manual input fields:
-		ui->lineEditXMin->setEnabled(false);
-		ui->lineEditXMax->setEnabled(false);
-
-		//Auto scale axis
-		plot_xmin = 0;
-		plot_xmax = plotting_len;
-
-		//Notify user of value used:
-		ui->lineEditXMin->setText(QString::number(plot_xmin));;
-		ui->lineEditXMax->setText(QString::number(plot_xmax));;
-	}
-
-	//Y:
-	if(ui->radioButtonYM->isChecked())
-	{
-		//Enable manual input fields:
-		ui->lineEditYMin->setEnabled(true);
-		ui->lineEditYMax->setEnabled(true);
-
-		//Manual
-		plot_ymin = ui->lineEditYMin->text().toInt();
-		plot_ymax = ui->lineEditYMax->text().toInt();
-	}
-	else if(ui->radioButtonYA->isChecked())
-	{
-		//Disable manual input fields:
-		ui->lineEditYMin->setEnabled(false);
-		ui->lineEditYMax->setEnabled(false);
-
-		//Auto scale Y axis:
-		//==================
-
-		//Special case 1: all Unused
-		if(allChannelUnused() == true)
-		{
-			//qDebug() << "All Unused";
-			plot_ymin = -10;
-			plot_ymax = 10;
-		}
-		else
-		{
-			//Special case 2: at least 1 unused. We need a value for it,
-			//otherwise it will force a 0.
-			int yValMin = 0, yValMax = 0;
-			for(int k = 0; k < VAR_NUM; k++)
-			{
-				if(vtp[k].used == true)
-				{
-					//We found one, copy its values:
-					yValMin = graph_ylim[2*k];
-					yValMax = graph_ylim[(2*k)+1];
-					break;
-				}
-			}
-			//Now we use this for all unused channels:
-			for(int k = 0; k < VAR_NUM; k++)
-			{
-				if(vtp[k].used == false)
-				{
-					//Unused, replace its min/max:
-					graph_ylim[2*k] = yValMin;
-					graph_ylim[(2*k)+1] = yValMax;
-				}
-			}
-
-			//Now we can find the min/max of all channels:
-			array_minmax(graph_ylim, 2*VAR_NUM, &plot_ymin, &plot_ymax);
-
-			//Apply a margin:
-			addMargins(&plot_ymin, &plot_ymax);
-		}
-
-		//Notify user of value used:
-		ui->lineEditYMin->setText(QString::number(plot_ymin));
-		ui->lineEditYMax->setText(QString::number(plot_ymax));
-	}
-
-	//Update chart:
-	chart->axisX()->setRange(plot_xmin, plot_xmax);
-	chart->axisY()->setRange(plot_ymin, plot_ymax);
-}
-
-//Returns the min and max of an array. Used for the auto axis
-void W_2DPlot::array_minmax(int *arr, int len, int *min, int *max)
-{
-	(*min) = arr[0];
-	(*max) = arr[0];
-
-	for(int i = 0; i < len; i++)
-	{
-		if(arr[i] < (*min))
-			(*min) = arr[i];
-		if(arr[i] > (*max))
-			(*max) = arr[i];
-	}
-}
-
-//ToDo Re-think this:
-/*
- * Note 1: every time this function is called we clear the qlsData series,
- * and we add new data one by one. This doesn't seem efficient.
- * Note 2: in the current architecture we call this 0-6 times (depending on the
- * variables used. Should we do a mass update?
- * Note 3: setChart Axis only has to change once per cycle, not N times
-*/
-void W_2DPlot::refreshData2DPlot(int *x, int *y, int len, uint8_t plot_index)
-{
-	if(plotFreezed == false)
-	{
-		//From array to QLineSeries, + auto-scale limits:
-		graph_ylim[2*plot_index] = y[0];
-		graph_ylim[2*plot_index+1] = y[0];
-		qlsData[plot_index]->clear();
-
-		for(int i = 0; i < len; i++)
-		{
-			//Add datapoint to series:
-			qlsData[plot_index]->append(x[i], y[i]);
-
-			//Min & Max:
-			if(y[i] < graph_ylim[2*plot_index])
-			{
-				graph_ylim[2*plot_index] = y[i];
-				stats[plot_index][STATS_MIN] = y[i];
-			}
-			if(y[i] > graph_ylim[(2*plot_index) + 1])
-			{
-				graph_ylim[(2*plot_index) + 1] = y[i];
-				stats[plot_index][STATS_MAX] = y[i];
-			}
-		}
-
-		//Average value
-		long long sum = 0;
-		uint32_t qlen = plot_len;
-		for(uint32_t h = 0; h < qlen; h++)
-		{
-			sum += graph_yarray[plot_index][h];
-		}
-		stats[plot_index][STATS_AVG] = (sum/qlen);
-		//ToDo: this stops refreshing once we click on Unused!
-
-		plotting_len = len;
-
-		//Update axis:
-		setChartAxis();
-	}
-}
-
-bool W_2DPlot::allChannelUnused(void)
-{
-	for(int i = 0; i < VAR_NUM; i++)
-	{
-		if(vtp[i].used == true)
-		{
-			return false;
-		}
-	}
-	return true;
-}
-
-//Init stats: all 0
-void W_2DPlot::initStats(void)
-{
-	for(int i = 0; i < VAR_NUM; i++)
-	{
-		memset(stats[i], 0, STATS_FIELDS);
-	}
-
-	ui->label_1_min->setText(QString::number(0));
-	ui->label_1_max->setText(QString::number(0));
-	ui->label_1_avg->setText(QString::number(0));
-
-	ui->label_2_min->setText(QString::number(0));
-	ui->label_2_max->setText(QString::number(0));
-	ui->label_2_avg->setText(QString::number(0));
-
-	ui->label_3_min->setText(QString::number(0));
-	ui->label_3_max->setText(QString::number(0));
-	ui->label_3_avg->setText(QString::number(0));
-
-	ui->label_4_min->setText(QString::number(0));
-	ui->label_4_max->setText(QString::number(0));
-	ui->label_4_avg->setText(QString::number(0));
-
-	ui->label_5_min->setText(QString::number(0));
-	ui->label_5_max->setText(QString::number(0));
-	ui->label_5_avg->setText(QString::number(0));
-
-	ui->label_6_min->setText(QString::number(0));
-	ui->label_6_max->setText(QString::number(0));
-	ui->label_6_avg->setText(QString::number(0));
-}
-
-void W_2DPlot::refreshStats(void)
-{
-	ui->label_1_min->setText(QString::number(stats[0][STATS_MIN]));
-	ui->label_1_max->setText(QString::number(stats[0][STATS_MAX]));
-	ui->label_1_avg->setText(QString::number(stats[0][STATS_AVG]));
-
-	ui->label_2_min->setText(QString::number(stats[1][STATS_MIN]));
-	ui->label_2_max->setText(QString::number(stats[1][STATS_MAX]));
-	ui->label_2_avg->setText(QString::number(stats[1][STATS_AVG]));
-
-	ui->label_3_min->setText(QString::number(stats[2][STATS_MIN]));
-	ui->label_3_max->setText(QString::number(stats[2][STATS_MAX]));
-	ui->label_3_avg->setText(QString::number(stats[2][STATS_AVG]));
-
-	ui->label_4_min->setText(QString::number(stats[3][STATS_MIN]));
-	ui->label_4_max->setText(QString::number(stats[3][STATS_MAX]));
-	ui->label_4_avg->setText(QString::number(stats[3][STATS_AVG]));
-
-	ui->label_5_min->setText(QString::number(stats[4][STATS_MIN]));
-	ui->label_5_max->setText(QString::number(stats[4][STATS_MAX]));
-	ui->label_5_avg->setText(QString::number(stats[4][STATS_AVG]));
-
-	ui->label_6_min->setText(QString::number(stats[5][STATS_MIN]));
-	ui->label_6_max->setText(QString::number(stats[5][STATS_MAX]));
-	ui->label_6_avg->setText(QString::number(stats[5][STATS_AVG]));
-}
-
 //****************************************************************************
 // Private slot(s):
 //****************************************************************************
@@ -1834,7 +1996,8 @@ void W_2DPlot::on_checkBoxD6_stateChanged(int arg1)
 void W_2DPlot::on_pushButtonClear_clicked()
 {
 	qDebug() << "Clear plot!";
-	init_yarrays();
+
+	initData();
 }
 
 //Reset the 2D plot to default setting
@@ -1855,4 +2018,124 @@ void W_2DPlot::on_pbIMU_clicked()
 	ui->cBoxvar4->setCurrentIndex(4);
 	ui->cBoxvar5->setCurrentIndex(5);
 	ui->cBoxvar6->setCurrentIndex(6);
+}
+
+void W_2DPlot::on_pbPoints_clicked()
+{
+	if(pointsVisible == false)
+	{
+		pointsVisible = true;
+		ui->pbPoints->setText("Hide Points");
+	}
+	else
+	{
+		pointsVisible = false;
+		ui->pbPoints->setText("Show Points");
+	}
+
+	for(int i = 0; i < VAR_NUM; i++)
+	{
+		qlsData[i]->setPointsVisible(pointsVisible);
+	}
+}
+
+//Point hovered, channel 0
+void W_2DPlot::myHoverHandler0(QPointF pt, bool state)
+{
+	QPoint curP = QCursor::pos();	//Cursor position
+	myHoverHandlerAll(0, pt, curP, state);
+}
+
+//Point hovered, channel 1
+void W_2DPlot::myHoverHandler1(QPointF pt, bool state)
+{
+	QPoint curP = QCursor::pos();	//Cursor position
+	myHoverHandlerAll(1, pt, curP, state);
+}
+
+//Point hovered, channel 2
+void W_2DPlot::myHoverHandler2(QPointF pt, bool state)
+{
+	QPoint curP = QCursor::pos();	//Cursor position
+	myHoverHandlerAll(2, pt, curP, state);
+}
+
+//Point hovered, channel 3
+void W_2DPlot::myHoverHandler3(QPointF pt, bool state)
+{
+	QPoint curP = QCursor::pos();	//Cursor position
+	myHoverHandlerAll(3, pt, curP, state);
+}
+
+//Point hovered, channel 4
+void W_2DPlot::myHoverHandler4(QPointF pt, bool state)
+{
+	QPoint curP = QCursor::pos();	//Cursor position
+	myHoverHandlerAll(4, pt, curP, state);
+}
+
+//Point hovered, channel 5
+void W_2DPlot::myHoverHandler5(QPointF pt, bool state)
+{
+	QPoint curP = QCursor::pos();	//Cursor position
+	myHoverHandlerAll(5, pt, curP, state);
+}
+
+//Point hovered, all channels (individual channels call this)
+void W_2DPlot::myHoverHandlerAll(uint8_t ch, QPointF pt, QPoint cursor, \
+									bool state)
+{
+	int x = 0, y = 0;
+	QPoint xy = pt.toPoint();
+	QString txt;
+	(void)cursor;
+
+	if(state == true)
+	{
+		//qDebug() << "Hovered over" << pt << "(ch" << ch << ") ";
+		x = (int)xy.x();
+		y = (int)xy.y();
+		txt = "<font color=#808080>Point = CH" + QString::number(ch) + \
+				"(" + QString::number(x) + ',' + QString::number(y) + ")</font>";
+
+	}
+	else
+	{
+		txt = "<font color=#808080>Point = CHx(--,--)</font>";
+	}
+
+	ui->label_pointHovered->setText(txt);
+}
+
+void W_2DPlot::on_checkBoxOpenGL_clicked(bool checked)
+{
+	useOpenGL(checked);
+}
+
+void W_2DPlot::useOpenGL(bool yesNo)
+{
+	if(yesNo == true)
+	{
+		qDebug() << "OpenGL Enabled";
+
+		//Turn OpenGL ON
+		qlsData[0]->setUseOpenGL(true);
+		qlsData[1]->setUseOpenGL(true);
+		qlsData[2]->setUseOpenGL(true);
+		qlsData[3]->setUseOpenGL(true);
+		qlsData[4]->setUseOpenGL(true);
+		qlsData[5]->setUseOpenGL(true);
+	}
+	else
+	{
+		qDebug() << "OpenGL Disabled";
+
+		//Turn OpenGL OFF
+		qlsData[0]->setUseOpenGL(false);
+		qlsData[1]->setUseOpenGL(false);
+		qlsData[2]->setUseOpenGL(false);
+		qlsData[3]->setUseOpenGL(false);
+		qlsData[4]->setUseOpenGL(false);
+		qlsData[5]->setUseOpenGL(false);
+	}
 }

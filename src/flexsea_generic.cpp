@@ -85,6 +85,8 @@ QStringList FlexSEA_Generic::var_list_exp = QStringList()
 											<< "RICNU Knee"
 											<< "CSEA Knee"
 											<< "2DOF Ankle"
+											<< "Battery Board"
+											<< "Test Bench"
 											<< "[Your project]";
 
 //****************************************************************************
@@ -204,7 +206,6 @@ void FlexSEA_Generic::decodeRicnu(uint8_t base, uint8_t index)
 	ExecuteDevice::decode(&ricnu_1.ex);
 	StrainDevice::decode(&ricnu_1.st);
 }
-
 
 //Assign pointer
 //TODO: should we use flexsea_system's executePtrXid instead?

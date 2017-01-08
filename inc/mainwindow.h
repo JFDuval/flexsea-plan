@@ -53,6 +53,8 @@
 #include "w_converter.h"
 
 #include "flexseaDevice.h"
+#include "w_testbench.h"
+#include "w_commtest.h"
 #include "manageDevice.h"
 
 #include "main.h"
@@ -79,6 +81,8 @@ class MainWindow;
 #define GOSSIP_WINDOWS_MAX			2
 #define STRAIN_WINDOWS_MAX			2
 #define USERRW_WINDOWS_MAX			1
+#define TESTBENCH_WINDOWS_MAX		1
+#define COMMTEST_WINDOWS_MAX		1
 
 class MainWindow : public QMainWindow
 {
@@ -129,6 +133,8 @@ private:
 	W_Gossip *myViewGossip[GOSSIP_WINDOWS_MAX];
 	W_Strain *myViewStrain[STRAIN_WINDOWS_MAX];
 	W_UserRW *myUserRW[USERRW_WINDOWS_MAX];
+	W_TestBench *myViewTestBench[TESTBENCH_WINDOWS_MAX];
+	W_CommTest *myViewCommTest[COMMTEST_WINDOWS_MAX];
 
 	// Objects
 	SerialDriver *mySerialDriver;
@@ -138,7 +144,7 @@ signals:
 	//Allow window to be independly opened in any order by providing a backbone connector
 	void connectorRefreshLogTimeSlider(int index, FlexseaDevice*);
 	void connectorUpdateDisplayMode(DisplayMode mode);
-	void connectorWriteCommand(char ch,unsigned char* chPtr);
+	void connectorWriteCommand(uint8_t ch, uint8_t* chPtr, uint8_t r_w);
 
 public slots:
 
@@ -161,6 +167,8 @@ public slots:
 	void createViewBattery(void);
 	void createLogKeyPad(FlexseaDevice * devPtr);
 	void createUserRW(void);
+	void createViewTestBench(void);
+	void createViewCommTest(void);
 
 	//MDI Windows (closed):
 	void closeViewExecute(void);
@@ -178,6 +186,8 @@ public slots:
 	void closeViewBattery(void);
 	void closeLogKeyPad(void);
 	void closeUserRW(void);
+	void closeViewTestBench(void);
+	void closeViewCommTest(void);
 
 	//Miscelaneous
 

@@ -52,10 +52,10 @@ MainWindow::MainWindow(QWidget *parent) :
 	ui->setupUi(this);
 	QMainWindow::showMaximized();
 
-	setWindowTitle("FlexSEA Plan GUI v2.0 (Alpha Release - 11/2016)");
+	setWindowTitle("FlexSEA Plan GUI v2.0 (Alpha Release - 12/2016)");
 	ui->statusBar->showMessage("Program launched. COM: Not Connected. \
 								Stream status: N/A", 0);
-	setWindowIcon(QIcon(":icons/d_logo_small.png"));
+	setWindowIcon(QIcon(":icons/d_logo_small_outlined.png"));
 
 	//Prepare FlexSEA Stack:
 	init_flexsea_payload_ptr();
@@ -75,7 +75,8 @@ MainWindow::MainWindow(QWidget *parent) :
 	W_Gossip::setMaxWindow(GOSSIP_WINDOWS_MAX);
 	W_Strain::setMaxWindow(STRAIN_WINDOWS_MAX);
 	W_UserRW::setMaxWindow(USERRW_WINDOWS_MAX);
-
+	W_TestBench::setMaxWindow(TESTBENCH_WINDOWS_MAX);
+	W_CommTest::setMaxWindow(COMMTEST_WINDOWS_MAX);
 
 	W_Execute::setDescription("Execute");
 	W_Manage::setDescription("Manage - Barebone");
@@ -87,11 +88,13 @@ MainWindow::MainWindow(QWidget *parent) :
 	W_Control::setDescription("Control");
 	W_2DPlot::setDescription("2D Plot");
 	W_Ricnu::setDescription("RIC/NU Knee");
-	W_Battery::setDescription("Battery - Barebone");
+	W_Battery::setDescription("Battery Board");
 	W_LogKeyPad::setDescription("Read & Display Log File");
 	W_Gossip::setDescription("Gossip - Barebone");
 	W_Strain::setDescription("6ch StrainAmp - Barebone");
 	W_UserRW::setDescription("User R/W");
+	W_TestBench::setDescription("Test Bench");
+	W_CommTest::setDescription("Communication Test");
 
 	initFlexSeaDeviceObject();
 
@@ -115,7 +118,6 @@ MainWindow::MainWindow(QWidget *parent) :
 	ui->menuFile->actions().at(3)->setEnabled(false);		//Load configuration
 	ui->menuFile->actions().at(4)->setEnabled(false);		//Save configuration
 	ui->menuControl->actions().at(1)->setEnabled(false);	//In Control
-
 
 	//Log and MainWindow
 	connect(myDataLogger, SIGNAL(setStatusBarMessage(QString)), \
@@ -240,7 +242,6 @@ void MainWindow::manageLogKeyPad(DataSource status, FlexseaDevice *devPtr)
 {
 	createLogKeyPad(devPtr);
 }
-
 
 //Creates a new View Execute window
 void MainWindow::createViewExecute(void)
@@ -437,13 +438,11 @@ void MainWindow::createView2DPlot(void)
 		sendWindowCreatedMsg(W_2DPlot::getDescription(), objectCount,
 							 W_2DPlot::getMaxWindow() - 1);
 
-		//Link SerialDriver and 2DPlot:
-		/*connect(mySerialDriver, SIGNAL(newDataReady()), \
-				myView2DPlot[objectCount], SLOT(refresh2DPlot())); */
-
-		//New version: updates at fixed rate, not based on serial reply:
+		//Fixed rate for the display, and variable rate for the data:
 		connect(myViewSlaveComm[0], SIGNAL(refresh2DPlot()), \
 				myView2DPlot[objectCount], SLOT(refresh2DPlot()));
+		connect(mySerialDriver, SIGNAL(newDataReady()), \
+				myView2DPlot[objectCount], SLOT(receiveNewData()));
 
 		//For the trapeze/control tool:
 		connect(myViewSlaveComm[0], SIGNAL(masterTimer100Hz()), \
@@ -681,6 +680,11 @@ void MainWindow::createUserRW(void)
 		//Link to MainWindow for the close signal:
 		connect(myUserRW[objectCount], SIGNAL(windowClosed()), \
 				this, SLOT(closeUserRW()));
+
+		//Link to SlaveComm to send commands:
+		connect(myUserRW[objectCount], SIGNAL(writeCommand(uint8_t,\
+				uint8_t*,uint8_t)), this, SIGNAL(connectorWriteCommand(uint8_t,\
+				uint8_t*, uint8_t)));
 	}
 
 	else
@@ -876,6 +880,79 @@ DisplayMode MainWindow::getDisplayMode(void)
 		}
 	}
 	return status;
+}
+
+//Creates a new View TestBench window
+void MainWindow::createViewTestBench(void)
+{
+	int objectCount = W_TestBench::howManyInstance();
+
+	//Limited number of windows:
+	if(objectCount < (TESTBENCH_WINDOWS_MAX))
+	{
+		myViewTestBench[objectCount] = new W_TestBench(this);
+		ui->mdiArea->addSubWindow(myViewTestBench[objectCount]);
+		myViewTestBench[objectCount]->show();
+
+		sendWindowCreatedMsg(W_TestBench::getDescription(), objectCount,
+							 W_TestBench::getMaxWindow() - 1);
+
+		//Link SerialDriver and Battery:
+		connect(mySerialDriver, SIGNAL(newDataReady()), \
+				myViewTestBench[objectCount], SLOT(refreshDisplayTestBench()));
+
+		//Link to MainWindow for the close signal:
+		connect(myViewTestBench[objectCount], SIGNAL(windowClosed()), \
+				this, SLOT(closeViewBattery()));
+	}
+
+	else
+	{
+		sendWindowCreatedFailedMsg(W_TestBench::getDescription(),
+								   W_TestBench::getMaxWindow());
+	}
+}
+
+void MainWindow::closeViewTestBench(void)
+{
+	sendCloseWindowMsg(W_TestBench::getDescription());
+}
+
+//Creates a new Comm. Test window
+void MainWindow::createViewCommTest(void)
+{
+	int objectCount = W_CommTest::howManyInstance();
+
+	//Limited number of windows:
+	if(objectCount < W_CommTest::getMaxWindow())
+	{
+		myViewCommTest[objectCount] = new W_CommTest(this);
+		ui->mdiArea->addSubWindow(myViewCommTest[objectCount]);
+		myViewCommTest[objectCount]->show();
+
+		sendWindowCreatedMsg(W_CommTest::getDescription(), objectCount,
+							 W_CommTest::getMaxWindow() - 1);
+
+		//Link to MainWindow for the close signal:
+		connect(myViewCommTest[objectCount], SIGNAL(windowClosed()), \
+				this, SLOT(closeViewCommTest()));
+
+		//Link to SlaveComm to send commands:
+		connect(myViewCommTest[objectCount], SIGNAL(writeCommand(uint8_t,\
+				uint8_t*,uint8_t)), this, SIGNAL(connectorWriteCommand(uint8_t,\
+				uint8_t*, uint8_t)));
+	}
+
+	else
+	{
+		sendWindowCreatedFailedMsg(W_CommTest::getDescription(),
+								   W_CommTest::getMaxWindow());
+	}
+}
+
+void MainWindow::closeViewCommTest(void)
+{
+	sendCloseWindowMsg(W_CommTest::getDescription());
 }
 
 void MainWindow::sendWindowCreatedMsg(QString windowName, int index, int maxIndex)

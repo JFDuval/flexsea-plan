@@ -116,6 +116,8 @@
     </property>
     <addaction name="actionCalibration"/>
     <addaction name="actionConverter"/>
+    <addaction name="actionTest_Bench"/>
+    <addaction name="actionCommunication_Test"/>
    </widget>
    <widget class="QMenu" name="menuUser">
     <property name="title">
@@ -246,6 +248,16 @@
   <action name="actionUser_R_W">
    <property name="text">
     <string>User R/W</string>
+   </property>
+  </action>
+  <action name="actionTest_Bench">
+   <property name="text">
+    <string>Test Bench</string>
+   </property>
+  </action>
+  <action name="actionCommunication_Test">
+   <property name="text">
+    <string>Communication Test</string>
    </property>
   </action>
  </widget>
@@ -524,6 +536,38 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>actionTest_Bench</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>createViewTestBench()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>594</x>
+     <y>433</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionCommunication_Test</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>createViewCommTest()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>594</x>
+     <y>433</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>createViewExecute()</slot>
@@ -544,5 +588,7 @@
   <slot>createViewStrain()</slot>
   <slot>createViewGossip()</slot>
   <slot>createUserRW()</slot>
+  <slot>createViewTestBench()</slot>
+  <slot>createViewCommTest()</slot>
  </slots>
 </ui>

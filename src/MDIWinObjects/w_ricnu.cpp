@@ -141,6 +141,7 @@ void W_Ricnu::display(RicnuDevice *devicePtr, int index)
 
 	ui->enc_mot->setText(QString::number(ricnu->ex->enc_motor));
 	ui->enc_joint->setText(QString::number(ricnu->ex->enc_joint));
+	ui->pwm->setText(QString::number(ricnu->ex->sine_commut_pwm));
 
 	ui->strain1->setText(QString::number(ricnu->st->ch[0].strain_filtered));
 	ui->strain2->setText(QString::number(ricnu->st->ch[1].strain_filtered));
@@ -148,7 +149,6 @@ void W_Ricnu::display(RicnuDevice *devicePtr, int index)
 	ui->strain4->setText(QString::number(ricnu->st->ch[3].strain_filtered));
 	ui->strain5->setText(QString::number(ricnu->st->ch[4].strain_filtered));
 	ui->strain6->setText(QString::number(ricnu->st->ch[5].strain_filtered));
-
 	ui->disp_current->setText(QString::number(ricnu->ex->current));
 
 	//Decode some of them:
