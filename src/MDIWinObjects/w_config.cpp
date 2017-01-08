@@ -54,7 +54,6 @@ W_Config::W_Config(QWidget *parent) :
 	setWindowIcon(QIcon(":icons/d_logo_small.png"));
 
 	//Init code:
-	flagManualEntry = 0;
 	dataSourceState = None;
 	initCom();
 
@@ -78,13 +77,9 @@ W_Config::~W_Config()
 // Public slot(s):
 //****************************************************************************
 
-void W_Config::setComProgress(int val, int rst)
+void W_Config::setComProgress(int val)
 {
 	ui->comProgressBar->setValue(val);
-	if(rst)
-	{
-		defaultComOffUi();
-	}
 }
 
 //****************************************************************************
@@ -93,22 +88,15 @@ void W_Config::setComProgress(int val, int rst)
 
 void W_Config::initCom(void)
 {
-	//Flags:
-	flagComInitDone = 0;
-
 	//Bluetooth disabled for now:
 	ui->pushButtonBTCon->setEnabled(false);
 
 	//No manual entry, 0% progress, etc.:
 	ui->comProgressBar->setValue(0);
-	ui->comProgressBar->setDisabled(true);
 	ui->openComButton->setDisabled(false);
 	ui->closeComButton->setDisabled(true);
 	ui->pbLoadLogFile->setDisabled(false);
 	ui->pbCloseLogFile->setDisabled(true);
-
-	//Flag for other functions:
-	flagComInitDone = 1;
 }
 
 //This gets called by a timer (currently every 750ms)
@@ -158,36 +146,29 @@ void W_Config::getComList(void)
 	lastComPortAvailable = comPortAvailable;
 }
 
-void W_Config::defaultComOffUi(void)
-{
-	ui->openComButton->setDisabled(false);
-	ui->comProgressBar->setDisabled(false);
-	ui->comProgressBar->setValue(0);
-	ui->closeComButton->setDisabled(true);
-}
-
 //****************************************************************************
 // Private slot(s):
 //****************************************************************************
 
 void W_Config::on_openComButton_clicked()
 {
-	//Deal with display elements:
-	defaultComOffUi();
-	ui->openComButton->setDisabled(true);
+	bool success = false;
 
 	//Emit signal:
-	emit openCom(ui->comPortComboBox->currentText(), 25, 100000);
+	emit openCom(ui->comPortComboBox->currentText(), 25, 100000, &success);
 
 	// TODO We Should have a way to know if the connection was successful
-	if(1)//Connection is successful.
+	if(success)//Connection is successful.
 	{
 		dataSourceState = LiveCOM;
 		emit updateDataSourceStatus(dataSourceState);
-		ui->pbLoadLogFile->setDisabled(true);
-		//ui->pushButtonBTCon->setDisabled(true);
+
+		ui->openComButton->setDisabled(true);
 		ui->closeComButton->setDisabled(false);
 		ui->comPortComboBox->setDisabled(true);
+
+		ui->pbLoadLogFile->setDisabled(true);
+		//ui->pushButtonBTCon->setDisabled(true);
 	}
 }
 
@@ -197,21 +178,13 @@ void W_Config::on_closeComButton_clicked()
 	emit closeCom();
 
 	//Enable Open COM button:
-	ui->openComButton->setEnabled(true);
-	ui->openComButton->repaint();
-
-	//Disable Close COM button:
+	ui->openComButton->setDisabled(false);
 	ui->closeComButton->setDisabled(true);
-	ui->closeComButton->repaint();
-
-	//ui->comStatusTxt->setText("COM Port closed.");
 	ui->comProgressBar->setValue(0);
-	ui->comProgressBar->setDisabled(true);
+	ui->comPortComboBox->setDisabled(false);
 
 	ui->pbLoadLogFile->setDisabled(false);
 	//ui->pushButtonBTCon->setDisabled(false);
-
-	ui->comPortComboBox->setDisabled(false);
 
 	dataSourceState = None;
 	emit updateDataSourceStatus(dataSourceState);

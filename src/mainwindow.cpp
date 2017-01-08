@@ -358,12 +358,12 @@ void MainWindow::createConfig(void)
 				myDataLogger, SLOT(closeReadingFile()));
 
 		// Link to SerialDriver
-		connect(myViewConfig[0], SIGNAL(openCom(QString,int,int)), \
-				mySerialDriver, SLOT(open(QString,int,int)));
+		connect(myViewConfig[0], SIGNAL(openCom(QString,int,int, bool*)), \
+				mySerialDriver, SLOT(open(QString,int,int, bool*)));
 		connect(myViewConfig[0], SIGNAL(closeCom()), \
 				mySerialDriver, SLOT(close()));
-		connect(mySerialDriver, SIGNAL(openProgress(int,int)), \
-				myViewConfig[0], SLOT(setComProgress(int,int)));
+		connect(mySerialDriver, SIGNAL(openProgress(int)), \
+				myViewConfig[0], SLOT(setComProgress(int)));
 		connect(myViewConfig[0], SIGNAL(updateDataSourceStatus(DataSource)),
 				this, SLOT(translatorUpdateDataSourceStatus(DataSource)));
 		connect(myViewConfig[0], SIGNAL(createlogkeypad(DataSource, FlexseaDevice *)),

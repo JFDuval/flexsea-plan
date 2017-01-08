@@ -76,13 +76,12 @@ private slots:
 	void on_pbCloseLogFile_clicked();
 
 public slots:
-	void setComProgress(int val, int rst);
+	void setComProgress(int val);
 
 private:
 	//Variables & Objects:
 	Ui::W_Config *ui;
 	QStringList comPortList;
-	int flagComInitDone, flagManualEntry;
 	DataSource dataSourceState;
 
 	//Function(s):
@@ -90,7 +89,7 @@ private:
 	void defaultComOffUi(void);
 
  signals:
-	void openCom(QString name, int tries, int delay);
+	void openCom(QString name, int tries, int delay, bool *success);
 	void closeCom(void);
 	void openReadingFile(bool *, FlexseaDevice **);
 	void createlogkeypad(DataSource, FlexseaDevice *);

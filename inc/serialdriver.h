@@ -56,7 +56,7 @@ public:
 	void init(void);
 
 public slots:
-	int open(QString name, int tries, int delay);
+	void open(QString name, int tries, int delay, bool* success);
 	void close(void);
 	int read(unsigned char *buf);
 	int write(char bytes_to_send, unsigned char *serial_tx_data);
@@ -73,7 +73,7 @@ private:
 	//Function(s):
 
 signals:
-	void openProgress(int val, int rst);
+	void openProgress(int val);
 	void openStatus(bool status);
 	void newDataReady(void);
 	void dataStatus(int idx, int status);
