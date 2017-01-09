@@ -231,7 +231,6 @@ QString ExecuteDevice::getStatusStr(int index)
 	return str;
 }
 
-
 void ExecuteDevice::decode(struct execute_s *exPtr)
 {
 	//Accel in mG
