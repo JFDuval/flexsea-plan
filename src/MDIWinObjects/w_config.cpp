@@ -57,9 +57,9 @@ W_Config::W_Config(QWidget *parent) :
 	dataSourceState = None;
 	initCom();
 
-	QTimer *comPortRefreshTimer = new QTimer(this);
+	comPortRefreshTimer = new QTimer(this);
 	connect(comPortRefreshTimer, SIGNAL(timeout()), this, SLOT(getComList()));
-	comPortRefreshTimer->start(750); //ms
+	comPortRefreshTimer->start(REFRESH_PERIOD); //ms
 	getComList();	//Call now to avoid lag when a new window is opened.
 }
 
@@ -104,46 +104,37 @@ void W_Config::initCom(void)
  * then plug COM1, it will display COM1. That's confusing for the users.*/
 void W_Config::getComList(void)
 {
-	static int lastComPortAvailable = 0;
-	int comPortAvailable = 0;
+	static int lastComPortCounts = 0;
+	int ComPortCounts = 0;
 
 	//Available ports?
 	QList<QSerialPortInfo> comPortInfo = QSerialPortInfo::availablePorts();
-	comPortAvailable = comPortInfo.length();
-	//qDebug() << "Now: " << comPortAvailable << "Last: " << lastComPortAvailable;
-
-	//No port?
-	if(comPortAvailable == 0)
-	{
-		//Is the list empty?
-		if(comPortList.length() == 0)
-		{
-			//Empty, add the No Port option
-			comPortList << "No Port";
-			ui->comPortComboBox->addItem(comPortList.last());
-		}
-	}
+	ComPortCounts = comPortInfo.length();
 
 	//Did it change?
-	if(comPortAvailable != lastComPortAvailable)
+	if(ComPortCounts != lastComPortCounts)
 	{
 		//Yes.
 		qDebug() << "COM Port list changed.";
 
-		//Clear list:
-		comPortList.clear();
 		ui->comPortComboBox->clear();
 
-		//Write new one:
-		for(const QSerialPortInfo &info : comPortInfo)
+		//No port?
+		if(ComPortCounts == 0)
 		{
-			//qDebug() << info.portName();
-			comPortList << info.portName();
-			ui->comPortComboBox->addItem(comPortList.last());
+			//Empty, add the No Port option
+			ui->comPortComboBox->addItem("No Port");
+		}
+		else
+		{
+			//Rewrite the list:
+			for(const QSerialPortInfo &info : comPortInfo)
+			{
+				ui->comPortComboBox->addItem(info.portName());
+			}
 		}
 	}
-
-	lastComPortAvailable = comPortAvailable;
+	lastComPortCounts = ComPortCounts;
 }
 
 //****************************************************************************
@@ -154,6 +145,8 @@ void W_Config::on_openComButton_clicked()
 {
 	bool success = false;
 
+	//Stop port refresh
+	comPortRefreshTimer->stop();
 	//Emit signal:
 	emit openCom(ui->comPortComboBox->currentText(), 25, 100000, &success);
 
@@ -169,6 +162,10 @@ void W_Config::on_openComButton_clicked()
 
 		ui->pbLoadLogFile->setDisabled(true);
 		//ui->pushButtonBTCon->setDisabled(true);
+	}
+	else
+	{
+		comPortRefreshTimer->start(REFRESH_PERIOD);
 	}
 }
 
@@ -189,6 +186,10 @@ void W_Config::on_closeComButton_clicked()
 	dataSourceState = None;
 	emit updateDataSourceStatus(dataSourceState);
 
+	// Avoid refresh lag
+	getComList();
+	// Restart the auto-Refresh
+	comPortRefreshTimer->start(REFRESH_PERIOD);
 }
 
 void W_Config::on_pbLoadLogFile_clicked()

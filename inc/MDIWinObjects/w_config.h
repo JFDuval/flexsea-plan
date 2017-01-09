@@ -39,6 +39,8 @@
 #include "counter.h"
 #include "flexseaDevice.h"
 
+#define REFRESH_PERIOD 750 //Port list refresh in ms
+
 //****************************************************************************
 // Namespace & Class Definition:
 //****************************************************************************
@@ -81,8 +83,9 @@ public slots:
 private:
 	//Variables & Objects:
 	Ui::W_Config *ui;
-	QStringList comPortList;
 	DataSource dataSourceState;
+
+	QTimer *comPortRefreshTimer;
 
 	//Function(s):
 	void initCom(void);
