@@ -78,13 +78,16 @@ private:
 	Ui::W_CommTest *ui;
 	int active_slave, active_slave_index;
 	QTimer *experimentTimer, *displayTimer;
+	QDateTime *statsTimer;
 	float successRate, lossRate;
 	int32_t receivedPackets;
 	int32_t experimentTimerFreq;
+	float measuredRefreshSend;
 
 	//Function(s):
 	void init(void);
 	void initTimers(void);
+	float getRefreshRateSend();
 };
 
 //****************************************************************************
@@ -93,6 +96,6 @@ private:
 
 #define TIM_FREQ_TO_P(f)				(1000/f)	//f in Hz, return in ms
 #define DISPLAY_TIMER					25	//Hz
-#define DEFAULT_EXPERIMENT_TIMER_FREQ	25
+#define DEFAULT_EXPERIMENT_TIMER_FREQ	250
 
 #endif // W_COMMTEST_H

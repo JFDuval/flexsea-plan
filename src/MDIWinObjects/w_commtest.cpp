@@ -97,7 +97,11 @@ void W_CommTest::init(void)
 	ui->labelGoodPackets->setText("0");
 	ui->labelSuccess->setText("0");
 	ui->labelLossRate->setText("0");
+	ui->label_rrSend->setText("N/A");
+	ui->label_rrReceive->setText("N/A");
 	ui->lineEdit->setText(QString::number(DEFAULT_EXPERIMENT_TIMER_FREQ));
+
+	measuredRefreshSend = 0;
 
 	//Seed:
 	QTime myTime;
@@ -115,6 +119,8 @@ void W_CommTest::initTimers(void)
 	experimentTimer = new QTimer(this);
 	connect(experimentTimer, SIGNAL(timeout()), this, SLOT(readCommTest()));
 	experimentTimer->stop();
+
+	statsTimer = new QDateTime;
 }
 
 //Send a Read command:
@@ -129,6 +135,47 @@ void W_CommTest::readCommTest(void)
 	emit writeCommand(numb, comm_str_usb, READ);
 
 	//FlexSEA_Generic::packetVisualizer(numb, comm_str_usb);
+	measuredRefreshSend = getRefreshRateSend();
+}
+
+//Returns the rate at which it is called, in Hz
+//Average of 8 values
+float W_CommTest::getRefreshRateSend(void)
+{
+	static qint64 oldTime = 0;
+	qint64 newTime = 0, diffTime = 0;
+	float t_s = 0.0, f = 0.0;
+	static float avg = 0.0;
+	static int counter = 0;
+	static float fArray[8] = {0,0,0,0,0,0,0,0};
+	static int divider = 0;
+
+	//We take 10 samples, otherwise we get < 1ms and can't count
+	divider++;
+	divider %= 10;
+	if(!divider)
+	{
+		//Actual frequency:
+		newTime = statsTimer->currentMSecsSinceEpoch();
+		diffTime = newTime - oldTime;
+		oldTime = newTime;
+		t_s = diffTime/1000.0;
+		t_s /= 10;
+		f = 1/t_s;
+
+		//Average:
+		counter++;
+		counter %=8;
+		fArray[counter] = f;
+		avg = 0;
+		for(int i = 0; i < 8; i++)
+		{
+			avg += fArray[i];
+		}
+		avg = avg / 8;
+	}
+
+	return avg;
 }
 
 //****************************************************************************
@@ -155,8 +202,14 @@ void W_CommTest::refreshDisplay(void)
 	ui->labelReceivedPackets->setText(QString::number(receivedPackets));
 	ui->labelGoodPackets->setText(QString::number(goodPackets));
 
-	ui->labelSuccess->setText(QString::number(successRate, 'f',2));
-	ui->labelLossRate->setText(QString::number(lossRate, 'f',2));
+	QString txt = QString::number(100*successRate, 'f',2) + "%";
+	ui->labelSuccess->setText(txt);
+	txt = QString::number(100*lossRate, 'f',2) + "%";
+	ui->labelLossRate->setText(txt);
+
+	QString refreshTxt;
+	refreshTxt = QString::number(measuredRefreshSend, 'f', 2) + " Hz";
+	ui->label_rrSend->setText(refreshTxt);
 }
 
 void W_CommTest::on_comboBox_slave_currentIndexChanged(int index)
