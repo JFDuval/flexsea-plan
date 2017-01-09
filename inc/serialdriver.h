@@ -92,4 +92,7 @@ signals:
 #define DATAIN_STATUS_RED		3
 #define INDICATOR_TIMEOUT		110
 
+//USB driver:
+#define USB_READ_TIMEOUT		10		//ms
+
 #endif // SERIALDRIVER_H

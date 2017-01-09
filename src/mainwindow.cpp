@@ -937,6 +937,10 @@ void MainWindow::createViewCommTest(void)
 		connect(myViewCommTest[objectCount], SIGNAL(windowClosed()), \
 				this, SLOT(closeViewCommTest()));
 
+		//Link to SerialDriver to know when we receive data:
+		connect(mySerialDriver, SIGNAL(newDataReady()), \
+				myViewCommTest[objectCount], SLOT(receivedData()));
+
 		//Link to SlaveComm to send commands:
 		connect(myViewCommTest[objectCount], SIGNAL(writeCommand(uint8_t,\
 				uint8_t*,uint8_t)), this, SIGNAL(connectorWriteCommand(uint8_t,\

@@ -137,7 +137,7 @@ int SerialDriver::read(unsigned char *buf)
 	baData.resize(256);
 	bool dataReady = false;
 
-	dataReady = USBSerialPort.waitForReadyRead(100);
+	dataReady = USBSerialPort.waitForReadyRead(USB_READ_TIMEOUT);
 	if(dataReady == true)
 	{
 		baData = USBSerialPort.readAll();

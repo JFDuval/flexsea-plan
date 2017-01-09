@@ -59,6 +59,7 @@ public:
 	//Function(s):
 
 public slots:
+	void receivedData(void);
 
 signals:
 	void windowClosed(void);
@@ -82,12 +83,13 @@ private:
 	float successRate, lossRate;
 	int32_t receivedPackets;
 	int32_t experimentTimerFreq;
-	float measuredRefreshSend;
+	float measuredRefreshSend, measuredRefreshReceive;
 
 	//Function(s):
 	void init(void);
 	void initTimers(void);
-	float getRefreshRateSend();
+	float getRefreshRateSend(void);
+	float getRefreshRateReceive(void);
 };
 
 //****************************************************************************

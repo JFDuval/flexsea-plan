@@ -71,10 +71,15 @@ W_CommTest::~W_CommTest()
 // Public function(s):
 //****************************************************************************
 
-
 //****************************************************************************
 // Public slot(s):
 //****************************************************************************
+
+//Received new data?
+void W_CommTest::receivedData(void)
+{
+	measuredRefreshReceive = getRefreshRateReceive();
+}
 
 //****************************************************************************
 // Private function(s):
@@ -102,6 +107,7 @@ void W_CommTest::init(void)
 	ui->lineEdit->setText(QString::number(DEFAULT_EXPERIMENT_TIMER_FREQ));
 
 	measuredRefreshSend = 0;
+	measuredRefreshReceive = 0;
 
 	//Seed:
 	QTime myTime;
@@ -178,6 +184,46 @@ float W_CommTest::getRefreshRateSend(void)
 	return avg;
 }
 
+//Returns the rate at which it is called, in Hz
+//Average of 8 values
+float W_CommTest::getRefreshRateReceive(void)
+{
+	static qint64 oldTime = 0;
+	qint64 newTime = 0, diffTime = 0;
+	float t_s = 0.0, f = 0.0;
+	static float avg = 0.0;
+	static int counter = 0;
+	static float fArray[8] = {0,0,0,0,0,0,0,0};
+	static int divider = 0;
+
+	//We take 10 samples, otherwise we get < 1ms and can't count
+	divider++;
+	divider %= 10;
+	if(!divider)
+	{
+		//Actual frequency:
+		newTime = statsTimer->currentMSecsSinceEpoch();
+		diffTime = newTime - oldTime;
+		oldTime = newTime;
+		t_s = diffTime/1000.0;
+		t_s /= 10;
+		f = 1/t_s;
+
+		//Average:
+		counter++;
+		counter %=8;
+		fArray[counter] = f;
+		avg = 0;
+		for(int i = 0; i < 8; i++)
+		{
+			avg += fArray[i];
+		}
+		avg = avg / 8;
+	}
+
+	return avg;
+}
+
 //****************************************************************************
 // Private slot(s):
 //****************************************************************************
@@ -210,10 +256,13 @@ void W_CommTest::refreshDisplay(void)
 	QString refreshTxt;
 	refreshTxt = QString::number(measuredRefreshSend, 'f', 2) + " Hz";
 	ui->label_rrSend->setText(refreshTxt);
+	refreshTxt = QString::number(measuredRefreshReceive, 'f', 2) + " Hz";
+	ui->label_rrReceive->setText(refreshTxt);
 }
 
 void W_CommTest::on_comboBox_slave_currentIndexChanged(int index)
 {
+	(void)index;
 	active_slave_index = ui->comboBox_slave->currentIndex();
 	active_slave = FlexSEA_Generic::getSlaveID(SL_BASE_ALL, active_slave_index);
 }
