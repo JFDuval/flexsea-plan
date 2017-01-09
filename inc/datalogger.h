@@ -85,6 +85,7 @@ private:
 	//Variables & Objects:
 	QFile logRecordingFile[4];
 	QFile logReadingFile;
+	static bool sessionDirectoryCreated;
 
 	ExecuteDevice *executeDevPtr;
 	ManageDevice *manageDevPtr;

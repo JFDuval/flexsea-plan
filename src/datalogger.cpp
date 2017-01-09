@@ -52,6 +52,8 @@
 // Constructor & Destructor:
 //****************************************************************************
 
+bool DataLogger::sessionDirectoryCreated = false;
+
 DataLogger::DataLogger(QWidget *parent,
 					   ExecuteDevice *executeInitPtr,
 					   ManageDevice *manageInitPtr,
@@ -68,7 +70,6 @@ DataLogger::DataLogger(QWidget *parent,
 	strainDevPtr = strainInitPtr;
 	ricnuDevPtr = ricnuInitPtr;
 
-	initLogDirectory();
 	init();
 }
 
@@ -107,6 +108,9 @@ void DataLogger::openRecordingFile(FlexseaDevice *devicePtr, uint8_t item)
 
 void DataLogger::openfile(uint8_t item, QString shortFileName)
 {
+	// Create session directory the first time you log
+	if(sessionDirectoryCreated == false){initLogDirectory();}
+
 	// Replace whitespace by underscore
 	shortFileName.replace(" ", "_");
 
@@ -328,6 +332,8 @@ void DataLogger::initLogDirectory()
 
 	// Create this session folder
 	QDir().mkdir(sessionFolder);
+
+	sessionDirectoryCreated = true;
 }
 
 void DataLogger::setStatus(QString str)
