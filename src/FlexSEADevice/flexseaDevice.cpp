@@ -21,74 +21,83 @@
 	Biomechatronics research group <http://biomech.media.mit.edu/>
 	[Contributors]
 *****************************************************************************
-	[This file] w_execute.h: Execute View Window
+	[This file] FlexseaDevice: Interface class flexSEA device
 *****************************************************************************
 	[Change log] (Convention: YYYY-MM-DD | author | comment)
-	* 2016-09-09 | jfduval | Initial GPL-3.0 release
+	* 2016-12-07 | sbelanger | Initial GPL-3.0 release
 	*
 ****************************************************************************/
-
-#ifndef W_EXECUTE_H
-#define W_EXECUTE_H
 
 //****************************************************************************
 // Include(s)
 //****************************************************************************
 
-#include <QWidget>
-#include "counter.h"
-#include "executeDevice.h"
-#include "define.h"
+#include "flexseaDevice.h"
+#include <QStringList>
 
 //****************************************************************************
-// Namespace & Class Definition:
+// Constructor & Destructor:
 //****************************************************************************
 
-namespace Ui {
-class W_Execute;
+FlexseaDevice::FlexseaDevice()
+{
+	logItem = 0;
+	slaveIndex = 0;
+	slaveID = 0;
+	experimentIndex = 0;
+	frequency = 0;
 }
 
-class W_Execute : public QWidget, public Counter<W_Execute>
+//****************************************************************************
+// Public function(s):
+//****************************************************************************
+
+void FlexseaDevice::clear(void)
 {
-	Q_OBJECT
+	shortFileName.clear();
+	fileName.clear();
+	logItem = 0;
+	slaveIndex = 0;
+	slaveID = 0;
+	slaveName.clear();
+	experimentIndex = 0;
+	experimentName.clear();
+	frequency = 0;
+	timeStamp.clear();
+}
 
-public:
-	//Constructor & Destructor:
-	explicit W_Execute(	QWidget *parent = 0,
-						ExecuteDevice *deviceLogPtr = nullptr,
-						DisplayMode mode = DisplayLiveData,
-						QList<ExecuteDevice> *deviceListPtr = nullptr);
-	~W_Execute();
+QString FlexseaDevice::getIdentifier(void)
+{
+	QStringList identifier = QStringList()
+							<< "Datalogging Item:"
+							<< QString::number(logItem)
+							<< "Slave Index:"
+							<< QString::number(slaveIndex)
+							<< "Slave Name:"
+							<< slaveName
+							<< "Experiment Index:"
+							<< QString::number(experimentIndex)
+							<< "Experiment Name:"
+							<< experimentName
+							<< "Aquisition Frequency:"
+							<< QString::number(frequency)
+							<< "Slave type:"
+							<< slaveType;
 
-	//Function(s):
-	static void trackVarEx(uint8_t var, uint8_t *varToPlotPtr8s);
+	return identifier.join(',');
+}
 
 
-public slots:
-	void refreshDisplay(void);
-	void refreshDisplayLog(int index, FlexseaDevice * devPtr);
-	void updateDisplayMode(DisplayMode mode);
-
-signals:
-	void windowClosed(void);
-
-private:
-	//Variables & Objects:
-	Ui::W_Execute *ui;
-
-	DisplayMode displayMode;
-
-	QList<ExecuteDevice> *deviceList;
-	ExecuteDevice *deviceLog;
-
-	//Function(s):
-	void initLive(void);
-	void initLog(void);
-	void display(ExecuteDevice *devicePtr, int index);
-};
 
 //****************************************************************************
-// Definition(s)
+// Public slot(s):
 //****************************************************************************
 
-#endif // W_EXECUTE_H
+//****************************************************************************
+// Private function(s):
+//****************************************************************************
+
+//****************************************************************************
+// Private slot(s):
+//****************************************************************************
+

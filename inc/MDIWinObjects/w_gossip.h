@@ -37,7 +37,8 @@
 
 #include <QWidget>
 #include "counter.h"
-#include "flexsea_generic.h"
+#include "gossipDevice.h"
+#include "define.h"
 
 //****************************************************************************
 // Namespace & Class Definition:
@@ -53,13 +54,18 @@ class W_Gossip : public QWidget, public Counter<W_Gossip>
 
 public:
 	//Constructor & Destructor:
-	explicit W_Gossip(QWidget *parent = 0);
+	explicit W_Gossip(QWidget *parent = 0,
+					  GossipDevice *deviceLogPtr = nullptr,
+					  DisplayMode mode = DisplayLiveData,
+					  QList<GossipDevice> *deviceListPtr = nullptr);
 	~W_Gossip();
 
 	//Function(s):
 
 public slots:
-	void refreshDisplayGossip(void);
+	void refreshDisplay(void);
+	void refreshDisplayLog(int index, FlexseaDevice * devPtr);
+	void updateDisplayMode(DisplayMode mode);
 
 signals:
 	void windowClosed(void);
@@ -67,11 +73,16 @@ signals:
 private:
 	//Variables & Objects:
 	Ui::W_Gossip *ui;
-	int active_slave, active_slave_index;
+
+	DisplayMode displayMode;
+
+	QList<GossipDevice> *deviceList;
+	GossipDevice *deviceLog;
 
 	//Function(s):
-	void init(void);
-	void displayGossip(struct gossip_s *go);
+	void initLive(void);
+	void initLog(void);
+	void display(GossipDevice *devicePtr, int index);
 };
 
 //****************************************************************************

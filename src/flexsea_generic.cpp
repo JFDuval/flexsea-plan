@@ -38,6 +38,14 @@
 #include <QComboBox>
 #include <QDebug>
 
+#include "batteryDevice.h"
+#include "executeDevice.h"
+#include "gossipDevice.h"
+#include "manageDevice.h"
+#include "ricnuDevice.h"
+#include "strainDevice.h"
+
+
 //****************************************************************************
 // Static Variable initialization
 //****************************************************************************
@@ -125,17 +133,11 @@ uint8_t FlexSEA_Generic::getSlaveBoardType(uint8_t base, uint8_t index)
 {
 	//Board type? Extract base via address&integer trick
 	uint8_t tmp = 0, bType = 0;
+	// TODO Won't work when you will have more than 10 board of one type.
 	tmp = list_to_slave[base + index] / 10;
 	bType = tmp * 10;
 
 	return bType;
-}
-
-//Returns the slave name, as a QString
-void FlexSEA_Generic::getSlaveName(uint8_t base, uint8_t index, \
-								   QString *slaveName)
-{
-	*slaveName = var_list_slave.at(base+index);
 }
 
 //Returns the experiment name, as a QString
@@ -193,126 +195,6 @@ void FlexSEA_Generic::packetVisualizer(uint numb, uint8_t *packet)
 	qDebug() << "-------------------------";
 }
 
-//Decode status byte(s), return a user-friendly QString
-void FlexSEA_Generic::decodeStatus(uint8_t base, uint8_t index, uint8_t stat1, \
-								   uint8_t stat2, QString *str1)
-{
-	uint8_t mod = 0, bType = getSlaveBoardType(base, index);
-	(*str1) = "";
-
-	(void)stat2;	//Unused at this point
-
-	if(bType == FLEXSEA_EXECUTE_BASE)
-	{
-		//WDCLK:
-		if(GET_WDCLK_FLAG(stat1))
-		{
-			(*str1) += QString("Co-Processor Error");
-			mod++;
-		}
-
-		//Disconnected battery:
-		if(GET_DISCON_FLAG(stat1) == BATT_DISCONNECTED)
-		{
-			if(mod){(*str1) += QString(" | ");};
-			(*str1) += QString("Disconnected battery");
-			mod++;
-		}
-
-		//Temperature:
-		if(GET_OVERTEMP_FLAG(stat1) == T_WARNING)
-		{
-			if(mod){(*str1) += QString(" | ");};
-			(*str1) += QString("Temp. Near Limit");
-			mod++;
-		}
-		else if(GET_OVERTEMP_FLAG(stat1) == T_ERROR)
-		{
-			if(mod){(*str1) += QString(" | ");};
-			(*str1) += QString("Temp. Error");
-			mod++;
-		}
-
-		//Voltage - VB:
-		if(GET_VB_FLAG(stat1) == V_LOW)
-		{
-			if(mod){(*str1) += QString(" | ");};
-			(*str1) += QString("VB Low");
-			mod++;
-		}
-		else if(GET_VB_FLAG(stat1) == V_HIGH)
-		{
-			if(mod){(*str1) += QString(" | ");};
-			(*str1) += QString("VB High");
-			mod++;
-		}
-
-		//Voltage - VG:
-		if(GET_VG_FLAG(stat1) == V_LOW)
-		{
-			if(mod){(*str1) += QString(" | ");};
-			(*str1) += QString("VG Low");
-			mod++;
-		}
-		else if(GET_VG_FLAG(stat1) == V_HIGH)
-		{
-			if(mod){(*str1) += QString(" | ");};
-			(*str1) += QString("VG High");
-			mod++;
-		}
-
-		//If nothing is wrong:
-		if(mod == 0)
-		{
-			(*str1) = QString("Status: OK");
-		}
-	}
-	else
-	{
-		(*str1) = QString("No decoding available for this board");
-	}
-}
-
-//TODO these decoding functions should be in the w_board files
-
-//Decodes some of Execute's fields
-void FlexSEA_Generic::decodeExecute(uint8_t base, uint8_t index)
-{
-	struct execute_s *exPtr;
-	assignExecutePtr(&exPtr, base, index);
-	decodeExecute(exPtr);
-}
-
-void FlexSEA_Generic::decodeExecute(struct execute_s *exPtr)
-{
-	//Accel in mG
-	exPtr->decoded.accel.x = (1000*exPtr->accel.x)/8192;
-	exPtr->decoded.accel.y = (1000*exPtr->accel.y)/8192;
-	exPtr->decoded.accel.z = (1000*exPtr->accel.z)/8192;
-
-	//Gyro in degrees/s
-	exPtr->decoded.gyro.x = (100*exPtr->gyro.x)/164;
-	exPtr->decoded.gyro.y = (100*exPtr->gyro.y)/164;
-	exPtr->decoded.gyro.z = (100*exPtr->gyro.z)/164;
-
-	//exPtr->decoded.current = (185*exPtr->current)/10;   //mA
-	exPtr->decoded.current = exPtr->current;   //1mA/bit for sine comm.
-
-	exPtr->decoded.volt_batt = (int32_t)1000*P4_ADC_SUPPLY*((16*\
-						(float)exPtr->volt_batt/3 + 302 ) \
-						/P4_ADC_MAX) / 0.0738;          //mV
-
-	exPtr->decoded.volt_int = (int32_t)1000*P4_ADC_SUPPLY*((26*\
-						(float)exPtr->volt_int/3 + 440 ) \
-						/P4_ADC_MAX) / 0.43;            //mV
-
-	exPtr->decoded.temp = (int32_t)10*((((2.625*(float)exPtr->temp + 41) \
-					  /P4_ADC_MAX)*P4_ADC_SUPPLY) - P4_T0) / P4_TC; //C*10
-
-	exPtr->decoded.analog[0] = (int32_t)1000*((float)exPtr->analog[0]/ \
-						P5_ADC_MAX)*P5_ADC_SUPPLY;
-}
-
 //RIC/NU is a special case of Execute board. It use the first struct of execute
 // and strain.
 void FlexSEA_Generic::decodeRicnu(uint8_t base, uint8_t index)
@@ -321,143 +203,8 @@ void FlexSEA_Generic::decodeRicnu(uint8_t base, uint8_t index)
 	(void)index;
 	ricnu_1.ex = exec1;
 	ricnu_1.st = strain1;
-	decodeRicnu(&ricnu_1);
-}
-
-void FlexSEA_Generic::decodeRicnu(struct ricnu_s *riPtr)
-{
-	decodeExecute(&riPtr->ex);
-	decodeStrain(&riPtr->st);
-}
-
-void FlexSEA_Generic::decodeManage(uint8_t base, uint8_t index)
-{
-	struct manage_s *mnPtr;
-	assignManagePtr(&mnPtr, base, index);
-	decodeManage(mnPtr);
-}
-
-//Decodes some of Manage's fields
-void FlexSEA_Generic::decodeManage(struct manage_s *mnPtr)
-{
-	//Accel in mG
-	mnPtr->decoded.accel.x = (1000*mnPtr->accel.x)/8192;
-	mnPtr->decoded.accel.y = (1000*mnPtr->accel.y)/8192;
-	mnPtr->decoded.accel.z = (1000*mnPtr->accel.z)/8192;
-
-	//Gyro in degrees/s
-	mnPtr->decoded.gyro.x = (100*mnPtr->gyro.x)/164;
-	mnPtr->decoded.gyro.y = (100*mnPtr->gyro.y)/164;
-	mnPtr->decoded.gyro.z = (100*mnPtr->gyro.z)/164;
-
-	mnPtr->decoded.analog[0] = (int32_t)1000*((float)mnPtr->analog[0]/ \
-						STM32_ADC_MAX)*STM32_ADC_SUPPLY;
-	mnPtr->decoded.analog[1] = (int32_t)1000*((float)mnPtr->analog[1]/ \
-						STM32_ADC_MAX)*STM32_ADC_SUPPLY;
-	mnPtr->decoded.analog[2] = (int32_t)1000*((float)mnPtr->analog[2]/ \
-						STM32_ADC_MAX)*STM32_ADC_SUPPLY;
-	mnPtr->decoded.analog[3] = (int32_t)1000*((float)mnPtr->analog[3]/ \
-						STM32_ADC_MAX)*STM32_ADC_SUPPLY;
-	mnPtr->decoded.analog[4] = (int32_t)1000*((float)mnPtr->analog[4]/ \
-						STM32_ADC_MAX)*STM32_ADC_SUPPLY;
-	mnPtr->decoded.analog[5] = (int32_t)1000*((float)mnPtr->analog[5]/ \
-						STM32_ADC_MAX)*STM32_ADC_SUPPLY;
-	mnPtr->decoded.analog[6] = (int32_t)1000*((float)mnPtr->analog[6]/ \
-						STM32_ADC_MAX)*STM32_ADC_SUPPLY;
-	mnPtr->decoded.analog[7] = (int32_t)1000*((float)mnPtr->analog[7]/ \
-						STM32_ADC_MAX)*STM32_ADC_SUPPLY;
-}
-
-//Decodes some of Gossip's fields
-void FlexSEA_Generic::decodeGossip(uint8_t base, uint8_t index)
-{
-	struct gossip_s *goPtr;
-	assignGossipPtr(&goPtr, base, index);
-	decodeGossip(goPtr);
-}
-
-//Decodes some of Gossip's fields
-void FlexSEA_Generic::decodeGossip(struct gossip_s *goPtr)
-{
-	//Accel in mG
-	goPtr->decoded.accel.x = (1000*goPtr->accel.x)/8192;
-	goPtr->decoded.accel.y = (1000*goPtr->accel.y)/8192;
-	goPtr->decoded.accel.z = (1000*goPtr->accel.z)/8192;
-
-	//Gyro in degrees/s
-	goPtr->decoded.gyro.x = (100*goPtr->gyro.x)/164;
-	goPtr->decoded.gyro.y = (100*goPtr->gyro.y)/164;
-	goPtr->decoded.gyro.z = (100*goPtr->gyro.z)/164;
-
-	//Magneto in uT (0.15uT/LSB)
-	goPtr->decoded.magneto.x = (15*goPtr->magneto.x)/100;
-	goPtr->decoded.magneto.y = (15*goPtr->magneto.y)/100;
-	goPtr->decoded.magneto.z = (15*goPtr->magneto.z)/100;
-}
-
-void FlexSEA_Generic::decodeBattery(uint8_t base, uint8_t index)
-{
-	struct battery_s *baPtr;
-	assignBatteryPtr(&baPtr, base, index);
-	decodeBattery(baPtr);
-}
-
-//Decodes some of Battery's fields
-void FlexSEA_Generic::decodeBattery(struct battery_s *baPtr)
-{
-	baPtr->decoded.voltage = baPtr->voltage;
-	baPtr->decoded.current = baPtr->current;
-	baPtr->decoded.power = baPtr->decoded.voltage * baPtr->decoded.current;
-	baPtr->decoded.temp = baPtr->temp;
-}
-
-//Decodes some of Strain's fields
-void FlexSEA_Generic::decodeStrain(uint8_t base, uint8_t index)
-{
-	struct strain_s *stPtr;
-	assignStrainPtr(&stPtr, base, index);
-	decodeStrain(stPtr);
-}
-
-void FlexSEA_Generic::decodeStrain(struct strain_s *stPtr)
-{
-	stPtr->decoded.strain[0] = (100*(stPtr->ch[0].strain_filtered-STRAIN_MIDPOINT)/STRAIN_MIDPOINT);
-	stPtr->decoded.strain[1] = (100*(stPtr->ch[1].strain_filtered-STRAIN_MIDPOINT)/STRAIN_MIDPOINT);
-	stPtr->decoded.strain[2] = (100*(stPtr->ch[2].strain_filtered-STRAIN_MIDPOINT)/STRAIN_MIDPOINT);
-	stPtr->decoded.strain[3] = (100*(stPtr->ch[3].strain_filtered-STRAIN_MIDPOINT)/STRAIN_MIDPOINT);
-	stPtr->decoded.strain[4] = (100*(stPtr->ch[4].strain_filtered-STRAIN_MIDPOINT)/STRAIN_MIDPOINT);
-	stPtr->decoded.strain[5] = (100*(stPtr->ch[5].strain_filtered-STRAIN_MIDPOINT)/STRAIN_MIDPOINT);
-}
-
-//Decodes some of the slave's fields
-void FlexSEA_Generic::decodeSlave(uint8_t base, uint8_t index)
-{
-	uint8_t bType = getSlaveBoardType(base, index);
-
-	switch(bType)
-	{
-		case FLEXSEA_PLAN_BASE:
-
-			break;
-		case FLEXSEA_MANAGE_BASE:
-			decodeManage(base, index);
-			break;
-		case FLEXSEA_EXECUTE_BASE:
-			decodeExecute(base, index);
-			decodeRicnu(base, index);
-			break;
-		case FLEXSEA_BATTERY_BASE:
-			decodeBattery(base, index);
-			break;
-		case FLEXSEA_STRAIN_BASE:
-			decodeStrain(base, index);
-			break;
-		case FLEXSEA_GOSSIP_BASE:
-			decodeGossip(base, index);
-			break;
-		default:
-			break;
-	}
+	ExecuteDevice::decode(&ricnu_1.ex);
+	StrainDevice::decode(&ricnu_1.st);
 }
 
 //Assign pointer

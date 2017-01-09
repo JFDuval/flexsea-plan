@@ -33,27 +33,45 @@
 //****************************************************************************
 
 #include "w_battery.h"
-#include "flexsea_generic.h"
 #include "ui_w_battery.h"
-#include "main.h"
-#include <QString>
-#include <QTextStream>
-#include <QDebug>
 
 //****************************************************************************
 // Constructor & Destructor:
 //****************************************************************************
 
-W_Battery::W_Battery(QWidget *parent) :
+W_Battery::W_Battery(QWidget *parent,
+					 BatteryDevice *deviceLogPtr,
+					 DisplayMode mode,
+					 QList<BatteryDevice> *deviceListPtr) :
 	QWidget(parent),
 	ui(new Ui::W_Battery)
 {
 	ui->setupUi(this);
 
+	deviceLog  = deviceLogPtr;
+	deviceList = deviceListPtr;
+
+	displayMode = mode;
+
 	setWindowTitle(this->getDescription());
 	setWindowIcon(QIcon(":icons/d_logo_small.png"));
 
-	init();
+	ui->comboBox_slaveM->setDisabled(true);
+	ui->comboBox_slaveM->addItem("Not implemented");
+
+	updateDisplayMode(displayMode);
+
+	//Disable modules that aren't programmed yet:
+	ui->dispVmin->setDisabled(true);
+	ui->dispVminD->setDisabled(true);
+	ui->dispVmax->setDisabled(true);
+	ui->dispVmaxD->setDisabled(true);
+	ui->dispICont->setDisabled(true);
+	ui->dispIContD->setDisabled(true);
+	ui->dispIP->setDisabled(true);
+	ui->dispIPD->setDisabled(true);
+	ui->dispStatus1->setDisabled(true);
+	ui->labelStatus->setText("");
 }
 
 W_Battery::~W_Battery()
@@ -71,41 +89,69 @@ W_Battery::~W_Battery()
 //****************************************************************************
 
 //Call this function to refresh the display
-void W_Battery::refreshDisplayBattery(void)
+void W_Battery::refreshDisplay(void)
 {
-	struct battery_s *baPtr = &batt1;
+	int index = ui->comboBox_slave->currentIndex();
+	display(&((*deviceList)[index]), 0);
+}
 
-	displayBattery(baPtr);
+void W_Battery::refreshDisplayLog(int index, FlexseaDevice * devPtr)
+{
+	if(devPtr->slaveName == deviceLog->slaveName)
+	{
+		if(deviceLog->baList.isEmpty() == false)
+		{
+			 display(deviceLog, index);
+		}
+	}
+}
+
+void W_Battery::updateDisplayMode(DisplayMode mode)
+{
+	displayMode = mode;
+	if(displayMode == DisplayLogData)
+	{
+		initLog();
+	}
+	else
+	{
+		initLive();
+	}
 }
 
 //****************************************************************************
 // Private function(s):
 //****************************************************************************
 
-void W_Battery::init(void)
+
+void W_Battery::initLive(void)
 {
-	//Disable modules that aren't programmed yet:
-	ui->dispVmin->setDisabled(true);
-	ui->dispVminD->setDisabled(true);
-	ui->dispVmax->setDisabled(true);
-	ui->dispVmaxD->setDisabled(true);
-	ui->dispICont->setDisabled(true);
-	ui->dispIContD->setDisabled(true);
-	ui->dispIP->setDisabled(true);
-	ui->dispIPD->setDisabled(true);
-	ui->dispStatus1->setDisabled(true);
-	ui->labelStatus->setText("");
+	//Populates Slave list:
+	ui->comboBox_slave->clear();
+
+	for(int i = 0; i < (*deviceList).length(); i++)
+	{
+		ui->comboBox_slave->addItem((*deviceList)[i].slaveName);
+	}
+
+// TODO: S.B. what will be the purpose of this box?
+//	FlexSEA_Generic::populateSlaveComboBox(ui->comboBox_slaveM, \
+//											SL_BASE_ALL, SL_LEN_ALL);
+//	//Start with manage 1:
+//	ui->comboBox_slaveM->setCurrentIndex(SL_BASE_MN);
+
 }
 
-void W_Battery::displayBattery(struct battery_s *ba)
+void W_Battery::initLog(void)
 {
-	//Raw bytes to raw values:
-	//========================
+	//Populates Slave list:
+	ui->comboBox_slave->clear();
+	ui->comboBox_slave->addItem(deviceLog->slaveName);
+}
 
-	ba->status = ba->rawBytes[0];
-	ba->voltage = (ba->rawBytes[2] << 8) + ba->rawBytes[3];
-	ba->current = (ba->rawBytes[4] << 8) + ba->rawBytes[5];
-	ba->temp = ba->rawBytes[6];
+void W_Battery::display(BatteryDevice *devicePtr, int index)
+{
+	struct battery_s *ba = devicePtr->baList[index];
 
 	//Raw values:
 	//===========
@@ -119,7 +165,6 @@ void W_Battery::displayBattery(struct battery_s *ba)
 	//Decoded values:
 	//===============
 
-	FlexSEA_Generic::decodeBattery(ba);
 	ui->dispVd->setText(QString::number((float)ba->decoded.voltage/1000,'f',2));
 	ui->dispId->setText(QString::number((float)ba->decoded.current/1000,'f',2));
 	ui->dispTempD->setText(QString::number(ba->decoded.temp));

@@ -37,7 +37,8 @@
 
 #include <QWidget>
 #include "counter.h"
-#include "logFile.h"
+
+#include "flexseaDevice.h"
 
 //****************************************************************************
 // Namespace & Class Definition:
@@ -54,12 +55,12 @@ class W_LogKeyPad : public QWidget, public Counter<W_LogKeyPad>
 public:
 	//Constructor & Destructor:
 	explicit W_LogKeyPad(QWidget *parent = 0,
-						LogFile *logFileRef = nullptr);
+						FlexseaDevice *flexSeaDevicePtr = nullptr);
 	~W_LogKeyPad();
 
 signals:
 	void windowClosed(void);
-	void logTimeSliderValueChanged(int value);
+	void logTimeSliderValueChanged(int value, FlexseaDevice *);
 
 private slots:
 
@@ -68,8 +69,7 @@ private slots:
 private:
 	//Variables & Objects:
 	Ui::W_LogKeyPad *ui;
-
-	LogFile *myLogFileRef;
+	FlexseaDevice *devicePtr;
 
 	//Function(s):
 	void init(void);

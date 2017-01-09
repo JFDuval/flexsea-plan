@@ -21,74 +21,96 @@
 	Biomechatronics research group <http://biomech.media.mit.edu/>
 	[Contributors]
 *****************************************************************************
-	[This file] w_execute.h: Execute View Window
+	[This file] ExecuteDevice: Execute Device Data Class
 *****************************************************************************
 	[Change log] (Convention: YYYY-MM-DD | author | comment)
-	* 2016-09-09 | jfduval | Initial GPL-3.0 release
+	* 2016-12-07 | sbelanger | Initial GPL-3.0 release
 	*
 ****************************************************************************/
 
-#ifndef W_EXECUTE_H
-#define W_EXECUTE_H
+#ifndef EXECUTEDEVICE_H
+#define EXECUTEDEVICE_H
 
 //****************************************************************************
 // Include(s)
 //****************************************************************************
 
-#include <QWidget>
-#include "counter.h"
-#include "executeDevice.h"
-#include "define.h"
-
-//****************************************************************************
-// Namespace & Class Definition:
-//****************************************************************************
-
-namespace Ui {
-class W_Execute;
-}
-
-class W_Execute : public QWidget, public Counter<W_Execute>
-{
-	Q_OBJECT
-
-public:
-	//Constructor & Destructor:
-	explicit W_Execute(	QWidget *parent = 0,
-						ExecuteDevice *deviceLogPtr = nullptr,
-						DisplayMode mode = DisplayLiveData,
-						QList<ExecuteDevice> *deviceListPtr = nullptr);
-	~W_Execute();
-
-	//Function(s):
-	static void trackVarEx(uint8_t var, uint8_t *varToPlotPtr8s);
-
-
-public slots:
-	void refreshDisplay(void);
-	void refreshDisplayLog(int index, FlexseaDevice * devPtr);
-	void updateDisplayMode(DisplayMode mode);
-
-signals:
-	void windowClosed(void);
-
-private:
-	//Variables & Objects:
-	Ui::W_Execute *ui;
-
-	DisplayMode displayMode;
-
-	QList<ExecuteDevice> *deviceList;
-	ExecuteDevice *deviceLog;
-
-	//Function(s):
-	void initLive(void);
-	void initLog(void);
-	void display(ExecuteDevice *devicePtr, int index);
-};
+#include <QList>
+#include <QString>
+#include <flexsea_global_structs.h>
+#include "flexseaDevice.h"
 
 //****************************************************************************
 // Definition(s)
 //****************************************************************************
 
-#endif // W_EXECUTE_H
+//Qualitative:
+#define V_LOW						1
+#define V_NORMAL					0
+#define V_HIGH						2
+#define T_NORMAL					0
+#define T_WARNING					1
+#define T_ERROR						2
+#define BATT_CONNECTED				0
+#define BATT_DISCONNECTED			1
+//If everything is normal STATUS1 == 0
+
+//Display and conversions:
+//========================
+
+#define GET_WDCLK_FLAG(status1)		((status1 >> 7) & 0x01)
+#define GET_DISCON_FLAG(status1)	((status1 >> 6) & 0x01)
+#define GET_OVERTEMP_FLAG(status1)	((status1 >> 4) & 0x03)
+#define GET_VB_FLAG(status1)		((status1 >> 2) & 0x03)
+#define GET_VG_FLAG(status1)		((status1 >> 0) & 0x03)
+#define GET_3V3_FLAG(status2)		((status2 >> 0) & 0x03)
+#define GET_FSM_FLAG(status2)		((status2 >> 7) & 0x01)
+
+//PSoC 5 ADC conversions:
+#define P5_ADC_SUPPLY				5.0
+#define P5_ADC_MAX					4096
+
+//PSoC 4 ADC conversions:
+#define P4_ADC_SUPPLY				5.0
+#define P4_ADC_MAX					2048
+#define P4_T0						0.5
+#define P4_TC						0.01
+
+//****************************************************************************
+// Namespace & Class
+//****************************************************************************
+
+namespace Ui
+{
+	class ExecuteDevice;
+}
+
+class ExecuteDevice : public FlexseaDevice
+{
+public:
+	explicit ExecuteDevice(void);
+	explicit ExecuteDevice(execute_s *devicePtr);
+
+	// Interface implementation
+	QString getHeaderStr(void);
+	QString getLastSerializedStr(void);
+	void appendSerializedStr(QStringList *splitLine);
+	void decodeLastLine(void);
+	void decodeAllLine(void);
+	void clear(void);
+	void appendEmptyLine(void);
+	QString getStatusStr(int index);
+
+	QList<struct execute_s*> exList;
+	static void decode(struct execute_s *exPtr);
+
+private:
+	static QStringList header;
+};
+
+
+//****************************************************************************
+// Definition(s)
+//****************************************************************************
+
+#endif // EXECUTEDEVICE_H

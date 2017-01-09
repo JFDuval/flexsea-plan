@@ -33,20 +33,43 @@
 //****************************************************************************
 
 #include "datalogger.h"
-#include "w_ricnu.h"
+#include "ricnuDevice.h"
 #include <QDebug>
 #include <QString>
+#include <QStringList>
 #include <QFileDialog>
 #include <QTextStream>
 #include <QDateTime>
+
+#include "batteryDevice.h"
+#include "executeDevice.h"
+#include "gossipDevice.h"
+#include "manageDevice.h"
+#include "ricnuDevice.h"
+#include "strainDevice.h"
 
 //****************************************************************************
 // Constructor & Destructor:
 //****************************************************************************
 
-DataLogger::DataLogger(QWidget *parent) : QWidget(parent)
+bool DataLogger::sessionDirectoryCreated = false;
+
+DataLogger::DataLogger(QWidget *parent,
+					   ExecuteDevice *executeInitPtr,
+					   ManageDevice *manageInitPtr,
+					   GossipDevice *gossipInitPtr,
+					   BatteryDevice *batteryInitPtr,
+					   StrainDevice *strainInitPtr,
+					   RicnuDevice *ricnuInitPtr) :
+	QWidget(parent)
 {
-	initLogDirectory();
+	executeDevPtr = executeInitPtr;
+	manageDevPtr = manageInitPtr;
+	gossipDevPtr = gossipInitPtr;
+	batteryDevPtr = batteryInitPtr;
+	strainDevPtr = strainInitPtr;
+	ricnuDevPtr = ricnuInitPtr;
+
 	init();
 }
 
@@ -58,17 +81,19 @@ DataLogger::DataLogger(QWidget *parent) : QWidget(parent)
 // Public slot(s):
 //****************************************************************************
 
-void DataLogger::openRecordingFile(uint8_t item, QString shortFileName)
+void DataLogger::openRecordingFile(FlexseaDevice *devicePtr, uint8_t item)
 {
+	QString shortFileName = devicePtr->shortFileName;
+
 	if(logRecordingFile[item].isOpen())
 	{
-		qDebug() << "File already open. Close it before opening a new one";
+		setStatus("File already open. Close it before opening a new one");
 	}
 
 	else
 	{
 		//Add .csv extension if not present
-		if(shortFileName.mid(shortFileName.length() - 4) != ".csv")
+		if(shortFileName.mid(shortFileName.length()-4) != ".csv")
 		{
 			shortFileName.append(".csv");
 		}
@@ -83,6 +108,9 @@ void DataLogger::openRecordingFile(uint8_t item, QString shortFileName)
 
 void DataLogger::openfile(uint8_t item, QString shortFileName)
 {
+	// Create session directory the first time you log
+	if(sessionDirectoryCreated == false){initLogDirectory();}
+
 	// Replace whitespace by underscore
 	shortFileName.replace(" ", "_");
 
@@ -108,23 +136,20 @@ void DataLogger::openfile(uint8_t item, QString shortFileName)
 		//Associate stream to file:
 		logFileStream.setDevice(&logRecordingFile[item]);
 
-		emit setStatusBarMessage(tr("Opened '") + fileName + "'.");
-		qDebug() << tr("Opened '") + fileName + "'.";
+		setStatus(tr("Opened '") + fileName + "'.");
 	}
 
 	//If no file selected
 	else
 	{
-		qDebug() << tr("No log file selected.");
-		emit setStatusBarMessage(
-					tr("No log file selected, or the file couldn't be opened."));
+		setStatus("No log file selected, or the file couldn't be opened.");
 	}
 }
 
-void DataLogger::openReadingFile(bool * isOpen)
+void DataLogger::openReadingFile(bool * isOpen, FlexseaDevice **devPtr)
 {
-	QString msg = "";
 	*isOpen = false;
+	FlexseaDevice *flexSEAPtr;
 
 	//File Dialog (returns the selected file name):
 	QDir::setCurrent(planGUIRootPath + "\\" + logFolder);
@@ -145,18 +170,14 @@ void DataLogger::openReadingFile(bool * isOpen)
 	//Check if the file was successfully opened
 	if(logReadingFile.open(QIODevice::ReadOnly) == false)
 	{
-		msg = tr("Error : No log file selected or the file couldn't be opened.");
-		emit setStatusBarMessage(msg);
-		qDebug() << msg;
+		setStatus("Error : No log file selected or the file couldn't be opened.");
 		return;
 	}
 
 	//Check if the file is empty
 	if(logReadingFile.size() == 0)
 	{
-		msg = tr("Error : Loaded file was empty.");
-		emit setStatusBarMessage(msg);
-		qDebug() << msg;
+		setStatus("Error : Loaded file was empty.");
 		return;
 	}
 
@@ -168,34 +189,47 @@ void DataLogger::openReadingFile(bool * isOpen)
 	splitLine = line.split(',', QString::KeepEmptyParts);
 
 	//Check if the file header contain the expected number of data
-	if(splitLine.length() < 12)
+	if(splitLine.length() < 14)
 	{
-		msg = tr("Error : Loaded file format was not compatible");
-		emit setStatusBarMessage(msg);
-		qDebug() << msg;
+		setStatus(\
+		"Error : Loaded file header was not compatible (Header's too short)");
 		return;
 	}
 
-	myLogFile.dataloggingItem	= splitLine[1].toInt();
-	myLogFile.SlaveIndex		= splitLine[3].toInt();
-	myLogFile.SlaveName			= splitLine[5];
-	myLogFile.experimentIndex	= splitLine[7].toInt();
-	myLogFile.experimentName	= splitLine[9];
-	myLogFile.frequency			= splitLine[11].toInt();
-	myLogFile.shortFileName		= shortFileName;
-	myLogFile.fileName			= filename;
+	QString slavetype = splitLine[13];
+	slavetype = slavetype.simplified();
+
+	// Choose the right device class based on the slave Type.
+	if	   (slavetype == executeDevPtr->slaveType)	{flexSEAPtr = executeDevPtr;}
+	else if(slavetype == manageDevPtr->slaveType)	{flexSEAPtr = manageDevPtr;}
+	else if(slavetype == gossipDevPtr->slaveType)	{flexSEAPtr = gossipDevPtr;}
+	else if(slavetype == batteryDevPtr->slaveType)	{flexSEAPtr = batteryDevPtr;}
+	else if(slavetype == strainDevPtr->slaveType)	{flexSEAPtr = strainDevPtr;}
+	else if(slavetype == ricnuDevPtr->slaveType)	{flexSEAPtr = ricnuDevPtr;}
+	else
+	{
+		setStatus("Error : Loaded file Slave Type is not supported.");
+		return;
+	}
+
+	flexSEAPtr->clear();
+	flexSEAPtr->logItem			= splitLine[1].toInt();
+	flexSEAPtr->slaveIndex		= splitLine[3].toInt();
+	flexSEAPtr->slaveName		= splitLine[5];
+	flexSEAPtr->experimentIndex	= splitLine[7].toInt();
+	flexSEAPtr->experimentName	= splitLine[9];
+	flexSEAPtr->frequency		= splitLine[11].toInt();
+	flexSEAPtr->shortFileName	= shortFileName;
+	flexSEAPtr->fileName		= filename;
 
 	//Clear the column's header.
 	line = logReadingFile.readLine();
 	splitLine = line.split(',', QString::KeepEmptyParts);
-	int test = splitLine.length();
 	//Check if data header contain the number of expected field
-	if(splitLine.length() < 20)
+	if(splitLine.length() < flexSEAPtr->serializedLength)
 	{
-		msg = tr("File format is not compatible");
-		emit setStatusBarMessage(msg);
-		qDebug() << msg;
-		myLogFile.clear();
+		setStatus("Column header it too short. Not supported");
+		flexSEAPtr->clear();
 		return;
 	}
 
@@ -204,149 +238,37 @@ void DataLogger::openReadingFile(bool * isOpen)
 		line = logReadingFile.readLine();
 		splitLine = line.split(',', QString::KeepEmptyParts);
 
-		//Check if data line contain the number of data expected
-		if(splitLine.length() >= 20)
-		{
-			myLogFile.newDataLine();
-			myLogFile.data.last().timeStampDate		= splitLine[0];
-			myLogFile.data.last().timeStamp_ms		= splitLine[1].toInt();
-			myLogFile.data.last().execute.accel.x	= splitLine[2].toInt();
-			myLogFile.data.last().execute.accel.y	= splitLine[3].toInt();
-			myLogFile.data.last().execute.accel.z	= splitLine[4].toInt();
-			myLogFile.data.last().execute.gyro.x	= splitLine[5].toInt();
-			myLogFile.data.last().execute.gyro.y	= splitLine[6].toInt();
-			myLogFile.data.last().execute.gyro.z	= splitLine[7].toInt();
-			myLogFile.data.last().execute.strain	= splitLine[8].toInt();
-			myLogFile.data.last().execute.analog[0]	= splitLine[9].toInt();
-			myLogFile.data.last().execute.analog[1]	= splitLine[10].toInt();
-			myLogFile.data.last().execute.current	= splitLine[11].toInt();
-			myLogFile.data.last().execute.enc_display= splitLine[12].toInt();
-			myLogFile.data.last().execute.enc_control= splitLine[13].toInt();
-			myLogFile.data.last().execute.enc_commut= splitLine[14].toInt();
-			myLogFile.data.last().execute.volt_batt	= splitLine[15].toInt();
-			myLogFile.data.last().execute.volt_int	= splitLine[16].toInt();
-			myLogFile.data.last().execute.temp		= splitLine[17].toInt();
-			myLogFile.data.last().execute.status1	= splitLine[18].toInt();
-			myLogFile.data.last().execute.status2	= splitLine[19].toInt();
-		}
+		flexSEAPtr->appendSerializedStr(&splitLine);
 	}
 
-	myLogFile.decodeAllLine();
+	flexSEAPtr->decodeAllLine();
 
-	msg = tr("Opened '") + filename + "'.";
-	emit setStatusBarMessage(msg);
-	qDebug() << msg;
+	setStatus(tr("Opened '") + filename + "'.");
 
+	// Return variable
 	*isOpen = true;
+	*devPtr = flexSEAPtr;
 }
 
-void DataLogger::writeToFile(uint8_t item, uint8_t slaveIndex,
-							 uint8_t expIndex, uint16_t refreshRate)
+void DataLogger::writeToFile(FlexseaDevice *devicePtr, uint8_t item)
 {
-	qint64 t_ms = 0;
-	static qint64 t_ms_initial[4] = {0,0,0,0};
-
-	void (DataLogger::*headerFctPtr) (uint8_t item);
-	void (DataLogger::*logFctPtr) (QTextStream *filePtr, uint8_t slaveIndex, \
-					   char term, qint64 t_ms, QString t_text);
-
-	QString t_text = "";
-
-	/*ToDo: why are we constantly calling that? It should be done once,
-	 * the first time we start logging. The way it is now, we can switch board
-	 * in the middle of a log, corrupting the data.*/
-	getFctPtrs(slaveIndex, expIndex, &headerFctPtr, &logFctPtr);
-
 	// Verify that the log file is properly opened.
 	if(logRecordingFile[item].isOpen())
 	{
 		//Writting for the first time?
 		if(logRecordingFile[item].pos() == 0)
 		{
-			//Init timestamp ms:
-			logTimestamp(&t_ms, &t_text);
-			t_ms_initial[item] = t_ms;
-
 			//Header:
-			writeIdentifier(item, slaveIndex, expIndex, refreshRate);
-			(this->*headerFctPtr)(item);
+			logFileStream << devicePtr->getIdentifier() << endl;
+			logFileStream << devicePtr->getHeaderStr() << endl;
 		}
 
-		//Timestamps:
-		logTimestamp(&t_ms, &t_text);
-		t_ms -= t_ms_initial[item];
-
 		//And we add to the text file:
-		(this->*logFctPtr)(&logFileStream, slaveIndex, '\n', t_ms, t_text);
+		logFileStream << devicePtr->getLastSerializedStr() << endl;
 	}
 	else
 	{
 		emit setStatusBarMessage("Datalogger: no file selected.");
-	}
-}
-
-//What Header and Log format should we use? Based on slaveIndex and expIndex
-//this function picks the right functions and returns pointers
-void DataLogger::getFctPtrs(uint8_t slaveIndex, uint8_t expIndex, \
-							void (DataLogger::**myHeaderFctPtr) (uint8_t item), \
-							void (DataLogger::**myLogFctPtr) (QTextStream *filePtr, uint8_t slaveIndex, \
-											   char term, qint64 t_ms, QString t_text))
-{
-	//Board type? Extract base via address&integer trick
-	uint8_t bType = FlexSEA_Generic::getSlaveBoardType(SL_BASE_ALL, slaveIndex);
-
-	//And now, experiment per experiment:
-	switch(expIndex)
-	{
-		case 0: //Read All (barebone)
-			switch(bType)
-			{
-				case FLEXSEA_PLAN_BASE:
-					break;
-				case FLEXSEA_MANAGE_BASE:
-					*myHeaderFctPtr = &DataLogger::writeManageReadAllHeader;
-					*myLogFctPtr = &DataLogger::logReadAllManage;
-					break;
-				case FLEXSEA_EXECUTE_BASE:
-					*myHeaderFctPtr = &DataLogger::writeExecuteReadAllHeader;
-					*myLogFctPtr = &DataLogger::logReadAllExec;
-					break;
-				case FLEXSEA_BATTERY_BASE:
-					break;
-				case FLEXSEA_STRAIN_BASE:
-					*myHeaderFctPtr = &DataLogger::writeStrainReadAllHeader;
-					*myLogFctPtr = &DataLogger::logReadAllStrain;
-					break;
-				case FLEXSEA_GOSSIP_BASE:
-					*myHeaderFctPtr = &DataLogger::writeGossipReadAllHeader;
-					*myLogFctPtr = &DataLogger::logReadAllGossip;
-					break;
-			}
-			break;
-		case 1: //In Control
-			qDebug() << "Not programmed!";
-			break;
-		case 2: //RIC/NU Knee
-			*myHeaderFctPtr = &DataLogger::writeReadAllRicnuHeader;
-			*myLogFctPtr = &DataLogger::logReadAllRicnu;
-			break;
-		case 3: //CSEA Knee
-			qDebug() << "Not programmed!";
-			break;
-		case 4: //2DOF Ankle
-			*myHeaderFctPtr = &DataLogger::writeManageA2DOFHeader;
-			*myLogFctPtr = &DataLogger::logA2DOFManage;
-			break;
-		case 5: //Battery Board
-			qDebug() << "Logging battery board is not programmed!";
-			break;
-		case 6: //Test Bench
-			*myHeaderFctPtr = &DataLogger::writeManageTestBenchHeader;
-			*myLogFctPtr = &DataLogger::logManageTestBench;
-			break;
-		default:
-			qDebug() << "Invalid Experiment - can't write Log Header";
-			break;
 	}
 }
 
@@ -366,250 +288,8 @@ void DataLogger::closeReadingFile(void)
 		logReadingFile.close();
 	}
 
-	myLogFile.clear();
-}
-
-//ToDo: move these functions to their respective files
-
-void DataLogger::logReadAllExec(QTextStream *filePtr, uint8_t slaveIndex, \
-								char term, qint64 t_ms, QString t_text)
-{
-	struct execute_s *exPtr;
-	FlexSEA_Generic::assignExecutePtr(&exPtr, SL_BASE_ALL, slaveIndex);
-
-	(*filePtr) << t_text << ',' << \
-						t_ms << ',' << \
-						exPtr->accel.x << ',' << \
-						exPtr->accel.y << ',' << \
-						exPtr->accel.z << ',' << \
-						exPtr->gyro.x << ',' << \
-						exPtr->gyro.y << ',' << \
-						exPtr->gyro.z << ',' << \
-						exPtr->strain << ',' << \
-						exPtr->analog[0] << ',' << \
-						exPtr->analog[1] << ',' << \
-						exPtr->current << ',' << \
-						exPtr->enc_display << ',' << \
-						exPtr->enc_control << ',' << \
-						exPtr->enc_commut << ',' << \
-						exPtr->volt_batt << ',' << \
-						exPtr->volt_int << ',' << \
-						exPtr->temp << ',' << \
-						exPtr->status1 << ',' << \
-						exPtr->status2 << \
-						term;
-}
-
-void DataLogger::logReadAllStrain(QTextStream *filePtr, uint8_t slaveIndex, \
-								char term, qint64 t_ms, QString t_text)
-{
-	struct strain_s *stPtr;
-	FlexSEA_Generic::assignStrainPtr(&stPtr, SL_BASE_ALL, slaveIndex);
-
-	(*filePtr) << t_text << ',' << \
-						t_ms << ',' << \
-						stPtr->ch[0].strain_filtered << ',' << \
-						stPtr->ch[1].strain_filtered << ',' << \
-						stPtr->ch[2].strain_filtered << ',' << \
-						stPtr->ch[3].strain_filtered << ',' << \
-						stPtr->ch[4].strain_filtered << ',' << \
-						stPtr->ch[5].strain_filtered << \
-						term;
-}
-
-void DataLogger::logReadAllGossip(QTextStream *filePtr, uint8_t slaveIndex, \
-								char term, qint64 t_ms, QString t_text)
-{
-	struct gossip_s *goPtr;
-	FlexSEA_Generic::assignGossipPtr(&goPtr, SL_BASE_ALL, slaveIndex);
-
-	(*filePtr) << t_text << ',' << \
-						t_ms << ',' << \
-				  goPtr->accel.x << ',' << \
-				  goPtr->accel.y << ',' << \
-				  goPtr->accel.z << ',' << \
-				  goPtr->gyro.x << ',' << \
-				  goPtr->gyro.y << ',' << \
-				  goPtr->gyro.z << ',' << \
-				  goPtr->magneto.x << ',' << \
-				  goPtr->magneto.y << ',' << \
-				  goPtr->magneto.z << ',' << \
-				  goPtr->io[0] << ',' << \
-				  goPtr->io[1] << ',' << \
-				  goPtr->capsense[0] << ',' << \
-				  goPtr->capsense[1] << ',' << \
-				  goPtr->capsense[2] << ',' << \
-				  goPtr->capsense[3] << ',' << \
-				  goPtr->status << \
-				  term;
-}
-
-void DataLogger::logReadAllRicnu(QTextStream *filePtr, uint8_t slaveIndex, \
-								 char term, qint64 t_ms, QString t_text)
-{
-	struct ricnu_s *myPtr;
-	FlexSEA_Generic::assignRicnuPtr(&myPtr, SL_BASE_ALL, slaveIndex);
-
-	W_Ricnu::unpackCompressed6ch(myPtr->st.compressedBytes, \
-						&myPtr->st.ch[0].strain_filtered, \
-						&myPtr->st.ch[1].strain_filtered, \
-						&myPtr->st.ch[2].strain_filtered, \
-						&myPtr->st.ch[3].strain_filtered, \
-						&myPtr->st.ch[4].strain_filtered, \
-						&myPtr->st.ch[5].strain_filtered);
-
-	//ToDo: decode battery?*************
-
-	(*filePtr) << t_text << ',' << \
-				t_ms << ',' << \
-				myPtr->ex.accel.x << ',' << \
-				myPtr->ex.accel.y << ',' << \
-				myPtr->ex.accel.z << ',' << \
-				myPtr->ex.gyro.x << ',' << \
-				myPtr->ex.gyro.y << ',' << \
-				myPtr->ex.gyro.z << ',' << \
-				myPtr->ex.current << ',' << \
-				myPtr->ex.enc_motor << ',' << \
-				myPtr->ex.enc_joint << ',' << \
-				myPtr->ex.sine_commut_pwm << ',' << \
-				myPtr->st.ch[0].strain_filtered << ',' << \
-				myPtr->st.ch[1].strain_filtered << ',' << \
-				myPtr->st.ch[2].strain_filtered << ',' << \
-				myPtr->st.ch[3].strain_filtered << ',' << \
-				myPtr->st.ch[4].strain_filtered << ',' << \
-				myPtr->st.ch[5].strain_filtered << ',' << \
-				myPtr->gen_var[0] << ',' << \
-				myPtr->gen_var[1] << ',' << \
-				myPtr->gen_var[2] << ',' << \
-				myPtr->gen_var[3] << ',' << \
-				myPtr->gen_var[4] << ',' << \
-				myPtr->gen_var[5] << ',' << \
-				batt1.voltage << ',' << \
-				batt1.current << ',' << \
-				batt1.temp << ',' << \
-				term;
-}
-
-void DataLogger::logReadAllManage(QTextStream *filePtr, uint8_t slaveIndex, \
-								char term, qint64 t_ms, QString t_text)
-{
-	struct manage_s *mnPtr;
-	FlexSEA_Generic::assignManagePtr(&mnPtr, SL_BASE_MN, slaveIndex);
-
-	(*filePtr) << t_text << ',' << \
-						t_ms << ',' << \
-						mnPtr->accel.x << ',' << \
-						mnPtr->accel.y << ',' << \
-						mnPtr->accel.z << ',' << \
-						mnPtr->gyro.x << ',' << \
-						mnPtr->gyro.y << ',' << \
-						mnPtr->gyro.z << ',' << \
-						mnPtr->digitalIn << ',' << \
-						mnPtr->sw1 << ',' << \
-						mnPtr->analog[0] << ',' << \
-						mnPtr->analog[1] << ',' << \
-						mnPtr->analog[2] << ',' << \
-						mnPtr->analog[3] << ',' << \
-						mnPtr->analog[4] << ',' << \
-						mnPtr->analog[5] << ',' << \
-						mnPtr->analog[6] << ',' << \
-						mnPtr->analog[7] << ',' << \
-						mnPtr->status1 << ',' << \
-						term;
-}
-
-//ToDo this should be in the User files, not here:
-void DataLogger::logA2DOFManage(QTextStream *filePtr, uint8_t slaveIndex, \
-								char term, qint64 t_ms, QString t_text)
-{
-	struct execute_s *exPtr1 = &exec1, *exPtr2 = &exec2;
-
-	(*filePtr) << t_text << ',' << \
-						t_ms << ',' << \
-						exPtr1->accel.x << ',' << \
-						exPtr1->accel.y << ',' << \
-						exPtr1->accel.z << ',' << \
-						exPtr1->gyro.x << ',' << \
-						exPtr1->gyro.y << ',' << \
-						exPtr1->gyro.z << ',' << \
-						exPtr1->strain << ',' << \
-						exPtr1->analog[0] << ',' << \
-						exPtr1->analog[1] << ',' << \
-						exPtr1->current << ',' << \
-						exPtr1->enc_display << ',' << \
-						exPtr1->volt_batt << ',' << \
-						exPtr1->volt_int << ',' << \
-						exPtr1->temp << ',' << \
-						exPtr1->status1 << ',' << \
-						exPtr1->status2 << ',' << \
-						exPtr2->accel.x << ',' << \
-						exPtr2->accel.y << ',' << \
-						exPtr2->accel.z << ',' << \
-						exPtr2->gyro.x << ',' << \
-						exPtr2->gyro.y << ',' << \
-						exPtr2->gyro.z << ',' << \
-						exPtr2->strain << ',' << \
-						exPtr2->analog[0] << ',' << \
-						exPtr2->analog[1] << ',' << \
-						exPtr2->current << ',' << \
-						exPtr2->enc_display << ',' << \
-						exPtr2->volt_batt << ',' << \
-						exPtr2->volt_int << ',' << \
-						exPtr2->temp << ',' << \
-						exPtr2->status1 << ',' << \
-						exPtr2->status2 << \
-						term;
-}
-
-void DataLogger::logManageTestBench(QTextStream *filePtr, uint8_t slaveIndex, \
-								char term, qint64 t_ms, QString t_text)
-{
-	struct execute_s *exPtr1 = &exec1, *exPtr2 = &exec2;
-	int16_t *mtbExPtr1 = motortb.ex1, *mtbExPtr2 = motortb.ex2;
-
-	(*filePtr) << t_text << ',' << \
-						t_ms << ',' << \
-						mtbExPtr1[0] << ',' << \
-						mtbExPtr1[1] << ',' << \
-						mtbExPtr1[2] << ',' << \
-						mtbExPtr1[3] << ',' << \
-						mtbExPtr1[4] << ',' << \
-						mtbExPtr1[5] << ',' << \
-						exPtr1->strain << ',' << \
-						exPtr1->analog[0] << ',' << \
-						exPtr1->analog[1] << ',' << \
-						exPtr1->current << ',' << \
-						exPtr1->enc_display << ',' << \
-						exPtr1->volt_batt << ',' << \
-						exPtr1->volt_int << ',' << \
-						exPtr1->temp << ',' << \
-						exPtr1->status1 << ',' << \
-						exPtr1->status2 << ',' << \
-						mtbExPtr2[0] << ',' << \
-						mtbExPtr2[1] << ',' << \
-						mtbExPtr2[2] << ',' << \
-						mtbExPtr2[3] << ',' << \
-						mtbExPtr2[4] << ',' << \
-						mtbExPtr2[5] << ',' << \
-						exPtr2->strain << ',' << \
-						exPtr2->analog[0] << ',' << \
-						exPtr2->analog[1] << ',' << \
-						exPtr2->current << ',' << \
-						exPtr2->enc_display << ',' << \
-						exPtr2->volt_batt << ',' << \
-						exPtr2->volt_int << ',' << \
-						exPtr2->temp << ',' << \
-						exPtr2->status1 << ',' << \
-						exPtr2->status2 << ',' << \
-						motortb.mn1[0] << ',' << \
-						motortb.mn1[1] << ',' << \
-						motortb.mn1[2] << ',' << \
-						motortb.mn1[3] << ',' << \
-						batt1.voltage << ',' << \
-						batt1.current << ',' << \
-						batt1.decoded.power << ',' << \
-						batt1.temp << \
-						term;
+	// TODO = Clear the proper structure.
+	executeDevPtr->clear();
 }
 
 //****************************************************************************
@@ -652,278 +332,14 @@ void DataLogger::initLogDirectory()
 
 	// Create this session folder
 	QDir().mkdir(sessionFolder);
+
+	sessionDirectoryCreated = true;
 }
 
-void DataLogger::logTimestamp(qint64 *t_ms, QString *t_text)
+void DataLogger::setStatus(QString str)
 {
-	*t_ms = myTime->currentMSecsSinceEpoch();
-	*t_text = myTime->currentDateTime().toString();
-}
-
-void DataLogger::writeIdentifier(uint8_t item, uint8_t slaveIndex,
-								 uint8_t expIndex, uint16_t refreshRate)
-{
-	QString msg, slaveName, expName;
-	FlexSEA_Generic::getSlaveName(SL_BASE_ALL, slaveIndex, &slaveName);
-	FlexSEA_Generic::getExpName(expIndex, &expName);
-
-	//Top of the file description:
-	msg =	QString("Datalogging Item:")	+ QString(',') +
-			QString::number(item)			+ QString(',') +
-
-			QString("Slave Index:")			+ QString(',') +
-			QString::number(slaveIndex)		+ QString(',') +
-
-			QString("Slave Name:")			+ QString(',') +
-			slaveName						+ QString(',') +
-
-			QString("Experiment Index:")	+ QString(',') +
-			QString::number(expIndex)		+ QString(',') +
-
-			QString("Experiment Name:")		+ QString(',') +
-			expName							+ QString(',') +
-
-			QString("Aquisition Frequency:")+ QString(',') +
-			QString::number(refreshRate)	+ QString("\n");
-
-	qDebug() << msg;
-	if(logRecordingFile[item].isOpen())
-	{
-		logFileStream << msg;
-	}
-}
-
-void DataLogger::writeExecuteReadAllHeader(uint8_t item)
-{
-	if(logRecordingFile[item].isOpen())
-	{
-		//Print header:
-		logFileStream << "Timestamp," << \
-						"Timestamp (ms)," << \
-						"accel.x," << \
-						"accel.y," << \
-						"accel.z," << \
-						"gyro.x," << \
-						"gyro.y," << \
-						"gyro.z," << \
-						"strain," << \
-						"analog_0," << \
-						"analog_1," << \
-						"current," << \
-						"enc-disp," << \
-						"enc-cont," << \
-						"enc-comm," << \
-						"VB," << \
-						"VG," << \
-						"Temp," << \
-						"Status1," << \
-						"Status2" << \
-						endl;
-	}
-}
-
-void DataLogger::writeManageReadAllHeader(uint8_t item)
-{
-	if(logRecordingFile[item].isOpen())
-	{
-		//Print header:
-		logFileStream << "Timestamp," << \
-						"Timestamp (ms)," << \
-						"accel.x," << \
-						"accel.y," << \
-						"accel.z," << \
-						"gyro.x," << \
-						"gyro.y," << \
-						"gyro.z," << \
-						"digitalIn," << \
-						"sw1," << \
-						"analog0," << \
-						"analog1," << \
-						"analog2," << \
-						"analog3," << \
-						"analog4," << \
-						"analog5," << \
-						"analog6," << \
-						"analog7," << \
-						"Status1" << \
-						endl;
-	}
-}
-
-void DataLogger::writeManageA2DOFHeader(uint8_t item)
-{
-	if(logRecordingFile[item].isOpen())
-	{
-		//Print header:
-		logFileStream << "Timestamp," << \
-						"Timestamp (ms)," << \
-						"accel.x," << \
-						"accel.y," << \
-						"accel.z," << \
-						"gyro.x," << \
-						"gyro.y," << \
-						"gyro.z," << \
-						"strain," << \
-						"analog_0," << \
-						"analog_1," << \
-						"current," << \
-						"enc," << \
-						"VB," << \
-						"VG," << \
-						"Temp," << \
-						"Status1," << \
-						"Status2," << \
-						"accel.x," << \
-						"accel.y," << \
-						"accel.z," << \
-						"gyro.x," << \
-						"gyro.y," << \
-						"gyro.z," << \
-						"strain," << \
-						"analog_0," << \
-						"analog_1," << \
-						"current," << \
-						"enc," << \
-						"VB," << \
-						"VG," << \
-						"Temp," << \
-						"Status1," << \
-						"Status2" << \
-						endl;
-	}
-}
-
-void DataLogger::writeManageTestBenchHeader(uint8_t item)
-{
-	if(logRecordingFile[item].isOpen())
-	{
-		//Print header:
-		logFileStream << "Timestamp," << \
-						"Timestamp (ms)," << \
-						"ex1[0]," << \
-						"ex1[1]," << \
-						"ex1[2]," << \
-						"ex1[3]," << \
-						"ex1[4]," << \
-						"ex1[5]," << \
-						"strain," << \
-						"analog_0," << \
-						"analog_1," << \
-						"current," << \
-						"enc," << \
-						"VB," << \
-						"VG," << \
-						"Temp," << \
-						"Status1," << \
-						"Status2," << \
-						"ex2[0]," << \
-						"ex2[1]," << \
-						"ex2[2]," << \
-						"ex2[3]," << \
-						"ex2[4]," << \
-						"ex2[5]," << \
-						"strain," << \
-						"analog_0," << \
-						"analog_1," << \
-						"current," << \
-						"enc," << \
-						"VB," << \
-						"VG," << \
-						"Temp," << \
-						"Status1," << \
-						"Status2," << \
-						"mn1[0]," << \
-						"mn1[1]," << \
-						"mn1[2]," << \
-						"mn1[3]," << \
-						"Batt.volt," << \
-						"Batt.current," << \
-						"Batt.power," << \
-						"Batt.temp" << \
-						endl;
-	}
-}
-
-void DataLogger::writeStrainReadAllHeader(uint8_t item)
-{
-	if(logRecordingFile[item].isOpen())
-	{
-		//Print header:
-		logFileStream << "Timestamp," << \
-						"Timestamp (ms)," << \
-						"ch1,"  << \
-						"ch2,"  << \
-						"ch3,"  << \
-						"ch4,"  << \
-						"ch5,"  << \
-						"ch6"  << \
-						endl;
-	}
-}
-
-void DataLogger::writeGossipReadAllHeader(uint8_t item)
-{
-	if(logRecordingFile[item].isOpen())
-	{
-		//Print header:
-		logFileStream << "Timestamp," << \
-						"Timestamp (ms)," << \
-						"accel.x," << \
-						"accel.y," << \
-						"accel.z," << \
-						"gyro.x," << \
-						"gyro.y," << \
-						"gyro.z," << \
-						"magneto.x," << \
-						"magneto.y," << \
-						"magneto.z," << \
-						"io1," << \
-						"io2," << \
-						"capsense1," << \
-						"capsense2," << \
-						"capsense3," << \
-						"capsense4," << \
-						"Status1" << \
-						endl;
-	}
-}
-
-void DataLogger::writeReadAllRicnuHeader(uint8_t item)
-{
-	if(logRecordingFile[item].isOpen())
-	{
-		qDebug() << "writeReadAllRicnuHeader";
-
-		//Print header:
-		logFileStream << "Timestamp," << \
-						"Timestamp (ms)," << \
-						"accel.x," << \
-						"accel.y," << \
-						"accel.z," << \
-						"gyro.x," << \
-						"gyro.y," << \
-						"gyro.z," << \
-						"current," << \
-						"enc-mot," << \
-						"enc-joint," << \
-						"pwm," << \
-						"strain1," << \
-						"strain2," << \
-						"strain3," << \
-						"strain4," << \
-						"strain5," << \
-						"strain6," << \
-						"gen_var[0]," << \
-						"gen_var[1]," << \
-						"gen_var[2]," << \
-						"gen_var[3]," << \
-						"gen_var[4]," << \
-						"gen_var[5]," << \
-						"batt.volt," << \
-						"batt.current," << \
-						"batt.temp" << \
-						endl;
-	}
+	emit setStatusBarMessage(str);
+	qDebug() << str;
 }
 
 //****************************************************************************

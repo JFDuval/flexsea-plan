@@ -33,26 +33,30 @@
 //****************************************************************************
 
 #include "w_manage.h"
-#include "flexsea_generic.h"
 #include "ui_w_manage.h"
-#include "main.h"
-#include <QString>
-#include <QTextStream>
 
 //****************************************************************************
 // Constructor & Destructor:
 //****************************************************************************
 
-W_Manage::W_Manage(QWidget *parent) :
+W_Manage::W_Manage(QWidget *parent,
+				   ManageDevice *deviceLogPtr,
+				   DisplayMode mode,
+				   QList<ManageDevice> *deviceListPtr) :
 	QWidget(parent),
 	ui(new Ui::W_Manage)
 {
 	ui->setupUi(this);
 
+	deviceLog = deviceLogPtr;
+	deviceList = deviceListPtr;
+
+	displayMode = mode;
+
 	setWindowTitle(this->getDescription());
 	setWindowIcon(QIcon(":icons/d_logo_small.png"));
 
-	init();
+	updateDisplayMode(displayMode);
 }
 
 W_Manage::~W_Manage()
@@ -70,27 +74,62 @@ W_Manage::~W_Manage()
 //****************************************************************************
 
 //Call this function to refresh the display
-void W_Manage::refreshDisplayManage(void)
+void W_Manage::refreshDisplay(void)
 {
-	struct manage_s *mnPtr;
-	FlexSEA_Generic::assignManagePtr(&mnPtr, SL_BASE_MN, \
-									  ui->comboBox_slave->currentIndex());
-	displayManage(mnPtr);
+	int index = ui->comboBox_slave->currentIndex();
+	display(&((*deviceList)[index]), 0);
+}
+
+void W_Manage::refreshDisplayLog(int index, FlexseaDevice * devPtr)
+{
+	if(devPtr->slaveName == deviceLog->slaveName)
+	{
+		if(deviceLog->mnList.isEmpty() == false)
+		{
+			 display(deviceLog, index);
+		}
+	}
+}
+
+void W_Manage::updateDisplayMode(DisplayMode mode)
+{
+	displayMode = mode;
+	if(displayMode == DisplayLogData)
+	{
+		initLog();
+	}
+	else
+	{
+		initLive();
+	}
 }
 
 //****************************************************************************
 // Private function(s):
 //****************************************************************************
 
-void W_Manage::init(void)
+void W_Manage::initLive(void)
 {
 	//Populates Slave list:
-	FlexSEA_Generic::populateSlaveComboBox(ui->comboBox_slave, SL_BASE_MN, \
-											SL_LEN_MN);
+	ui->comboBox_slave->clear();
+
+	for(int i = 0; i < (*deviceList).length(); i++)
+	{
+		ui->comboBox_slave->addItem((*deviceList)[i].slaveName);
+	}
 }
 
-void W_Manage::displayManage(struct manage_s *mn)
+void W_Manage::initLog(void)
 {
+	//Populates Slave list:
+	ui->comboBox_slave->clear();
+	ui->comboBox_slave->addItem(deviceLog->slaveName);
+}
+
+
+void W_Manage::display(ManageDevice *devicePtr, int index)
+{
+	struct manage_s *mn = devicePtr->mnList[index];
 	//Raw values:
 	//===========
 

@@ -21,74 +21,64 @@
 	Biomechatronics research group <http://biomech.media.mit.edu/>
 	[Contributors]
 *****************************************************************************
-	[This file] w_execute.h: Execute View Window
+	[This file] GossipDevice: Gossip Device Data Class
 *****************************************************************************
 	[Change log] (Convention: YYYY-MM-DD | author | comment)
-	* 2016-09-09 | jfduval | Initial GPL-3.0 release
+	* 2016-12-08 | sbelanger | Initial GPL-3.0 release
 	*
 ****************************************************************************/
 
-#ifndef W_EXECUTE_H
-#define W_EXECUTE_H
+#ifndef GOSSIPDEVICE_H
+#define GOSSIPDEVICE_H
 
 //****************************************************************************
 // Include(s)
 //****************************************************************************
 
-#include <QWidget>
-#include "counter.h"
-#include "executeDevice.h"
-#include "define.h"
+#include <QList>
+#include <QString>
+#include <flexsea_global_structs.h>
+#include "flexseaDevice.h"
 
 //****************************************************************************
-// Namespace & Class Definition:
+// Definition(s)
 //****************************************************************************
 
-namespace Ui {
-class W_Execute;
+//****************************************************************************
+// Namespace & Class
+//****************************************************************************
+
+namespace Ui
+{
+	class GossipDevice;
 }
 
-class W_Execute : public QWidget, public Counter<W_Execute>
+class GossipDevice : public FlexseaDevice
 {
-	Q_OBJECT
-
 public:
-	//Constructor & Destructor:
-	explicit W_Execute(	QWidget *parent = 0,
-						ExecuteDevice *deviceLogPtr = nullptr,
-						DisplayMode mode = DisplayLiveData,
-						QList<ExecuteDevice> *deviceListPtr = nullptr);
-	~W_Execute();
+	explicit GossipDevice(void);
+	explicit GossipDevice(gossip_s *devicePtr);
 
-	//Function(s):
-	static void trackVarEx(uint8_t var, uint8_t *varToPlotPtr8s);
+	// Interface implementation
+	QString getHeaderStr(void);
+	QString getLastSerializedStr(void);
+	void appendSerializedStr(QStringList *splitLine);
+	void decodeLastLine(void);
+	void decodeAllLine(void);
+	void clear(void);
+	void appendEmptyLine(void);
+	QString getStatusStr(int index);
 
-
-public slots:
-	void refreshDisplay(void);
-	void refreshDisplayLog(int index, FlexseaDevice * devPtr);
-	void updateDisplayMode(DisplayMode mode);
-
-signals:
-	void windowClosed(void);
+	QList<struct gossip_s *> goList;
+	static void decode(struct gossip_s *goPtr);
 
 private:
-	//Variables & Objects:
-	Ui::W_Execute *ui;
+	static QStringList header;
 
-	DisplayMode displayMode;
-
-	QList<ExecuteDevice> *deviceList;
-	ExecuteDevice *deviceLog;
-
-	//Function(s):
-	void initLive(void);
-	void initLog(void);
-	void display(ExecuteDevice *devicePtr, int index);
 };
 
 //****************************************************************************
 // Definition(s)
 //****************************************************************************
 
-#endif // W_EXECUTE_H
+#endif // GOSSIPDEVICE_H

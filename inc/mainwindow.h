@@ -34,7 +34,6 @@
 
 #include <QMainWindow>
 #include "flexsea_generic.h"
-#include "logFile.h"
 #include "serialdriver.h"
 #include "datalogger.h"
 #include "w_slavecomm.h"
@@ -52,9 +51,15 @@
 #include "w_strain.h"
 #include "w_gossip.h"
 #include "w_converter.h"
+
+#include "flexseaDevice.h"
 #include "w_testbench.h"
 #include "w_commtest.h"
+#include "manageDevice.h"
+
 #include "main.h"
+
+#include <QList>
 
 namespace Ui {
 class MainWindow;
@@ -88,7 +93,29 @@ public:
 	~MainWindow();
 
 private:
+	void initFlexSeaDeviceObject(void);
+	void initFlexSeaDeviceLog(void);
+
 	Ui::MainWindow *ui;
+
+	// Device Object
+	QList<ExecuteDevice> executeDevList;
+	QList<ManageDevice>	manageDevList;
+	QList<GossipDevice>	gossipDevList;
+	QList<BatteryDevice> batteryDevList;
+	QList<StrainDevice>	strainDevList;
+	QList<RicnuDevice> ricnuDevList;
+
+	QList<FlexseaDevice*> flexseaDevicePtrlist;
+
+	// Log Object
+	ExecuteDevice executeLog = ExecuteDevice();
+	ManageDevice manageLog = ManageDevice();
+	GossipDevice gossipLog = GossipDevice();
+	BatteryDevice batteryLog = BatteryDevice();
+	StrainDevice strainLog = StrainDevice();
+	RicnuDevice ricnuLog = RicnuDevice();
+
 
 	// Sub-Windows
 	W_Execute *myViewExecute[EX_VIEW_WINDOWS_MAX];
@@ -115,14 +142,14 @@ private:
 
 signals:
 	//Allow window to be independly opened in any order by providing a backbone connector
-	void connectorRefreshLogTimeSlider(int index);
+	void connectorRefreshLogTimeSlider(int index, FlexseaDevice*);
 	void connectorUpdateDisplayMode(DisplayMode mode);
 	void connectorWriteCommand(uint8_t ch, uint8_t* chPtr, uint8_t r_w);
 
 public slots:
 
 	void translatorUpdateDataSourceStatus(DataSource status);
-	void manageLogKeyPad(DataSource status);
+	void manageLogKeyPad(DataSource status, FlexseaDevice *);
 
 	//MDI Windows (create):
 	void createViewExecute(void);
@@ -138,7 +165,7 @@ public slots:
 	void createViewStrain(void);
 	void createViewGossip(void);
 	void createViewBattery(void);
-	void createLogKeyPad(void);
+	void createLogKeyPad(FlexseaDevice * devPtr);
 	void createUserRW(void);
 	void createViewTestBench(void);
 	void createViewCommTest(void);
@@ -161,6 +188,10 @@ public slots:
 	void closeUserRW(void);
 	void closeViewTestBench(void);
 	void closeViewCommTest(void);
+
+	//Miscelaneous
+
+	DisplayMode getDisplayMode(void);
 
 	//Messages Status Bar + debug
 	void sendWindowCreatedMsg(QString windowName, int index, int maxIndex);

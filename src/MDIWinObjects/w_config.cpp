@@ -54,13 +54,12 @@ W_Config::W_Config(QWidget *parent) :
 	setWindowIcon(QIcon(":icons/d_logo_small.png"));
 
 	//Init code:
-	flagManualEntry = 0;
 	dataSourceState = None;
 	initCom();
 
-	QTimer *comPortRefreshTimer = new QTimer(this);
+	comPortRefreshTimer = new QTimer(this);
 	connect(comPortRefreshTimer, SIGNAL(timeout()), this, SLOT(getComList()));
-	comPortRefreshTimer->start(750); //ms
+	comPortRefreshTimer->start(REFRESH_PERIOD); //ms
 	getComList();	//Call now to avoid lag when a new window is opened.
 }
 
@@ -78,13 +77,9 @@ W_Config::~W_Config()
 // Public slot(s):
 //****************************************************************************
 
-void W_Config::setComProgress(int val, int rst)
+void W_Config::setComProgress(int val)
 {
 	ui->comProgressBar->setValue(val);
-	if(rst)
-	{
-		defaultComOffUi();
-	}
 }
 
 //****************************************************************************
@@ -93,22 +88,15 @@ void W_Config::setComProgress(int val, int rst)
 
 void W_Config::initCom(void)
 {
-	//Flags:
-	flagComInitDone = 0;
-
 	//Bluetooth disabled for now:
 	ui->pushButtonBTCon->setEnabled(false);
 
 	//No manual entry, 0% progress, etc.:
 	ui->comProgressBar->setValue(0);
-	ui->comProgressBar->setDisabled(true);
 	ui->openComButton->setDisabled(false);
 	ui->closeComButton->setDisabled(true);
 	ui->pbLoadLogFile->setDisabled(false);
 	ui->pbCloseLogFile->setDisabled(true);
-
-	//Flag for other functions:
-	flagComInitDone = 1;
 }
 
 //This gets called by a timer (currently every 750ms)
@@ -116,54 +104,37 @@ void W_Config::initCom(void)
  * then plug COM1, it will display COM1. That's confusing for the users.*/
 void W_Config::getComList(void)
 {
-	static int lastComPortAvailable = 0;
-	int comPortAvailable = 0;
+	static int lastComPortCounts = 0;
+	int ComPortCounts = 0;
 
 	//Available ports?
 	QList<QSerialPortInfo> comPortInfo = QSerialPortInfo::availablePorts();
-	comPortAvailable = comPortInfo.length();
-	//qDebug() << "Now: " << comPortAvailable << "Last: " << lastComPortAvailable;
-
-	//No port?
-	if(comPortAvailable == 0)
-	{
-		//Is the list empty?
-		if(comPortList.length() == 0)
-		{
-			//Empty, add the No Port option
-			comPortList << "No Port";
-			ui->comPortComboBox->addItem(comPortList.last());
-		}
-	}
+	ComPortCounts = comPortInfo.length();
 
 	//Did it change?
-	if(comPortAvailable != lastComPortAvailable)
+	if(ComPortCounts != lastComPortCounts)
 	{
 		//Yes.
 		qDebug() << "COM Port list changed.";
 
-		//Clear list:
-		comPortList.clear();
 		ui->comPortComboBox->clear();
 
-		//Write new one:
-		for(const QSerialPortInfo &info : comPortInfo)
+		//No port?
+		if(ComPortCounts == 0)
 		{
-			//qDebug() << info.portName();
-			comPortList << info.portName();
-			ui->comPortComboBox->addItem(comPortList.last());
+			//Empty, add the No Port option
+			ui->comPortComboBox->addItem("No Port");
+		}
+		else
+		{
+			//Rewrite the list:
+			for(const QSerialPortInfo &info : comPortInfo)
+			{
+				ui->comPortComboBox->addItem(info.portName());
+			}
 		}
 	}
-
-	lastComPortAvailable = comPortAvailable;
-}
-
-void W_Config::defaultComOffUi(void)
-{
-	ui->openComButton->setDisabled(false);
-	ui->comProgressBar->setDisabled(false);
-	ui->comProgressBar->setValue(0);
-	ui->closeComButton->setDisabled(true);
+	lastComPortCounts = ComPortCounts;
 }
 
 //****************************************************************************
@@ -172,22 +143,29 @@ void W_Config::defaultComOffUi(void)
 
 void W_Config::on_openComButton_clicked()
 {
-	//Deal with display elements:
-	defaultComOffUi();
-	ui->openComButton->setDisabled(true);
+	bool success = false;
 
+	//Stop port refresh
+	comPortRefreshTimer->stop();
 	//Emit signal:
-	emit openCom(ui->comPortComboBox->currentText(), 25, 100000);
+	emit openCom(ui->comPortComboBox->currentText(), 25, 100000, &success);
 
 	// TODO We Should have a way to know if the connection was successful
-	if(1)//Connection is successful.
+	if(success)//Connection is successful.
 	{
 		dataSourceState = LiveCOM;
 		emit updateDataSourceStatus(dataSourceState);
-		ui->pbLoadLogFile->setDisabled(true);
-		//ui->pushButtonBTCon->setDisabled(true);
+
+		ui->openComButton->setDisabled(true);
 		ui->closeComButton->setDisabled(false);
 		ui->comPortComboBox->setDisabled(true);
+
+		ui->pbLoadLogFile->setDisabled(true);
+		//ui->pushButtonBTCon->setDisabled(true);
+	}
+	else
+	{
+		comPortRefreshTimer->start(REFRESH_PERIOD);
 	}
 }
 
@@ -197,31 +175,28 @@ void W_Config::on_closeComButton_clicked()
 	emit closeCom();
 
 	//Enable Open COM button:
-	ui->openComButton->setEnabled(true);
-	ui->openComButton->repaint();
-
-	//Disable Close COM button:
+	ui->openComButton->setDisabled(false);
 	ui->closeComButton->setDisabled(true);
-	ui->closeComButton->repaint();
-
-	//ui->comStatusTxt->setText("COM Port closed.");
 	ui->comProgressBar->setValue(0);
-	ui->comProgressBar->setDisabled(true);
+	ui->comPortComboBox->setDisabled(false);
 
 	ui->pbLoadLogFile->setDisabled(false);
 	//ui->pushButtonBTCon->setDisabled(false);
 
-	ui->comPortComboBox->setDisabled(false);
-
 	dataSourceState = None;
 	emit updateDataSourceStatus(dataSourceState);
 
+	// Avoid refresh lag
+	getComList();
+	// Restart the auto-Refresh
+	comPortRefreshTimer->start(REFRESH_PERIOD);
 }
 
 void W_Config::on_pbLoadLogFile_clicked()
 {
 	bool isOpen;
-	emit openReadingFile(&isOpen);
+	FlexseaDevice *devPtr;
+	emit openReadingFile(&isOpen, &devPtr);
 
 	if(isOpen)
 	{
@@ -231,8 +206,8 @@ void W_Config::on_pbLoadLogFile_clicked()
 		//ui->pushButtonBTCon->setDisabled(true);
 		dataSourceState = FromLogFile;
 		emit updateDataSourceStatus(dataSourceState);
+		emit createlogkeypad(dataSourceState, devPtr);
 	}
-
 }
 
 void W_Config::on_pbCloseLogFile_clicked()

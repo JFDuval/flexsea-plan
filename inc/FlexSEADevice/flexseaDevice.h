@@ -21,74 +21,82 @@
 	Biomechatronics research group <http://biomech.media.mit.edu/>
 	[Contributors]
 *****************************************************************************
-	[This file] w_execute.h: Execute View Window
+	[This file] FlexseaDevice: Interface class flexSEA device
 *****************************************************************************
 	[Change log] (Convention: YYYY-MM-DD | author | comment)
-	* 2016-09-09 | jfduval | Initial GPL-3.0 release
+	* 2016-12-07 | sbelanger | Initial GPL-3.0 release
 	*
 ****************************************************************************/
 
-#ifndef W_EXECUTE_H
-#define W_EXECUTE_H
+#ifndef FLEXSEADEVICE_H
+#define FLEXSEADEVICE_H
 
 //****************************************************************************
 // Include(s)
 //****************************************************************************
 
-#include <QWidget>
-#include "counter.h"
-#include "executeDevice.h"
-#include "define.h"
-
-//****************************************************************************
-// Namespace & Class Definition:
-//****************************************************************************
-
-namespace Ui {
-class W_Execute;
-}
-
-class W_Execute : public QWidget, public Counter<W_Execute>
-{
-	Q_OBJECT
-
-public:
-	//Constructor & Destructor:
-	explicit W_Execute(	QWidget *parent = 0,
-						ExecuteDevice *deviceLogPtr = nullptr,
-						DisplayMode mode = DisplayLiveData,
-						QList<ExecuteDevice> *deviceListPtr = nullptr);
-	~W_Execute();
-
-	//Function(s):
-	static void trackVarEx(uint8_t var, uint8_t *varToPlotPtr8s);
-
-
-public slots:
-	void refreshDisplay(void);
-	void refreshDisplayLog(int index, FlexseaDevice * devPtr);
-	void updateDisplayMode(DisplayMode mode);
-
-signals:
-	void windowClosed(void);
-
-private:
-	//Variables & Objects:
-	Ui::W_Execute *ui;
-
-	DisplayMode displayMode;
-
-	QList<ExecuteDevice> *deviceList;
-	ExecuteDevice *deviceLog;
-
-	//Function(s):
-	void initLive(void);
-	void initLog(void);
-	void display(ExecuteDevice *devicePtr, int index);
-};
+#include <QString>
+#include <QList>
 
 //****************************************************************************
 // Definition(s)
 //****************************************************************************
 
-#endif // W_EXECUTE_H
+enum DataSourceFile
+{
+	LiveDataFile,
+	LogDataFile
+};
+
+//****************************************************************************
+// Namespace & Class
+//****************************************************************************
+
+namespace Ui
+{
+	class FlexseaDevice;
+}
+
+struct TimeStamp
+{
+	QString date;
+	int32_t ms;
+};
+
+class FlexseaDevice
+{
+public:
+	explicit FlexseaDevice();
+	virtual QString getHeaderStr(void) = 0;
+	virtual QString getLastSerializedStr(void) = 0;
+	virtual void appendSerializedStr(QStringList *splitLine) = 0;
+	virtual void decodeLastLine(void) = 0;
+	virtual void decodeAllLine(void) = 0;
+	virtual void appendEmptyLine(void) = 0;
+	virtual QString getStatusStr(int index) = 0;
+	virtual void clear(void);
+
+	QString getIdentifier(void);
+
+	enum DataSourceFile dataSource;
+
+	QString shortFileName;
+	QString fileName;
+
+	int		logItem;
+
+	int		slaveIndex;
+	uint8_t slaveID;
+	QString slaveType;
+	QString slaveName;
+
+	int		experimentIndex;
+	QString experimentName;
+
+	int		frequency;
+
+	QList<struct TimeStamp> timeStamp;
+	int serializedLength;
+};
+
+#endif // FLEXSEADEVICE_H

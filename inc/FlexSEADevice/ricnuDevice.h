@@ -21,74 +21,84 @@
 	Biomechatronics research group <http://biomech.media.mit.edu/>
 	[Contributors]
 *****************************************************************************
-	[This file] w_execute.h: Execute View Window
+	[This file] RicnuDevice: Ricnu Device Data Class
 *****************************************************************************
 	[Change log] (Convention: YYYY-MM-DD | author | comment)
-	* 2016-09-09 | jfduval | Initial GPL-3.0 release
+	* 2016-12-08 | sbelanger | Initial GPL-3.0 release
 	*
 ****************************************************************************/
 
-#ifndef W_EXECUTE_H
-#define W_EXECUTE_H
+#ifndef RICNUDEVICE_H
+#define RICNUDEVICE_H
 
 //****************************************************************************
 // Include(s)
 //****************************************************************************
 
-#include <QWidget>
-#include "counter.h"
-#include "executeDevice.h"
-#include "define.h"
-
-//****************************************************************************
-// Namespace & Class Definition:
-//****************************************************************************
-
-namespace Ui {
-class W_Execute;
-}
-
-class W_Execute : public QWidget, public Counter<W_Execute>
-{
-	Q_OBJECT
-
-public:
-	//Constructor & Destructor:
-	explicit W_Execute(	QWidget *parent = 0,
-						ExecuteDevice *deviceLogPtr = nullptr,
-						DisplayMode mode = DisplayLiveData,
-						QList<ExecuteDevice> *deviceListPtr = nullptr);
-	~W_Execute();
-
-	//Function(s):
-	static void trackVarEx(uint8_t var, uint8_t *varToPlotPtr8s);
-
-
-public slots:
-	void refreshDisplay(void);
-	void refreshDisplayLog(int index, FlexseaDevice * devPtr);
-	void updateDisplayMode(DisplayMode mode);
-
-signals:
-	void windowClosed(void);
-
-private:
-	//Variables & Objects:
-	Ui::W_Execute *ui;
-
-	DisplayMode displayMode;
-
-	QList<ExecuteDevice> *deviceList;
-	ExecuteDevice *deviceLog;
-
-	//Function(s):
-	void initLive(void);
-	void initLog(void);
-	void display(ExecuteDevice *devicePtr, int index);
-};
+#include <QList>
+#include <QString>
+#include <flexsea_global_structs.h>
+#include "flexseaDevice.h"
 
 //****************************************************************************
 // Definition(s)
 //****************************************************************************
 
-#endif // W_EXECUTE_H
+//****************************************************************************
+// Namespace & Class
+//****************************************************************************
+
+namespace Ui
+{
+	class RicnuDevice;
+}
+
+struct ricnu_s_plan
+{
+	//Execute:
+	struct execute_s *ex;
+
+	//Extra sensors (Strain):
+	//uint16_t ext_strain[6];
+	struct strain_s *st;
+
+	//Decoded values (ext_strain only)
+	struct decoded_ricnu_s decoded;
+
+	int16_t gen_var[6];
+};
+
+class RicnuDevice : public FlexseaDevice
+{
+public:
+	explicit RicnuDevice(void);
+	explicit RicnuDevice(execute_s *exPtr, strain_s *stPtr);
+
+
+	// Interface implementation
+	QString getHeaderStr(void);
+	QString getLastSerializedStr(void);
+	void appendSerializedStr(QStringList *splitLine);
+	void decodeLastLine(void);
+	void decodeAllLine(void);
+	void clear(void);
+	void appendEmptyLine(void);
+	QString getStatusStr(int index);
+
+	void appendEmptyLineWithExAndStStruct(void);
+
+	QList<struct ricnu_s_plan*> riList;
+	static void decode(struct ricnu_s *riPtr);
+	static void decode(struct ricnu_s_plan *riPtr);
+
+private:
+	static QStringList header;
+
+};
+
+
+//****************************************************************************
+// Definition(s)
+//****************************************************************************
+
+#endif // RICNUDEVICE_H

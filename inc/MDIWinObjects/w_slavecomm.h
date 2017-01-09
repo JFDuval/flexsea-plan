@@ -39,16 +39,19 @@
 #include "counter.h"
 #include <QtWidgets/QCheckBox>
 #include <QtWidgets/QPushButton>
+#include <qcombobox.h>
+#include <qlabel.h>
 #include "flexsea_generic.h"
+#include "flexseaDevice.h"
 
 //****************************************************************************
 // Definition(s)
 //****************************************************************************
 
-#define MAX_SC_ITEMS			4
+#define MAX_SC_ITEMS            4
 #define MAX_SLAVES				10
-#define MASTER_TIMER			200 //Hz
-#define MAX_EXPERIMENTS			10
+#define MASTER_TIMER            200 //Hz
+#define MAX_EXPERIMENTS         10
 
 #define TIM_FREQ_TO_P(f)		(1000/f)	//f in Hz, return in ms
 
@@ -66,7 +69,8 @@ class W_SlaveComm : public QWidget, public Counter<W_SlaveComm>
 
 public:
 	//Constructor & Destructor:
-	explicit W_SlaveComm(QWidget *parent = 0);
+	explicit W_SlaveComm(QWidget *parent = 0,
+						 QList<FlexseaDevice*> *FlexSEADevListPtr = nullptr);
 	~W_SlaveComm();
 
 public slots:
@@ -120,9 +124,9 @@ signals:
 	//Other:
 	void refresh2DPlot(void);
 	void windowClosed(void);
-	void writeToLogFile(uint8_t item, uint8_t slaveIndex,
-						uint8_t expIndex, uint16_t refreshRate);
+	void writeToLogFile(FlexseaDevice *devicePtr, uint8_t item);
 	void openRecordingFile(uint8_t item, QString fileName);
+	void openRecordingFile(FlexseaDevice *devicePtr, uint8_t item);
 	void closeRecordingFile(uint8_t item);
 	void slaveReadWrite(uint numb, uint8_t *dataPacket, uint8_t r_w);
 
@@ -131,15 +135,28 @@ private:
 	Ui::W_SlaveComm *ui;
 	bool allComboBoxesPopulated;
 	//Store active connections:
+
+	QList<FlexseaDevice*> *devList;
+	QList<FlexseaDevice*> testBenchList;
+
+	FlexseaDevice *selectedDeviceList[MAX_SC_ITEMS];
+	QDateTime *myTime;
+	qint64 t_ms_initial[MAX_SC_ITEMS] = {0,0,0,0};
+
 	QMetaObject::Connection sc_connections[MAX_SC_ITEMS];
-	int active_slave[MAX_SC_ITEMS], active_slave_index[MAX_SC_ITEMS];
 	int selected_exp_index[MAX_SC_ITEMS];
 	int selected_refresh_index[MAX_SC_ITEMS], previous_refresh_index[MAX_SC_ITEMS];
 	QStringList var_list_refresh;
 	QList<int> refreshRate;
-	bool logThisItem[MAX_SC_ITEMS];
+	bool logThisItem[MAX_SC_ITEMS], previousLogThisItem[MAX_SC_ITEMS];
+
 	QPushButton **on_off_pb_ptr[MAX_SC_ITEMS];
 	QCheckBox **log_cb_ptr[MAX_SC_ITEMS];
+	QComboBox **comboBoxSlavePtr[MAX_SC_ITEMS];
+	QComboBox **comboBoxExpPtr[MAX_SC_ITEMS];
+	QComboBox **comboBoxRefreshPtr[MAX_SC_ITEMS];
+	QLabel **labelStatusPtr[MAX_SC_ITEMS];
+
 	QTimer *master_timer;
 	bool sc_comPortOpen;
 	//Will change this, but for now the payloads will be stored in:
@@ -153,20 +170,20 @@ private:
 	//Function(s):
 	void initSlaveCom(void);
 	void initTimers(void);
-	void initDisplayDataReceived(void);
 	void managePushButton(int idx, bool forceOff);
 	void manageLogStatus(uint8_t idx);
+	void logTimestamp(qint64 *t_ms, QString *t_text);
 
 	void sc_read_all(uint8_t item);
 	void sc_read_all_ricnu(uint8_t item);
 	void sc_ankle2dof(uint8_t item);
 	void sc_battery(uint8_t item);
 	void sc_testbench(uint8_t item);
-
+	void decodeAndLog(uint8_t item);
 	void configSlaveComm(int item);
 	void updateStatusBar(QString txt);
 	//Function pointers to timer signals:
-	void connectSCItem(int item, int sig_idx, int breakB4make);
+	void connectSCItem(int item, int sig_idx);
 };
 
 #endif // W_SLAVECOMM_H
