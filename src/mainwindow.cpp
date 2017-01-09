@@ -76,6 +76,7 @@ MainWindow::MainWindow(QWidget *parent) :
 	W_Strain::setMaxWindow(STRAIN_WINDOWS_MAX);
 	W_UserRW::setMaxWindow(USERRW_WINDOWS_MAX);
 	W_TestBench::setMaxWindow(TESTBENCH_WINDOWS_MAX);
+	W_CommTest::setMaxWindow(COMMTEST_WINDOWS_MAX);
 
 	W_Execute::setDescription("Execute");
 	W_Manage::setDescription("Manage - Barebone");
@@ -93,6 +94,7 @@ MainWindow::MainWindow(QWidget *parent) :
 	W_Strain::setDescription("6ch StrainAmp - Barebone");
 	W_UserRW::setDescription("User R/W");
 	W_TestBench::setDescription("Test Bench");
+	W_CommTest::setDescription("Communication Test");
 
 	//SerialDriver:
 	mySerialDriver = new SerialDriver;
@@ -786,6 +788,43 @@ void MainWindow::createViewTestBench(void)
 void MainWindow::closeViewTestBench(void)
 {
 	sendCloseWindowMsg(W_TestBench::getDescription());
+}
+
+//Creates a new Comm. Test window
+void MainWindow::createViewCommTest(void)
+{
+	int objectCount = W_CommTest::howManyInstance();
+
+	//Limited number of windows:
+	if(objectCount < W_CommTest::getMaxWindow())
+	{
+		myViewCommTest[objectCount] = new W_CommTest(this);
+		ui->mdiArea->addSubWindow(myViewCommTest[objectCount]);
+		myViewCommTest[objectCount]->show();
+
+		sendWindowCreatedMsg(W_CommTest::getDescription(), objectCount,
+							 W_CommTest::getMaxWindow() - 1);
+
+		//Link to MainWindow for the close signal:
+		connect(myViewCommTest[objectCount], SIGNAL(windowClosed()), \
+				this, SLOT(closeViewCommTest()));
+
+		//Link to SlaveComm to send commands:
+		connect(myViewCommTest[objectCount], SIGNAL(writeCommand(uint8_t,\
+				uint8_t*,uint8_t)), this, SIGNAL(connectorWriteCommand(uint8_t,\
+				uint8_t*, uint8_t)));
+	}
+
+	else
+	{
+		sendWindowCreatedFailedMsg(W_CommTest::getDescription(),
+								   W_CommTest::getMaxWindow());
+	}
+}
+
+void MainWindow::closeViewCommTest(void)
+{
+	sendCloseWindowMsg(W_CommTest::getDescription());
 }
 
 void MainWindow::sendWindowCreatedMsg(QString windowName, int index, int maxIndex)

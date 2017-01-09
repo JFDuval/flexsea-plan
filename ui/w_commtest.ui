@@ -1,0 +1,332 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>W_CommTest</class>
+ <widget class="QWidget" name="W_CommTest">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>414</width>
+    <height>211</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <layout class="QGridLayout" name="gridLayout">
+     <item row="0" column="0">
+      <widget class="QLabel" name="label">
+       <property name="maximumSize">
+        <size>
+         <width>16777215</width>
+         <height>20</height>
+        </size>
+       </property>
+       <property name="text">
+        <string>Active slave:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="1">
+      <widget class="QComboBox" name="comboBox_slave">
+       <property name="minimumSize">
+        <size>
+         <width>100</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>16777215</width>
+         <height>20</height>
+        </size>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="2">
+      <spacer name="horizontalSpacer">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <widget class="Line" name="line_2">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <layout class="QGridLayout" name="gridLayout_5">
+     <item row="1" column="3">
+      <widget class="QLabel" name="labelSentPackets">
+       <property name="minimumSize">
+        <size>
+         <width>100</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>100</width>
+         <height>16777215</height>
+        </size>
+       </property>
+       <property name="frameShape">
+        <enum>QFrame::Box</enum>
+       </property>
+       <property name="frameShadow">
+        <enum>QFrame::Raised</enum>
+       </property>
+       <property name="text">
+        <string>TextLabel</string>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="2">
+      <widget class="QLabel" name="label_5">
+       <property name="text">
+        <string>Good packets:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="2">
+      <widget class="QLabel" name="label_3">
+       <property name="text">
+        <string>Packets sent:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="2">
+      <widget class="QLabel" name="label_4">
+       <property name="text">
+        <string>Packets received:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="3">
+      <widget class="QLabel" name="labelGoodPackets">
+       <property name="minimumSize">
+        <size>
+         <width>100</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>100</width>
+         <height>16777215</height>
+        </size>
+       </property>
+       <property name="frameShape">
+        <enum>QFrame::Box</enum>
+       </property>
+       <property name="frameShadow">
+        <enum>QFrame::Raised</enum>
+       </property>
+       <property name="text">
+        <string>TextLabel</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="3">
+      <widget class="QLabel" name="labelReceivedPackets">
+       <property name="minimumSize">
+        <size>
+         <width>100</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>100</width>
+         <height>16777215</height>
+        </size>
+       </property>
+       <property name="frameShape">
+        <enum>QFrame::Box</enum>
+       </property>
+       <property name="frameShadow">
+        <enum>QFrame::Raised</enum>
+       </property>
+       <property name="text">
+        <string>TextLabel</string>
+       </property>
+      </widget>
+     </item>
+     <item row="4" column="2">
+      <widget class="QLabel" name="label_6">
+       <property name="text">
+        <string>Success rate (good/total):</string>
+       </property>
+      </widget>
+     </item>
+     <item row="4" column="3">
+      <widget class="QLabel" name="labelSuccess">
+       <property name="minimumSize">
+        <size>
+         <width>100</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>100</width>
+         <height>16777215</height>
+        </size>
+       </property>
+       <property name="frameShape">
+        <enum>QFrame::Box</enum>
+       </property>
+       <property name="frameShadow">
+        <enum>QFrame::Raised</enum>
+       </property>
+       <property name="text">
+        <string>TextLabel</string>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="0">
+      <widget class="QPushButton" name="pushButtonReset">
+       <property name="text">
+        <string>Reset Stats</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="0">
+      <widget class="QPushButton" name="pushButtonStartStop">
+       <property name="minimumSize">
+        <size>
+         <width>75</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>75</width>
+         <height>16777215</height>
+        </size>
+       </property>
+       <property name="text">
+        <string>Start test</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="1">
+      <widget class="QLineEdit" name="lineEdit">
+       <property name="minimumSize">
+        <size>
+         <width>75</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>75</width>
+         <height>16777215</height>
+        </size>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="0" colspan="3">
+      <widget class="QLabel" name="label_128">
+       <property name="minimumSize">
+        <size>
+         <width>60</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>16777215</width>
+         <height>16777215</height>
+        </size>
+       </property>
+       <property name="text">
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600; text-decoration: underline;&quot;&gt;Plan &amp;lt;&amp;gt; Device (USB):&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="3">
+      <spacer name="horizontalSpacer_2">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>5</width>
+         <height>5</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item row="1" column="0">
+      <widget class="QLabel" name="label_2">
+       <property name="text">
+        <string>Frequency:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="5" column="2">
+      <widget class="QLabel" name="label_7">
+       <property name="text">
+        <string>Loss rate (missing/sent):</string>
+       </property>
+      </widget>
+     </item>
+     <item row="5" column="3">
+      <widget class="QLabel" name="labelLossRate">
+       <property name="minimumSize">
+        <size>
+         <width>100</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>100</width>
+         <height>16777215</height>
+        </size>
+       </property>
+       <property name="frameShape">
+        <enum>QFrame::Box</enum>
+       </property>
+       <property name="frameShadow">
+        <enum>QFrame::Raised</enum>
+       </property>
+       <property name="text">
+        <string>TextLabel</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <spacer name="verticalSpacer">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>5</width>
+       <height>5</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

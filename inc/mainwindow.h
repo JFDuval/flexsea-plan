@@ -53,6 +53,7 @@
 #include "w_gossip.h"
 #include "w_converter.h"
 #include "w_testbench.h"
+#include "w_commtest.h"
 #include "main.h"
 
 namespace Ui {
@@ -75,7 +76,8 @@ class MainWindow;
 #define GOSSIP_WINDOWS_MAX			2
 #define STRAIN_WINDOWS_MAX			2
 #define USERRW_WINDOWS_MAX			1
-#define TESTBENCH_WINDOWS_MAX			1
+#define TESTBENCH_WINDOWS_MAX		1
+#define COMMTEST_WINDOWS_MAX		1
 
 class MainWindow : public QMainWindow
 {
@@ -105,6 +107,7 @@ private:
 	W_Strain *myViewStrain[STRAIN_WINDOWS_MAX];
 	W_UserRW *myUserRW[USERRW_WINDOWS_MAX];
 	W_TestBench *myViewTestBench[TESTBENCH_WINDOWS_MAX];
+	W_CommTest *myViewCommTest[COMMTEST_WINDOWS_MAX];
 
 	// Objects
 	SerialDriver *mySerialDriver;
@@ -138,6 +141,7 @@ public slots:
 	void createLogKeyPad(void);
 	void createUserRW(void);
 	void createViewTestBench(void);
+	void createViewCommTest(void);
 
 	//MDI Windows (closed):
 	void closeViewExecute(void);
@@ -156,6 +160,7 @@ public slots:
 	void closeLogKeyPad(void);
 	void closeUserRW(void);
 	void closeViewTestBench(void);
+	void closeViewCommTest(void);
 
 	//Messages Status Bar + debug
 	void sendWindowCreatedMsg(QString windowName, int index, int maxIndex);
