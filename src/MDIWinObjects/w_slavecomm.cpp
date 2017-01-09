@@ -241,7 +241,7 @@ void W_SlaveComm::initSlaveCom(void)
 		previous_refresh_index[item] = selected_refresh_index[item];
 
 		//Connect default slots:
-		connectSCItem(item, 2);
+		connectSCItem(item, 3);
 	}
 
 	//ComboBoxes are all set:
