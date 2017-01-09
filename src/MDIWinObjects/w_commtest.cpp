@@ -147,8 +147,8 @@ void W_CommTest::refreshDisplay(void)
 	}
 	else
 	{
-		successRate = goodPackets/receivedPackets;
-		lossRate = (sentPackets-receivedPackets) / sentPackets;
+		successRate = (float)goodPackets/receivedPackets;
+		lossRate = (float)(sentPackets-receivedPackets) / sentPackets;
 	}
 
 	ui->labelSentPackets->setText(QString::number(sentPackets));
