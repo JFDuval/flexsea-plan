@@ -134,9 +134,11 @@ void W_CommTest::readCommTest(void)
 {
 	uint8_t info[2] = {PORT_USB, PORT_USB};
 	uint16_t numb = 0;
+	static uint8_t packetIndex = 0;
+	packetIndex++;
 
 	//Prepare and send command:
-	tx_cmd_tools_comm_test_r(TX_N_DEFAULT, 1, 20);
+	tx_cmd_tools_comm_test_r(TX_N_DEFAULT, 1, 20, packetIndex);
 	pack(P_AND_S_DEFAULT, active_slave, info, &numb, comm_str_usb);
 	emit writeCommand(numb, comm_str_usb, READ);
 
