@@ -564,7 +564,7 @@ void W_SlaveComm::sc_ankle2dof(uint8_t item)
 	emit slaveReadWrite(numb, comm_str_usb, READ);
 
 	//***ToDo: update for multiple slaves!***
-	//TODO Not sure if I support taht properly through the new flexseaDevice
+	//TODO Not sure if I support that properly through the new flexseaDevice
 	if(sel_slave == 0)
 	{
 		sel_slave = 1;
