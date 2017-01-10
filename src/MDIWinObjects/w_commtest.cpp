@@ -260,6 +260,8 @@ void W_CommTest::refreshDisplay(void)
 	ui->label_rrSend->setText(refreshTxt);
 	refreshTxt = QString::number(measuredRefreshReceive, 'f', 2) + " Hz";
 	ui->label_rrReceive->setText(refreshTxt);
+
+	ui->label_packetOffset->setText(QString::number(packetOffset));
 }
 
 void W_CommTest::on_comboBox_slave_currentIndexChanged(int index)
