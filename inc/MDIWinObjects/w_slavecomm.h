@@ -136,9 +136,15 @@ private:
 	bool allComboBoxesPopulated;
 	//Store active connections:
 
-	QList<FlexseaDevice*> *devList;
-	QList<FlexseaDevice*> testBenchList;
+	QList<FlexseaDevice*> *readAllDevList;
+	QList<FlexseaDevice*> *ricnuDevList;
+	QList<FlexseaDevice*> *2DofAnkleDevList;
+	QList<FlexseaDevice*> *testBenchDevList;
+	QList<FlexseaDevice*> *batteryDevList;
 
+	FlexseaDevice *selectedDeviceList[MAX_SC_ITEMS];
+	FlexseaDevice *selectedDeviceList[MAX_SC_ITEMS];
+	FlexseaDevice *selectedDeviceList[MAX_SC_ITEMS];
 	FlexseaDevice *selectedDeviceList[MAX_SC_ITEMS];
 	QDateTime *myTime;
 	qint64 t_ms_initial[MAX_SC_ITEMS] = {0,0,0,0};

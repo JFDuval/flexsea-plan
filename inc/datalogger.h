@@ -70,7 +70,7 @@ public:
 						GossipDevice *gossipInitPtr = nullptr,
 						BatteryDevice *batteryInitPtr = nullptr,
 						StrainDevice *strainInitPtr = nullptr,
-						RicnuDevice *ricnuInitPtr = nullptr);
+						RicnuProject *ricnuInitPtr = nullptr);
 
 public slots:
 	void openRecordingFile(FlexseaDevice *devicePtr, uint8_t item);
@@ -92,7 +92,7 @@ private:
 	GossipDevice *gossipDevPtr;
 	BatteryDevice *batteryDevPtr;
 	StrainDevice *strainDevPtr;
-	RicnuDevice *ricnuDevPtr;
+	RicnuProject *ricnuDevPtr;
 
 
 

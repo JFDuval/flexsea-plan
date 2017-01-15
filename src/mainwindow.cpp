@@ -205,7 +205,7 @@ void MainWindow::initFlexSeaDeviceObject(void)
 	strainDevList.last().slaveIndex = 10;
 	strainDevList.last().slaveID = FLEXSEA_STRAIN_1;
 
-	ricnuDevList.append(RicnuDevice(&exec1, &strain1));
+	ricnuDevList.append(RicnuProject(&exec1, &strain1));
 	flexseaDevicePtrlist.append(&ricnuDevList.last());
 	ricnuDevList.last().slaveName = "RIC/NU 1";
 	ricnuDevList.last().slaveIndex = 11;

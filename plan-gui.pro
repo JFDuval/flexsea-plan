@@ -144,7 +144,6 @@ HEADERS  += inc/main.h \
     inc/FlexSEADevice/batteryDevice.h \
     inc/FlexSEADevice/gossipDevice.h \
     inc/FlexSEADevice/manageDevice.h \
-    inc/FlexSEADevice/ricnuDevice.h \
     inc/FlexSEADevice/strainDevice.h \
     flexsea-user/inc/flexsea_user_structs.h \
     flexsea-user/inc/user-ex.h \
@@ -158,7 +157,8 @@ HEADERS  += inc/main.h \
     flexsea-user/RICNU_Knee_v1/inc/user-mn-RICNU_Knee_v1.h \
     inc/MDIWinObjects/w_commtest.h \
     inc/MDIWinObjects/w_testbench.h \
-    flexsea-system/inc/flexsea_cmd_tools.h
+    flexsea-system/inc/flexsea_cmd_tools.h \
+    inc/FlexSEADevice/ricnuDevice.h
 
 FORMS    += ui/mainwindow.ui \
 	ui/w_execute.ui \

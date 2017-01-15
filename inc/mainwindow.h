@@ -55,7 +55,6 @@
 #include "flexseaDevice.h"
 #include "w_testbench.h"
 #include "w_commtest.h"
-#include "manageDevice.h"
 
 #include "main.h"
 
@@ -104,7 +103,7 @@ private:
 	QList<GossipDevice>	gossipDevList;
 	QList<BatteryDevice> batteryDevList;
 	QList<StrainDevice>	strainDevList;
-	QList<RicnuDevice> ricnuDevList;
+	QList<RicnuProject> ricnuDevList;
 
 	QList<FlexseaDevice*> flexseaDevicePtrlist;
 
@@ -114,7 +113,7 @@ private:
 	GossipDevice gossipLog = GossipDevice();
 	BatteryDevice batteryLog = BatteryDevice();
 	StrainDevice strainLog = StrainDevice();
-	RicnuDevice ricnuLog = RicnuDevice();
+	RicnuProject ricnuLog = RicnuProject();
 
 
 	// Sub-Windows

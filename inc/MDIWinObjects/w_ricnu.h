@@ -56,9 +56,9 @@ class W_Ricnu : public QWidget, public Counter<W_Ricnu>
 public:
 	//Constructor & Destructor:
 	explicit W_Ricnu(QWidget *parent = 0,
-					 RicnuDevice *deviceLogPtr = nullptr,
+					 RicnuProject *deviceLogPtr = nullptr,
 					 DisplayMode mode = DisplayLiveData,
-					 QList<RicnuDevice> *deviceListPtr = nullptr);
+					 QList<RicnuProject> *deviceListPtr = nullptr);
 	~W_Ricnu();
 
 public slots:
@@ -75,13 +75,13 @@ private:
 
 	DisplayMode displayMode;
 
-	QList<RicnuDevice> * deviceList;
-	RicnuDevice *deviceLog;
+	QList<RicnuProject> * deviceList;
+	RicnuProject *deviceLog;
 
 	//Function(s):
 	void initLive(void);
 	void initLog(void);
-	void display(RicnuDevice *devicePtr, int index);
+	void display(RicnuProject *devicePtr, int index);
 };
 
 //****************************************************************************

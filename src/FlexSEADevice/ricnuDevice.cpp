@@ -42,14 +42,14 @@
 // Constructor & Destructor:
 //****************************************************************************
 
-RicnuDevice::RicnuDevice(void): FlexseaDevice()
+RicnuProject::RicnuProject(void): FlexseaDevice()
 {
 	this->dataSource = LogDataFile;
 	serializedLength = header.length();
 	slaveType = "ricnu";
 }
 
-RicnuDevice::RicnuDevice(execute_s *exPtr, strain_s *stPtr): FlexseaDevice()
+RicnuProject::RicnuProject(execute_s *exPtr, strain_s *stPtr): FlexseaDevice()
 {
 	this->dataSource = LiveDataFile;
 	timeStamp.append(TimeStamp());
@@ -64,12 +64,12 @@ RicnuDevice::RicnuDevice(execute_s *exPtr, strain_s *stPtr): FlexseaDevice()
 // Public function(s):
 //****************************************************************************
 
-QString RicnuDevice::getHeaderStr(void)
+QString RicnuProject::getHeaderStr(void)
 {
 	return header.join(',');
 }
 
-QStringList RicnuDevice::header = QStringList()
+QStringList RicnuProject::header = QStringList()
 								<< "Timestamp"
 								<< "Timestamp (ms)"
 								<< "accel.x"
@@ -88,7 +88,7 @@ QStringList RicnuDevice::header = QStringList()
 								<< "strain5"
 								<< "strain6";
 
-QString RicnuDevice::getLastSerializedStr(void)
+QString RicnuProject::getLastSerializedStr(void)
 {
 	QString str;
 	QTextStream(&str) <<	timeStamp.last().date						<< ',' << \
@@ -111,7 +111,7 @@ QString RicnuDevice::getLastSerializedStr(void)
 	return str;
 }
 
-void RicnuDevice::appendSerializedStr(QStringList *splitLine)
+void RicnuProject::appendSerializedStr(QStringList *splitLine)
 {
 	//Check if data line contain the number of data expected
 	if(splitLine->length() >= serializedLength)
@@ -140,20 +140,20 @@ void RicnuDevice::appendSerializedStr(QStringList *splitLine)
 	}
 }
 
-void RicnuDevice::clear(void)
+void RicnuProject::clear(void)
 {
 	FlexseaDevice::clear();
 	riList.clear();
 	timeStamp.clear();
 }
 
-void RicnuDevice::appendEmptyLine(void)
+void RicnuProject::appendEmptyLine(void)
 {
 	timeStamp.append(TimeStamp());
 	riList.append(new ricnu_s_plan());
 }
 
-void RicnuDevice::appendEmptyLineWithExAndStStruct(void)
+void RicnuProject::appendEmptyLineWithExAndStStruct(void)
 {
 	timeStamp.append(TimeStamp());
 	riList.append(new ricnu_s_plan());
@@ -161,13 +161,13 @@ void RicnuDevice::appendEmptyLineWithExAndStStruct(void)
 	riList.last()->st = new strain_s();
 }
 
-void RicnuDevice::decodeLastLine(void)
+void RicnuProject::decodeLastLine(void)
 {
 	if(dataSource == LiveDataFile){StrainDevice::decompressRawBytes(riList.last()->st);}
 	decode(riList.last());
 }
 
-void RicnuDevice::decodeAllLine(void)
+void RicnuProject::decodeAllLine(void)
 {
 	for(int i = 0; i < riList.size(); ++i)
 	{
@@ -176,19 +176,19 @@ void RicnuDevice::decodeAllLine(void)
 	}
 }
 
-void RicnuDevice::decode(struct ricnu_s *riPtr)
+void RicnuProject::decode(struct ricnu_s *riPtr)
 {
 	ExecuteDevice::decode(&riPtr->ex);
 	StrainDevice::decode(&riPtr->st);
 }
 
-void RicnuDevice::decode(struct ricnu_s_plan *riPtr)
+void RicnuProject::decode(struct ricnu_s_plan *riPtr)
 {
 	ExecuteDevice::decode(riPtr->ex);
 	StrainDevice::decode(riPtr->st);
 }
 
-QString RicnuDevice::getStatusStr(int index)
+QString RicnuProject::getStatusStr(int index)
 {
 	return QString("No decoding available for this board");
 }

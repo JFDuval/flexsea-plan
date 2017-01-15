@@ -60,7 +60,7 @@ DataLogger::DataLogger(QWidget *parent,
 					   GossipDevice *gossipInitPtr,
 					   BatteryDevice *batteryInitPtr,
 					   StrainDevice *strainInitPtr,
-					   RicnuDevice *ricnuInitPtr) :
+					   RicnuProject *ricnuInitPtr) :
 	QWidget(parent)
 {
 	executeDevPtr = executeInitPtr;

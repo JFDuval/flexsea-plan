@@ -50,7 +50,7 @@
 
 namespace Ui
 {
-	class RicnuDevice;
+	class RicnuProject;
 }
 
 struct ricnu_s_plan
@@ -68,11 +68,11 @@ struct ricnu_s_plan
 	int16_t gen_var[6];
 };
 
-class RicnuDevice : public FlexseaDevice
+class RicnuProject : public FlexseaDevice
 {
 public:
-	explicit RicnuDevice(void);
-	explicit RicnuDevice(execute_s *exPtr, strain_s *stPtr);
+	explicit RicnuProject(void);
+	explicit RicnuProject(execute_s *exPtr, strain_s *stPtr);
 
 
 	// Interface implementation

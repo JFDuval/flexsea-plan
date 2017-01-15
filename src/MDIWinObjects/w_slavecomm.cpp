@@ -55,11 +55,11 @@ W_SlaveComm::W_SlaveComm(QWidget *parent,
 	setWindowTitle(this->getDescription());
 	setWindowIcon(QIcon(":icons/d_logo_small.png"));
 
-	devList = flexSEADevListPtr;
+	readAllDevList = flexSEADevListPtr;
 	//TODO Probably not the best way to do this
-	testBenchList.append((*devList)[0]);
-	testBenchList.append((*devList)[1]);
-	testBenchList.append((*devList)[9]);
+	testBenchList.append((*readAllDevList)[0]);
+	testBenchList.append((*readAllDevList)[1]);
+	testBenchList.append((*readAllDevList)[9]);
 
 	initSlaveCom();
 	initTimers();
@@ -211,9 +211,9 @@ void W_SlaveComm::initSlaveCom(void)
 
 		//Populates Slave list:
 		//=====================
-		for(int i = 0; i < (*devList).length(); i++)
+		for(int i = 0; i < (*readAllDevList).length(); i++)
 		{
-			(*comboBoxSlavePtr[item])->addItem((*devList)[i]->slaveName);
+			(*comboBoxSlavePtr[item])->addItem((*readAllDevList)[i]->slaveName);
 		}
 
 		//Receive indicators:
@@ -442,7 +442,7 @@ void W_SlaveComm::configSlaveComm(int item)
 
 
 		// Fill the flexSEADevice Object metadata properly
-		selectedDeviceList[item] = (*devList)[slaveindex];
+		selectedDeviceList[item] = (*readAllDevList)[slaveindex];
 
 		QString name;
 
@@ -575,7 +575,7 @@ void W_SlaveComm::sc_ankle2dof(uint8_t item)
 	}
 
 	//2) Decode values
-	(*devList)[sel_slave]->decodeLastLine();
+	(*readAllDevList)[sel_slave]->decodeLastLine();
 	//(Uncertain about timings, probably delayed by 1 sample)
 
 	//3) Log
