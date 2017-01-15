@@ -43,6 +43,12 @@
 #include <qlabel.h>
 #include "flexsea_generic.h"
 #include "flexseaDevice.h"
+#include "executeDevice.h"
+#include "manageDevice.h"
+#include "gossipDevice.h"
+#include "batteryDevice.h"
+#include "strainDevice.h"
+#include "ricnuProject.h"
 
 //****************************************************************************
 // Definition(s)
@@ -70,7 +76,12 @@ class W_SlaveComm : public QWidget, public Counter<W_SlaveComm>
 public:
 	//Constructor & Destructor:
 	explicit W_SlaveComm(QWidget *parent = 0,
-						 QList<FlexseaDevice*> *FlexSEADevListPtr = nullptr);
+							QList<FlexseaDevice*> *executeDevListInit = nullptr,
+							QList<FlexseaDevice*> *manageDevListInit = nullptr,
+							QList<FlexseaDevice*> *gossipDevListInit = nullptr,
+							QList<FlexseaDevice*> *batteryDevListInit = nullptr,
+							QList<FlexseaDevice*> *strainDevListInit = nullptr,
+							QList<FlexseaDevice*> *ricnuDevListInit = nullptr);
 	~W_SlaveComm();
 
 public slots:
@@ -136,21 +147,27 @@ private:
 	bool allComboBoxesPopulated;
 	//Store active connections:
 
-	QList<FlexseaDevice*> *readAllDevList;
-	QList<FlexseaDevice*> *ricnuDevList;
-	QList<FlexseaDevice*> *2DofAnkleDevList;
-	QList<FlexseaDevice*> *testBenchDevList;
+	QList<FlexseaDevice*> *executeDevList;
+	QList<FlexseaDevice*> *manageDevList;
+	QList<FlexseaDevice*> *gossipDevList;
 	QList<FlexseaDevice*> *batteryDevList;
+	QList<FlexseaDevice*> *strainDevList;
+	QList<FlexseaDevice*> *ricnuDevList;
 
-	FlexseaDevice *selectedDeviceList[MAX_SC_ITEMS];
-	FlexseaDevice *selectedDeviceList[MAX_SC_ITEMS];
-	FlexseaDevice *selectedDeviceList[MAX_SC_ITEMS];
-	FlexseaDevice *selectedDeviceList[MAX_SC_ITEMS];
+	QList<FlexseaDevice*> readAllTargetList;
+	QList<FlexseaDevice*> ricnuTargetList;
+	QList<FlexseaDevice*> ankle2DofTargetList;
+	QList<FlexseaDevice*> testBenchTargetList;
+	QList<FlexseaDevice*> batteryTargetList;
+
+	FlexseaDevice *targetDeviceList[MAX_SC_ITEMS];
+	FlexseaDevice *logDeviceList[MAX_SC_ITEMS];
+
 	QDateTime *myTime;
 	qint64 t_ms_initial[MAX_SC_ITEMS] = {0,0,0,0};
 
 	QMetaObject::Connection sc_connections[MAX_SC_ITEMS];
-	int selected_exp_index[MAX_SC_ITEMS];
+	int selected_exp_index[MAX_SC_ITEMS], previous_exp_index[MAX_SC_ITEMS];
 	int selected_refresh_index[MAX_SC_ITEMS], previous_refresh_index[MAX_SC_ITEMS];
 	QStringList var_list_refresh;
 	QList<int> refreshRate;
@@ -174,6 +191,7 @@ private:
 	QString defaultCmdLineText;
 
 	//Function(s):
+	void initExperimentList(void);
 	void initSlaveCom(void);
 	void initTimers(void);
 	void managePushButton(int idx, bool forceOff);
@@ -185,7 +203,7 @@ private:
 	void sc_ankle2dof(uint8_t item);
 	void sc_battery(uint8_t item);
 	void sc_testbench(uint8_t item);
-	void decodeAndLog(uint8_t item);
+	void decodeAndLog(uint8_t item, FlexseaDevice *flexPtr);
 	void configSlaveComm(int item);
 	void updateStatusBar(QString txt);
 	//Function pointers to timer signals:

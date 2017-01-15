@@ -38,7 +38,7 @@
 #include <QWidget>
 #include "counter.h"
 #include "flexsea_generic.h"
-#include "ricnuDevice.h"
+#include "ricnuProject.h"
 #include "define.h"
 
 //****************************************************************************

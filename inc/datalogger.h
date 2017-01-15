@@ -49,7 +49,7 @@
 #include "gossipDevice.h"
 #include "batteryDevice.h"
 #include "strainDevice.h"
-#include "ricnuDevice.h"
+#include "ricnuProject.h"
 
 //****************************************************************************
 // Namespace & Class

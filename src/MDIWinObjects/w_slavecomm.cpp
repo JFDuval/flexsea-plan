@@ -46,7 +46,12 @@
 //****************************************************************************
 
 W_SlaveComm::W_SlaveComm(QWidget *parent,
-						 QList<FlexseaDevice*> *flexSEADevListPtr) :
+						 QList<FlexseaDevice*> *executeDevListInit,
+						 QList<FlexseaDevice*>  *manageDevListInit,
+						 QList<FlexseaDevice*>  *gossipDevListInit,
+						 QList<FlexseaDevice*> *batteryDevListInit,
+						 QList<FlexseaDevice*>  *strainDevListInit,
+						 QList<FlexseaDevice*>  *ricnuDevListInit) :
 	QWidget(parent),
 	ui(new Ui::W_SlaveComm)
 {
@@ -55,11 +60,14 @@ W_SlaveComm::W_SlaveComm(QWidget *parent,
 	setWindowTitle(this->getDescription());
 	setWindowIcon(QIcon(":icons/d_logo_small.png"));
 
-	readAllDevList = flexSEADevListPtr;
-	//TODO Probably not the best way to do this
-	testBenchList.append((*readAllDevList)[0]);
-	testBenchList.append((*readAllDevList)[1]);
-	testBenchList.append((*readAllDevList)[9]);
+	executeDevList = executeDevListInit;
+	manageDevList = manageDevListInit;
+	gossipDevList = gossipDevListInit;
+	batteryDevList = batteryDevListInit;
+	strainDevList = strainDevListInit;
+	ricnuDevList = ricnuDevListInit;
+
+	initExperimentList();
 
 	initSlaveCom();
 	initTimers();
@@ -129,6 +137,26 @@ void W_SlaveComm::externalSlaveReadWrite(uint8_t numb, uint8_t *tx_data, uint8_t
 //****************************************************************************
 // Private function(s):
 //****************************************************************************
+
+void W_SlaveComm::initExperimentList(void)
+{
+	readAllTargetList.append(*executeDevList);
+	readAllTargetList.append(*manageDevList);
+	readAllTargetList.append(*gossipDevList);
+	readAllTargetList.append(*batteryDevList);
+	readAllTargetList.append(*strainDevList);
+
+	ricnuTargetList.append(*executeDevList);
+	ricnuTargetList.append(*manageDevList);
+
+	ankle2DofTargetList.append(*executeDevList);
+	ankle2DofTargetList.append(*manageDevList);
+
+	testBenchTargetList.append(*executeDevList);
+	testBenchTargetList.append(*manageDevList);
+
+	batteryTargetList.append(*batteryDevList);
+}
 
 void W_SlaveComm::initSlaveCom(void)
 {
@@ -211,9 +239,9 @@ void W_SlaveComm::initSlaveCom(void)
 
 		//Populates Slave list:
 		//=====================
-		for(int i = 0; i < (*readAllDevList).length(); i++)
+		for(int i = 0; i < readAllTargetList.length(); i++)
 		{
-			(*comboBoxSlavePtr[item])->addItem((*readAllDevList)[i]->slaveName);
+			(*comboBoxSlavePtr[item])->addItem(readAllTargetList[i]->slaveName);
 		}
 
 		//Receive indicators:
@@ -313,7 +341,7 @@ void W_SlaveComm::manageLogStatus(uint8_t item)
 	if((*log_cb_ptr[item])->isChecked() &&
 		(*on_off_pb_ptr[item])->isChecked())
 	{
-		emit openRecordingFile(selectedDeviceList[item] ,item);
+		emit openRecordingFile(targetDeviceList[item] ,item);
 
 		logThisItem[item] = true;
 
@@ -432,8 +460,13 @@ void W_SlaveComm::configSlaveComm(int item)
 {
 	QString msg = "", msg_ref = "";
 
+
+
 	if(allComboBoxesPopulated == true)
 	{
+		// Stop the timer to void issue.
+		master_timer->stop();
+
 		int slaveindex = (*comboBoxSlavePtr[item])->currentIndex();
 		//Refresh all fields:
 
@@ -441,25 +474,74 @@ void W_SlaveComm::configSlaveComm(int item)
 		selected_refresh_index[item] = (*comboBoxRefreshPtr[item])->currentIndex();
 
 
+		if(previous_refresh_index[item] != selected_refresh_index[item])
+		{
+			(*comboBoxSlavePtr[item])->clear();
+
+			switch(selected_exp_index[item])
+			{
+				case 0: //Read All (Barebone)
+					for(int i = 0; i < readAllTargetList.length(); i++)
+					{
+						(*comboBoxSlavePtr[item])->addItem(readAllTargetList[i]->slaveName);
+					}
+					break;
+				case 1: //In Control
+					(*comboBoxSlavePtr[item])->addItem("Not Programmed");
+					qDebug() << "Not programmed!";
+					break;
+				case 2: //RIC/NU Knee
+					for(int i = 0; i < ricnuTargetList.length(); i++)
+					{
+						(*comboBoxSlavePtr[item])->addItem(ricnuTargetList[i]->slaveName);
+					}
+					break;
+				case 3: //CSEA Knee
+					(*comboBoxSlavePtr[item])->addItem("Not Programmed");
+					qDebug() << "Not programmed!";
+					break;
+				case 4: //2DOF Ankle
+					for(int i = 0; i < ankle2DofTargetList.length(); i++)
+					{
+						(*comboBoxSlavePtr[item])->addItem(ankle2DofTargetList[i]->slaveName);
+					}
+					break;
+				case 5:	//Battery Board
+					for(int i = 0; i < batteryTargetList.length(); i++)
+					{
+						(*comboBoxSlavePtr[item])->addItem(batteryTargetList[i]->slaveName);
+					}
+					break;
+				case 6:	//Test Bench
+					for(int i = 0; i < testBenchTargetList.length(); i++)
+					{
+						(*comboBoxSlavePtr[item])->addItem(testBenchTargetList[i]->slaveName);
+					}
+					break;
+				default:
+					break;
+			}
+		}
+
 		// Fill the flexSEADevice Object metadata properly
-		selectedDeviceList[item] = (*readAllDevList)[slaveindex];
+		//targetDeviceList[item] = (*readAllDevList)[slaveindex];
 
 		QString name;
 
-		selectedDeviceList[item]->experimentIndex = selected_exp_index[item];
+		targetDeviceList[item]->experimentIndex = selected_exp_index[item];
 		FlexSEA_Generic::getExpName(selected_exp_index[item], &name);
-		selectedDeviceList[item]->experimentName = name;
+		targetDeviceList[item]->experimentName = name;
 
-		selectedDeviceList[item]->frequency =
+		targetDeviceList[item]->frequency =
 				uint16_t(refreshRate[selected_refresh_index[item]]);
 
-		selectedDeviceList[item]->shortFileName =
-				selectedDeviceList[item]->slaveName + "_" +
-				selectedDeviceList[item]->experimentName + "_" +
+		targetDeviceList[item]->shortFileName =
+				targetDeviceList[item]->slaveName + "_" +
+				targetDeviceList[item]->experimentName + "_" +
 				var_list_refresh[selected_refresh_index[item]] +
 				".csv";
 
-		selectedDeviceList[item]->logItem = item;
+		targetDeviceList[item]->logItem = item;
 
 
 		//Now we connect a time slot to that stream command:
@@ -485,7 +567,7 @@ void W_SlaveComm::configSlaveComm(int item)
 
 		//Update status message:
 		msg = "Updated #" + QString::number(item+1) + ": (" \
-				+ QString::number(slaveindex) + ", " \
+				+ "?" + ", " \
 				+ QString::number(selected_exp_index[item]) + ", " \
 				+ QString::number(selected_refresh_index[item]) + "). ";
 
@@ -502,6 +584,11 @@ void W_SlaveComm::configSlaveComm(int item)
 
 		updateStatusBar(msg + msg_ref);
 		previous_refresh_index[item] = selected_refresh_index[item];
+		previous_exp_index[item] = selected_exp_index[item];
+
+
+		// Restart the master timer
+		master_timer->start(TIM_FREQ_TO_P(MASTER_TIMER));
 	}
 }
 
@@ -515,11 +602,11 @@ void W_SlaveComm::sc_read_all(uint8_t item)
 
 	//1) Stream
 	tx_cmd_data_read_all_r(TX_N_DEFAULT);
-	pack(P_AND_S_DEFAULT, selectedDeviceList[item]->slaveID
+	pack(P_AND_S_DEFAULT, targetDeviceList[item]->slaveID
 		 , info, &numb, comm_str_usb);
 	emit slaveReadWrite(numb, comm_str_usb, READ);
 
-	decodeAndLog(item);
+	decodeAndLog(item, targetDeviceList[item]);
 }
 
 //Argument is the item line (0-3)
@@ -539,11 +626,11 @@ void W_SlaveComm::sc_read_all_ricnu(uint8_t item)
 	//qDebug() << "Reading offset " << offset;
 
 	tx_cmd_ricnu_r(TX_N_DEFAULT, offset);
-	pack(P_AND_S_DEFAULT, selectedDeviceList[item]->slaveID
+	pack(P_AND_S_DEFAULT, targetDeviceList[item]->slaveID
 		 , info, &numb, comm_str_usb);
 	emit slaveReadWrite(numb, comm_str_usb, READ);
 
-	decodeAndLog(item);
+	decodeAndLog(item, (*ricnuDevList)[0]);
 }
 
 //Argument is the item line (0-3)
@@ -559,7 +646,7 @@ void W_SlaveComm::sc_ankle2dof(uint8_t item)
 
 	//1) Stream
 	tx_cmd_ankle2dof_r(TX_N_DEFAULT, sel_slave, 0, 0, 0);
-	pack(P_AND_S_DEFAULT, selectedDeviceList[item]->slaveID
+	pack(P_AND_S_DEFAULT, targetDeviceList[item]->slaveID
 		 , info, &numb, comm_str_usb);
 	emit slaveReadWrite(numb, comm_str_usb, READ);
 
@@ -573,30 +660,8 @@ void W_SlaveComm::sc_ankle2dof(uint8_t item)
 	{
 		sel_slave = 0;
 	}
-
-	//2) Decode values
-	(*readAllDevList)[sel_slave]->decodeLastLine();
-	//(Uncertain about timings, probably delayed by 1 sample)
-
-	//3) Log
-	if(logThisItem[item] == true)
-	{
-		if(previousLogThisItem[item] == false)
-		{
-			logTimestamp(&t_ms, &t_text);
-			t_ms_initial[item] = t_ms;
-		}
-
-		//Timestamps:
-		logTimestamp(&t_ms, &t_text);
-		t_ms -= t_ms_initial[item];
-
-		selectedDeviceList[item]->timeStamp.last().date = t_text;
-		selectedDeviceList[item]->timeStamp.last().ms = t_ms;
-		emit writeToLogFile(selectedDeviceList[item], item);
-	}
-
-	previousLogThisItem[item] = logThisItem[item];
+	//TODO Ankle2DOF is not logging
+	// decodeAndLog(item, ankle2DofDevList[0]);
 }
 
 //Argument is the item line (0-3)
@@ -608,12 +673,12 @@ void W_SlaveComm::sc_battery(uint8_t item)
 
 	//1) Stream
 	tx_cmd_exp_batt_r(TX_N_DEFAULT);
-	pack(P_AND_S_DEFAULT, selectedDeviceList[item]->slaveID
+	pack(P_AND_S_DEFAULT, targetDeviceList[item]->slaveID
 		 , info, &numb, comm_str_usb);
 	emit slaveReadWrite(numb, comm_str_usb, READ);
 
 	//2) Decode values
-	selectedDeviceList[item]->decodeLastLine();
+	targetDeviceList[item]->decodeLastLine();
 
 	//3) Log
 	/*
@@ -637,7 +702,7 @@ void W_SlaveComm::sc_testbench(uint8_t item)
 
 	//1) Stream
 	tx_cmd_motortb_r(TX_N_DEFAULT, index, 0, 0, 0);
-	pack(P_AND_S_DEFAULT, selectedDeviceList[item]->slaveID
+	pack(P_AND_S_DEFAULT, targetDeviceList[item]->slaveID
 		 , info, &numb, comm_str_usb);
 	emit slaveReadWrite(numb, comm_str_usb, READ);
 
@@ -654,7 +719,7 @@ void W_SlaveComm::sc_testbench(uint8_t item)
 //		FlexSEA_Generic::decodeSlave(SL_BASE_ALL, 9);
 //	}
 
-	testBenchList[index]->decodeLastLine();
+	//testBenchList[index]->decodeLastLine();
 
 	//3) Log
 	if(logThisItem[item] == true)
@@ -670,19 +735,19 @@ void W_SlaveComm::sc_testbench(uint8_t item)
 		logTimestamp(&t_ms, &t_text);
 		t_ms -= t_ms_initial[item];
 
-		selectedDeviceList[item]->timeStamp.last().date = t_text;
-		selectedDeviceList[item]->timeStamp.last().ms = t_ms;
-		emit writeToLogFile(selectedDeviceList[item], item);
+		targetDeviceList[item]->timeStamp.last().date = t_text;
+		targetDeviceList[item]->timeStamp.last().ms = t_ms;
+		emit writeToLogFile(targetDeviceList[item], item);
 	}
 }
 
-void W_SlaveComm::decodeAndLog(uint8_t item)
+void W_SlaveComm::decodeAndLog(uint8_t item, FlexseaDevice *flexPtr)
 {
 	qint64 t_ms = 0;
 	QString t_text = "";
 
 	//2) Decode values
-	selectedDeviceList[item]->decodeLastLine();
+	flexPtr->decodeLastLine();
 	//(Uncertain about timings, probably delayed by 1 sample)
 
 
@@ -699,9 +764,9 @@ void W_SlaveComm::decodeAndLog(uint8_t item)
 		logTimestamp(&t_ms, &t_text);
 		t_ms -= t_ms_initial[item];
 
-		selectedDeviceList[item]->timeStamp.last().date = t_text;
-		selectedDeviceList[item]->timeStamp.last().ms = t_ms;
-		emit writeToLogFile(selectedDeviceList[item], item);
+		flexPtr->timeStamp.last().date = t_text;
+		flexPtr->timeStamp.last().ms = t_ms;
+		emit writeToLogFile(flexPtr, item);
 	}
 
 	previousLogThisItem[item] = logThisItem[item];

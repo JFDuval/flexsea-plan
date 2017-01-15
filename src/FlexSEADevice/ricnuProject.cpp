@@ -32,7 +32,7 @@
 // Include(s)
 //****************************************************************************
 
-#include "ricnuDevice.h"
+#include "ricnuProject.h"
 #include <QDebug>
 #include <QTextStream>
 #include "executeDevice.h"

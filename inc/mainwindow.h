@@ -98,14 +98,21 @@ private:
 	Ui::MainWindow *ui;
 
 	// Device Object
-	QList<ExecuteDevice> executeDevList;
-	QList<ManageDevice>	manageDevList;
-	QList<GossipDevice>	gossipDevList;
-	QList<BatteryDevice> batteryDevList;
-	QList<StrainDevice>	strainDevList;
-	QList<RicnuProject> ricnuDevList;
+	QList<ExecuteDevice>	executeDevList;
+	QList<ManageDevice>		manageDevList;
+	QList<GossipDevice>		gossipDevList;
+	QList<BatteryDevice>	batteryDevList;
+	QList<StrainDevice>		strainDevList;
+	QList<RicnuProject>		ricnuDevList;
 
-	QList<FlexseaDevice*> flexseaDevicePtrlist;
+	QList<FlexseaDevice*>	executeFlexList;
+	QList<FlexseaDevice*>	manageFlexList;
+	QList<FlexseaDevice*>	gossipFlexList;
+	QList<FlexseaDevice*>	batteryFlexList;
+	QList<FlexseaDevice*>	strainFlexList;
+	QList<FlexseaDevice*>	ricnuFlexList;
+
+	QList<FlexseaDevice*> flexseaPtrlist;
 
 	// Log Object
 	ExecuteDevice executeLog = ExecuteDevice();

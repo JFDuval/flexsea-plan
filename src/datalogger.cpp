@@ -33,7 +33,6 @@
 //****************************************************************************
 
 #include "datalogger.h"
-#include "ricnuDevice.h"
 #include <QDebug>
 #include <QString>
 #include <QStringList>
@@ -45,7 +44,7 @@
 #include "executeDevice.h"
 #include "gossipDevice.h"
 #include "manageDevice.h"
-#include "ricnuDevice.h"
+#include "ricnuProject.h"
 #include "strainDevice.h"
 
 //****************************************************************************
