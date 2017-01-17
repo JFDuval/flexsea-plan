@@ -160,6 +160,8 @@ private:
 	QList<FlexseaDevice*> testBenchTargetList;
 	QList<FlexseaDevice*> batteryTargetList;
 
+	QList<FlexseaDevice*> *currentTargetList;
+
 	FlexseaDevice *targetDeviceList[MAX_SC_ITEMS];
 	FlexseaDevice *logDeviceList[MAX_SC_ITEMS];
 

@@ -40,16 +40,17 @@
 #include <QDebug>
 #include <QTimer>
 #include <QDateTime>
+#include <QString>
 
 //****************************************************************************
 // Constructor & Destructor:
 //****************************************************************************
 
 W_SlaveComm::W_SlaveComm(QWidget *parent,
-						 QList<FlexseaDevice*> *executeDevListInit,
+						 QList<FlexseaDevice*>  *executeDevListInit,
 						 QList<FlexseaDevice*>  *manageDevListInit,
 						 QList<FlexseaDevice*>  *gossipDevListInit,
-						 QList<FlexseaDevice*> *batteryDevListInit,
+						 QList<FlexseaDevice*>  *batteryDevListInit,
 						 QList<FlexseaDevice*>  *strainDevListInit,
 						 QList<FlexseaDevice*>  *ricnuDevListInit) :
 	QWidget(parent),
@@ -256,6 +257,9 @@ void W_SlaveComm::initSlaveCom(void)
 		//==================================
 		FlexSEA_Generic::populateExpComboBox((*comboBoxExpPtr[item]));
 
+		selected_exp_index[item] = 0;
+		previous_exp_index[item] = selected_exp_index[item];
+
 		//Refresh Rate:
 		//==================================
 		for(int i = 0; i < var_list_refresh.count(); i++)
@@ -460,135 +464,144 @@ void W_SlaveComm::configSlaveComm(int item)
 {
 	QString msg = "", msg_ref = "";
 
-
-
 	if(allComboBoxesPopulated == true)
 	{
 		// Stop the timer to void issue.
-		master_timer->stop();
+		//master_timer->stop();
 
-		int slaveindex = (*comboBoxSlavePtr[item])->currentIndex();
 		//Refresh all fields:
 
 		selected_exp_index[item] = (*comboBoxExpPtr[item])->currentIndex();
 		selected_refresh_index[item] = (*comboBoxRefreshPtr[item])->currentIndex();
 
-
-		if(previous_refresh_index[item] != selected_refresh_index[item])
+		if(previous_exp_index[item] != selected_exp_index[item])
 		{
+			(*comboBoxSlavePtr[item])->blockSignals(true);
 			(*comboBoxSlavePtr[item])->clear();
 
-			switch(selected_exp_index[item])
+			switch (selected_exp_index[item])
 			{
 				case 0: //Read All (Barebone)
 					for(int i = 0; i < readAllTargetList.length(); i++)
 					{
 						(*comboBoxSlavePtr[item])->addItem(readAllTargetList[i]->slaveName);
 					}
-					break;
+					currentTargetList = &readAllTargetList;
+				break;
+
 				case 1: //In Control
-					(*comboBoxSlavePtr[item])->addItem("Not Programmed");
+					//(*comboBoxSlavePtr[item])->addItem("Not Programmed");
 					qDebug() << "Not programmed!";
 					break;
+
 				case 2: //RIC/NU Knee
 					for(int i = 0; i < ricnuTargetList.length(); i++)
 					{
 						(*comboBoxSlavePtr[item])->addItem(ricnuTargetList[i]->slaveName);
 					}
+					currentTargetList = &ricnuTargetList;
 					break;
+
 				case 3: //CSEA Knee
 					(*comboBoxSlavePtr[item])->addItem("Not Programmed");
 					qDebug() << "Not programmed!";
 					break;
+
 				case 4: //2DOF Ankle
 					for(int i = 0; i < ankle2DofTargetList.length(); i++)
 					{
 						(*comboBoxSlavePtr[item])->addItem(ankle2DofTargetList[i]->slaveName);
 					}
+					currentTargetList = &ankle2DofTargetList;
 					break;
+
 				case 5:	//Battery Board
 					for(int i = 0; i < batteryTargetList.length(); i++)
 					{
 						(*comboBoxSlavePtr[item])->addItem(batteryTargetList[i]->slaveName);
 					}
+					currentTargetList = &batteryTargetList;
 					break;
+
 				case 6:	//Test Bench
 					for(int i = 0; i < testBenchTargetList.length(); i++)
 					{
 						(*comboBoxSlavePtr[item])->addItem(testBenchTargetList[i]->slaveName);
 					}
+					currentTargetList = &testBenchTargetList;
 					break;
+
 				default:
 					break;
 			}
+			(*comboBoxSlavePtr[item])->blockSignals(false);
 		}
 
-		// Fill the flexSEADevice Object metadata properly
-		//targetDeviceList[item] = (*readAllDevList)[slaveindex];
+//		// Fill the flexSEADevice Object metadata properly
+//		targetDeviceList[item] = (*currentTargetList)[(*comboBoxSlavePtr[item])->currentIndex()];
 
-		QString name;
+//		QString name;
 
-		targetDeviceList[item]->experimentIndex = selected_exp_index[item];
-		FlexSEA_Generic::getExpName(selected_exp_index[item], &name);
-		targetDeviceList[item]->experimentName = name;
+//		targetDeviceList[item]->experimentIndex = selected_exp_index[item];
+//		FlexSEA_Generic::getExpName(selected_exp_index[item], &name);
+//		targetDeviceList[item]->experimentName = name;
 
-		targetDeviceList[item]->frequency =
-				uint16_t(refreshRate[selected_refresh_index[item]]);
+//		targetDeviceList[item]->frequency =
+//				uint16_t(refreshRate[selected_refresh_index[item]]);
 
-		targetDeviceList[item]->shortFileName =
-				targetDeviceList[item]->slaveName + "_" +
-				targetDeviceList[item]->experimentName + "_" +
-				var_list_refresh[selected_refresh_index[item]] +
-				".csv";
+//		targetDeviceList[item]->shortFileName =
+//				targetDeviceList[item]->slaveName + "_" +
+//				targetDeviceList[item]->experimentName + "_" +
+//				var_list_refresh[selected_refresh_index[item]] +
+//				".csv";
 
-		targetDeviceList[item]->logItem = item;
+//		targetDeviceList[item]->logItem = item;
 
 
-		//Now we connect a time slot to that stream command:
-		if(previous_refresh_index[item] != selected_refresh_index[item])
-		{
-			//Refresh changed, we need to update connections.
-			connectSCItem(item, selected_refresh_index[item]);
+//		//Now we connect a time slot to that stream command:
+//		if(previous_refresh_index[item] != selected_refresh_index[item])
+//		{
+//			//Refresh changed, we need to update connections.
+//			connectSCItem(item, selected_refresh_index[item]);
 
-			msg_ref += "Changed connection.";
-		}
+//			msg_ref += "Changed connection.";
+//		}
 
-		//RIC/NU has a command line input:
-		if(selected_exp_index[item] == 2)
-		{
-			ui->lineEdit->setEnabled(true);
-			ui->lineEdit->setText(defaultCmdLineText);
-		}
-		else
-		{
-			ui->lineEdit->setEnabled(false);
-			ui->lineEdit->setText(" ");
-		}
+//		//RIC/NU has a command line input:
+//		if(selected_exp_index[item] == 2)
+//		{
+//			ui->lineEdit->setEnabled(true);
+//			ui->lineEdit->setText(defaultCmdLineText);
+//		}
+//		else
+//		{
+//			ui->lineEdit->setEnabled(false);
+//			ui->lineEdit->setText(" ");
+//		}
 
-		//Update status message:
-		msg = "Updated #" + QString::number(item+1) + ": (" \
-				+ "?" + ", " \
-				+ QString::number(selected_exp_index[item]) + ", " \
-				+ QString::number(selected_refresh_index[item]) + "). ";
+//		//Update status message:
+//		msg = "Updated #" + QString::number(item+1) + ": ("
+//				+ "?" + ", "
+//				+ QString::number(selected_exp_index[item]) + ", "
+//				+ QString::number(selected_refresh_index[item]) + "). ";
+//		if((*on_off_pb_ptr[0])->isChecked() == true)
+//		{
+//			msg += "Stream ON. ";
+//		}
+//		else
+//		{
+//			msg += "Stream OFF. ";
+//		}
 
-		if((*on_off_pb_ptr[0])->isChecked() == true)
-		{
-			msg += "Stream ON. ";
-		}
-		else
-		{
-			msg += "Stream OFF. ";
-		}
+//		manageLogStatus(item);
 
-		manageLogStatus(item);
-
-		updateStatusBar(msg + msg_ref);
+//		updateStatusBar(msg + msg_ref);
 		previous_refresh_index[item] = selected_refresh_index[item];
 		previous_exp_index[item] = selected_exp_index[item];
 
 
 		// Restart the master timer
-		master_timer->start(TIM_FREQ_TO_P(MASTER_TIMER));
+		//master_timer->start(TIM_FREQ_TO_P(MASTER_TIMER));
 	}
 }
 

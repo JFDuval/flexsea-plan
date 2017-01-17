@@ -105,6 +105,7 @@ private:
 	QList<StrainDevice>		strainDevList;
 	QList<RicnuProject>		ricnuDevList;
 
+	// Specific Flexsea list
 	QList<FlexseaDevice*>	executeFlexList;
 	QList<FlexseaDevice*>	manageFlexList;
 	QList<FlexseaDevice*>	gossipFlexList;
@@ -112,6 +113,7 @@ private:
 	QList<FlexseaDevice*>	strainFlexList;
 	QList<FlexseaDevice*>	ricnuFlexList;
 
+	// Global Flexsea List
 	QList<FlexseaDevice*> flexseaPtrlist;
 
 	// Log Object
