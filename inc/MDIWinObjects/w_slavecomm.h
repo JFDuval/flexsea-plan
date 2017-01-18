@@ -153,6 +153,8 @@ private:
 	QList<FlexseaDevice*> *batteryDevList;
 	QList<FlexseaDevice*> *strainDevList;
 	QList<FlexseaDevice*> *ricnuDevList;
+	QList<FlexseaDevice*> *ankle2DofDevList;
+	QList<FlexseaDevice*> *testBenchDevList;
 
 	QList<FlexseaDevice*> readAllTargetList;
 	QList<FlexseaDevice*> ricnuTargetList;
@@ -160,10 +162,10 @@ private:
 	QList<FlexseaDevice*> testBenchTargetList;
 	QList<FlexseaDevice*> batteryTargetList;
 
-	QList<FlexseaDevice*> *currentTargetList;
+	QList<FlexseaDevice*> *currentTargetList[MAX_SC_ITEMS];
 
-	FlexseaDevice *targetDeviceList[MAX_SC_ITEMS];
-	FlexseaDevice *logDeviceList[MAX_SC_ITEMS];
+	FlexseaDevice *targetDevice[MAX_SC_ITEMS];
+	FlexseaDevice *logDevice[MAX_SC_ITEMS];
 
 	QDateTime *myTime;
 	qint64 t_ms_initial[MAX_SC_ITEMS] = {0,0,0,0};
@@ -205,7 +207,7 @@ private:
 	void sc_ankle2dof(uint8_t item);
 	void sc_battery(uint8_t item);
 	void sc_testbench(uint8_t item);
-	void decodeAndLog(uint8_t item, FlexseaDevice *flexPtr);
+	void decodeAndLog(uint8_t item);
 	void configSlaveComm(int item);
 	void updateStatusBar(QString txt);
 	//Function pointers to timer signals:

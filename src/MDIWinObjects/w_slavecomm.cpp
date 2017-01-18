@@ -345,7 +345,7 @@ void W_SlaveComm::manageLogStatus(uint8_t item)
 	if((*log_cb_ptr[item])->isChecked() &&
 		(*on_off_pb_ptr[item])->isChecked())
 	{
-		emit openRecordingFile(targetDeviceList[item] ,item);
+		emit openRecordingFile(targetDevice[item] ,item);
 
 		logThisItem[item] = true;
 
@@ -466,142 +466,148 @@ void W_SlaveComm::configSlaveComm(int item)
 
 	if(allComboBoxesPopulated == true)
 	{
-		// Stop the timer to void issue.
-		//master_timer->stop();
+		// Stop the timer to void sending command during the change.
+		master_timer->stop();
 
 		//Refresh all fields:
 
 		selected_exp_index[item] = (*comboBoxExpPtr[item])->currentIndex();
 		selected_refresh_index[item] = (*comboBoxRefreshPtr[item])->currentIndex();
 
+		// Update the slave target list if experience/command has changed
 		if(previous_exp_index[item] != selected_exp_index[item])
 		{
-			(*comboBoxSlavePtr[item])->blockSignals(true);
-			(*comboBoxSlavePtr[item])->clear();
-
 			switch (selected_exp_index[item])
 			{
 				case 0: //Read All (Barebone)
-					for(int i = 0; i < readAllTargetList.length(); i++)
-					{
-						(*comboBoxSlavePtr[item])->addItem(readAllTargetList[i]->slaveName);
-					}
-					currentTargetList = &readAllTargetList;
-				break;
-
+					currentTargetList[item] = &readAllTargetList;
+					break;
 				case 1: //In Control
-					//(*comboBoxSlavePtr[item])->addItem("Not Programmed");
-					qDebug() << "Not programmed!";
+					currentTargetList[item] = nullptr;
 					break;
-
 				case 2: //RIC/NU Knee
-					for(int i = 0; i < ricnuTargetList.length(); i++)
-					{
-						(*comboBoxSlavePtr[item])->addItem(ricnuTargetList[i]->slaveName);
-					}
-					currentTargetList = &ricnuTargetList;
+					currentTargetList[item] = &ricnuTargetList;
+					logDevice[item] = (*ricnuDevList)[0];
 					break;
-
 				case 3: //CSEA Knee
-					(*comboBoxSlavePtr[item])->addItem("Not Programmed");
-					qDebug() << "Not programmed!";
+					currentTargetList[item] = nullptr;
 					break;
-
 				case 4: //2DOF Ankle
-					for(int i = 0; i < ankle2DofTargetList.length(); i++)
-					{
-						(*comboBoxSlavePtr[item])->addItem(ankle2DofTargetList[i]->slaveName);
-					}
-					currentTargetList = &ankle2DofTargetList;
+					currentTargetList[item] = &ankle2DofTargetList;
+					logDevice[item] = (*ankle2DofDevList)[0];
 					break;
-
 				case 5:	//Battery Board
-					for(int i = 0; i < batteryTargetList.length(); i++)
-					{
-						(*comboBoxSlavePtr[item])->addItem(batteryTargetList[i]->slaveName);
-					}
-					currentTargetList = &batteryTargetList;
+					currentTargetList[item] = &batteryTargetList;
+					logDevice[item] = (*batteryDevList)[0];
 					break;
-
 				case 6:	//Test Bench
-					for(int i = 0; i < testBenchTargetList.length(); i++)
-					{
-						(*comboBoxSlavePtr[item])->addItem(testBenchTargetList[i]->slaveName);
-					}
-					currentTargetList = &testBenchTargetList;
+					currentTargetList[item] = &testBenchTargetList;
+					logDevice[item] = (*testBenchDevList)[0];
 					break;
-
 				default:
 					break;
 			}
+
+			//RIC/NU has a command line input:
+			if(selected_exp_index[item] == 2)
+			{
+				ui->lineEdit->setEnabled(true);
+				ui->lineEdit->setText(defaultCmdLineText);
+			}
+			else
+			{
+				ui->lineEdit->setEnabled(false);
+				ui->lineEdit->setText(" ");
+			}
+
+			// Safeguard - block signals emission during setup
+			// If not done, cause segfault.
+			(*comboBoxSlavePtr[item])->blockSignals(true);
+
+			(*comboBoxSlavePtr[item])->clear();
+
+			//Fill the slave target list
+			if(currentTargetList[item] != nullptr)
+			{
+				for(int i = 0; i < (*currentTargetList[item]).length(); i++)
+				{
+					(*comboBoxSlavePtr[item])->addItem(\
+								(*currentTargetList[item])[i]->slaveName);
+				}
+			}
+			else
+			{
+				(*comboBoxSlavePtr[item])->addItem("Not Coded");
+				qDebug() << "Not coded!";
+				updateStatusBar("Command not implemented yet");
+				return;
+			}
+
+			// Re-enable emission of signal
 			(*comboBoxSlavePtr[item])->blockSignals(false);
 		}
 
-//		// Fill the flexSEADevice Object metadata properly
-//		targetDeviceList[item] = (*currentTargetList)[(*comboBoxSlavePtr[item])->currentIndex()];
-
-//		QString name;
-
-//		targetDeviceList[item]->experimentIndex = selected_exp_index[item];
-//		FlexSEA_Generic::getExpName(selected_exp_index[item], &name);
-//		targetDeviceList[item]->experimentName = name;
-
-//		targetDeviceList[item]->frequency =
-//				uint16_t(refreshRate[selected_refresh_index[item]]);
-
-//		targetDeviceList[item]->shortFileName =
-//				targetDeviceList[item]->slaveName + "_" +
-//				targetDeviceList[item]->experimentName + "_" +
-//				var_list_refresh[selected_refresh_index[item]] +
-//				".csv";
-
-//		targetDeviceList[item]->logItem = item;
+		// Update the target device
+		targetDevice[item] =\
+			(*currentTargetList[item])[(*comboBoxSlavePtr[item])->currentIndex()];
 
 
-//		//Now we connect a time slot to that stream command:
-//		if(previous_refresh_index[item] != selected_refresh_index[item])
-//		{
-//			//Refresh changed, we need to update connections.
-//			connectSCItem(item, selected_refresh_index[item]);
+		// Specific case of Read All, select the log file in function of target
+		if(selected_exp_index[item] == 0)//Read All (Barebone)
+		{
+			logDevice[item] = \
+				(*currentTargetList[item])[(*comboBoxSlavePtr[item])->currentIndex()];
+		}
 
-//			msg_ref += "Changed connection.";
-//		}
+		// Fill the log flexSEADevice metadata properly
+		QString name;
 
-//		//RIC/NU has a command line input:
-//		if(selected_exp_index[item] == 2)
-//		{
-//			ui->lineEdit->setEnabled(true);
-//			ui->lineEdit->setText(defaultCmdLineText);
-//		}
-//		else
-//		{
-//			ui->lineEdit->setEnabled(false);
-//			ui->lineEdit->setText(" ");
-//		}
+		logDevice[item]->experimentIndex = selected_exp_index[item];
+		FlexSEA_Generic::getExpName(selected_exp_index[item], &name);
+		logDevice[item]->experimentName = name;
 
-//		//Update status message:
-//		msg = "Updated #" + QString::number(item+1) + ": ("
-//				+ "?" + ", "
-//				+ QString::number(selected_exp_index[item]) + ", "
-//				+ QString::number(selected_refresh_index[item]) + "). ";
-//		if((*on_off_pb_ptr[0])->isChecked() == true)
-//		{
-//			msg += "Stream ON. ";
-//		}
-//		else
-//		{
-//			msg += "Stream OFF. ";
-//		}
+		logDevice[item]->frequency =\
+				uint16_t(refreshRate[selected_refresh_index[item]]);
 
-//		manageLogStatus(item);
+		logDevice[item]->shortFileName =
+				logDevice[item]->slaveName + "_" +
+				logDevice[item]->experimentName + "_" +
+				var_list_refresh[selected_refresh_index[item]] +
+				".csv";
 
-//		updateStatusBar(msg + msg_ref);
-		previous_refresh_index[item] = selected_refresh_index[item];
-		previous_exp_index[item] = selected_exp_index[item];
+		// TODO: Is usefull anymore?
+		logDevice[item]->logItem = item;
 
+		//If refresh has changed, connect a time slot to that stream command:
+		if(previous_refresh_index[item] != selected_refresh_index[item])
+		{
+			//Refresh changed, we need to update connections.
+			connectSCItem(item, selected_refresh_index[item]);
+			msg_ref += "Changed connection.";
+		}
 
 		// Restart the master timer
-		//master_timer->start(TIM_FREQ_TO_P(MASTER_TIMER));
+		master_timer->start(TIM_FREQ_TO_P(MASTER_TIMER));
+
+		//Update status message:
+		msg = "Updated #" + QString::number(item+1) + ": ("
+				+ "?" + ", "
+				+ QString::number(selected_exp_index[item]) + ", "
+				+ QString::number(selected_refresh_index[item]) + "). ";
+		if((*on_off_pb_ptr[0])->isChecked() == true)
+		{
+			msg += "Stream ON. ";
+		}
+		else
+		{
+			msg += "Stream OFF. ";
+		}
+
+		manageLogStatus(item);
+
+		updateStatusBar(msg + msg_ref);
+		previous_refresh_index[item] = selected_refresh_index[item];
+		previous_exp_index[item] = selected_exp_index[item];
 	}
 }
 
@@ -615,11 +621,11 @@ void W_SlaveComm::sc_read_all(uint8_t item)
 
 	//1) Stream
 	tx_cmd_data_read_all_r(TX_N_DEFAULT);
-	pack(P_AND_S_DEFAULT, targetDeviceList[item]->slaveID
+	pack(P_AND_S_DEFAULT, targetDevice[item]->slaveID
 		 , info, &numb, comm_str_usb);
 	emit slaveReadWrite(numb, comm_str_usb, READ);
 
-	decodeAndLog(item, targetDeviceList[item]);
+	decodeAndLog(item);
 }
 
 //Argument is the item line (0-3)
@@ -639,11 +645,11 @@ void W_SlaveComm::sc_read_all_ricnu(uint8_t item)
 	//qDebug() << "Reading offset " << offset;
 
 	tx_cmd_ricnu_r(TX_N_DEFAULT, offset);
-	pack(P_AND_S_DEFAULT, targetDeviceList[item]->slaveID
+	pack(P_AND_S_DEFAULT, targetDevice[item]->slaveID
 		 , info, &numb, comm_str_usb);
 	emit slaveReadWrite(numb, comm_str_usb, READ);
 
-	decodeAndLog(item, (*ricnuDevList)[0]);
+	decodeAndLog(item);
 }
 
 //Argument is the item line (0-3)
@@ -653,18 +659,15 @@ void W_SlaveComm::sc_ankle2dof(uint8_t item)
 {
 	uint16_t numb = 0;
 	uint8_t info[2] = {PORT_USB, PORT_USB};
-	qint64 t_ms = 0;
-	QString t_text = "";
 	static uint8_t sel_slave = 0;
 
 	//1) Stream
 	tx_cmd_ankle2dof_r(TX_N_DEFAULT, sel_slave, 0, 0, 0);
-	pack(P_AND_S_DEFAULT, targetDeviceList[item]->slaveID
+	pack(P_AND_S_DEFAULT, targetDevice[item]->slaveID
 		 , info, &numb, comm_str_usb);
 	emit slaveReadWrite(numb, comm_str_usb, READ);
 
 	//***ToDo: update for multiple slaves!***
-	//TODO Not sure if I support that properly through the new flexseaDevice
 	if(sel_slave == 0)
 	{
 		sel_slave = 1;
@@ -673,8 +676,9 @@ void W_SlaveComm::sc_ankle2dof(uint8_t item)
 	{
 		sel_slave = 0;
 	}
+
 	//TODO Ankle2DOF is not logging
-	// decodeAndLog(item, ankle2DofDevList[0]);
+	decodeAndLog(item);
 }
 
 //Argument is the item line (0-3)
@@ -686,21 +690,11 @@ void W_SlaveComm::sc_battery(uint8_t item)
 
 	//1) Stream
 	tx_cmd_exp_batt_r(TX_N_DEFAULT);
-	pack(P_AND_S_DEFAULT, targetDeviceList[item]->slaveID
+	pack(P_AND_S_DEFAULT, targetDevice[item]->slaveID
 		 , info, &numb, comm_str_usb);
 	emit slaveReadWrite(numb, comm_str_usb, READ);
 
-	//2) Decode values
-	targetDeviceList[item]->decodeLastLine();
-
-	//3) Log
-	/*
-	if(logThisItem[item] == true)
-	{
-		emit writeToLogFile(item, slaveIndex, expIndex,
-							refreshRate.at(ui->comboBoxRefresh1->currentIndex()));
-	}
-	*/
+	decodeAndLog(item);
 }
 
 //Argument is the item line (0-3)
@@ -709,13 +703,11 @@ void W_SlaveComm::sc_testbench(uint8_t item)
 {
 	uint16_t numb = 0;
 	uint8_t info[2] = {PORT_USB, PORT_USB};
-	qint64 t_ms = 0;
-	QString t_text = "";
 	static uint8_t index = 0;
 
 	//1) Stream
 	tx_cmd_motortb_r(TX_N_DEFAULT, index, 0, 0, 0);
-	pack(P_AND_S_DEFAULT, targetDeviceList[item]->slaveID
+	pack(P_AND_S_DEFAULT, targetDevice[item]->slaveID
 		 , info, &numb, comm_str_usb);
 	emit slaveReadWrite(numb, comm_str_usb, READ);
 
@@ -732,37 +724,17 @@ void W_SlaveComm::sc_testbench(uint8_t item)
 //		FlexSEA_Generic::decodeSlave(SL_BASE_ALL, 9);
 //	}
 
-	//testBenchList[index]->decodeLastLine();
-
-	//3) Log
-	if(logThisItem[item] == true)
-	{
-		// TODO Not sure it's right?
-		if(previousLogThisItem[item] == false)
-		{
-			logTimestamp(&t_ms, &t_text);
-			t_ms_initial[item] = t_ms;
-		}
-
-		//Timestamps:
-		logTimestamp(&t_ms, &t_text);
-		t_ms -= t_ms_initial[item];
-
-		targetDeviceList[item]->timeStamp.last().date = t_text;
-		targetDeviceList[item]->timeStamp.last().ms = t_ms;
-		emit writeToLogFile(targetDeviceList[item], item);
-	}
+	decodeAndLog(item);
 }
 
-void W_SlaveComm::decodeAndLog(uint8_t item, FlexseaDevice *flexPtr)
+void W_SlaveComm::decodeAndLog(uint8_t item)
 {
 	qint64 t_ms = 0;
 	QString t_text = "";
 
 	//2) Decode values
-	flexPtr->decodeLastLine();
+	logDevice[item]->decodeLastLine();
 	//(Uncertain about timings, probably delayed by 1 sample)
-
 
 	//3) Log
 	if(logThisItem[item] == true)
@@ -777,9 +749,9 @@ void W_SlaveComm::decodeAndLog(uint8_t item, FlexseaDevice *flexPtr)
 		logTimestamp(&t_ms, &t_text);
 		t_ms -= t_ms_initial[item];
 
-		flexPtr->timeStamp.last().date = t_text;
-		flexPtr->timeStamp.last().ms = t_ms;
-		emit writeToLogFile(flexPtr, item);
+		logDevice[item]->timeStamp.last().date = t_text;
+		logDevice[item]->timeStamp.last().ms = t_ms;
+		emit writeToLogFile(logDevice[item], item);
 	}
 
 	previousLogThisItem[item] = logThisItem[item];
