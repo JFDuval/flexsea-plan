@@ -118,7 +118,7 @@ void RicnuProject::appendSerializedStr(QStringList *splitLine)
 	{
 		// Because of the pointer architecture of ricnu_s_plan , we need to
 		// also add execute and strain structure
-		appendEmptyLineWithExAndStStruct();
+		appendEmptyLineWithStruct();
 
 		timeStamp.last().date						= (*splitLine)[0];
 		timeStamp.last().ms							= (*splitLine)[1].toInt();
@@ -153,7 +153,7 @@ void RicnuProject::appendEmptyLine(void)
 	riList.append(new ricnu_s_plan());
 }
 
-void RicnuProject::appendEmptyLineWithExAndStStruct(void)
+void RicnuProject::appendEmptyLineWithStruct(void)
 {
 	timeStamp.append(TimeStamp());
 	riList.append(new ricnu_s_plan());

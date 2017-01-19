@@ -724,6 +724,7 @@ void W_SlaveComm::sc_testbench(uint8_t item)
 //		FlexSEA_Generic::decodeSlave(SL_BASE_ALL, 9);
 //	}
 
+	//TODO Ankle2DOF is not logging
 	decodeAndLog(item);
 }
 

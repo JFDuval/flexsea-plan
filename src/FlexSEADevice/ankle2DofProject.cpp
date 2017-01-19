@@ -1,7 +1,7 @@
 /****************************************************************************
 	[Project] FlexSEA: Flexible & Scalable Electronics Architecture
 	[Sub-project] 'plan-gui' Graphical User Interface
-	Copyright (C) 2016 Dephy, Inc. <http://dephy.com/>
+	Copyright (C) 2017 Dephy, Inc. <http://dephy.com/>
 
 	This program is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -21,10 +21,10 @@
 	Biomechatronics research group <http://biomech.media.mit.edu/>
 	[Contributors]
 *****************************************************************************
-	[This file] RicnuDevice: Ricnu Device Data Class
+	[This file] ankle2DofProject: ankle2Dof Project Data Class
 *****************************************************************************
 	[Change log] (Convention: YYYY-MM-DD | author | comment)
-	* 2016-12-08 | sbelanger | Initial GPL-3.0 release
+	* 2017-01-16 | sbelanger | Initial GPL-3.0 release
 	*
 ****************************************************************************/
 
@@ -32,44 +32,43 @@
 // Include(s)
 //****************************************************************************
 
-#include "ricnuProject.h"
+#include "ankle2DofProject.h"
 #include <QDebug>
 #include <QTextStream>
 #include "executeDevice.h"
-#include "strainDevice.h"
 
 //****************************************************************************
 // Constructor & Destructor:
 //****************************************************************************
 
-RicnuProject::RicnuProject(void): FlexseaDevice()
+Ankle2DofProject::Ankle2DofProject(void): FlexseaDevice()
 {
 	this->dataSource = LogDataFile;
 	serializedLength = header.length();
-	slaveType = "ricnu";
+	slaveType = "ankle2Dof";
 }
 
-RicnuProject::RicnuProject(execute_s *exPtr, strain_s *stPtr): FlexseaDevice()
+Ankle2DofProject::Ankle2DofProject(execute_s *ex1Ptr, execute_s *ex2Ptr): FlexseaDevice()
 {
 	this->dataSource = LiveDataFile;
 	timeStamp.append(TimeStamp());
-	riList.append(new ricnu_s_plan());
-	riList.last()->ex = exPtr;
-	riList.last()->st = stPtr;
+	akList.append(new ankle2Dof_s_plan());
+	akList.last()->ex1 = ex1Ptr;
+	akList.last()->ex2 = ex2Ptr;
 	serializedLength = header.length();
-	slaveType = "ricnu";
+	slaveType = "ankle2Dof";
 }
 
 //****************************************************************************
 // Public function(s):
 //****************************************************************************
 
-QString RicnuProject::getHeaderStr(void)
+QString Ankle2DofProject::getHeaderStr(void)
 {
 	return header.join(',');
 }
 
-QStringList RicnuProject::header = QStringList()
+QStringList Ankle2DofProject::header = QStringList()
 								<< "Timestamp"
 								<< "Timestamp (ms)"
 								<< "accel.x"
@@ -78,117 +77,172 @@ QStringList RicnuProject::header = QStringList()
 								<< "gyro.x"
 								<< "gyro.y"
 								<< "gyro.z"
+								<< "strain"
+								<< "analog_0"
+								<< "analog_1"
 								<< "current"
-								<< "enc-mot"
-								<< "enc-joint"
-								<< "strain1"
-								<< "strain2"
-								<< "strain3"
-								<< "strain4"
-								<< "strain5"
-								<< "strain6";
+								<< "enc-disp"
+								<< "enc-cont"
+								<< "enc-comm"
+								<< "VB"
+								<< "VG"
+								<< "Temp"
+								<< "Status1"
+								<< "Status2"
+								<< "accel.x"
+								<< "accel.y"
+								<< "accel.z"
+								<< "gyro.x"
+								<< "gyro.y"
+								<< "gyro.z"
+								<< "strain"
+								<< "analog_0"
+								<< "analog_1"
+								<< "current"
+								<< "enc-disp"
+								<< "enc-cont"
+								<< "enc-comm"
+								<< "VB"
+								<< "VG"
+								<< "Temp"
+								<< "Status1"
+								<< "Status2";
 
-QString RicnuProject::getLastSerializedStr(void)
+QString Ankle2DofProject::getLastSerializedStr(void)
 {
 	QString str;
-	QTextStream(&str) <<	timeStamp.last().date						<< ',' << \
-							timeStamp.last().ms							<< ',' << \
-							riList.last()->ex->accel.x					<< ',' << \
-							riList.last()->ex->accel.y					<< ',' << \
-							riList.last()->ex->accel.z					<< ',' << \
-							riList.last()->ex->gyro.x					<< ',' << \
-							riList.last()->ex->gyro.y					<< ',' << \
-							riList.last()->ex->gyro.z					<< ',' << \
-							riList.last()->ex->current					<< ',' << \
-							riList.last()->ex->enc_motor				<< ',' << \
-							riList.last()->ex->enc_joint				<< ',' << \
-							riList.last()->st->ch[0].strain_filtered	<< ',' << \
-							riList.last()->st->ch[1].strain_filtered	<< ',' << \
-							riList.last()->st->ch[2].strain_filtered	<< ',' << \
-							riList.last()->st->ch[3].strain_filtered	<< ',' << \
-							riList.last()->st->ch[4].strain_filtered	<< ',' << \
-							riList.last()->st->ch[5].strain_filtered;
+	QTextStream(&str) <<	timeStamp.last().date			<< ',' << \
+							timeStamp.last().ms				<< ',' << \
+							akList.last()->ex1->accel.x		<< ',' << \
+							akList.last()->ex1->accel.y		<< ',' << \
+							akList.last()->ex1->accel.z		<< ',' << \
+							akList.last()->ex1->gyro.x		<< ',' << \
+							akList.last()->ex1->gyro.y		<< ',' << \
+							akList.last()->ex1->gyro.z		<< ',' << \
+							akList.last()->ex1->strain		<< ',' << \
+							akList.last()->ex1->analog[0]	<< ',' << \
+							akList.last()->ex1->analog[1]	<< ',' << \
+							akList.last()->ex1->current		<< ',' << \
+							akList.last()->ex1->enc_display	<< ',' << \
+							akList.last()->ex1->enc_control	<< ',' << \
+							akList.last()->ex1->enc_commut	<< ',' << \
+							akList.last()->ex1->volt_batt	<< ',' << \
+							akList.last()->ex1->volt_int	<< ',' << \
+							akList.last()->ex1->temp		<< ',' << \
+							akList.last()->ex1->status1		<< ',' << \
+							akList.last()->ex1->status2		<< ',' << \
+							akList.last()->ex2->accel.x		<< ',' << \
+							akList.last()->ex2->accel.y		<< ',' << \
+							akList.last()->ex2->accel.z		<< ',' << \
+							akList.last()->ex2->gyro.x		<< ',' << \
+							akList.last()->ex2->gyro.y		<< ',' << \
+							akList.last()->ex2->gyro.z		<< ',' << \
+							akList.last()->ex2->strain		<< ',' << \
+							akList.last()->ex2->analog[0]	<< ',' << \
+							akList.last()->ex2->analog[1]	<< ',' << \
+							akList.last()->ex2->current		<< ',' << \
+							akList.last()->ex2->enc_display	<< ',' << \
+							akList.last()->ex2->enc_control	<< ',' << \
+							akList.last()->ex2->enc_commut	<< ',' << \
+							akList.last()->ex2->volt_batt	<< ',' << \
+							akList.last()->ex2->volt_int	<< ',' << \
+							akList.last()->ex2->temp		<< ',' << \
+							akList.last()->ex2->status1		<< ',' << \
+							akList.last()->ex2->status2;;
 	return str;
 }
 
-void RicnuProject::appendSerializedStr(QStringList *splitLine)
+void Ankle2DofProject::appendSerializedStr(QStringList *splitLine)
 {
 	//Check if data line contain the number of data expected
 	if(splitLine->length() >= serializedLength)
 	{
-		// Because of the pointer architecture of ricnu_s_plan , we need to
-		// also add execute and strain structure
-		appendEmptyLineWithExAndStStruct();
+		// Because of the pointer architecture of ankle2Dof_s_plan , we also
+		// need to also add data structure
+		appendEmptyLineWithStruct();
 
-		timeStamp.last().date						= (*splitLine)[0];
-		timeStamp.last().ms							= (*splitLine)[1].toInt();
-		riList.last()->ex->accel.x					= (*splitLine)[2].toInt();
-		riList.last()->ex->accel.y					= (*splitLine)[3].toInt();
-		riList.last()->ex->accel.z					= (*splitLine)[4].toInt();
-		riList.last()->ex->gyro.x					= (*splitLine)[5].toInt();
-		riList.last()->ex->gyro.y					= (*splitLine)[6].toInt();
-		riList.last()->ex->gyro.z					= (*splitLine)[7].toInt();
-		riList.last()->ex->current					= (*splitLine)[8].toInt();
-		riList.last()->ex->enc_motor				= (*splitLine)[9].toInt();
-		riList.last()->ex->enc_joint				= (*splitLine)[10].toInt();
-		riList.last()->st->ch[0].strain_filtered	= (*splitLine)[11].toInt();
-		riList.last()->st->ch[1].strain_filtered	= (*splitLine)[12].toInt();
-		riList.last()->st->ch[2].strain_filtered	= (*splitLine)[13].toInt();
-		riList.last()->st->ch[3].strain_filtered	= (*splitLine)[14].toInt();
-		riList.last()->st->ch[4].strain_filtered	= (*splitLine)[15].toInt();
-		riList.last()->st->ch[5].strain_filtered	= (*splitLine)[16].toInt();
+		timeStamp.last().date				= (*splitLine)[0];
+		timeStamp.last().ms					= (*splitLine)[1].toInt();
+		akList.last()->ex1->accel.x			= (*splitLine)[2].toInt();
+		akList.last()->ex1->accel.y			= (*splitLine)[3].toInt();
+		akList.last()->ex1->accel.z			= (*splitLine)[4].toInt();
+		akList.last()->ex1->gyro.x			= (*splitLine)[5].toInt();
+		akList.last()->ex1->gyro.y			= (*splitLine)[6].toInt();
+		akList.last()->ex1->gyro.z			= (*splitLine)[7].toInt();
+		akList.last()->ex1->strain			= (*splitLine)[8].toInt();
+		akList.last()->ex1->analog[0]		= (*splitLine)[9].toInt();
+		akList.last()->ex1->analog[1]		= (*splitLine)[10].toInt();
+		akList.last()->ex1->current			= (*splitLine)[11].toInt();
+		akList.last()->ex1->enc_display		= (*splitLine)[12].toInt();
+		akList.last()->ex1->enc_control		= (*splitLine)[13].toInt();
+		akList.last()->ex1->enc_commut		= (*splitLine)[14].toInt();
+		akList.last()->ex1->volt_batt		= (*splitLine)[15].toInt();
+		akList.last()->ex1->volt_int		= (*splitLine)[16].toInt();
+		akList.last()->ex1->temp			= (*splitLine)[17].toInt();
+		akList.last()->ex1->status1			= (*splitLine)[18].toInt();
+		akList.last()->ex1->status2			= (*splitLine)[19].toInt();
+		akList.last()->ex2->accel.x			= (*splitLine)[20].toInt();
+		akList.last()->ex2->accel.y			= (*splitLine)[21].toInt();
+		akList.last()->ex2->accel.z			= (*splitLine)[22].toInt();
+		akList.last()->ex2->gyro.x			= (*splitLine)[23].toInt();
+		akList.last()->ex2->gyro.y			= (*splitLine)[24].toInt();
+		akList.last()->ex2->gyro.z			= (*splitLine)[25].toInt();
+		akList.last()->ex2->strain			= (*splitLine)[26].toInt();
+		akList.last()->ex2->analog[0]		= (*splitLine)[27].toInt();
+		akList.last()->ex2->analog[1]		= (*splitLine)[28].toInt();
+		akList.last()->ex2->current			= (*splitLine)[29].toInt();
+		akList.last()->ex2->enc_display		= (*splitLine)[30].toInt();
+		akList.last()->ex2->enc_control		= (*splitLine)[31].toInt();
+		akList.last()->ex2->enc_commut		= (*splitLine)[32].toInt();
+		akList.last()->ex2->volt_batt		= (*splitLine)[33].toInt();
+		akList.last()->ex2->volt_int		= (*splitLine)[34].toInt();
+		akList.last()->ex2->temp			= (*splitLine)[35].toInt();
+		akList.last()->ex2->status1			= (*splitLine)[36].toInt();
+		akList.last()->ex2->status2			= (*splitLine)[37].toInt();
 	}
 }
 
-void RicnuProject::clear(void)
+void Ankle2DofProject::clear(void)
 {
 	FlexseaDevice::clear();
-	riList.clear();
+	akList.clear();
 	timeStamp.clear();
 }
 
-void RicnuProject::appendEmptyLine(void)
+void Ankle2DofProject::appendEmptyLine(void)
 {
 	timeStamp.append(TimeStamp());
-	riList.append(new ricnu_s_plan());
+	akList.append(new ankle2Dof_s_plan());
 }
 
-void RicnuProject::appendEmptyLineWithExAndStStruct(void)
+void Ankle2DofProject::appendEmptyLineWithStruct(void)
 {
 	timeStamp.append(TimeStamp());
-	riList.append(new ricnu_s_plan());
-	riList.last()->ex = new execute_s();
-	riList.last()->st = new strain_s();
+	akList.append(new ankle2Dof_s_plan());
+	akList.last()->ex1 = new execute_s();
+	akList.last()->ex2 = new execute_s();
 }
 
-void RicnuProject::decodeLastLine(void)
+void Ankle2DofProject::decodeLastLine(void)
 {
-	if(dataSource == LiveDataFile){StrainDevice::decompressRawBytes(riList.last()->st);}
-	decode(riList.last());
+	decode(akList.last());
 }
 
-void RicnuProject::decodeAllLine(void)
+void Ankle2DofProject::decodeAllLine(void)
 {
-	for(int i = 0; i < riList.size(); ++i)
+	for(int i = 0; i < akList.size(); ++i)
 	{
-		if(dataSource == LiveDataFile){StrainDevice::decompressRawBytes(riList[i]->st);}
-		decode(riList[i]);
+		decode(akList[i]);
 	}
 }
 
-void RicnuProject::decode(struct ricnu_s *riPtr)
+void Ankle2DofProject::decode(struct ankle2Dof_s_plan *akPtr)
 {
-	ExecuteDevice::decode(&riPtr->ex);
-	StrainDevice::decode(&riPtr->st);
+	ExecuteDevice::decode(akPtr->ex1);
+	ExecuteDevice::decode(akPtr->ex1);
 }
 
-void RicnuProject::decode(struct ricnu_s_plan *riPtr)
-{
-	ExecuteDevice::decode(riPtr->ex);
-	StrainDevice::decode(riPtr->st);
-}
-
-QString RicnuProject::getStatusStr(int index)
+QString Ankle2DofProject::getStatusStr(int index)
 {
 	return QString("No decoding available for this board");
 }

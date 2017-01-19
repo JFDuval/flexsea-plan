@@ -1,7 +1,7 @@
 /****************************************************************************
 	[Project] FlexSEA: Flexible & Scalable Electronics Architecture
 	[Sub-project] 'plan-gui' Graphical User Interface
-	Copyright (C) 2016 Dephy, Inc. <http://dephy.com/>
+	Copyright (C) 2017 Dephy, Inc. <http://dephy.com/>
 
 	This program is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -21,15 +21,15 @@
 	Biomechatronics research group <http://biomech.media.mit.edu/>
 	[Contributors]
 *****************************************************************************
-	[This file] RicnuDevice: Ricnu Device Data Class
+	[This file] ankle2DofProject: ankle2Dof Project Data Class
 *****************************************************************************
 	[Change log] (Convention: YYYY-MM-DD | author | comment)
-	* 2016-12-08 | sbelanger | Initial GPL-3.0 release
+	* 2017-01-16 | sbelanger | Initial GPL-3.0 release
 	*
 ****************************************************************************/
 
-#ifndef RICNUDEVICE_H
-#define RICNUDEVICE_H
+#ifndef ANKLE2DOFPROJECT_H
+#define ANKLE2DOFPROJECT_H
 
 //****************************************************************************
 // Include(s)
@@ -50,29 +50,21 @@
 
 namespace Ui
 {
-	class RicnuProject;
+	class Ankle2DofProject;
 }
 
-struct ricnu_s_plan
+struct ankle2Dof_s_plan
 {
 	//Execute:
-	struct execute_s *ex;
-
-	//Extra sensors (Strain):
-	//uint16_t ext_strain[6];
-	struct strain_s *st;
-
-	//Decoded values (ext_strain only)
-	struct decoded_ricnu_s decoded;
-
-	int16_t gen_var[6];
+	struct execute_s *ex1;
+	struct execute_s *ex2;
 };
 
-class RicnuProject : public FlexseaDevice
+class Ankle2DofProject : public FlexseaDevice
 {
 public:
-	explicit RicnuProject(void);
-	explicit RicnuProject(execute_s *exPtr, strain_s *stPtr);
+	explicit Ankle2DofProject(void);
+	explicit Ankle2DofProject(execute_s *ex1Ptr, execute_s *ex2Ptr);
 
 
 	// Interface implementation
@@ -85,11 +77,10 @@ public:
 	void appendEmptyLine(void);
 	QString getStatusStr(int index);
 
-	void appendEmptyLineWithExAndStStruct(void);
+	void appendEmptyLineWithStruct(void);
 
-	QList<struct ricnu_s_plan*> riList;
-	static void decode(struct ricnu_s *riPtr);
-	static void decode(struct ricnu_s_plan *riPtr);
+	QList<struct ankle2Dof_s_plan*> akList;
+	static void decode(struct ankle2Dof_s_plan *akPtr);
 
 private:
 	static QStringList header;
@@ -101,4 +92,4 @@ private:
 // Definition(s)
 //****************************************************************************
 
-#endif // RICNUDEVICE_H
+#endif // ANKLE2DOFPROJECT_H

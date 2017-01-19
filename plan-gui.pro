@@ -94,7 +94,9 @@ SOURCES += src/main.cpp \
 	src/MDIWinObjects/w_commtest.cpp \
 	flexsea-system/src/flexsea_cmd_tools.c \
 	flexsea-system/test/test-flexsea_cmd_tools.c \
-	src/FlexSEADevice/ricnuProject.cpp
+	src/FlexSEADevice/ricnuProject.cpp \
+    src/FlexSEADevice/ankle2DofProject.cpp \
+    src/FlexSEADevice/testBenchProject.cpp
 
 HEADERS  += inc/main.h \
 	inc/mainwindow.h \
@@ -158,7 +160,9 @@ HEADERS  += inc/main.h \
 	inc/MDIWinObjects/w_commtest.h \
 	inc/MDIWinObjects/w_testbench.h \
 	flexsea-system/inc/flexsea_cmd_tools.h \
-	inc/FlexSEADevice/ricnuProject.h
+	inc/FlexSEADevice/ricnuProject.h \
+    inc/FlexSEADevice/ankle2DofProject.h \
+    inc/FlexSEADevice/testBenchProject.h
 
 FORMS    += ui/mainwindow.ui \
 	ui/w_execute.ui \

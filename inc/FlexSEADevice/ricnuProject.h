@@ -85,7 +85,7 @@ public:
 	void appendEmptyLine(void);
 	QString getStatusStr(int index);
 
-	void appendEmptyLineWithExAndStStruct(void);
+	void appendEmptyLineWithStruct(void);
 
 	QList<struct ricnu_s_plan*> riList;
 	static void decode(struct ricnu_s *riPtr);
