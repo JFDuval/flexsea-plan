@@ -21,10 +21,10 @@
 	Biomechatronics research group <http://biomech.media.mit.edu/>
 	[Contributors]
 *****************************************************************************
-	[This file] RicnuDevice: Ricnu Device Data Class
+	[This file] testBenchProject: TestBench Project Data Class
 *****************************************************************************
 	[Change log] (Convention: YYYY-MM-DD | author | comment)
-	* 2016-12-08 | sbelanger | Initial GPL-3.0 release
+	* 2017-01-19 | sbelanger | Initial GPL-3.0 release
 	*
 ****************************************************************************/
 
@@ -32,86 +32,140 @@
 // Include(s)
 //****************************************************************************
 
-#include "ricnuProject.h"
+#include "testBenchProject.h"
 #include <QDebug>
 #include <QTextStream>
 #include "executeDevice.h"
-#include "strainDevice.h"
+#include "batteryDevice.h"
 
 //****************************************************************************
 // Constructor & Destructor:
 //****************************************************************************
 
-RicnuProject::RicnuProject(void): FlexseaDevice()
+TestBenchProject::TestBenchProject(void): FlexseaDevice()
 {
 	this->dataSource = LogDataFile;
 	serializedLength = header.length();
-	slaveType = "ricnu";
+	slaveType = "testBench";
 }
 
-RicnuProject::RicnuProject(execute_s *exPtr, strain_s *stPtr): FlexseaDevice()
+TestBenchProject::TestBenchProject(execute_s *ex1Ptr, execute_s *ex2Ptr,
+								   motortb_s *motbPtr, battery_s *baPtr): FlexseaDevice()
 {
 	this->dataSource = LiveDataFile;
 	timeStamp.append(TimeStamp());
-	riList.append(new ricnu_s_plan());
-	riList.last()->ex = exPtr;
-	riList.last()->st = stPtr;
+	tbList.append(new testBench_s_plan());
+	tbList.last()->ex1 = ex1Ptr;
+	tbList.last()->ex2 = ex2Ptr;
+	tbList.last()->mb  = motbPtr;
+	tbList.last()->ba  = baPtr;
+
 	serializedLength = header.length();
-	slaveType = "ricnu";
+	slaveType = "testBench";
 }
 
 //****************************************************************************
 // Public function(s):
 //****************************************************************************
 
-QString RicnuProject::getHeaderStr(void)
+QString TestBenchProject::getHeaderStr(void)
 {
 	return header.join(',');
 }
 
-QStringList RicnuProject::header = QStringList()
+QStringList TestBenchProject::header = QStringList()
 								<< "Timestamp"
 								<< "Timestamp (ms)"
-								<< "accel.x"
-								<< "accel.y"
-								<< "accel.z"
-								<< "gyro.x"
-								<< "gyro.y"
-								<< "gyro.z"
+								<< "ex1[0]"
+								<< "ex1[1]"
+								<< "ex1[2]"
+								<< "ex1[3]"
+								<< "ex1[4]"
+								<< "ex1[5]"
+								<< "strain"
+								<< "analog_0"
+								<< "analog_1"
 								<< "current"
-								<< "enc-mot"
-								<< "enc-joint"
-								<< "strain1"
-								<< "strain2"
-								<< "strain3"
-								<< "strain4"
-								<< "strain5"
-								<< "strain6";
+								<< "enc"
+								<< "VB"
+								<< "VG"
+								<< "Temp"
+								<< "Status1"
+								<< "Status2"
+								<< "ex2[0]"
+								<< "ex2[1]"
+								<< "ex2[2]"
+								<< "ex2[3]"
+								<< "ex2[4]"
+								<< "ex2[5]"
+								<< "strain"
+								<< "analog_0"
+								<< "analog_1"
+								<< "current"
+								<< "enc"
+								<< "VB"
+								<< "VG"
+								<< "Temp"
+								<< "Status1"
+								<< "Status2"
+								<< "mn1[0]"
+								<< "mn1[1]"
+								<< "mn1[2]"
+								<< "mn1[3]"
+								<< "Batt.volt"
+								<< "Batt.current"
+								<< "Batt.power"
+								<< "Batt.temp";
 
-QString RicnuProject::getLastSerializedStr(void)
+QString TestBenchProject::getLastSerializedStr(void)
 {
 	QString str;
-	QTextStream(&str) <<	timeStamp.last().date						<< ',' << \
-							timeStamp.last().ms							<< ',' << \
-							riList.last()->ex->accel.x					<< ',' << \
-							riList.last()->ex->accel.y					<< ',' << \
-							riList.last()->ex->accel.z					<< ',' << \
-							riList.last()->ex->gyro.x					<< ',' << \
-							riList.last()->ex->gyro.y					<< ',' << \
-							riList.last()->ex->gyro.z					<< ',' << \
-							riList.last()->ex->current					<< ',' << \
-							riList.last()->ex->enc_motor				<< ',' << \
-							riList.last()->ex->enc_joint				<< ',' << \
-							riList.last()->st->ch[0].strain_filtered	<< ',' << \
-							riList.last()->st->ch[1].strain_filtered	<< ',' << \
-							riList.last()->st->ch[2].strain_filtered	<< ',' << \
-							riList.last()->st->ch[3].strain_filtered	<< ',' << \
-							riList.last()->st->ch[4].strain_filtered	<< ',' << \
-							riList.last()->st->ch[5].strain_filtered;
+	QTextStream(&str) <<	timeStamp.last().date			<< ',' << \
+							timeStamp.last().ms				<< ',' << \
+							tbList.last()->mb->ex1[0]		<< ',' << \
+							tbList.last()->mb->ex1[1]		<< ',' << \
+							tbList.last()->mb->ex1[2]		<< ',' << \
+							tbList.last()->mb->ex1[3]		<< ',' << \
+							tbList.last()->mb->ex1[4]		<< ',' << \
+							tbList.last()->mb->ex1[5]		<< ',' << \
+							tbList.last()->ex1->strain		<< ',' << \
+							tbList.last()->ex1->analog[0]	<< ',' << \
+							tbList.last()->ex1->analog[1]	<< ',' << \
+							tbList.last()->ex1->current		<< ',' << \
+							tbList.last()->ex1->enc_display	<< ',' << \
+							tbList.last()->ex1->volt_batt	<< ',' << \
+							tbList.last()->ex1->volt_int	<< ',' << \
+							tbList.last()->ex1->temp		<< ',' << \
+							tbList.last()->ex1->status1		<< ',' << \
+							tbList.last()->ex1->status2		<< ',' << \
+							tbList.last()->mb->ex2[0]		<< ',' << \
+							tbList.last()->mb->ex2[1]		<< ',' << \
+							tbList.last()->mb->ex2[2]		<< ',' << \
+							tbList.last()->mb->ex2[3]		<< ',' << \
+							tbList.last()->mb->ex2[4]		<< ',' << \
+							tbList.last()->mb->ex2[5]		<< ',' << \
+							tbList.last()->ex2->strain		<< ',' << \
+							tbList.last()->ex2->analog[0]	<< ',' << \
+							tbList.last()->ex2->analog[1]	<< ',' << \
+							tbList.last()->ex2->current		<< ',' << \
+							tbList.last()->ex2->enc_display	<< ',' << \
+							tbList.last()->ex2->volt_batt	<< ',' << \
+							tbList.last()->ex2->volt_int	<< ',' << \
+							tbList.last()->ex2->temp		<< ',' << \
+							tbList.last()->ex2->status1		<< ',' << \
+							tbList.last()->ex2->status2		<< ',' << \
+							tbList.last()->mb->mn1[0]		<< ',' << \
+							tbList.last()->mb->mn1[1]		<< ',' << \
+							tbList.last()->mb->mn1[2]		<< ',' << \
+							tbList.last()->mb->mn1[3]		<< ',' << \
+							tbList.last()->ba->voltage		<< ',' << \
+							tbList.last()->ba->current		<< ',' << \
+							tbList.last()->ba->decoded.power<< ',' << \
+							tbList.last()->ba->temp;
 	return str;
 }
 
-void RicnuProject::appendSerializedStr(QStringList *splitLine)
+void TestBenchProject::appendSerializedStr(QStringList *splitLine)
 {
 	//Check if data line contain the number of data expected
 	if(splitLine->length() >= serializedLength)
@@ -120,75 +174,97 @@ void RicnuProject::appendSerializedStr(QStringList *splitLine)
 		// also add execute and strain structure
 		appendEmptyLineWithStruct();
 
-		timeStamp.last().date						= (*splitLine)[0];
-		timeStamp.last().ms							= (*splitLine)[1].toInt();
-		riList.last()->ex->accel.x					= (*splitLine)[2].toInt();
-		riList.last()->ex->accel.y					= (*splitLine)[3].toInt();
-		riList.last()->ex->accel.z					= (*splitLine)[4].toInt();
-		riList.last()->ex->gyro.x					= (*splitLine)[5].toInt();
-		riList.last()->ex->gyro.y					= (*splitLine)[6].toInt();
-		riList.last()->ex->gyro.z					= (*splitLine)[7].toInt();
-		riList.last()->ex->current					= (*splitLine)[8].toInt();
-		riList.last()->ex->enc_motor				= (*splitLine)[9].toInt();
-		riList.last()->ex->enc_joint				= (*splitLine)[10].toInt();
-		riList.last()->st->ch[0].strain_filtered	= (*splitLine)[11].toInt();
-		riList.last()->st->ch[1].strain_filtered	= (*splitLine)[12].toInt();
-		riList.last()->st->ch[2].strain_filtered	= (*splitLine)[13].toInt();
-		riList.last()->st->ch[3].strain_filtered	= (*splitLine)[14].toInt();
-		riList.last()->st->ch[4].strain_filtered	= (*splitLine)[15].toInt();
-		riList.last()->st->ch[5].strain_filtered	= (*splitLine)[16].toInt();
+		timeStamp.last().date				= (*splitLine)[0];
+		timeStamp.last().ms					= (*splitLine)[1].toInt();
+		tbList.last()->mb->ex1[0]			= (*splitLine)[2].toInt();
+		tbList.last()->mb->ex1[1]			= (*splitLine)[3].toInt();
+		tbList.last()->mb->ex1[2]			= (*splitLine)[4].toInt();
+		tbList.last()->mb->ex1[3]			= (*splitLine)[5].toInt();
+		tbList.last()->mb->ex1[4]			= (*splitLine)[6].toInt();
+		tbList.last()->mb->ex1[5]			= (*splitLine)[7].toInt();
+		tbList.last()->ex1->strain			= (*splitLine)[8].toInt();
+		tbList.last()->ex1->analog[0]		= (*splitLine)[9].toInt();
+		tbList.last()->ex1->analog[1]		= (*splitLine)[10].toInt();
+		tbList.last()->ex1->current			= (*splitLine)[11].toInt();
+		tbList.last()->ex1->enc_display		= (*splitLine)[12].toInt();
+		tbList.last()->ex1->volt_batt		= (*splitLine)[13].toInt();
+		tbList.last()->ex1->volt_int		= (*splitLine)[14].toInt();
+		tbList.last()->ex1->temp			= (*splitLine)[15].toInt();
+		tbList.last()->ex1->status1			= (*splitLine)[16].toInt();
+		tbList.last()->ex1->status2			= (*splitLine)[17].toInt();
+		tbList.last()->mb->ex2[0]			= (*splitLine)[18].toInt();
+		tbList.last()->mb->ex2[1]			= (*splitLine)[19].toInt();
+		tbList.last()->mb->ex2[2]			= (*splitLine)[20].toInt();
+		tbList.last()->mb->ex2[3]			= (*splitLine)[21].toInt();
+		tbList.last()->mb->ex2[4]			= (*splitLine)[22].toInt();
+		tbList.last()->mb->ex2[5]			= (*splitLine)[23].toInt();
+		tbList.last()->ex2->strain			= (*splitLine)[24].toInt();
+		tbList.last()->ex2->analog[0]		= (*splitLine)[25].toInt();
+		tbList.last()->ex2->analog[1]		= (*splitLine)[26].toInt();
+		tbList.last()->ex2->current			= (*splitLine)[27].toInt();
+		tbList.last()->ex2->enc_display		= (*splitLine)[28].toInt();
+		tbList.last()->ex2->volt_batt		= (*splitLine)[29].toInt();
+		tbList.last()->ex2->volt_int		= (*splitLine)[30].toInt();
+		tbList.last()->ex2->temp			= (*splitLine)[31].toInt();
+		tbList.last()->ex2->status1			= (*splitLine)[32].toInt();
+		tbList.last()->ex2->status2			= (*splitLine)[33].toInt();
+		tbList.last()->mb->mn1[0]			= (*splitLine)[34].toInt();
+		tbList.last()->mb->mn1[1]			= (*splitLine)[35].toInt();
+		tbList.last()->mb->mn1[2]			= (*splitLine)[36].toInt();
+		tbList.last()->mb->mn1[3]			= (*splitLine)[37].toInt();
+		tbList.last()->ba->voltage			= (*splitLine)[38].toInt();
+		tbList.last()->ba->current			= (*splitLine)[39].toInt();
+		tbList.last()->ba->decoded.power	= (*splitLine)[40].toInt();
+		tbList.last()->ba->temp				= (*splitLine)[41].toInt();
 	}
 }
 
-void RicnuProject::clear(void)
+void TestBenchProject::clear(void)
 {
 	FlexseaDevice::clear();
-	riList.clear();
+	tbList.clear();
 	timeStamp.clear();
 }
 
-void RicnuProject::appendEmptyLine(void)
+void TestBenchProject::appendEmptyLine(void)
 {
 	timeStamp.append(TimeStamp());
-	riList.append(new ricnu_s_plan());
+	tbList.append(new testBench_s_plan());
 }
 
-void RicnuProject::appendEmptyLineWithStruct(void)
+void TestBenchProject::appendEmptyLineWithStruct(void)
 {
 	timeStamp.append(TimeStamp());
-	riList.append(new ricnu_s_plan());
-	riList.last()->ex = new execute_s();
-	riList.last()->st = new strain_s();
+	tbList.append(new testBench_s_plan());
+	tbList.last()->ex1 = new execute_s();
+	tbList.last()->ex2 = new execute_s();
+	tbList.last()->mb  = new motortb_s();
+	tbList.last()->ba  = new battery_s();
 }
 
-void RicnuProject::decodeLastLine(void)
+void TestBenchProject::decodeLastLine(void)
 {
-	if(dataSource == LiveDataFile){StrainDevice::decompressRawBytes(riList.last()->st);}
-	decode(riList.last());
+	if(dataSource == LiveDataFile)
+		{BatteryDevice::decompressRawBytes(tbList.last()->ba);}
+	decode(tbList.last());
 }
 
-void RicnuProject::decodeAllLine(void)
+void TestBenchProject::decodeAllLine(void)
 {
-	for(int i = 0; i < riList.size(); ++i)
+	for(int i = 0; i < tbList.size(); ++i)
 	{
-		if(dataSource == LiveDataFile){StrainDevice::decompressRawBytes(riList[i]->st);}
-		decode(riList[i]);
+		decode(tbList[i]);
 	}
 }
 
-void RicnuProject::decode(struct ricnu_s *riPtr)
+void TestBenchProject::decode(struct testBench_s_plan *tbPtr)
 {
-	ExecuteDevice::decode(&riPtr->ex);
-	StrainDevice::decode(&riPtr->st);
+	ExecuteDevice::decode(tbPtr->ex1);
+	ExecuteDevice::decode(tbPtr->ex2);
+	BatteryDevice::decode(tbPtr->ba);
 }
 
-void RicnuProject::decode(struct ricnu_s_plan *riPtr)
-{
-	ExecuteDevice::decode(riPtr->ex);
-	StrainDevice::decode(riPtr->st);
-}
-
-QString RicnuProject::getStatusStr(int index)
+QString TestBenchProject::getStatusStr(int index)
 {
 	return QString("No decoding available for this board");
 }
