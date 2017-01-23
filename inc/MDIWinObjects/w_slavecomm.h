@@ -49,6 +49,8 @@
 #include "batteryDevice.h"
 #include "strainDevice.h"
 #include "ricnuProject.h"
+#include "ankle2DofProject.h"
+#include "testBenchProject.h"
 
 //****************************************************************************
 // Definition(s)
@@ -81,7 +83,9 @@ public:
 							QList<FlexseaDevice*> *gossipDevListInit = nullptr,
 							QList<FlexseaDevice*> *batteryDevListInit = nullptr,
 							QList<FlexseaDevice*> *strainDevListInit = nullptr,
-							QList<FlexseaDevice*> *ricnuDevListInit = nullptr);
+							QList<FlexseaDevice*> *ricnuDevListInit = nullptr,
+							QList<FlexseaDevice*> *ankle2DofDevListInit = nullptr,
+							QList<FlexseaDevice*> *testBenchDevListInit = nullptr);
 	~W_SlaveComm();
 
 public slots:

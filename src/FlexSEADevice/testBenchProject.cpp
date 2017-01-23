@@ -234,8 +234,7 @@ void TestBenchProject::appendEmptyLine(void)
 
 void TestBenchProject::appendEmptyLineWithStruct(void)
 {
-	timeStamp.append(TimeStamp());
-	tbList.append(new testBench_s_plan());
+	appendEmptyLine();
 	tbList.last()->ex1 = new execute_s();
 	tbList.last()->ex2 = new execute_s();
 	tbList.last()->mb  = new motortb_s();

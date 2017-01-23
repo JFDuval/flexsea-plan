@@ -217,8 +217,7 @@ void Ankle2DofProject::appendEmptyLine(void)
 
 void Ankle2DofProject::appendEmptyLineWithStruct(void)
 {
-	timeStamp.append(TimeStamp());
-	akList.append(new ankle2Dof_s_plan());
+	appendEmptyLine();
 	akList.last()->ex1 = new execute_s();
 	akList.last()->ex2 = new execute_s();
 }

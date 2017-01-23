@@ -104,6 +104,8 @@ private:
 	QList<BatteryDevice>	batteryDevList;
 	QList<StrainDevice>		strainDevList;
 	QList<RicnuProject>		ricnuDevList;
+	QList<Ankle2DofProject> ankle2DofDevList;
+	QList<TestBenchProject> testBenchDevList;
 
 	// Specific Flexsea list
 	QList<FlexseaDevice*>	executeFlexList;
@@ -112,6 +114,8 @@ private:
 	QList<FlexseaDevice*>	batteryFlexList;
 	QList<FlexseaDevice*>	strainFlexList;
 	QList<FlexseaDevice*>	ricnuFlexList;
+	QList<FlexseaDevice*>	ankle2DofFlexList;
+	QList<FlexseaDevice*>	testBenchFlexList;
 
 	// Global Flexsea List
 	QList<FlexseaDevice*> flexseaPtrlist;

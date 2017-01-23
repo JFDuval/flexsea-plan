@@ -155,8 +155,7 @@ void RicnuProject::appendEmptyLine(void)
 
 void RicnuProject::appendEmptyLineWithStruct(void)
 {
-	timeStamp.append(TimeStamp());
-	riList.append(new ricnu_s_plan());
+	appendEmptyLine();
 	riList.last()->ex = new execute_s();
 	riList.last()->st = new strain_s();
 }

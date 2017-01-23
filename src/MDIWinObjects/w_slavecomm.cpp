@@ -47,12 +47,14 @@
 //****************************************************************************
 
 W_SlaveComm::W_SlaveComm(QWidget *parent,
-						 QList<FlexseaDevice*>  *executeDevListInit,
-						 QList<FlexseaDevice*>  *manageDevListInit,
-						 QList<FlexseaDevice*>  *gossipDevListInit,
-						 QList<FlexseaDevice*>  *batteryDevListInit,
-						 QList<FlexseaDevice*>  *strainDevListInit,
-						 QList<FlexseaDevice*>  *ricnuDevListInit) :
+						 QList<FlexseaDevice*> *executeDevListInit,
+						 QList<FlexseaDevice*> *manageDevListInit,
+						 QList<FlexseaDevice*> *gossipDevListInit,
+						 QList<FlexseaDevice*> *batteryDevListInit,
+						 QList<FlexseaDevice*> *strainDevListInit,
+						 QList<FlexseaDevice*> *ricnuDevListInit,
+						 QList<FlexseaDevice*> *ankle2DofDevListInit,
+						 QList<FlexseaDevice*> *testBenchDevListInit) :
 	QWidget(parent),
 	ui(new Ui::W_SlaveComm)
 {
@@ -67,11 +69,13 @@ W_SlaveComm::W_SlaveComm(QWidget *parent,
 	batteryDevList = batteryDevListInit;
 	strainDevList = strainDevListInit;
 	ricnuDevList = ricnuDevListInit;
+	ankle2DofDevList = ankle2DofDevListInit;
+	testBenchDevList = testBenchDevListInit;
 
 	initExperimentList();
 
-	initSlaveCom();
 	initTimers();
+	initSlaveCom();
 }
 
 W_SlaveComm::~W_SlaveComm()
@@ -258,7 +262,8 @@ void W_SlaveComm::initSlaveCom(void)
 		FlexSEA_Generic::populateExpComboBox((*comboBoxExpPtr[item]));
 
 		selected_exp_index[item] = 0;
-		previous_exp_index[item] = selected_exp_index[item];
+		// To trigger update when calling configSlaveComm in the init
+		previous_exp_index[item] = 26;
 
 		//Refresh Rate:
 		//==================================
@@ -270,10 +275,13 @@ void W_SlaveComm::initSlaveCom(void)
 		//Start at 33Hz:
 		(*comboBoxRefreshPtr[item])->setCurrentIndex(3);
 		selected_refresh_index[item] = 3;
-		previous_refresh_index[item] = selected_refresh_index[item];
+		// To trigger update when calling configSlaveComm in the init
+		previous_refresh_index[item] = 26;
 
-		//Connect default slots:
-		connectSCItem(item, 3);
+		// First configuration
+		allComboBoxesPopulated = true;
+		configSlaveComm(item);
+		allComboBoxesPopulated = false;
 	}
 
 	//ComboBoxes are all set:
@@ -470,7 +478,6 @@ void W_SlaveComm::configSlaveComm(int item)
 		master_timer->stop();
 
 		//Refresh all fields:
-
 		selected_exp_index[item] = (*comboBoxExpPtr[item])->currentIndex();
 		selected_refresh_index[item] = (*comboBoxRefreshPtr[item])->currentIndex();
 
@@ -505,6 +512,7 @@ void W_SlaveComm::configSlaveComm(int item)
 					logDevice[item] = (*testBenchDevList)[0];
 					break;
 				default:
+					currentTargetList[item] = nullptr;
 					break;
 			}
 
@@ -537,73 +545,75 @@ void W_SlaveComm::configSlaveComm(int item)
 			}
 			else
 			{
+				msg = "Experiment not implemented yet";
 				(*comboBoxSlavePtr[item])->addItem("Not Coded");
-				qDebug() << "Not coded!";
-				updateStatusBar("Command not implemented yet");
-				return;
 			}
 
 			// Re-enable emission of signal
 			(*comboBoxSlavePtr[item])->blockSignals(false);
 		}
 
-		// Update the target device
-		targetDevice[item] =\
-			(*currentTargetList[item])[(*comboBoxSlavePtr[item])->currentIndex()];
-
-
-		// Specific case of Read All, select the log file in function of target
-		if(selected_exp_index[item] == 0)//Read All (Barebone)
+		// If not implemented yet, skip that part.
+		if(currentTargetList[item] != nullptr)
 		{
-			logDevice[item] = \
+			// Update the target device
+			targetDevice[item] =\
 				(*currentTargetList[item])[(*comboBoxSlavePtr[item])->currentIndex()];
+
+
+			// Specific case of Read All, select the log file in function of target
+			if(selected_exp_index[item] == 0)//Read All (Barebone)
+			{
+				logDevice[item] = \
+					(*currentTargetList[item])[(*comboBoxSlavePtr[item])->currentIndex()];
+			}
+
+			// Fill the log flexSEADevice metadata properly
+			QString name;
+
+			logDevice[item]->experimentIndex = selected_exp_index[item];
+			FlexSEA_Generic::getExpName(selected_exp_index[item], &name);
+			logDevice[item]->experimentName = name;
+
+			logDevice[item]->frequency =\
+					uint16_t(refreshRate[selected_refresh_index[item]]);
+
+			logDevice[item]->shortFileName =
+					logDevice[item]->slaveName + "_" +
+					logDevice[item]->experimentName + "_" +
+					var_list_refresh[selected_refresh_index[item]] +
+					".csv";
+
+			// TODO: Is usefull anymore?
+			logDevice[item]->logItem = item;
+
+			//If refresh has changed, connect a time slot to that stream command:
+			if(previous_refresh_index[item] != selected_refresh_index[item])
+			{
+				//Refresh changed, we need to update connections.
+				connectSCItem(item, selected_refresh_index[item]);
+				msg_ref += "Changed connection.";
+			}
+
+			// Restart the master timer
+			master_timer->start(TIM_FREQ_TO_P(MASTER_TIMER));
+
+			//Update status message:
+			msg = "Updated #" + QString::number(item+1) + ": ("
+					+ "?" + ", "
+					+ QString::number(selected_exp_index[item]) + ", "
+					+ QString::number(selected_refresh_index[item]) + "). ";
+			if((*on_off_pb_ptr[0])->isChecked() == true)
+			{
+				msg += "Stream ON. ";
+			}
+			else
+			{
+				msg += "Stream OFF. ";
+			}
+
+			manageLogStatus(item);
 		}
-
-		// Fill the log flexSEADevice metadata properly
-		QString name;
-
-		logDevice[item]->experimentIndex = selected_exp_index[item];
-		FlexSEA_Generic::getExpName(selected_exp_index[item], &name);
-		logDevice[item]->experimentName = name;
-
-		logDevice[item]->frequency =\
-				uint16_t(refreshRate[selected_refresh_index[item]]);
-
-		logDevice[item]->shortFileName =
-				logDevice[item]->slaveName + "_" +
-				logDevice[item]->experimentName + "_" +
-				var_list_refresh[selected_refresh_index[item]] +
-				".csv";
-
-		// TODO: Is usefull anymore?
-		logDevice[item]->logItem = item;
-
-		//If refresh has changed, connect a time slot to that stream command:
-		if(previous_refresh_index[item] != selected_refresh_index[item])
-		{
-			//Refresh changed, we need to update connections.
-			connectSCItem(item, selected_refresh_index[item]);
-			msg_ref += "Changed connection.";
-		}
-
-		// Restart the master timer
-		master_timer->start(TIM_FREQ_TO_P(MASTER_TIMER));
-
-		//Update status message:
-		msg = "Updated #" + QString::number(item+1) + ": ("
-				+ "?" + ", "
-				+ QString::number(selected_exp_index[item]) + ", "
-				+ QString::number(selected_refresh_index[item]) + "). ";
-		if((*on_off_pb_ptr[0])->isChecked() == true)
-		{
-			msg += "Stream ON. ";
-		}
-		else
-		{
-			msg += "Stream OFF. ";
-		}
-
-		manageLogStatus(item);
 
 		updateStatusBar(msg + msg_ref);
 		previous_refresh_index[item] = selected_refresh_index[item];
