@@ -669,23 +669,17 @@ void W_SlaveComm::sc_ankle2dof(uint8_t item)
 {
 	uint16_t numb = 0;
 	uint8_t info[2] = {PORT_USB, PORT_USB};
-	static uint8_t sel_slave = 0;
+	static uint8_t index = 0;
 
 	//1) Stream
-	tx_cmd_ankle2dof_r(TX_N_DEFAULT, sel_slave, 0, 0, 0);
+	tx_cmd_ankle2dof_r(TX_N_DEFAULT, index, 0, 0, 0);
 	pack(P_AND_S_DEFAULT, targetDevice[item]->slaveID
 		 , info, &numb, comm_str_usb);
 	emit slaveReadWrite(numb, comm_str_usb, READ);
 
 	//***ToDo: update for multiple slaves!***
-	if(sel_slave == 0)
-	{
-		sel_slave = 1;
-	}
-	else
-	{
-		sel_slave = 0;
-	}
+	index++;
+	index %= 2;
 
 	//TODO Ankle2DOF is not logging
 	decodeAndLog(item);
@@ -723,16 +717,6 @@ void W_SlaveComm::sc_testbench(uint8_t item)
 
 	index++;
 	index %= 3;
-
-	//2) Decode values
-//	if(offset == 0 || offset == 1)
-//	{
-//		FlexSEA_Generic::decodeSlave(SL_BASE_EX, offset);
-//	}
-//	else if(offset == 2)
-//	{
-//		FlexSEA_Generic::decodeSlave(SL_BASE_ALL, 9);
-//	}
 
 	//TODO Ankle2DOF is not logging
 	decodeAndLog(item);
