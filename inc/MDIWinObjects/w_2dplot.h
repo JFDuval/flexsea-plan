@@ -165,13 +165,23 @@ signals:
 
 private:
 
+	// GUI Pointer table
+
+	QLabel **lbT[VAR_NUM];
+	QComboBox **cbVar[VAR_NUM];
+	QComboBox **cbVarSlave[VAR_NUM];
+	QCheckBox **ckbDecode[VAR_NUM];
+	QLabel **lbMin[VAR_NUM];
+	QLabel **lbMax[VAR_NUM];
+	QLabel **lbAvg[VAR_NUM];
+
 	//Variables & Objects:
 
 	Ui::W_2DPlot *ui;
 	QChart *chart;
 	QChartView *chartView;
 	QLineSeries *qlsData[VAR_NUM];
-	QLineSeries qlsDataBuffer[6];
+	QLineSeries qlsDataBuffer[VAR_NUM];
 	QDateTime *timerRefreshDisplay, *timerRefreshData;
 	int plot_xmin, plot_ymin, plot_xmax, plot_ymax, plot_len;
 	int globalYmin, globalYmax;
@@ -212,11 +222,12 @@ private:
 	void setChartAxisAutomatic(void);
 	bool allChannelUnused(void);
 	void initStats(void);
+	void initPtr(void);
 	void refreshStats(void);
 	void refreshStatBar(float fDisp, float fData);
 	void useOpenGL(bool yesNo);
 
-	void updateVarList(uint8_t var, QComboBox *myCombo);
+	void updateVarList(uint8_t var);
 	void assignVariable(uint8_t var);
 	void assignVariableEx(uint8_t var, struct execute_s *myPtr);
 	void assignVariableMn(uint8_t var, struct manage_s *myPtr);

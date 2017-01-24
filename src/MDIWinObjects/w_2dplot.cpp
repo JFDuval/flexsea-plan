@@ -61,6 +61,7 @@ W_2DPlot::W_2DPlot(QWidget *parent) :
 	setWindowIcon(QIcon(":icons/d_logo_small.png"));
 
 	initFlag = true;
+	initPtr();
 	initStats();
 	initUserInput();
 	initChart();
@@ -179,35 +180,79 @@ void W_2DPlot::refreshControl(void)
 // Private function(s):
 //****************************************************************************
 
+void W_2DPlot::initPtr(void)
+{
+	lbT[0] = &ui->label_t1;
+	lbT[1] = &ui->label_t2;
+	lbT[2] = &ui->label_t3;
+	lbT[3] = &ui->label_t4;
+	lbT[4] = &ui->label_t5;
+	lbT[5] = &ui->label_t6;
+
+	cbVar[0] = &ui->cBoxvar1;
+	cbVar[1] = &ui->cBoxvar2;
+	cbVar[2] = &ui->cBoxvar3;
+	cbVar[3] = &ui->cBoxvar4;
+	cbVar[4] = &ui->cBoxvar5;
+	cbVar[5] = &ui->cBoxvar6;
+
+	cbVarSlave[0] = &ui->cBoxvar1slave;
+	cbVarSlave[1] = &ui->cBoxvar2slave;
+	cbVarSlave[2] = &ui->cBoxvar3slave;
+	cbVarSlave[3] = &ui->cBoxvar4slave;
+	cbVarSlave[4] = &ui->cBoxvar5slave;
+	cbVarSlave[5] = &ui->cBoxvar6slave;
+
+	ckbDecode[0] = &ui->checkBoxD1;
+	ckbDecode[1] = &ui->checkBoxD2;
+	ckbDecode[2] = &ui->checkBoxD3;
+	ckbDecode[3] = &ui->checkBoxD4;
+	ckbDecode[4] = &ui->checkBoxD5;
+	ckbDecode[5] = &ui->checkBoxD6;
+
+	lbMin[0] = &ui->label_1_min;
+	lbMin[1] = &ui->label_2_min;
+	lbMin[2] = &ui->label_3_min;
+	lbMin[3] = &ui->label_4_min;
+	lbMin[4] = &ui->label_5_min;
+	lbMin[5] = &ui->label_6_min;
+
+	lbMax[0] = &ui->label_1_max;
+	lbMax[1] = &ui->label_2_max;
+	lbMax[2] = &ui->label_3_max;
+	lbMax[3] = &ui->label_4_max;
+	lbMax[4] = &ui->label_5_max;
+	lbMax[5] = &ui->label_6_max;
+
+	lbAvg[0] = &ui->label_1_avg;
+	lbAvg[1] = &ui->label_2_avg;
+	lbAvg[2] = &ui->label_3_avg;
+	lbAvg[3] = &ui->label_4_avg;
+	lbAvg[4] = &ui->label_5_avg;
+	lbAvg[5] = &ui->label_6_avg;
+}
+
 void W_2DPlot::initChart(void)
 {
 	vecLen = 0;
 
-	//Data series:
-	qlsData[0] = new QLineSeries();
-	qlsData[0]->append(0, 0);
-	qlsData[1] = new QLineSeries();
-	qlsData[1]->append(0, 0);
-	qlsData[2] = new QLineSeries();
-	qlsData[2]->append(0, 0);
-	qlsData[3] = new QLineSeries();
-	qlsData[3]->append(0, 0);
-	qlsData[4] = new QLineSeries();
-	qlsData[4]->append(0, 0);
-	qlsData[5] = new QLineSeries();
-	qlsData[5]->append(0, 0);
+	for(int i = 0; i < VAR_NUM; ++i)
+	{
+		//Data series:
+		qlsData[i] = new QLineSeries();
+		qlsData[i]->append(0, 0);
+	}
 
 	initData();
 
 	//Chart:
 	chart = new QChart();
 	chart->legend()->hide();
-	chart->addSeries(qlsData[0]);
-	chart->addSeries(qlsData[1]);
-	chart->addSeries(qlsData[2]);
-	chart->addSeries(qlsData[3]);
-	chart->addSeries(qlsData[4]);
-	chart->addSeries(qlsData[5]);
+
+	for(int i = 0; i < VAR_NUM; ++i)
+	{
+		chart->addSeries(qlsData[i]);
+	}
 
 	chart->createDefaultAxes();
 	chart->axisX()->setRange(plot_xmin, plot_xmax);
@@ -216,25 +261,20 @@ void W_2DPlot::initChart(void)
 	//Colors:
 	chart->setTheme(QChart::ChartThemeDark);
 	qlsData[5]->setColor(Qt::red);  //Color[5] was ~= [0], too similar, now red
+
 	//Update labels based on theme colors:
-	QString msg[VAR_NUM];
+	QString msg;
 	for(int u = 0; u < VAR_NUM; u++)
 	{
 		int r = 0, g = 0, b = 0;
 		r = qlsData[u]->color().red();
 		g = qlsData[u]->color().green();
 		b = qlsData[u]->color().blue();
-		msg[u] = "QLabel { background-color: black; color: rgb(" + \
+		msg = "QLabel { background-color: black; color: rgb(" + \
 				QString::number(r) + ',' + QString::number(g) + ','+ \
 				QString::number(b) + ");}";
+		(*lbT[u])->setStyleSheet(msg);
 	}
-
-	ui->label_t1->setStyleSheet(msg[0]);
-	ui->label_t2->setStyleSheet(msg[1]);
-	ui->label_t3->setStyleSheet(msg[2]);
-	ui->label_t4->setStyleSheet(msg[3]);
-	ui->label_t5->setStyleSheet(msg[4]);
-	ui->label_t6->setStyleSheet(msg[5]);
 
 	//Chart view:
 	chartView = new QChartView(chart);
@@ -340,12 +380,11 @@ void W_2DPlot::initUserInput(void)
 
 	//Variable comboBoxes:
 	saveCurrentSettings();  //Needed for the 1st var_list
-	updateVarList(0, ui->cBoxvar1);
-	updateVarList(1, ui->cBoxvar2);
-	updateVarList(2, ui->cBoxvar3);
-	updateVarList(3, ui->cBoxvar4);
-	updateVarList(4, ui->cBoxvar5);
-	updateVarList(5, ui->cBoxvar6);
+
+	for(int i = 0; i < VAR_NUM; i++)
+	{
+		updateVarList(i);
+	}
 
 	//By default, we track Slave 1:
 	ui->checkBoxTrack->setChecked(true);
@@ -632,36 +671,19 @@ void W_2DPlot::initData(void)
 //Based on the current state of comboBoxes, saves the info in variables
 void W_2DPlot::saveCurrentSettings(void)
 {
-	//Slave:
-	slaveIndex[0] = ui->cBoxvar1slave->currentIndex();
-	slaveIndex[1] = ui->cBoxvar2slave->currentIndex();
-	slaveIndex[2] = ui->cBoxvar3slave->currentIndex();
-	slaveIndex[3] = ui->cBoxvar4slave->currentIndex();
-	slaveIndex[4] = ui->cBoxvar5slave->currentIndex();
-	slaveIndex[5] = ui->cBoxvar6slave->currentIndex();
-
 	for(int i = 0; i < VAR_NUM; i++)
 	{
+		//Slave:
+		slaveIndex[i] = (*cbVarSlave[i])->currentIndex();
 		slaveAddr[i] = FlexSEA_Generic::getSlaveID(SL_BASE_ALL, slaveIndex[i]);
 		slaveBType[i] = FlexSEA_Generic::getSlaveBoardType(SL_BASE_ALL, \
 														   slaveIndex[i]);
+		//Variable:
+		varIndex[i] = (*cbVar[i])->currentIndex();
+
+		//Decode:
+		vtp[i].decode = (*ckbDecode[i])->isChecked();
 	}
-
-	//Variable:
-	varIndex[0] = ui->cBoxvar1->currentIndex();
-	varIndex[1] = ui->cBoxvar2->currentIndex();
-	varIndex[2] = ui->cBoxvar3->currentIndex();
-	varIndex[3] = ui->cBoxvar4->currentIndex();
-	varIndex[4] = ui->cBoxvar5->currentIndex();
-	varIndex[5] = ui->cBoxvar6->currentIndex();
-
-	//Decode:
-	vtp[0].decode = ui->checkBoxD1->isChecked();
-	vtp[1].decode = ui->checkBoxD2->isChecked();
-	vtp[2].decode = ui->checkBoxD3->isChecked();
-	vtp[3].decode = ui->checkBoxD4->isChecked();
-	vtp[4].decode = ui->checkBoxD5->isChecked();
-	vtp[5].decode = ui->checkBoxD6->isChecked();
 }
 
 //We use a bigger Y scale than the minimum span to make it clearer
@@ -862,56 +884,22 @@ void W_2DPlot::initStats(void)
 {
 	memset(&stats, 0, sizeof stats);
 
-	ui->label_1_min->setText(QString::number(0));
-	ui->label_1_max->setText(QString::number(0));
-	ui->label_1_avg->setText(QString::number(0));
-
-	ui->label_2_min->setText(QString::number(0));
-	ui->label_2_max->setText(QString::number(0));
-	ui->label_2_avg->setText(QString::number(0));
-
-	ui->label_3_min->setText(QString::number(0));
-	ui->label_3_max->setText(QString::number(0));
-	ui->label_3_avg->setText(QString::number(0));
-
-	ui->label_4_min->setText(QString::number(0));
-	ui->label_4_max->setText(QString::number(0));
-	ui->label_4_avg->setText(QString::number(0));
-
-	ui->label_5_min->setText(QString::number(0));
-	ui->label_5_max->setText(QString::number(0));
-	ui->label_5_avg->setText(QString::number(0));
-
-	ui->label_6_min->setText(QString::number(0));
-	ui->label_6_max->setText(QString::number(0));
-	ui->label_6_avg->setText(QString::number(0));
+	for(int i = 0; i < VAR_NUM; ++i)
+	{
+		(*lbMin[i])->setText(QString::number(0));
+		(*lbMax[i])->setText(QString::number(0));
+		(*lbAvg[i])->setText(QString::number(0));
+	}
 }
 
 void W_2DPlot::refreshStats(void)
 {
-	ui->label_1_min->setText(QString::number(stats[0][STATS_MIN]));
-	ui->label_1_max->setText(QString::number(stats[0][STATS_MAX]));
-	ui->label_1_avg->setText(QString::number(stats[0][STATS_AVG]));
-
-	ui->label_2_min->setText(QString::number(stats[1][STATS_MIN]));
-	ui->label_2_max->setText(QString::number(stats[1][STATS_MAX]));
-	ui->label_2_avg->setText(QString::number(stats[1][STATS_AVG]));
-
-	ui->label_3_min->setText(QString::number(stats[2][STATS_MIN]));
-	ui->label_3_max->setText(QString::number(stats[2][STATS_MAX]));
-	ui->label_3_avg->setText(QString::number(stats[2][STATS_AVG]));
-
-	ui->label_4_min->setText(QString::number(stats[3][STATS_MIN]));
-	ui->label_4_max->setText(QString::number(stats[3][STATS_MAX]));
-	ui->label_4_avg->setText(QString::number(stats[3][STATS_AVG]));
-
-	ui->label_5_min->setText(QString::number(stats[4][STATS_MIN]));
-	ui->label_5_max->setText(QString::number(stats[4][STATS_MAX]));
-	ui->label_5_avg->setText(QString::number(stats[4][STATS_AVG]));
-
-	ui->label_6_min->setText(QString::number(stats[5][STATS_MIN]));
-	ui->label_6_max->setText(QString::number(stats[5][STATS_MAX]));
-	ui->label_6_avg->setText(QString::number(stats[5][STATS_AVG]));
+	for(int i = 0; i < VAR_NUM; ++i)
+	{
+		(*lbMin[i])->setText(QString::number(stats[i][STATS_MIN]));
+		(*lbMax[i])->setText(QString::number(stats[i][STATS_MAX]));
+		(*lbAvg[i])->setText(QString::number(stats[i][STATS_AVG]));
+	}
 }
 
 //Displays the 2 refresh frequencies
@@ -930,11 +918,11 @@ void W_2DPlot::refreshStatBar(float fDisp, float fData)
 
 //Each board type has a different variable list.
 //ToDo: those lists should come from the w_BoardName files
-void W_2DPlot::updateVarList(uint8_t var, QComboBox *myCombo)
+void W_2DPlot::updateVarList(uint8_t item)
 {
 	QStringList var_list, toolTipList;
 
-	uint8_t bType = slaveBType[var];
+	uint8_t bType = slaveBType[item];
 
 	//Build the string:
 	switch(bType)
@@ -1026,12 +1014,12 @@ void W_2DPlot::updateVarList(uint8_t var, QComboBox *myCombo)
 	}
 
 	//Fill the comboBox:
-	myCombo->clear();
-	myCombo->setToolTipDuration(750);
+	(*cbVar[item])->clear();
+	(*cbVar[item])->setToolTipDuration(750);
 	for(int index = 0; index < var_list.count(); index++)
 	{
-		myCombo->addItem(var_list.at(index));
-		myCombo->setItemData(index, toolTipList.at(index), Qt::ToolTipRole);
+		(*cbVar[item])->addItem(var_list.at(index));
+		(*cbVar[item])->setItemData(index, toolTipList.at(index), Qt::ToolTipRole);
 	}
 }
 
@@ -1766,7 +1754,7 @@ void W_2DPlot::on_cBoxvar1slave_currentIndexChanged(int index)
 		if(ui->checkBoxTrack->isChecked() == false)
 		{
 			//If the Tracking box isn't checked we only change #1:
-			updateVarList(0, ui->cBoxvar1);
+			updateVarList(0);
 			assignVariable(0);
 			//qDebug() << "Only change #1";
 		}
@@ -1781,12 +1769,12 @@ void W_2DPlot::on_cBoxvar1slave_currentIndexChanged(int index)
 			ui->cBoxvar5slave->setCurrentIndex(ui->cBoxvar1slave->currentIndex());
 			ui->cBoxvar6slave->setCurrentIndex(ui->cBoxvar1slave->currentIndex());
 
-			updateVarList(0, ui->cBoxvar1);
-			updateVarList(1, ui->cBoxvar2);
-			updateVarList(2, ui->cBoxvar3);
-			updateVarList(3, ui->cBoxvar4);
-			updateVarList(4, ui->cBoxvar5);
-			updateVarList(5, ui->cBoxvar6);
+			updateVarList(0);
+			updateVarList(1);
+			updateVarList(2);
+			updateVarList(3);
+			updateVarList(4);
+			updateVarList(5);
 			assignVariable(0);
 			assignVariable(1);
 			assignVariable(2);
@@ -1804,7 +1792,7 @@ void W_2DPlot::on_cBoxvar2slave_currentIndexChanged(int index)
 	if(initFlag == false)
 	{
 		saveCurrentSettings();
-		updateVarList(1, ui->cBoxvar2);
+		updateVarList(1);
 		assignVariable(1);
 	}
 }
@@ -1816,7 +1804,7 @@ void W_2DPlot::on_cBoxvar3slave_currentIndexChanged(int index)
 	if(initFlag == false)
 	{
 		saveCurrentSettings();
-		updateVarList(2, ui->cBoxvar3);
+		updateVarList(2);
 		assignVariable(2);
 	}
 }
@@ -1828,7 +1816,7 @@ void W_2DPlot::on_cBoxvar4slave_currentIndexChanged(int index)
 	if(initFlag == false)
 	{
 		saveCurrentSettings();
-		updateVarList(3, ui->cBoxvar4);
+		updateVarList(3);
 		assignVariable(3);
 	}
 }
@@ -1840,7 +1828,7 @@ void W_2DPlot::on_cBoxvar5slave_currentIndexChanged(int index)
 	if(initFlag == false)
 	{
 		saveCurrentSettings();
-		updateVarList(4, ui->cBoxvar5);
+		updateVarList(4);
 		assignVariable(4);
 	}
 }
@@ -1852,7 +1840,7 @@ void W_2DPlot::on_cBoxvar6slave_currentIndexChanged(int index)
 	if(initFlag == false)
 	{
 		saveCurrentSettings();
-		updateVarList(5, ui->cBoxvar6);
+		updateVarList(5);
 		assignVariable(5);
 	}
 }
