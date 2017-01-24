@@ -88,44 +88,44 @@ W_2DPlot::~W_2DPlot()
 
 void W_2DPlot::receiveNewData(void)
 {
-	uint8_t index = 0;
+	uint8_t item = 0;
 	int val[6] = {0,0,0,0,0,0};
 
 	dataRate = getRefreshRateData();
 
 	//For every variable:
-	for(index = 0; index < VAR_NUM; index++)
+	for(item = 0; item < VAR_NUM; item++)
 	{
-		if(vtp[index].decode == false)
+		if(vtp[item].decode == false)
 		{
-			switch(vtp[index].format)
+			switch(vtp[item].format)
 			{
 				case FORMAT_32S:
-					val[index] = (*vtp[index].ptr32s);
+					val[item] = (*vtp[item].ptr32s);
 					break;
 				case FORMAT_32U:
-					val[index] = (int)(*vtp[index].ptr32u);
+					val[item] = (int)(*vtp[item].ptr32u);
 					break;
 				case FORMAT_16S:
-					val[index] = (int)(*vtp[index].ptr16s);
+					val[item] = (int)(*vtp[item].ptr16s);
 					break;
 				case FORMAT_16U:
-					val[index] = (int)(*vtp[index].ptr16u);
+					val[item] = (int)(*vtp[item].ptr16u);
 					break;
 				case FORMAT_8S:
-					val[index] = (int)(*vtp[index].ptr8s);
+					val[item] = (int)(*vtp[item].ptr8s);
 					break;
 				case FORMAT_8U:
-					val[index] = (int)(*vtp[index].ptr8u);
+					val[item] = (int)(*vtp[item].ptr8u);
 					break;
 				default:
-					val[index] = 0;
+					val[item] = 0;
 					break;
 			}
 		}
 		else
 		{
-			val[index] = (*vtp[index].ptrD32s);
+			val[item] = (*vtp[item].ptrD32s);
 		}
 	}
 
@@ -365,39 +365,28 @@ void W_2DPlot::initUserInput(void)
 	//Note: Color coded labels will be defined based on the chart.
 
 	//Slave combo box:
-	FlexSEA_Generic::populateSlaveComboBox(ui->cBoxvar1slave, SL_BASE_ALL, \
-											SL_LEN_ALL);
-	FlexSEA_Generic::populateSlaveComboBox(ui->cBoxvar2slave, SL_BASE_ALL, \
-										  SL_LEN_ALL);
-	FlexSEA_Generic::populateSlaveComboBox(ui->cBoxvar3slave, SL_BASE_ALL, \
-										  SL_LEN_ALL);
-	FlexSEA_Generic::populateSlaveComboBox(ui->cBoxvar4slave, SL_BASE_ALL, \
-										  SL_LEN_ALL);
-	FlexSEA_Generic::populateSlaveComboBox(ui->cBoxvar5slave, SL_BASE_ALL, \
-										  SL_LEN_ALL);
-	FlexSEA_Generic::populateSlaveComboBox(ui->cBoxvar6slave, SL_BASE_ALL, \
-										  SL_LEN_ALL);
+	for(int i = 0; i < VAR_NUM; i++)
+	{
+		FlexSEA_Generic::populateSlaveComboBox((*cbVarSlave[i]), SL_BASE_ALL, \
+												SL_LEN_ALL);
+	}
 
 	//Variable comboBoxes:
 	saveCurrentSettings();  //Needed for the 1st var_list
 
+	//Decode Checkbox tooltips:
+	QString ttip = "<html><head/><body><p>Plot data in physical units (instead \
+					of ticks)</p></body></html>";
+
 	for(int i = 0; i < VAR_NUM; i++)
 	{
 		updateVarList(i);
+		(*ckbDecode[i])->setToolTip(ttip);
 	}
 
 	//By default, we track Slave 1:
 	ui->checkBoxTrack->setChecked(true);
 
-	//Decode Checkbox tooltips:
-	QString ttip = "<html><head/><body><p>Plot data in physical units (instead \
-					of ticks)</p></body></html>";
-	ui->checkBoxD1->setToolTip(ttip);
-	ui->checkBoxD2->setToolTip(ttip);
-	ui->checkBoxD3->setToolTip(ttip);
-	ui->checkBoxD4->setToolTip(ttip);
-	ui->checkBoxD5->setToolTip(ttip);
-	ui->checkBoxD6->setToolTip(ttip);
 
 	pointsVisible = false;
 	globalYmin = 0;
@@ -424,6 +413,19 @@ void W_2DPlot::initUserInput(void)
 
 	//Init flag:
 	initFlag = false;
+}
+
+//Empties all the lists
+void W_2DPlot::initData(void)
+{
+	vecLen = 0;
+	for(int i = 0; i < VAR_NUM; i++)
+	{
+		qlsDataBuffer[i].clear();
+		qlsData[i]->replace(qlsDataBuffer[i].points());
+	}
+
+	initStats();
 }
 
 //Updates 6 buffers, and compute stats (min/max/avg/...)
@@ -653,19 +655,6 @@ float W_2DPlot::getRefreshRateData(void)
 	avg = avg / 4;
 
 	return avg;
-}
-
-//Empties all the lists
-void W_2DPlot::initData(void)
-{
-	vecLen = 0;
-	for(int i = 0; i < VAR_NUM; i++)
-	{
-		qlsDataBuffer[i].clear();
-		qlsData[i]->replace(qlsDataBuffer[i].points());
-	}
-
-	initStats();
 }
 
 //Based on the current state of comboBoxes, saves the info in variables
