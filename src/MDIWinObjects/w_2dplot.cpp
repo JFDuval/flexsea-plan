@@ -146,23 +146,24 @@ void W_2DPlot::refresh2DPlot(void)
 		if(vtp[index].used == false)
 		{
 			//This channel isn't used, we make it invisible
-			qlsData[index]->setVisible(false);
+			qlsChart[index]->setVisible(false);
 		}
 		else
 		{
-			qlsData[index]->setVisible(true);
+			qlsChart[index]->setVisible(true);
 		}
 	}
 
 	//And now update the display:
 	if(plotFreezed == false)
 	{
-		qlsData[0]->replace(qlsDataBuffer[0].points());
-		qlsData[1]->replace(qlsDataBuffer[1].points());
-		qlsData[2]->replace(qlsDataBuffer[2].points());
-		qlsData[3]->replace(qlsDataBuffer[3].points());
-		qlsData[4]->replace(qlsDataBuffer[4].points());
-		qlsData[5]->replace(qlsDataBuffer[5].points());
+		// Apparently, using pointsVector is much faster (see documentation)
+		qlsChart[0]->replace(vDataBuffer[0]);
+		qlsChart[1]->replace(vDataBuffer[1]);
+		qlsChart[2]->replace(vDataBuffer[2]);
+		qlsChart[3]->replace(vDataBuffer[3]);
+		qlsChart[4]->replace(vDataBuffer[4]);
+		qlsChart[5]->replace(vDataBuffer[5]);
 
 		computeGlobalMinMax();
 		refreshStats();
@@ -239,8 +240,8 @@ void W_2DPlot::initChart(void)
 	for(int i = 0; i < VAR_NUM; ++i)
 	{
 		//Data series:
-		qlsData[i] = new QLineSeries();
-		qlsData[i]->append(0, 0);
+		qlsChart[i] = new QLineSeries();
+		qlsChart[i]->append(0, 0);
 	}
 
 	initData();
@@ -251,7 +252,7 @@ void W_2DPlot::initChart(void)
 
 	for(int i = 0; i < VAR_NUM; ++i)
 	{
-		chart->addSeries(qlsData[i]);
+		chart->addSeries(qlsChart[i]);
 	}
 
 	chart->createDefaultAxes();
@@ -260,16 +261,16 @@ void W_2DPlot::initChart(void)
 
 	//Colors:
 	chart->setTheme(QChart::ChartThemeDark);
-	qlsData[5]->setColor(Qt::red);  //Color[5] was ~= [0], too similar, now red
+	qlsChart[5]->setColor(Qt::red);  //Color[5] was ~= [0], too similar, now red
 
 	//Update labels based on theme colors:
 	QString msg;
 	for(int u = 0; u < VAR_NUM; u++)
 	{
 		int r = 0, g = 0, b = 0;
-		r = qlsData[u]->color().red();
-		g = qlsData[u]->color().green();
-		b = qlsData[u]->color().blue();
+		r = qlsChart[u]->color().red();
+		g = qlsChart[u]->color().green();
+		b = qlsChart[u]->color().blue();
 		msg = "QLabel { background-color: black; color: rgb(" + \
 				QString::number(r) + ',' + QString::number(g) + ','+ \
 				QString::number(b) + ");}";
@@ -284,19 +285,20 @@ void W_2DPlot::initChart(void)
 	chartView->setMinimumSize(500,300);
 	chartView->setMaximumSize(4000,2500);
 	chartView->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-
+	chart->setCacheMode(QGraphicsItem::DeviceCoordinateCache);
+	QPixmapCache::setCacheLimit(100000);
 	//Data indicator:
-	connect(qlsData[0], SIGNAL(hovered(const QPointF, bool)),\
+	connect(qlsChart[0], SIGNAL(hovered(const QPointF, bool)),\
 			this, SLOT(myHoverHandler0(QPointF, bool)));
-	connect(qlsData[1], SIGNAL(hovered(const QPointF, bool)),\
+	connect(qlsChart[1], SIGNAL(hovered(const QPointF, bool)),\
 			this, SLOT(myHoverHandler1(QPointF, bool)));
-	connect(qlsData[2], SIGNAL(hovered(const QPointF, bool)),\
+	connect(qlsChart[2], SIGNAL(hovered(const QPointF, bool)),\
 			this, SLOT(myHoverHandler2(QPointF, bool)));
-	connect(qlsData[3], SIGNAL(hovered(const QPointF, bool)),\
+	connect(qlsChart[3], SIGNAL(hovered(const QPointF, bool)),\
 			this, SLOT(myHoverHandler3(QPointF, bool)));
-	connect(qlsData[4], SIGNAL(hovered(const QPointF, bool)),\
+	connect(qlsChart[4], SIGNAL(hovered(const QPointF, bool)),\
 			this, SLOT(myHoverHandler4(QPointF, bool)));
-	connect(qlsData[5], SIGNAL(hovered(const QPointF, bool)),\
+	connect(qlsChart[5], SIGNAL(hovered(const QPointF, bool)),\
 			this, SLOT(myHoverHandler5(QPointF, bool)));
 }
 
@@ -421,8 +423,8 @@ void W_2DPlot::initData(void)
 	vecLen = 0;
 	for(int i = 0; i < VAR_NUM; i++)
 	{
-		qlsDataBuffer[i].clear();
-		qlsData[i]->replace(qlsDataBuffer[i].points());
+		vDataBuffer[i].clear();
+		qlsChart[i]->replace(vDataBuffer[i]);
 	}
 
 	initStats();
@@ -442,28 +444,28 @@ void W_2DPlot::saveNewPoints(int myDataPoints[6])
 		//For each variable:
 		for(int i = 0; i < VAR_NUM; i++)
 		{
-			qlsDataBuffer[i].append(vecLen, myDataPoints[i]);
+			vDataBuffer[i].append(QPointF(vecLen, myDataPoints[i]));
 
-			min.setY(qlsDataBuffer[i].at(0).y());
-			max.setY(qlsDataBuffer[i].at(0).y());
+			min.setY(vDataBuffer[i].at(0).y());
+			max.setY(vDataBuffer[i].at(0).y());
 			avg = 0;
 			for(int j = 0; j < vecLen; j++)
 			{
 
 				//Minimum:
-				if(qlsDataBuffer[i].at(j).y() < min.y())
+				if(vDataBuffer[i].at(j).y() < min.y())
 				{
-					min.setY(qlsDataBuffer[i].at(j).y());
+					min.setY(vDataBuffer[i].at(j).y());
 				}
 
 				//Maximum:
-				if(qlsDataBuffer[i].at(j).y() > max.y())
+				if(vDataBuffer[i].at(j).y() > max.y())
 				{
-					max.setY(qlsDataBuffer[i].at(j).y());
+					max.setY(vDataBuffer[i].at(j).y());
 				}
 
 				//Average - sum:
-				tempInt = qlsDataBuffer[i].at(j).toPoint();
+				tempInt = vDataBuffer[i].at(j).toPoint();
 				avg += tempInt.y();
 
 			}
@@ -490,8 +492,8 @@ void W_2DPlot::saveNewPoints(int myDataPoints[6])
 		for(int i = 0; i < VAR_NUM; i++)
 		{
 			//For each point:
-			min.setY(qlsDataBuffer[i].at(0).y());
-			max.setY(qlsDataBuffer[i].at(0).y());
+			min.setY(vDataBuffer[i].at(0).y());
+			max.setY(vDataBuffer[i].at(0).y());
 			avg = 0;
 			int index = 0;
 			for(int j = 1; j < plot_len+1; j++)
@@ -500,26 +502,26 @@ void W_2DPlot::saveNewPoints(int myDataPoints[6])
 				//qDebug() << "Index:" << index << "Plot len:" << plot_len;
 
 				//Minimum:
-				if(qlsDataBuffer[i].at(index).y() < min.y())
+				if(vDataBuffer[i].at(index).y() < min.y())
 				{
-					min.setY(qlsDataBuffer[i].at(index).y());
+					min.setY(vDataBuffer[i].at(index).y());
 				}
 
 				//Maximum:
-				if(qlsDataBuffer[i].at(index).y() > max.y())
+				if(vDataBuffer[i].at(index).y() > max.y())
 				{
-					max.setY(qlsDataBuffer[i].at(index).y());
+					max.setY(vDataBuffer[i].at(index).y());
 				}
 
 				//Average - sum:
-				tempInt = qlsDataBuffer[i].at(index).toPoint();
+				tempInt = vDataBuffer[i].at(index).toPoint();
 				avg += tempInt.y();
 
 				//Shift by one position (all but last point):
 				if(j < plot_len)
 				{
-					temp = qlsDataBuffer[i].at(j);
-					qlsDataBuffer[i].replace(index, QPointF(index, temp.ry()));
+					temp = vDataBuffer[i].at(j);
+					vDataBuffer[i].replace(index, QPointF(index, temp.ry()));
 				}
 			}
 
@@ -534,7 +536,7 @@ void W_2DPlot::saveNewPoints(int myDataPoints[6])
 			stats[i][STATS_AVG] = (int64_t) avg;
 
 			//Last (new):
-			qlsDataBuffer[i].replace(plot_len-1, QPointF(plot_len-1, myDataPoints[i]));
+			vDataBuffer[i].replace(plot_len-1, QPointF(plot_len-1, myDataPoints[i]));
 		}
 	}
 
@@ -2012,7 +2014,7 @@ void W_2DPlot::on_pbPoints_clicked()
 
 	for(int i = 0; i < VAR_NUM; i++)
 	{
-		qlsData[i]->setPointsVisible(pointsVisible);
+		qlsChart[i]->setPointsVisible(pointsVisible);
 	}
 }
 
@@ -2096,23 +2098,23 @@ void W_2DPlot::useOpenGL(bool yesNo)
 		qDebug() << "OpenGL Enabled";
 
 		//Turn OpenGL ON
-		qlsData[0]->setUseOpenGL(true);
-		qlsData[1]->setUseOpenGL(true);
-		qlsData[2]->setUseOpenGL(true);
-		qlsData[3]->setUseOpenGL(true);
-		qlsData[4]->setUseOpenGL(true);
-		qlsData[5]->setUseOpenGL(true);
+		qlsChart[0]->setUseOpenGL(true);
+		qlsChart[1]->setUseOpenGL(true);
+		qlsChart[2]->setUseOpenGL(true);
+		qlsChart[3]->setUseOpenGL(true);
+		qlsChart[4]->setUseOpenGL(true);
+		qlsChart[5]->setUseOpenGL(true);
 	}
 	else
 	{
 		qDebug() << "OpenGL Disabled";
 
 		//Turn OpenGL OFF
-		qlsData[0]->setUseOpenGL(false);
-		qlsData[1]->setUseOpenGL(false);
-		qlsData[2]->setUseOpenGL(false);
-		qlsData[3]->setUseOpenGL(false);
-		qlsData[4]->setUseOpenGL(false);
-		qlsData[5]->setUseOpenGL(false);
+		qlsChart[0]->setUseOpenGL(false);
+		qlsChart[1]->setUseOpenGL(false);
+		qlsChart[2]->setUseOpenGL(false);
+		qlsChart[3]->setUseOpenGL(false);
+		qlsChart[4]->setUseOpenGL(false);
+		qlsChart[5]->setUseOpenGL(false);
 	}
 }

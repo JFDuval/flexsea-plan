@@ -180,8 +180,8 @@ private:
 	Ui::W_2DPlot *ui;
 	QChart *chart;
 	QChartView *chartView;
-	QLineSeries *qlsData[VAR_NUM];
-	QLineSeries qlsDataBuffer[VAR_NUM];
+	QLineSeries *qlsChart[VAR_NUM];
+	QVector<QPointF> vDataBuffer[VAR_NUM];
 	QDateTime *timerRefreshDisplay, *timerRefreshData;
 	int plot_xmin, plot_ymin, plot_xmax, plot_ymax, plot_len;
 	int globalYmin, globalYmax;
