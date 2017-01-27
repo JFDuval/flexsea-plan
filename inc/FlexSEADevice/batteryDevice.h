@@ -1,7 +1,7 @@
 /****************************************************************************
 	[Project] FlexSEA: Flexible & Scalable Electronics Architecture
 	[Sub-project] 'plan-gui' Graphical User Interface
-	Copyright (C) 2017 Dephy, Inc. <http://dephy.com/>
+	Copyright (C) 2016 Dephy, Inc. <http://dephy.com/>
 
 	This program is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -21,83 +21,66 @@
 	Biomechatronics research group <http://biomech.media.mit.edu/>
 	[Contributors]
 *****************************************************************************
-	[This file] w_commtest.h: Communication Testing Tool
+	[This file] batteryDevice: Battery Device Data Class
 *****************************************************************************
 	[Change log] (Convention: YYYY-MM-DD | author | comment)
-	* 2017-01-05 | jfduval | New code, initial release
+	* 2016-12-08 | sbelanger | Initial GPL-3.0 release
 	*
 ****************************************************************************/
 
-#ifndef W_COMMTEST_H
-#define W_COMMTEST_H
+#ifndef BATTERYDEVICE_H
+#define BATTERYDEVICE_H
 
 //****************************************************************************
 // Include(s)
 //****************************************************************************
 
-#include <QWidget>
-#include "counter.h"
-#include "flexsea_generic.h"
-
-//****************************************************************************
-// Namespace & Class Definition:
-//****************************************************************************
-
-namespace Ui {
-class W_CommTest;
-}
-
-class W_CommTest : public QWidget, public Counter<W_CommTest>
-{
-	Q_OBJECT
-
-public:
-	//Constructor & Destructor:
-	explicit W_CommTest(QWidget *parent = 0);
-	~W_CommTest();
-
-	//Function(s):
-
-public slots:
-	void receivedData(void);
-
-signals:
-	void windowClosed(void);
-	void writeCommand(uint8_t numb, uint8_t *tx_data, uint8_t r_w);
-
-private slots:
-	void refreshDisplay(void);
-	void readCommTest(void);
-	void on_comboBox_slave_currentIndexChanged(int index);
-	void on_pushButtonStartStop_clicked();
-	void on_pushButtonReset_clicked();
-
-private:
-	// Static Variable
-
-	//Variables & Objects:
-	Ui::W_CommTest *ui;
-	int active_slave, active_slave_index;
-	QTimer *experimentTimer, *displayTimer;
-	QDateTime *statsTimer;
-	float successRate, lossRate;
-	int32_t receivedPackets;
-	int32_t experimentTimerFreq;
-	float measuredRefreshSend, measuredRefreshReceive;
-
-	//Function(s):
-	void init(void);
-	void initTimers(void);
-	float getRefreshRateSend(void);
-	float getRefreshRateReceive(void);
-};
+#include <QList>
+#include <QString>
+#include <flexsea_global_structs.h>
+#include "flexseaDevice.h"
 
 //****************************************************************************
 // Definition(s)
 //****************************************************************************
 
-#define TIM_FREQ_TO_P(f)				(1000/f)	//f in Hz, return in ms
-#define DISPLAY_TIMER					25	//Hz
-#define DEFAULT_EXPERIMENT_TIMER_FREQ	250
+//****************************************************************************
+// Namespace & Class
+//****************************************************************************
 
-#endif // W_COMMTEST_H
+namespace Ui
+{
+	class BatteryDevice;
+}
+
+class BatteryDevice : public FlexseaDevice
+{
+public:
+	explicit BatteryDevice(void);
+	explicit BatteryDevice(battery_s *devicePtr);
+
+	// Interface implementation
+	QString getHeaderStr(void);
+	QString getLastSerializedStr(void);
+	void appendSerializedStr(QStringList *splitLine);
+	void decodeLastLine(void);
+	void decodeAllLine(void);
+	void clear(void);
+	void appendEmptyLine(void);
+	QString getStatusStr(int index);
+
+	QList<struct battery_s*> baList;
+	static void decode(struct battery_s *baPtr);
+	void decompressRawBytes(struct battery_s *baPtr);
+
+private:
+	static QStringList header;
+
+};
+
+
+//****************************************************************************
+// Definition(s)
+//****************************************************************************
+
+#endif // BATTERYDEVICE_H

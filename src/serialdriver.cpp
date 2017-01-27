@@ -54,13 +54,13 @@ SerialDriver::SerialDriver(QWidget *parent) : QWidget(parent)
 //****************************************************************************
 
 //Open port
-int SerialDriver::open(QString name, int tries, int delay)
+void SerialDriver::open(QString name, int tries, int delay, bool *success)
 {
 	int cnt = 0;
 	bool fd = false;
 	int comProgress = 0;
 
-	emit openProgress(comProgress, 0);
+	emit openProgress(comProgress);
 
 	USBSerialPort.setPortName(name);
 	USBSerialPort.setBaudRate(USBSerialPort.Baud115200);
@@ -81,7 +81,7 @@ int SerialDriver::open(QString name, int tries, int delay)
 		{
 			qDebug() << "Try #" << cnt << " failed. Error: " << \
 						USBSerialPort.errorString() << ".\n";
-			emit openProgress(100*cnt/tries, 0);
+			emit openProgress(100*cnt/tries);
 		}
 
 		usleep(delay);
@@ -91,16 +91,16 @@ int SerialDriver::open(QString name, int tries, int delay)
 	if (fd == false)
 	{
 		qDebug() << "Tried " << cnt << " times, couldn't open " << name << ".\n";
-		emit openProgress(0, 1);
+		emit openProgress(0);
 		comPortOpen = false;
 		emit openStatus(comPortOpen);
 
-		return 1;
+		*success = false;
 	}
 	else
 	{
 		qDebug() << "Successfully opened " << name << ".\n";
-		emit openProgress(100, 0);
+		emit openProgress(100);
 		comPortOpen = true;
 		emit openStatus(comPortOpen);
 
@@ -110,7 +110,7 @@ int SerialDriver::open(QString name, int tries, int delay)
 			USBSerialPort.clear((QSerialPort::AllDirections));
 		}
 
-		return 0;
+		*success = true;
 	}
 }
 
@@ -137,7 +137,7 @@ int SerialDriver::read(unsigned char *buf)
 	baData.resize(256);
 	bool dataReady = false;
 
-	dataReady = USBSerialPort.waitForReadyRead(100);
+	dataReady = USBSerialPort.waitForReadyRead(USB_READ_TIMEOUT);
 	if(dataReady == true)
 	{
 		baData = USBSerialPort.readAll();

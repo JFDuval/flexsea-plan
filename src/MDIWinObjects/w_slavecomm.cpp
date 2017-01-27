@@ -39,12 +39,14 @@
 #include "main.h"
 #include <QDebug>
 #include <QTimer>
+#include <QDateTime>
 
 //****************************************************************************
 // Constructor & Destructor:
 //****************************************************************************
 
-W_SlaveComm::W_SlaveComm(QWidget *parent) :
+W_SlaveComm::W_SlaveComm(QWidget *parent,
+						 QList<FlexseaDevice*> *flexSEADevListPtr) :
 	QWidget(parent),
 	ui(new Ui::W_SlaveComm)
 {
@@ -52,6 +54,12 @@ W_SlaveComm::W_SlaveComm(QWidget *parent) :
 
 	setWindowTitle(this->getDescription());
 	setWindowIcon(QIcon(":icons/d_logo_small.png"));
+
+	devList = flexSEADevListPtr;
+	//TODO Probably not the best way to do this
+	testBenchList.append((*devList)[0]);
+	testBenchList.append((*devList)[1]);
+	testBenchList.append((*devList)[9]);
 
 	initSlaveCom();
 	initTimers();
@@ -124,10 +132,12 @@ void W_SlaveComm::externalSlaveReadWrite(uint8_t numb, uint8_t *tx_data, uint8_t
 
 void W_SlaveComm::initSlaveCom(void)
 {
-	QString ttip = "";
+	QString on_off_pb_ttip, log_cb_ptr_ttip, ttip, labelStatusttip = "";
 
 	//Safeguard - protected from signals emited during setup
 	allComboBoxesPopulated = false;
+
+	myTime = new QDateTime;
 
 	//Status bar:
 	//===========
@@ -138,164 +148,116 @@ void W_SlaveComm::initSlaveCom(void)
 	//State variables:
 	//================
 	sc_comPortOpen = false;
-	logThisItem[0] = false;
-	logThisItem[1] = false;
-	logThisItem[2] = false;
-	logThisItem[3] = false;
-	on_off_pb_ptr[0] = &ui->pushButton1;
-	on_off_pb_ptr[1] = &ui->pushButton2;
-	on_off_pb_ptr[2] = &ui->pushButton3;
-	on_off_pb_ptr[3] = &ui->pushButton4;
+
+	//Item serialized accessor
+	//================
+	comboBoxSlavePtr[0] = &ui->comboBoxSlave1;
+	comboBoxSlavePtr[1] = &ui->comboBoxSlave2;
+	comboBoxSlavePtr[2] = &ui->comboBoxSlave3;
+	comboBoxSlavePtr[3] = &ui->comboBoxSlave4;
+	comboBoxExpPtr[0] = &ui->comboBoxExp1;
+	comboBoxExpPtr[1] = &ui->comboBoxExp2;
+	comboBoxExpPtr[2] = &ui->comboBoxExp3;
+	comboBoxExpPtr[3] = &ui->comboBoxExp4;
+	comboBoxRefreshPtr[0] = &ui->comboBoxRefresh1;
+	comboBoxRefreshPtr[1] = &ui->comboBoxRefresh2;
+	comboBoxRefreshPtr[2] = &ui->comboBoxRefresh3;
+	comboBoxRefreshPtr[3] = &ui->comboBoxRefresh4;
 	log_cb_ptr[0] = &ui->checkBoxLog1;
 	log_cb_ptr[1] = &ui->checkBoxLog2;
 	log_cb_ptr[2] = &ui->checkBoxLog3;
 	log_cb_ptr[3] = &ui->checkBoxLog4;
+	on_off_pb_ptr[0] = &ui->pushButton1;
+	on_off_pb_ptr[1] = &ui->pushButton2;
+	on_off_pb_ptr[2] = &ui->pushButton3;
+	on_off_pb_ptr[3] = &ui->pushButton4;
+	labelStatusPtr[0] = &ui->stat1;
+	labelStatusPtr[1] = &ui->stat2;
+	labelStatusPtr[2] = &ui->stat3;
+	labelStatusPtr[3] = &ui->stat4;
 
-	//On/Off Button:
+	// Serialized item init:
 	//==============
-
-	ttip = "<html><head/><body><p>Turn streaming on/off</p></body></html>";
-	ui->pushButton1->setText(QChar(0x2718));
-	ui->pushButton1->setAutoFillBackground(true);
-	ui->pushButton1->setStyleSheet("background-color: rgb(127, 127, 127); \
-									color: rgb(0, 0, 0)");
-	ui->pushButton1->setToolTip(ttip);
-	ui->pushButton2->setText(QChar(0x2718));
-	ui->pushButton2->setAutoFillBackground(true);
-	ui->pushButton2->setStyleSheet("background-color: rgb(127, 127, 127); \
-								   color: rgb(0, 0, 0)");
-	ui->pushButton2->setToolTip(ttip);
-	ui->pushButton3->setText(QChar(0x2718));
-	ui->pushButton3->setAutoFillBackground(true);
-	ui->pushButton3->setStyleSheet("background-color: rgb(127, 127, 127); \
-								  color: rgb(0, 0, 0)");
-	ui->pushButton3->setToolTip(ttip);
-	ui->pushButton4->setText(QChar(0x2718));
-	ui->pushButton4->setAutoFillBackground(true);
-	ui->pushButton4->setStyleSheet("background-color: rgb(127, 127, 127); \
-								  color: rgb(0, 0, 0)");
-	ui->pushButton4->setToolTip(ttip);
-
-	//Log checkboxes:
-	//===============
-	ui->checkBoxLog1->setChecked(false);
-	ui->checkBoxLog2->setChecked(false);
-	ui->checkBoxLog3->setChecked(false);
-	ui->checkBoxLog4->setChecked(false);
-	ui->checkBoxLog1->setEnabled(false);
-	ui->checkBoxLog2->setEnabled(false);
-	ui->checkBoxLog3->setEnabled(false);
-	ui->checkBoxLog4->setEnabled(false);
-
-	//Decode Checkbox tooltips:
-	ttip = "<html><head/><body><p>Check this box to log the stream. \
+	on_off_pb_ttip = "<html><head/><body><p>Turn streaming on/off</p></body></html>";
+	log_cb_ptr_ttip = "<html><head/><body><p>Check this box to log the stream. \
 			</p><p>It will log under the folder &quot;Plan-GUI-Logs&quot; \
 			when the stream is active.</p></body></html>";
-	ui->checkBoxLog1->setToolTip(ttip);
-	ui->checkBoxLog2->setToolTip(ttip);
-	ui->checkBoxLog3->setToolTip(ttip);
-	ui->checkBoxLog4->setToolTip(ttip);
-
-	//All pushbutton start disabled:
-	//==============================
-	ui->pushButton1->setDisabled(true);
-	ui->pushButton2->setDisabled(true);
-	ui->pushButton3->setDisabled(true);
-	ui->pushButton4->setDisabled(true);
-
-	//Receive indicators:
-	//===================
-	initDisplayDataReceived();
-	displayDataReceived(0,DATAIN_STATUS_GREY);
-	displayDataReceived(1,DATAIN_STATUS_GREY);
-	displayDataReceived(2,DATAIN_STATUS_GREY);
-	displayDataReceived(3,DATAIN_STATUS_GREY);
-
-	//Populates Slave list:
-	//=====================
-	FlexSEA_Generic::populateSlaveComboBox(ui->comboBoxSlave1, \
-										   SL_BASE_ALL, SL_LEN_ALL);
-	FlexSEA_Generic::populateSlaveComboBox(ui->comboBoxSlave2, \
-										   SL_BASE_ALL, SL_LEN_ALL);
-	FlexSEA_Generic::populateSlaveComboBox(ui->comboBoxSlave3, \
-										   SL_BASE_ALL, SL_LEN_ALL);
-	FlexSEA_Generic::populateSlaveComboBox(ui->comboBoxSlave4, \
-										   SL_BASE_ALL, SL_LEN_ALL);
-
-	//Variables:
-	active_slave_index[0] = ui->comboBoxSlave1->currentIndex();
-	active_slave_index[1] = ui->comboBoxSlave2->currentIndex();
-	active_slave_index[2] = ui->comboBoxSlave3->currentIndex();
-	active_slave_index[3] = ui->comboBoxSlave4->currentIndex();
-	active_slave[0] = FlexSEA_Generic::getSlaveID(SL_BASE_ALL, \
-												  active_slave_index[0]);
-	active_slave[1] = FlexSEA_Generic::getSlaveID(SL_BASE_ALL, \
-												  active_slave_index[1]);
-	active_slave[2] = FlexSEA_Generic::getSlaveID(SL_BASE_ALL, \
-												  active_slave_index[2]);
-	active_slave[3] = FlexSEA_Generic::getSlaveID(SL_BASE_ALL, \
-												  active_slave_index[3]);
-
-	//Populates Experiment/Command list:
-	//==================================
-
-	FlexSEA_Generic::populateExpComboBox(ui->comboBoxExp1);
-	FlexSEA_Generic::populateExpComboBox(ui->comboBoxExp2);
-	FlexSEA_Generic::populateExpComboBox(ui->comboBoxExp3);
-	FlexSEA_Generic::populateExpComboBox(ui->comboBoxExp4);
-
-	//Refresh Rate:
-	//==================================
+	labelStatusttip = "<html><head/><body><p>Stream Status.</p></body></html>";
+	QFont font( "Arial", 12, QFont::Bold);
 
 	var_list_refresh << "200Hz" << "100Hz" << "50Hz" << "33Hz" \
 					 << "20Hz" << "10Hz" << "5Hz" << "1Hz";
 	refreshRate << 200 << 100 << 50 << 33 << 20 << 10 << 5 << 1;
-	for(int index = 0; index < var_list_refresh.count(); index++)
-	{
-		ui->comboBoxRefresh1->addItem(var_list_refresh.at(index));
-		ui->comboBoxRefresh2->addItem(var_list_refresh.at(index));
-		ui->comboBoxRefresh3->addItem(var_list_refresh.at(index));
-		ui->comboBoxRefresh4->addItem(var_list_refresh.at(index));
-	}
 
-	//Start at 33Hz:
-	uint8_t defaultTslot = 3;
-	ui->comboBoxRefresh1->setCurrentIndex(defaultTslot);
-	ui->comboBoxRefresh2->setCurrentIndex(defaultTslot);
-	ui->comboBoxRefresh3->setCurrentIndex(defaultTslot);
-	ui->comboBoxRefresh4->setCurrentIndex(defaultTslot);
-	selected_refresh_index[0] = defaultTslot;
-	selected_refresh_index[1] = defaultTslot;
-	selected_refresh_index[2] = defaultTslot;
-	selected_refresh_index[3] = defaultTslot;
-	previous_refresh_index[0] = selected_refresh_index[0];
-	previous_refresh_index[1] = selected_refresh_index[1];
-	previous_refresh_index[2] = selected_refresh_index[2];
-	previous_refresh_index[3] = selected_refresh_index[3];
+	for(int item = 0; item < MAX_SC_ITEMS; item++)
+	{
+		logThisItem[item] = false;
+		previousLogThisItem[item] = false;
+
+		//Log checkboxes:
+		//===============
+		(*log_cb_ptr[item])->setChecked(false);
+		(*log_cb_ptr[item])->setEnabled(false);
+		(*log_cb_ptr[item])->setToolTip(log_cb_ptr_ttip);
+
+		//On/Off Button init:
+		//==============
+		(*on_off_pb_ptr[item])->setText(QChar(0x2718));
+		(*on_off_pb_ptr[item])->setAutoFillBackground(true);
+		(*on_off_pb_ptr[item])->setStyleSheet("background-color: rgb(127, 127, 127); \
+										color: rgb(0, 0, 0)");
+		(*on_off_pb_ptr[item])->setToolTip(on_off_pb_ttip);
+		(*on_off_pb_ptr[item])->setDisabled(true);
+
+		//Populates Slave list:
+		//=====================
+		for(int i = 0; i < (*devList).length(); i++)
+		{
+			(*comboBoxSlavePtr[item])->addItem((*devList)[i]->slaveName);
+		}
+
+		//Receive indicators:
+		//===================
+		(*labelStatusPtr[item])->setText(QChar(0x2B07));
+		(*labelStatusPtr[item])->setAlignment(Qt::AlignCenter);
+		(*labelStatusPtr[item])->setFont(font);
+		(*labelStatusPtr[item])->setToolTip(ttip);
+		displayDataReceived(item,DATAIN_STATUS_GREY);
+
+		//Populates Experiment/Command list:
+		//==================================
+		FlexSEA_Generic::populateExpComboBox((*comboBoxExpPtr[item]));
+
+		//Refresh Rate:
+		//==================================
+		for(int i = 0; i < var_list_refresh.count(); i++)
+		{
+			(*comboBoxRefreshPtr[item])->addItem(var_list_refresh.at(i));
+		}
+
+		//Start at 33Hz:
+		(*comboBoxRefreshPtr[item])->setCurrentIndex(3);
+		selected_refresh_index[item] = 3;
+		previous_refresh_index[item] = selected_refresh_index[item];
+
+		//Connect default slots:
+		connectSCItem(item, 3);
+	}
 
 	//ComboBoxes are all set:
 	allComboBoxesPopulated = true;
 
-	//Connect default slots:
-	connectSCItem(0, defaultTslot, 0);
-	connectSCItem(1, defaultTslot, 0);
-	connectSCItem(2, defaultTslot, 0);
-	connectSCItem(3, defaultTslot, 0);
-
 	//For now, Experiments 2-4 are disabled:
 	//======================================
-	ui->comboBoxSlave2->setDisabled(true);
-	ui->comboBoxExp2->setDisabled(true);
-	ui->comboBoxRefresh2->setDisabled(true);
-	ui->comboBoxSlave3->setDisabled(true);
-	ui->comboBoxExp3->setDisabled(true);
-	ui->comboBoxRefresh3->setDisabled(true);
-	ui->comboBoxSlave4->setDisabled(true);
-	ui->comboBoxExp4->setDisabled(true);
-	ui->comboBoxRefresh4->setDisabled(true);
-	ui->pushButton2->setDisabled(true);
-	ui->pushButton3->setDisabled(true);
-	ui->pushButton4->setDisabled(true);
+	for(int item = 1; item < MAX_SC_ITEMS; item++)
+	{
+		(*comboBoxSlavePtr[item])->setDisabled(true);
+		(*comboBoxExpPtr[item])->setDisabled(true);
+		(*comboBoxRefreshPtr[item])->setDisabled(true);
+		(*log_cb_ptr[item])->setDisabled(true);
+		(*on_off_pb_ptr[item])->setDisabled(true);
+		(*labelStatusPtr[item])->setDisabled(true);
+	}
 
 	//Default command line settings, RIC/NU:
 	cmdLineOffsetEntries = 2;
@@ -313,31 +275,10 @@ void W_SlaveComm::initTimers(void)
 	master_timer->start(TIM_FREQ_TO_P(MASTER_TIMER));
 }
 
-//Place pictograms on labels:
-void W_SlaveComm::initDisplayDataReceived(void)
+void W_SlaveComm::logTimestamp(qint64 *t_ms, QString *t_text)
 {
-	QString ttip = "<html><head/><body><p>Stream Status.</p></body></html>";
-	QFont f( "Arial", 12, QFont::Bold);
-
-	ui->stat1->setText(QChar(0x2B07));
-	ui->stat1->setAlignment(Qt::AlignCenter);
-	ui->stat1->setFont(f);
-	ui->stat1->setToolTip(ttip);
-
-	ui->stat2->setText(QChar(0x2B07));
-	ui->stat2->setAlignment(Qt::AlignCenter);
-	ui->stat2->setFont(f);
-	ui->stat2->setToolTip(ttip);
-
-	ui->stat3->setText(QChar(0x2B07));
-	ui->stat3->setAlignment(Qt::AlignCenter);
-	ui->stat3->setFont(f);
-	ui->stat3->setToolTip(ttip);
-
-	ui->stat4->setText(QChar(0x2B07));
-	ui->stat4->setAlignment(Qt::AlignCenter);
-	ui->stat4->setFont(f);
-	ui->stat4->setToolTip(ttip);
+	*t_ms = myTime->currentMSecsSinceEpoch();
+	*t_text = myTime->currentDateTime().toString();
 }
 
 //The 4 PB slots call this function:
@@ -361,51 +302,35 @@ void W_SlaveComm::managePushButton(int idx, bool forceOff)
 								rgb(127, 127, 127); color: rgb(0, 0, 0)");
 	}
 
-	// Logging?
-	manageLogStatus(idx);
-
 	//All GUI events call configSlaveComm():
 	configSlaveComm(idx);
 }
 
-void W_SlaveComm::manageLogStatus(uint8_t idx)
+// Need to be called after configSlaveComm
+void W_SlaveComm::manageLogStatus(uint8_t item)
 {
 	//Logging?
-	if((*log_cb_ptr[idx])->isChecked() &&
-		(*on_off_pb_ptr[idx])->isChecked())
+	if((*log_cb_ptr[item])->isChecked() &&
+		(*on_off_pb_ptr[item])->isChecked())
 	{
-		QString slaveName, expName, refreshName;
+		emit openRecordingFile(selectedDeviceList[item] ,item);
 
-		//Get all feed information:
-		FlexSEA_Generic::getSlaveName(SL_BASE_ALL, \
-										ui->comboBoxSlave1->currentIndex(),
-										&slaveName);
-		FlexSEA_Generic::getExpName(ui->comboBoxExp1->currentIndex(),
-									&expName);
-		refreshName = var_list_refresh.at(ui->comboBoxRefresh1->currentIndex());
-
-
-		emit openRecordingFile(idx, slaveName + "_" +
-									expName + "_" +
-									refreshName +
-									".csv");
-		logThisItem[idx] = true;
+		logThisItem[item] = true;
 
 		// Update GUI
 		ui->comboBoxRefresh1->setDisabled(true);
 		QString ttip = "<html><head/><body><p>You can't change refresh rate while "
 					   "logging.</p></body></html>";
 		ui->comboBoxRefresh1->setToolTip(ttip);
-
 	}
 
 	else
 	{
-		if(logThisItem[idx] == true)
+		if(logThisItem[item] == true)
 		{
 			ui->comboBoxRefresh1->setDisabled(false);
-			logThisItem[idx] = false;
-			emit closeRecordingFile(idx);
+			logThisItem[item] = false;
+			emit closeRecordingFile(item);
 
 			ui->comboBoxRefresh1->setToolTip("");
 		}
@@ -419,14 +344,14 @@ void W_SlaveComm::updateStatusBar(QString txt)
 }
 
 //Connect a SlaveComm item with a timer
-void W_SlaveComm::connectSCItem(int item, int sig_idx, int breakB4make)
+void W_SlaveComm::connectSCItem(int item, int sig_idx)
 {
 	if(item == 0)
 	{
-		//Break old connection?
-		if(breakB4make)
+		//Break connection if there's already one?
+		if((bool)sc_connections[item] == true)
 		{
-			QObject::disconnect(sc_connections[item]);
+			disconnect(sc_connections[item]);
 		}
 
 		//New connection:
@@ -474,45 +399,28 @@ void W_SlaveComm::connectSCItem(int item, int sig_idx, int breakB4make)
 }
 
 //"Data Received" Arrows:
-void W_SlaveComm::displayDataReceived(int idx, int status)
+void W_SlaveComm::displayDataReceived(int item, int status)
 {
-	QLabel **label_ptr = &ui->stat1;
-	switch(idx)
-	{
-		case 0:
-			label_ptr = &ui->stat1;
-			break;
-		case 1:
-			label_ptr = &ui->stat2;
-			break;
-		case 2:
-			label_ptr = &ui->stat3;
-			break;
-		case 3:
-			label_ptr = &ui->stat4;
-			break;
-	}
-
 	switch(status)
 	{
 		case DATAIN_STATUS_GREY:
-			(*label_ptr)->setStyleSheet("QLabel { background-color: \
+			(*labelStatusPtr[item])->setStyleSheet("QLabel { background-color: \
 										rgb(127,127,127); color: black;}");
 			break;
 		case DATAIN_STATUS_GREEN:
-			(*label_ptr)->setStyleSheet("QLabel { background-color: \
+			(*labelStatusPtr[item])->setStyleSheet("QLabel { background-color: \
 										rgb(0,255,0); color: black;}");
 			break;
 		case DATAIN_STATUS_YELLOW:
-			(*label_ptr)->setStyleSheet("QLabel { background-color: \
+			(*labelStatusPtr[item])->setStyleSheet("QLabel { background-color: \
 										rgb(255,255,0); color: black;}");
 			break;
 		case DATAIN_STATUS_RED:
-			(*label_ptr)->setStyleSheet("QLabel { background-color: \
+			(*labelStatusPtr[item])->setStyleSheet("QLabel { background-color: \
 										rgb(255,0,0); color: black;}");
 			break;
 		default:
-			(*label_ptr)->setStyleSheet("QLabel { background-color: \
+			(*labelStatusPtr[item])->setStyleSheet("QLabel { background-color: \
 										black; color: white;}");
 			break;
 	}
@@ -526,52 +434,61 @@ void W_SlaveComm::configSlaveComm(int item)
 
 	if(allComboBoxesPopulated == true)
 	{
-		//qDebug() << "[In fct ""configSlaveComm"", item=" << item << "].";
+		int slaveindex = (*comboBoxSlavePtr[item])->currentIndex();
+		//Refresh all fields:
 
-		if(item == 0)
+		selected_exp_index[item] = (*comboBoxExpPtr[item])->currentIndex();
+		selected_refresh_index[item] = (*comboBoxRefreshPtr[item])->currentIndex();
+
+
+		// Fill the flexSEADevice Object metadata properly
+		selectedDeviceList[item] = (*devList)[slaveindex];
+
+		QString name;
+
+		selectedDeviceList[item]->experimentIndex = selected_exp_index[item];
+		FlexSEA_Generic::getExpName(selected_exp_index[item], &name);
+		selectedDeviceList[item]->experimentName = name;
+
+		selectedDeviceList[item]->frequency =
+				uint16_t(refreshRate[selected_refresh_index[item]]);
+
+		selectedDeviceList[item]->shortFileName =
+				selectedDeviceList[item]->slaveName + "_" +
+				selectedDeviceList[item]->experimentName + "_" +
+				var_list_refresh[selected_refresh_index[item]] +
+				".csv";
+
+		selectedDeviceList[item]->logItem = item;
+
+
+		//Now we connect a time slot to that stream command:
+		if(previous_refresh_index[item] != selected_refresh_index[item])
 		{
-			//Refresh all fields:
-			active_slave_index[0] = ui->comboBoxSlave1->currentIndex();
-			active_slave[0] = FlexSEA_Generic::getSlaveID(SL_BASE_ALL, \
-														active_slave_index[0]);
-			selected_exp_index[0] = ui->comboBoxExp1->currentIndex();
-			selected_refresh_index[0] = ui->comboBoxRefresh1->currentIndex();
+			//Refresh changed, we need to update connections.
+			connectSCItem(item, selected_refresh_index[item]);
 
-			//Now we connect a time slot to that stream command:
-			if(previous_refresh_index[0] != selected_refresh_index[0])
-			{
-				//Refresh changed, we need to update connections.
-				connectSCItem(0, selected_refresh_index[0], 1);
+			msg_ref += "Changed connection.";
+		}
 
-				msg_ref = "Changed connection.";
-			}
-			else
-			{
-				msg_ref = "";
-			}
-
-			//RIC/NU has a command line input:
-			if(selected_exp_index[0] == 2)
-			{
-				ui->lineEdit->setEnabled(true);
-				ui->lineEdit->setText(defaultCmdLineText);
-			}
-			else
-			{
-				ui->lineEdit->setEnabled(false);
-				ui->lineEdit->setText(" ");
-			}
+		//RIC/NU has a command line input:
+		if(selected_exp_index[item] == 2)
+		{
+			ui->lineEdit->setEnabled(true);
+			ui->lineEdit->setText(defaultCmdLineText);
 		}
 		else
 		{
-			//TODO deal with Items 2-4 here
+			ui->lineEdit->setEnabled(false);
+			ui->lineEdit->setText(" ");
 		}
 
 		//Update status message:
 		msg = "Updated #" + QString::number(item+1) + ": (" \
-				+ QString::number(active_slave_index[item]) + ", " \
+				+ QString::number(slaveindex) + ", " \
 				+ QString::number(selected_exp_index[item]) + ", " \
 				+ QString::number(selected_refresh_index[item]) + "). ";
+
 		if((*on_off_pb_ptr[0])->isChecked() == true)
 		{
 			msg += "Stream ON. ";
@@ -580,8 +497,10 @@ void W_SlaveComm::configSlaveComm(int item)
 		{
 			msg += "Stream OFF. ";
 		}
-		updateStatusBar(msg + msg_ref);
 
+		manageLogStatus(item);
+
+		updateStatusBar(msg + msg_ref);
 		previous_refresh_index[item] = selected_refresh_index[item];
 	}
 }
@@ -593,25 +512,14 @@ void W_SlaveComm::sc_read_all(uint8_t item)
 {
 	uint16_t numb = 0;
 	uint8_t info[2] = {PORT_USB, PORT_USB};
-	uint8_t slaveId = active_slave[item];
-	uint8_t slaveIndex = active_slave_index[item];
-	uint8_t expIndex = selected_exp_index[item];
 
 	//1) Stream
 	tx_cmd_data_read_all_r(TX_N_DEFAULT);
-	pack(P_AND_S_DEFAULT, slaveId, info, &numb, comm_str_usb);
+	pack(P_AND_S_DEFAULT, selectedDeviceList[item]->slaveID
+		 , info, &numb, comm_str_usb);
 	emit slaveReadWrite(numb, comm_str_usb, READ);
 
-	//2) Decode values
-	FlexSEA_Generic::decodeSlave(SL_BASE_ALL, slaveIndex);
-	//(Uncertain about timings, probably delayed by 1 sample)
-
-	//3) Log
-	if(logThisItem[item] == true)
-	{
-		emit writeToLogFile(item, slaveIndex, expIndex,
-							uint16_t(refreshRate.at(ui->comboBoxRefresh1->currentIndex())));
-	}
+	decodeAndLog(item);
 }
 
 //Argument is the item line (0-3)
@@ -621,9 +529,6 @@ void W_SlaveComm::sc_read_all_ricnu(uint8_t item)
 {
 	uint16_t numb = 0;
 	uint8_t info[2] = {PORT_USB, PORT_USB};
-	uint8_t slaveId = active_slave[item];
-	uint8_t slaveIndex = active_slave_index[item];
-	uint8_t expIndex = selected_exp_index[item];
 	static uint8_t index = 0;
 	uint8_t offset = 0;
 
@@ -634,38 +539,32 @@ void W_SlaveComm::sc_read_all_ricnu(uint8_t item)
 	//qDebug() << "Reading offset " << offset;
 
 	tx_cmd_ricnu_r(TX_N_DEFAULT, offset);
-	pack(P_AND_S_DEFAULT, slaveId, info, &numb, comm_str_usb);
+	pack(P_AND_S_DEFAULT, selectedDeviceList[item]->slaveID
+		 , info, &numb, comm_str_usb);
 	emit slaveReadWrite(numb, comm_str_usb, READ);
 
-	//2) Decode values
-	FlexSEA_Generic::decodeSlave(SL_BASE_ALL, slaveIndex);
-	//(Uncertain about timings, probably delayed by 1 sample)
-
-	//3) Log
-	if(logThisItem[item] == true)
-	{
-		emit writeToLogFile(item, slaveIndex, expIndex,
-							refreshRate.at(ui->comboBoxRefresh1->currentIndex()));
-	}
+	decodeAndLog(item);
 }
 
 //Argument is the item line (0-3)
 //Communicates with a Manage, MIT's 2DoF ankle
+
 void W_SlaveComm::sc_ankle2dof(uint8_t item)
 {
 	uint16_t numb = 0;
 	uint8_t info[2] = {PORT_USB, PORT_USB};
-	uint8_t slaveId = active_slave[item];
-	uint8_t slaveIndex = active_slave_index[item];
-	uint8_t expIndex = selected_exp_index[item];
+	qint64 t_ms = 0;
+	QString t_text = "";
 	static uint8_t sel_slave = 0;
 
 	//1) Stream
 	tx_cmd_ankle2dof_r(TX_N_DEFAULT, sel_slave, 0, 0, 0);
-	pack(P_AND_S_DEFAULT, slaveId, info, &numb, comm_str_usb);
+	pack(P_AND_S_DEFAULT, selectedDeviceList[item]->slaveID
+		 , info, &numb, comm_str_usb);
 	emit slaveReadWrite(numb, comm_str_usb, READ);
 
 	//***ToDo: update for multiple slaves!***
+	//TODO Not sure if I support that properly through the new flexseaDevice
 	if(sel_slave == 0)
 	{
 		sel_slave = 1;
@@ -676,16 +575,28 @@ void W_SlaveComm::sc_ankle2dof(uint8_t item)
 	}
 
 	//2) Decode values
-	//myFlexSEA_Generic.decodeSlave(SL_BASE_ALL, slaveIndex);
-	FlexSEA_Generic::decodeSlave(SL_BASE_EX, sel_slave);
+	(*devList)[sel_slave]->decodeLastLine();
 	//(Uncertain about timings, probably delayed by 1 sample)
 
 	//3) Log
 	if(logThisItem[item] == true)
 	{
-		emit writeToLogFile(item, slaveIndex, expIndex,
-							refreshRate.at(ui->comboBoxRefresh1->currentIndex()));
+		if(previousLogThisItem[item] == false)
+		{
+			logTimestamp(&t_ms, &t_text);
+			t_ms_initial[item] = t_ms;
+		}
+
+		//Timestamps:
+		logTimestamp(&t_ms, &t_text);
+		t_ms -= t_ms_initial[item];
+
+		selectedDeviceList[item]->timeStamp.last().date = t_text;
+		selectedDeviceList[item]->timeStamp.last().ms = t_ms;
+		emit writeToLogFile(selectedDeviceList[item], item);
 	}
+
+	previousLogThisItem[item] = logThisItem[item];
 }
 
 //Argument is the item line (0-3)
@@ -694,17 +605,15 @@ void W_SlaveComm::sc_battery(uint8_t item)
 {
 	uint16_t numb = 0;
 	uint8_t info[2] = {PORT_USB, PORT_USB};
-	uint8_t slaveId = active_slave[item];
-	uint8_t slaveIndex = active_slave_index[item];
-	uint8_t expIndex = selected_exp_index[item];
 
 	//1) Stream
 	tx_cmd_exp_batt_r(TX_N_DEFAULT);
-	pack(P_AND_S_DEFAULT, slaveId, info, &numb, comm_str_usb);
+	pack(P_AND_S_DEFAULT, selectedDeviceList[item]->slaveID
+		 , info, &numb, comm_str_usb);
 	emit slaveReadWrite(numb, comm_str_usb, READ);
 
 	//2) Decode values
-	FlexSEA_Generic::decodeSlave(SL_BASE_ALL, slaveIndex);
+	selectedDeviceList[item]->decodeLastLine();
 
 	//3) Log
 	/*
@@ -722,35 +631,80 @@ void W_SlaveComm::sc_testbench(uint8_t item)
 {
 	uint16_t numb = 0;
 	uint8_t info[2] = {PORT_USB, PORT_USB};
-	uint8_t slaveId = active_slave[item];
-	uint8_t slaveIndex = active_slave_index[item];
-	uint8_t expIndex = selected_exp_index[item];
-	static uint8_t offset = 0;
+	qint64 t_ms = 0;
+	QString t_text = "";
+	static uint8_t index = 0;
 
 	//1) Stream
-	tx_cmd_motortb_r(TX_N_DEFAULT, offset, 0, 0, 0);
-	pack(P_AND_S_DEFAULT, slaveId, info, &numb, comm_str_usb);
+	tx_cmd_motortb_r(TX_N_DEFAULT, index, 0, 0, 0);
+	pack(P_AND_S_DEFAULT, selectedDeviceList[item]->slaveID
+		 , info, &numb, comm_str_usb);
 	emit slaveReadWrite(numb, comm_str_usb, READ);
 
-	offset++;
-	offset %= 3;
+	index++;
+	index %= 3;
 
 	//2) Decode values
-	if(offset == 0 || offset == 1)
-	{
-		FlexSEA_Generic::decodeSlave(SL_BASE_EX, offset);
-	}
-	else if(offset == 2)
-	{
-		FlexSEA_Generic::decodeSlave(SL_BASE_ALL, 9);
-	}
+//	if(offset == 0 || offset == 1)
+//	{
+//		FlexSEA_Generic::decodeSlave(SL_BASE_EX, offset);
+//	}
+//	else if(offset == 2)
+//	{
+//		FlexSEA_Generic::decodeSlave(SL_BASE_ALL, 9);
+//	}
+
+	testBenchList[index]->decodeLastLine();
 
 	//3) Log
 	if(logThisItem[item] == true)
 	{
-		emit writeToLogFile(item, slaveIndex, expIndex,
-							refreshRate.at(ui->comboBoxRefresh1->currentIndex()));
+		// TODO Not sure it's right?
+		if(previousLogThisItem[item] == false)
+		{
+			logTimestamp(&t_ms, &t_text);
+			t_ms_initial[item] = t_ms;
+		}
+
+		//Timestamps:
+		logTimestamp(&t_ms, &t_text);
+		t_ms -= t_ms_initial[item];
+
+		selectedDeviceList[item]->timeStamp.last().date = t_text;
+		selectedDeviceList[item]->timeStamp.last().ms = t_ms;
+		emit writeToLogFile(selectedDeviceList[item], item);
 	}
+}
+
+void W_SlaveComm::decodeAndLog(uint8_t item)
+{
+	qint64 t_ms = 0;
+	QString t_text = "";
+
+	//2) Decode values
+	selectedDeviceList[item]->decodeLastLine();
+	//(Uncertain about timings, probably delayed by 1 sample)
+
+
+	//3) Log
+	if(logThisItem[item] == true)
+	{
+		if(previousLogThisItem[item] == false)
+		{
+			logTimestamp(&t_ms, &t_text);
+			t_ms_initial[item] = t_ms;
+		}
+
+		//Timestamps:
+		logTimestamp(&t_ms, &t_text);
+		t_ms -= t_ms_initial[item];
+
+		selectedDeviceList[item]->timeStamp.last().date = t_text;
+		selectedDeviceList[item]->timeStamp.last().ms = t_ms;
+		emit writeToLogFile(selectedDeviceList[item], item);
+	}
+
+	previousLogThisItem[item] = logThisItem[item];
 }
 
 //
@@ -813,6 +767,7 @@ void W_SlaveComm::sc_item1_slot(void)
 		}
 	}
 }
+
 
 /* Master timebase is 200Hz. We divide is to get
  * [200, 100, 50, 33, 20, 10, 5, 1]Hz */
@@ -974,25 +929,25 @@ void W_SlaveComm::on_comboBoxRefresh4_currentIndexChanged(int index)
 void W_SlaveComm::on_checkBoxLog1_stateChanged(int arg1)
 {
 	(void)arg1;	//Unused for now
-	manageLogStatus(0);
+	configSlaveComm(0);
 }
 
 void W_SlaveComm::on_checkBoxLog2_stateChanged(int arg1)
 {
 	(void)arg1;	//Unused for now
-	manageLogStatus(1);
+	configSlaveComm(1);
 }
 
 void W_SlaveComm::on_checkBoxLog3_stateChanged(int arg1)
 {
 	(void)arg1;	//Unused for now
-	manageLogStatus(2);
+	configSlaveComm(2);
 }
 
 void W_SlaveComm::on_checkBoxLog4_stateChanged(int arg1)
 {
 	(void)arg1;	//Unused for now
-	manageLogStatus(3);
+	configSlaveComm(3);
 }
 
 //Command line input: enter pressed

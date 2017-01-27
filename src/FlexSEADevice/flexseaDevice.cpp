@@ -1,7 +1,7 @@
 /****************************************************************************
 	[Project] FlexSEA: Flexible & Scalable Electronics Architecture
 	[Sub-project] 'plan-gui' Graphical User Interface
-	Copyright (C) 2017 Dephy, Inc. <http://dephy.com/>
+	Copyright (C) 2016 Dephy, Inc. <http://dephy.com/>
 
 	This program is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -21,83 +21,83 @@
 	Biomechatronics research group <http://biomech.media.mit.edu/>
 	[Contributors]
 *****************************************************************************
-	[This file] w_commtest.h: Communication Testing Tool
+	[This file] FlexseaDevice: Interface class flexSEA device
 *****************************************************************************
 	[Change log] (Convention: YYYY-MM-DD | author | comment)
-	* 2017-01-05 | jfduval | New code, initial release
+	* 2016-12-07 | sbelanger | Initial GPL-3.0 release
 	*
 ****************************************************************************/
-
-#ifndef W_COMMTEST_H
-#define W_COMMTEST_H
 
 //****************************************************************************
 // Include(s)
 //****************************************************************************
 
-#include <QWidget>
-#include "counter.h"
-#include "flexsea_generic.h"
+#include "flexseaDevice.h"
+#include <QStringList>
 
 //****************************************************************************
-// Namespace & Class Definition:
+// Constructor & Destructor:
 //****************************************************************************
 
-namespace Ui {
-class W_CommTest;
+FlexseaDevice::FlexseaDevice()
+{
+	logItem = 0;
+	slaveIndex = 0;
+	slaveID = 0;
+	experimentIndex = 0;
+	frequency = 0;
 }
 
-class W_CommTest : public QWidget, public Counter<W_CommTest>
+//****************************************************************************
+// Public function(s):
+//****************************************************************************
+
+void FlexseaDevice::clear(void)
 {
-	Q_OBJECT
+	shortFileName.clear();
+	fileName.clear();
+	logItem = 0;
+	slaveIndex = 0;
+	slaveID = 0;
+	slaveName.clear();
+	experimentIndex = 0;
+	experimentName.clear();
+	frequency = 0;
+	timeStamp.clear();
+}
 
-public:
-	//Constructor & Destructor:
-	explicit W_CommTest(QWidget *parent = 0);
-	~W_CommTest();
+QString FlexseaDevice::getIdentifier(void)
+{
+	QStringList identifier = QStringList()
+							<< "Datalogging Item:"
+							<< QString::number(logItem)
+							<< "Slave Index:"
+							<< QString::number(slaveIndex)
+							<< "Slave Name:"
+							<< slaveName
+							<< "Experiment Index:"
+							<< QString::number(experimentIndex)
+							<< "Experiment Name:"
+							<< experimentName
+							<< "Aquisition Frequency:"
+							<< QString::number(frequency)
+							<< "Slave type:"
+							<< slaveType;
 
-	//Function(s):
+	return identifier.join(',');
+}
 
-public slots:
-	void receivedData(void);
 
-signals:
-	void windowClosed(void);
-	void writeCommand(uint8_t numb, uint8_t *tx_data, uint8_t r_w);
-
-private slots:
-	void refreshDisplay(void);
-	void readCommTest(void);
-	void on_comboBox_slave_currentIndexChanged(int index);
-	void on_pushButtonStartStop_clicked();
-	void on_pushButtonReset_clicked();
-
-private:
-	// Static Variable
-
-	//Variables & Objects:
-	Ui::W_CommTest *ui;
-	int active_slave, active_slave_index;
-	QTimer *experimentTimer, *displayTimer;
-	QDateTime *statsTimer;
-	float successRate, lossRate;
-	int32_t receivedPackets;
-	int32_t experimentTimerFreq;
-	float measuredRefreshSend, measuredRefreshReceive;
-
-	//Function(s):
-	void init(void);
-	void initTimers(void);
-	float getRefreshRateSend(void);
-	float getRefreshRateReceive(void);
-};
 
 //****************************************************************************
-// Definition(s)
+// Public slot(s):
 //****************************************************************************
 
-#define TIM_FREQ_TO_P(f)				(1000/f)	//f in Hz, return in ms
-#define DISPLAY_TIMER					25	//Hz
-#define DEFAULT_EXPERIMENT_TIMER_FREQ	250
+//****************************************************************************
+// Private function(s):
+//****************************************************************************
 
-#endif // W_COMMTEST_H
+//****************************************************************************
+// Private slot(s):
+//****************************************************************************
+

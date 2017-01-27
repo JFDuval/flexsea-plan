@@ -61,45 +61,6 @@
 #define SL_LEN_STRAIN				1
 #define SL_LEN_RICNU				1
 
-//Display and conversions:
-//========================
-
-#define GET_WDCLK_FLAG(status1)		((status1 >> 7) & 0x01)
-#define GET_DISCON_FLAG(status1)	((status1 >> 6) & 0x01)
-#define GET_OVERTEMP_FLAG(status1)	((status1 >> 4) & 0x03)
-#define GET_VB_FLAG(status1)		((status1 >> 2) & 0x03)
-#define GET_VG_FLAG(status1)		((status1 >> 0) & 0x03)
-#define GET_3V3_FLAG(status2)		((status2 >> 0) & 0x03)
-#define GET_FSM_FLAG(status2)		((status2 >> 7) & 0x01)
-
-//Qualitative:
-#define V_LOW						1
-#define V_NORMAL					0
-#define V_HIGH						2
-#define T_NORMAL					0
-#define T_WARNING					1
-#define T_ERROR						2
-#define BATT_CONNECTED				0
-#define BATT_DISCONNECTED			1
-//If everything is normal STATUS1 == 0
-
-//PSoC 4 ADC conversions:
-#define P4_ADC_SUPPLY				5.0
-#define P4_ADC_MAX					2048
-#define P4_T0						0.5
-#define P4_TC						0.01
-
-//PSoC 5 ADC conversions:
-#define P5_ADC_SUPPLY				5.0
-#define P5_ADC_MAX					4096
-
-//STM32 ADC conversions:
-#define STM32_ADC_SUPPLY			3.3
-#define STM32_ADC_MAX				4096
-
-//Strain:
-#define STRAIN_MIDPOINT				2048
-
 //****************************************************************************
 // Namespace & Class
 //****************************************************************************
@@ -126,31 +87,11 @@ public:
 	static void populateSlaveComboBox(QComboBox *cbox, uint8_t base, uint8_t len);
 	static void populateExpComboBox(QComboBox *cbox);
 	static uint8_t getSlaveBoardType(uint8_t base, uint8_t index);
-	static void getSlaveName(uint8_t base, uint8_t index, QString *slaveName);
 	static void getExpName(uint8_t index, QString *expName);
 	static uint8_t getSlaveID(uint8_t base, uint8_t index);
-	static void decodeStatus(uint8_t base, uint8_t index, uint8_t stat1, \
-						uint8_t stat2, QString *str1);
 	static void packetVisualizer(uint numb, uint8_t *packet);
-	static void decodeSlave(uint8_t base, uint8_t index);
-
-	static void decodeExecute(uint8_t base, uint8_t index);
-	static void decodeExecute(struct execute_s *exPtr);
-
 	static void decodeRicnu(uint8_t base, uint8_t index);
-	static void decodeRicnu(struct ricnu_s *riPtr);
 
-	static void decodeManage(uint8_t base, uint8_t index);
-	static void decodeManage(struct manage_s *mnPtr);
-
-	static void decodeGossip(uint8_t base, uint8_t index);
-	static void decodeGossip(struct gossip_s *goPtr);
-
-	static void decodeBattery(uint8_t base, uint8_t index);
-	static void decodeBattery(struct battery_s *baPtr);
-
-	static void decodeStrain(uint8_t base, uint8_t index);
-	static void decodeStrain(struct strain_s *stPtr);
 
 public slots:
 

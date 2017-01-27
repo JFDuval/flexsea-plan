@@ -37,7 +37,8 @@
 
 #include <QWidget>
 #include "counter.h"
-#include "flexsea_generic.h"
+#include "strainDevice.h"
+#include "define.h"
 
 //****************************************************************************
 // Namespace & Class Definition:
@@ -53,13 +54,18 @@ class W_Strain : public QWidget, public Counter<W_Strain>
 
 public:
 	//Constructor & Destructor:
-	explicit W_Strain(QWidget *parent = 0);
+	explicit W_Strain(QWidget *parent = 0,
+					  StrainDevice *deviceLogPtr = nullptr,
+					  DisplayMode mode = DisplayLiveData,
+					  QList<StrainDevice> *deviceListPtr = nullptr);
 	~W_Strain();
 
 	//Function(s):
 
 public slots:
-	void refreshDisplayStrain(void);
+	void refreshDisplay(void);
+	void refreshDisplayLog(int index, FlexseaDevice * devPtr);
+	void updateDisplayMode(DisplayMode mode);
 
 signals:
 	void windowClosed(void);
@@ -67,14 +73,16 @@ signals:
 private:
 	//Variables & Objects:
 	Ui::W_Strain *ui;
-	int active_slave, active_slave_index;
+
+	DisplayMode displayMode;
+
+	QList<StrainDevice> *deviceList;
+	StrainDevice *deviceLog;
 
 	//Function(s):
-	void init(void);
-	void displayStrain(struct strain_s *st);
-	void unpackCompressed6ch(uint8_t *buf, uint16_t *v0, uint16_t *v1, \
-							 uint16_t *v2, uint16_t *v3, uint16_t *v4, \
-							 uint16_t *v5);
+	void initLive(void);
+	void initLog(void);
+	void display(StrainDevice *devicePtr, int index);
 };
 
 //****************************************************************************

@@ -37,7 +37,8 @@
 
 #include <QWidget>
 #include "counter.h"
-#include "flexsea_generic.h"
+#include "batteryDevice.h"
+#include "define.h"
 
 //****************************************************************************
 // Namespace & Class Definition:
@@ -53,7 +54,10 @@ class W_Battery : public QWidget, public Counter<W_Battery>
 
 public:
 	//Constructor & Destructor:
-	explicit W_Battery(QWidget *parent = 0);
+	explicit W_Battery(QWidget *parent = 0,
+					   BatteryDevice *deviceLogPtr = nullptr,
+					   DisplayMode mode = DisplayLiveData,
+					   QList<BatteryDevice> *deviceListPtr = nullptr);
 	~W_Battery();
 
 	//Function(s):
@@ -61,7 +65,9 @@ public:
 
 public slots:
 
-	void refreshDisplayBattery(void);
+	void refreshDisplay(void);
+	void refreshDisplayLog(int index, FlexseaDevice * devPtr);
+	void updateDisplayMode(DisplayMode mode);
 
 signals:
 	void windowClosed(void);
@@ -69,11 +75,16 @@ signals:
 private:
 	//Variables & Objects:
 	Ui::W_Battery *ui;
-	int active_slave, active_slave_index;
+
+	DisplayMode displayMode;
+
+	QList<BatteryDevice> *deviceList;
+	BatteryDevice *deviceLog;
 
 	//Function(s):
-	void init(void);
-	void displayBattery(struct battery_s *ba);
+	void initLive(void);
+	void initLog(void);
+	void display(BatteryDevice *devicePtr, int index);
 };
 
 //****************************************************************************

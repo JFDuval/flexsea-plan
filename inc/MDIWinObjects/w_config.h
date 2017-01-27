@@ -37,6 +37,9 @@
 
 #include <QWidget>
 #include "counter.h"
+#include "flexseaDevice.h"
+
+#define REFRESH_PERIOD 750 //Port list refresh in ms
 
 //****************************************************************************
 // Namespace & Class Definition:
@@ -75,23 +78,24 @@ private slots:
 	void on_pbCloseLogFile_clicked();
 
 public slots:
-	void setComProgress(int val, int rst);
+	void setComProgress(int val);
 
 private:
 	//Variables & Objects:
 	Ui::W_Config *ui;
-	QStringList comPortList;
-	int flagComInitDone, flagManualEntry;
 	DataSource dataSourceState;
+
+	QTimer *comPortRefreshTimer;
 
 	//Function(s):
 	void initCom(void);
 	void defaultComOffUi(void);
 
  signals:
-	void openCom(QString name, int tries, int delay);
+	void openCom(QString name, int tries, int delay, bool *success);
 	void closeCom(void);
-	void openReadingFile(bool * isOpen);
+	void openReadingFile(bool *, FlexseaDevice **);
+	void createlogkeypad(DataSource, FlexseaDevice *);
 	void closeReadingFile(void);
 	void updateDataSourceStatus(DataSource status);
 	void windowClosed(void);

@@ -21,70 +21,68 @@
 	Biomechatronics research group <http://biomech.media.mit.edu/>
 	[Contributors]
 *****************************************************************************
-	[This file] LogFile: Log File data class
+	[This file] ManageDevice: Manage Device Data Class
 *****************************************************************************
 	[Change log] (Convention: YYYY-MM-DD | author | comment)
-	* 2016-11-30 | sbelanger | Initial GPL-3.0 release
+	* 2016-12-08 | sbelanger | Initial GPL-3.0 release
 	*
 ****************************************************************************/
 
-#ifndef LOGFILE_H
-#define LOGFILE_H
+#ifndef MANAGEDEVICE_H
+#define MANAGEDEVICE_H
 
 //****************************************************************************
 // Include(s)
 //****************************************************************************
 
-#include <QWidget>
-#include "main.h"
-
-struct log_ss
-{
-	QString timeStampDate;
-	int32_t timeStamp_ms;
-
-	struct execute_s execute;
-	struct manage_s manage;
-	struct ricnu_s ricnu;
-	struct strain_s strain;
-	struct gossip_s gossip;
-	struct battery_s battery;
-};
-
-//****************************************************************************
-// Namespace & Class
-//****************************************************************************
-
-namespace Ui {
-class LogFile;
-}
-
-class LogFile : QWidget
-{
-	Q_OBJECT
-
-public:
-	explicit LogFile(QWidget *parent = 0);
-	void init(void);
-	void clear(void);
-	void newDataLine(void);
-	void decodeLastLine(void);
-	void decodeAllLine(void);
-
-	QString shortFileName;
-	QString fileName;
-	int dataloggingItem;
-	int SlaveIndex;
-	QString SlaveName;
-	int experimentIndex;
-	QString experimentName;
-	int frequency;
-	QList<struct log_ss> data;
-
-};
+#include <QList>
+#include <QString>
+#include <flexsea_global_structs.h>
+#include "flexseaDevice.h"
 
 //****************************************************************************
 // Definition(s)
 //****************************************************************************
 
-#endif // LOGFILE_H
+//STM32 ADC conversions:
+#define STM32_ADC_SUPPLY			3.3
+#define STM32_ADC_MAX				4096
+
+//****************************************************************************
+// Namespace & Class
+//****************************************************************************
+
+namespace Ui
+{
+	class ManageDevice;
+}
+
+class ManageDevice : public FlexseaDevice
+{
+public:
+	explicit ManageDevice(void);
+	explicit ManageDevice(manage_s *devicePtr);
+
+	// Interface implementation
+	QString getHeaderStr(void);
+	QString getLastSerializedStr(void);
+	void appendSerializedStr(QStringList *splitLine);
+	void decodeLastLine(void);
+	void decodeAllLine(void);
+	void clear(void);
+	void appendEmptyLine(void);
+	QString getStatusStr(int index);
+
+	QList<struct manage_s*> mnList;
+	static void decode(struct manage_s *mnPtr);
+
+private:
+	static QStringList header;
+};
+
+
+//****************************************************************************
+// Definition(s)
+//****************************************************************************
+
+#endif // MANAGEDEVICE_H

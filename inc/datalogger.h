@@ -43,7 +43,13 @@
 #include <QList>
 #include "flexsea_generic.h"
 #include "main.h"
-#include "logFile.h"
+
+#include "executeDevice.h"
+#include "manageDevice.h"
+#include "gossipDevice.h"
+#include "batteryDevice.h"
+#include "strainDevice.h"
+#include "ricnuDevice.h"
 
 //****************************************************************************
 // Namespace & Class
@@ -58,16 +64,20 @@ class DataLogger : public QWidget
 	Q_OBJECT
 
 public:
-	explicit DataLogger(QWidget *parent = 0);
-	LogFile * getLogFilePtr(void) {return &myLogFile;}
+	explicit DataLogger(QWidget *parent = 0,
+						ExecuteDevice *executeInitPtr = nullptr,
+						ManageDevice *manageInitPtr = nullptr,
+						GossipDevice *gossipInitPtr = nullptr,
+						BatteryDevice *batteryInitPtr = nullptr,
+						StrainDevice *strainInitPtr = nullptr,
+						RicnuDevice *ricnuInitPtr = nullptr);
 
 public slots:
-	void openRecordingFile(uint8_t item, QString fileName);
+	void openRecordingFile(FlexseaDevice *devicePtr, uint8_t item);
 	void closeRecordingFile(uint8_t item);
-	void openReadingFile(bool * isOpen);
+	void openReadingFile(bool * isOpen, FlexseaDevice **devPtr);
 	void closeReadingFile(void);
-	void writeToFile(uint8_t item, uint8_t slaveIndex,
-					 uint8_t expIndex, uint16_t refreshRate);
+	void writeToFile(FlexseaDevice *devicePtr, uint8_t item);
 
 private slots:
 
@@ -75,6 +85,16 @@ private:
 	//Variables & Objects:
 	QFile logRecordingFile[4];
 	QFile logReadingFile;
+	static bool sessionDirectoryCreated;
+
+	ExecuteDevice *executeDevPtr;
+	ManageDevice *manageDevPtr;
+	GossipDevice *gossipDevPtr;
+	BatteryDevice *batteryDevPtr;
+	StrainDevice *strainDevPtr;
+	RicnuDevice *ricnuDevPtr;
+
+
 
 	QString planGUIRootPath;
 	QString logFolder;
@@ -85,40 +105,14 @@ private:
 
 	bool fileOpened[4];
 
-	LogFile myLogFile;
-
 	//Function(s):
 	void init(void);
 	void logTimestamp(qint64 *t_ms, QString *t_text);
-	void writeIdentifier(uint8_t item, uint8_t slaveIndex,
-									 uint8_t expIndex, uint16_t refreshRate);
-	void writeExecuteReadAllHeader(uint8_t item);
-	void writeReadAllRicnuHeader(uint8_t item);
-	void writeManageReadAllHeader(uint8_t item);
 	void writeManageA2DOFHeader(uint8_t item);
 	void writeManageTestBenchHeader(uint8_t item);
-	void writeStrainReadAllHeader(uint8_t item);
-	void writeGossipReadAllHeader(uint8_t item);
 	void openfile(uint8_t item, QString shortFileName);
 	void initLogDirectory(void);
-	void logReadAllExec(QTextStream *filePtr, uint8_t slaveIndex, \
-							char term, qint64 t_ms, QString t_text);
-	void logReadAllRicnu(QTextStream *filePtr, uint8_t slaveIndex, \
-							char term, qint64 t_ms, QString t_text);
-	void logReadAllManage(QTextStream *filePtr, uint8_t slaveIndex, \
-									char term, qint64 t_ms, QString t_text);
-	void logA2DOFManage(QTextStream *filePtr, uint8_t slaveIndex, \
-									char term, qint64 t_ms, QString t_text);
-	void logManageTestBench(QTextStream *filePtr, uint8_t slaveIndex, \
-									char term, qint64 t_ms, QString t_text);
-	void logReadAllGossip(QTextStream *filePtr, uint8_t slaveIndex, \
-									char term, qint64 t_ms, QString t_text);
-	void logReadAllStrain(QTextStream *filePtr, uint8_t slaveIndex, \
-									char term, qint64 t_ms, QString t_text);
-	void getFctPtrs(uint8_t slaveIndex, uint8_t expIndex, \
-					void (DataLogger::**myHeaderFctPtr) (uint8_t item), \
-					void (DataLogger::**myLogFctPtr) (QTextStream *filePtr, uint8_t slaveIndex, \
-					char term, qint64 t_ms, QString t_text));
+	void setStatus(QString str);
 
 signals:
 	void setStatusBarMessage(QString msg);
