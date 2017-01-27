@@ -68,16 +68,23 @@ void flexsea_send_serial_master(uint8_t port, uint8_t *str, uint8_t length);
 //#define BOARD_TYPE_FLEXSEA_MANAGE
 //#define BOARD_TYPE_FLEXSEA_EXECUTE
 
+//How many slave busses?
+#define COMM_SLAVE_BUS				2
+
 //How many slaves on this bus?
 #define SLAVE_BUS_1_CNT		1
 #define SLAVE_BUS_2_CNT		0
 //Note: only Manage can have a value different than 0 or 1
+
+//How many possible masters?
+#define COMM_MASTERS				3
 
 //Enabled the required FlexSEA Buffers for this board:
 #define ENABLE_FLEXSEA_BUF_1        //USB
 #define ENABLE_FLEXSEA_BUF_2        //SPI
 //#define ENABLE_FLEXSEA_BUF_3      //
 //#define ENABLE_FLEXSEA_BUF_4      //
+//#define ENABLE_FLEXSEA_BUF_5      //
 
 //Overload buffer & function names (for user convenience):
 
