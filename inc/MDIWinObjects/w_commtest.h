@@ -87,6 +87,8 @@ private:
 
 	//Function(s):
 	void init(void);
+	void initTab1(void);
+	void initTab2(void);
 	void initTimers(void);
 	float getRefreshRateSend(void);
 	float getRefreshRateReceive(void);

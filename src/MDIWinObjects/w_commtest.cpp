@@ -85,6 +85,7 @@ void W_CommTest::receivedData(void)
 // Private function(s):
 //****************************************************************************
 
+//Window initialization:
 void W_CommTest::init(void)
 {
 	//Populates Slave list:
@@ -96,6 +97,15 @@ void W_CommTest::init(void)
 	active_slave_index = ui->comboBox_slave->currentIndex();
 	active_slave = FlexSEA_Generic::getSlaveID(SL_BASE_ALL, active_slave_index);
 
+	//Tab by tab initialization:
+	initTab1();
+	initTab2();
+
+}
+
+//First tab: Plan <> Device test
+void W_CommTest::initTab1(void)
+{
 	//Displays:
 	ui->labelSentPackets->setText("0");
 	ui->labelReceivedPackets->setText("0");
@@ -112,6 +122,18 @@ void W_CommTest::init(void)
 	//Seed:
 	QTime myTime;
 	initRandomGenerator(myTime.msecsSinceStartOfDay());
+}
+
+//Second tab: Mnaage <> Execute test
+void W_CommTest::initTab2(void)
+{
+	//Displays:
+	ui->labelSentPackets_2->setText("0");
+	ui->labelReceivedPackets_2->setText("0");
+	ui->labelGoodPackets_2->setText("0");
+	ui->labelSuccess_2->setText("0");
+	ui->labelLossRate_2->setText("0");
+	ui->lineEdit_2->setText(QString::number(DEFAULT_EXPERIMENT_TIMER_FREQ));
 }
 
 void W_CommTest::initTimers(void)
