@@ -13,7 +13,7 @@ TEMPLATE = app
 
 INCLUDEPATH += inc \
 	inc/MDIWinObjects \
-	inc/flexSeaDevice \
+	inc/FlexSEADevice \
 	flexsea-comm/inc \
 	flexsea-comm/test \
 	flexsea-system/inc \
