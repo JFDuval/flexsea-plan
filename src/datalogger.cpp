@@ -82,7 +82,8 @@ DataLogger::DataLogger(QWidget *parent,
 
 void DataLogger::openRecordingFile(FlexseaDevice *devicePtr, uint8_t item)
 {
-	QString shortFileName = devicePtr->shortFileName;
+	logShortFileName[item] = devicePtr->shortFileName;
+	logFileIndex[item] = 2;
 
 	if(logRecordingFile[item].isOpen())
 	{
@@ -91,21 +92,26 @@ void DataLogger::openRecordingFile(FlexseaDevice *devicePtr, uint8_t item)
 
 	else
 	{
+		// Add date and time to the short file name
+		logShortFileName[item].prepend(QDate::currentDate().toString("yyyy-MM-dd_") +
+							  QTime::currentTime().toString("HH'h'mm'm'ss's'_"));
+
+		QString shortFileName(logShortFileName[item]);
+
+		// Append file index
+		shortFileName.append("-1");
+
 		//Add .csv extension if not present
 		if(shortFileName.mid(shortFileName.length()-4) != ".csv")
 		{
 			shortFileName.append(".csv");
 		}
 
-		// Add date and time to the short file name
-		shortFileName.prepend(QDate::currentDate().toString("yyyy-MM-dd_") +
-							  QTime::currentTime().toString("HH'h'mm'm'ss's'_"));
-
-		openfile(item, shortFileName);
+		openfile(shortFileName, item);
 	}
 }
 
-void DataLogger::openfile(uint8_t item, QString shortFileName)
+void DataLogger::openfile(QString shortFileName, uint8_t item)
 {
 	// Create session directory the first time you log
 	if(sessionDirectoryCreated == false){initLogDirectory();}
@@ -117,7 +123,6 @@ void DataLogger::openfile(uint8_t item, QString shortFileName)
 	shortFileName.remove(QRegExp("[<>:\"/|?*]"));
 	shortFileName.remove("\\");
 
-
 	// Set the folder to current directory
 	QDir::setCurrent(planGUIRootPath + "\\" + logFolder + "\\" + sessionFolder);
 
@@ -125,6 +130,7 @@ void DataLogger::openfile(uint8_t item, QString shortFileName)
 	QString fileName = QDir::currentPath() + "/" + shortFileName;
 
 	logRecordingFile[item].setFileName(fileName);
+
 	// Try to open the file.
 	if(logRecordingFile[item].open(QIODevice::ReadWrite))
 	{
@@ -254,6 +260,27 @@ void DataLogger::writeToFile(FlexseaDevice *devicePtr, uint8_t item)
 	// Verify that the log file is properly opened.
 	if(logRecordingFile[item].isOpen())
 	{
+		// If max number of lines reach, close and create a new indexed file
+		if(writedLines[item] >= MAX_NUM_LINES)
+		{
+			closeRecordingFile(item);
+
+			QString shortFileName(logShortFileName[item]);
+
+			// Append file index
+			shortFileName.append("-" + QString::number(logFileIndex[item]));
+			++logFileIndex[item];
+
+			//Add .csv extension if not present
+			if(shortFileName.mid(shortFileName.length()-4) != ".csv")
+			{
+				shortFileName.append(".csv");
+			}
+
+			openfile(shortFileName, item);
+			writedLines[item] = 0;
+		}
+
 		//Writting for the first time?
 		if(logRecordingFile[item].pos() == 0)
 		{
@@ -264,6 +291,8 @@ void DataLogger::writeToFile(FlexseaDevice *devicePtr, uint8_t item)
 
 		//And we add to the text file:
 		logFileStream << devicePtr->getLastSerializedStr() << endl;
+		++writedLines[item];
+
 	}
 	else
 	{
@@ -277,6 +306,7 @@ void DataLogger::closeRecordingFile(uint8_t item)
 	{
 		logFileStream << endl;
 		logRecordingFile[item].close();
+		writedLines[item] = 0;
 	}
 }
 
@@ -298,6 +328,11 @@ void DataLogger::closeReadingFile(void)
 void DataLogger::init(void)
 {
 	myTime = new QDateTime;
+	for(int item = 0; item < LOG_NUM; ++item)
+	{
+		writedLines[item] = 0;
+		logFileIndex[item]= 2;
+	}
 }
 
 void DataLogger::initLogDirectory()
