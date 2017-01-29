@@ -1754,24 +1754,12 @@ void W_2DPlot::on_cBoxvar1slave_currentIndexChanged(int index)
 			//Tracking, let's update all channels at once:
 			qDebug() << "Change all slaves (tracking #1)";
 
-			ui->cBoxvar2slave->setCurrentIndex(ui->cBoxvar1slave->currentIndex());
-			ui->cBoxvar3slave->setCurrentIndex(ui->cBoxvar1slave->currentIndex());
-			ui->cBoxvar4slave->setCurrentIndex(ui->cBoxvar1slave->currentIndex());
-			ui->cBoxvar5slave->setCurrentIndex(ui->cBoxvar1slave->currentIndex());
-			ui->cBoxvar6slave->setCurrentIndex(ui->cBoxvar1slave->currentIndex());
-
-			updateVarList(0);
-			updateVarList(1);
-			updateVarList(2);
-			updateVarList(3);
-			updateVarList(4);
-			updateVarList(5);
-			assignVariable(0);
-			assignVariable(1);
-			assignVariable(2);
-			assignVariable(3);
-			assignVariable(4);
-			assignVariable(5);
+			for(int item = 0; item < VAR_NUM; ++item)
+			{
+				(*cbVarSlave[item])->setCurrentIndex((*cbVarSlave[1])->currentIndex());
+				updateVarList(item);
+				assignVariable(item);
+			}
 		}
 	}
 }
@@ -1991,12 +1979,10 @@ void W_2DPlot::on_pbIMU_clicked()
 {
 	initUserInput();
 	initStats();
-	ui->cBoxvar1->setCurrentIndex(1);
-	ui->cBoxvar2->setCurrentIndex(2);
-	ui->cBoxvar3->setCurrentIndex(3);
-	ui->cBoxvar4->setCurrentIndex(4);
-	ui->cBoxvar5->setCurrentIndex(5);
-	ui->cBoxvar6->setCurrentIndex(6);
+	for(int item = 0; item < VAR_NUM; ++item)
+	{
+		(*cbVar[item])->setCurrentIndex(item);
+	}
 }
 
 void W_2DPlot::on_pbPoints_clicked()
@@ -2096,25 +2082,14 @@ void W_2DPlot::useOpenGL(bool yesNo)
 	if(yesNo == true)
 	{
 		qDebug() << "OpenGL Enabled";
-
-		//Turn OpenGL ON
-		qlsChart[0]->setUseOpenGL(true);
-		qlsChart[1]->setUseOpenGL(true);
-		qlsChart[2]->setUseOpenGL(true);
-		qlsChart[3]->setUseOpenGL(true);
-		qlsChart[4]->setUseOpenGL(true);
-		qlsChart[5]->setUseOpenGL(true);
 	}
 	else
 	{
 		qDebug() << "OpenGL Disabled";
+	}
 
-		//Turn OpenGL OFF
-		qlsChart[0]->setUseOpenGL(false);
-		qlsChart[1]->setUseOpenGL(false);
-		qlsChart[2]->setUseOpenGL(false);
-		qlsChart[3]->setUseOpenGL(false);
-		qlsChart[4]->setUseOpenGL(false);
-		qlsChart[5]->setUseOpenGL(false);
+	for(int item = 0; item < VAR_NUM; ++item)
+	{
+		qlsChart[item]->setUseOpenGL(yesNo);
 	}
 }
