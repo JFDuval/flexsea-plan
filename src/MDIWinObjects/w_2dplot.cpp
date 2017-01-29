@@ -1756,7 +1756,7 @@ void W_2DPlot::on_cBoxvar1slave_currentIndexChanged(int index)
 
 			for(int item = 0; item < VAR_NUM; ++item)
 			{
-				(*cbVarSlave[item])->setCurrentIndex((*cbVarSlave[1])->currentIndex());
+				(*cbVarSlave[item])->setCurrentIndex((*cbVarSlave[0])->currentIndex());
 				updateVarList(item);
 				assignVariable(item);
 			}
@@ -1981,7 +1981,7 @@ void W_2DPlot::on_pbIMU_clicked()
 	initStats();
 	for(int item = 0; item < VAR_NUM; ++item)
 	{
-		(*cbVar[item])->setCurrentIndex(item);
+		(*cbVar[item])->setCurrentIndex(item + 1);
 	}
 }
 
