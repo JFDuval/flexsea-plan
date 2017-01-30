@@ -101,22 +101,22 @@ void W_2DPlot::receiveNewData(void)
 			switch(vtp[item].format)
 			{
 				case FORMAT_32S:
-					val[item] = (*vtp[item].ptr32s);
+					val[item] = (*(int32_t*)vtp[item].rawGenPtr);
 					break;
 				case FORMAT_32U:
-					val[item] = (int)(*vtp[item].ptr32u);
+					val[item] = (int)(*(uint32_t*)vtp[item].rawGenPtr);
 					break;
 				case FORMAT_16S:
-					val[item] = (int)(*vtp[item].ptr16s);
+					val[item] = (int)(*(int16_t*)vtp[item].rawGenPtr);
 					break;
 				case FORMAT_16U:
-					val[item] = (int)(*vtp[item].ptr16u);
+					val[item] = (int)(*(uint16_t*)vtp[item].rawGenPtr);
 					break;
 				case FORMAT_8S:
-					val[item] = (int)(*vtp[item].ptr8s);
+					val[item] = (int)(*(int8_t*)vtp[item].rawGenPtr);
 					break;
 				case FORMAT_8U:
-					val[item] = (int)(*vtp[item].ptr8u);
+					val[item] = (int)(*(uint8_t*)vtp[item].rawGenPtr);
 					break;
 				default:
 					val[item] = 0;
@@ -125,7 +125,7 @@ void W_2DPlot::receiveNewData(void)
 		}
 		else
 		{
-			val[item] = (*vtp[item].ptrD32s);
+			val[item] = (*vtp[item].decodedPtr);
 		}
 	}
 
@@ -306,21 +306,12 @@ void W_2DPlot::initChart(void)
 void W_2DPlot::initUserInput(void)
 {
 	nullVar32s = 0;
-	nullVar32u = 0;
-	nullVar16s = 0;
 	nullVar16u = 0;
-	nullVar8s = 0;
-	nullVar8u = 0;
 
 	for(int i = 0; i < VAR_NUM; i++)
 	{
-		vtp[i].ptr32s = &nullVar32s;
-		vtp[i].ptrD32s = &nullVar32s;
-		vtp[i].ptr32u = &nullVar32u;
-		vtp[i].ptr16s = &nullVar16s;
-		vtp[i].ptr16u = &nullVar16u;
-		vtp[i].ptr8s = &nullVar8s;
-		vtp[i].ptr8u = &nullVar8u;
+		vtp[i].decodedPtr = &nullVar32s;
+		vtp[i].rawGenPtr = &nullVar32s;
 		vtp[i].used = false;
 	}
 
@@ -348,6 +339,9 @@ void W_2DPlot::initUserInput(void)
 	ui->lineEditYMax->setDisabled(true);
 
 	plotting_len = 0;
+
+	ui->comboBoxMargin->clear();
+	var_list_margin.clear();
 
 	//Margin options:
 	var_list_margin << "±2%" << "±5%" << "±10%" << "±10 ticks" << "±25 ticks" \
@@ -1006,7 +1000,7 @@ void W_2DPlot::updateVarList(uint8_t item)
 
 	//Fill the comboBox:
 	(*cbVar[item])->clear();
-	(*cbVar[item])->setToolTipDuration(750);
+	(*cbVar[item])->setToolTipDuration(350);
 	for(int index = 0; index < var_list.count(); index++)
 	{
 		(*cbVar[item])->addItem(var_list.at(index));
@@ -1086,118 +1080,118 @@ void W_2DPlot::assignVariableEx(uint8_t var, struct execute_s *myPtr)
 		case 0: //"**Unused**"
 			vtp[var].used = false;
 			vtp[var].format = FORMAT_32S;
-			vtp[var].ptr32s = &nullVar32s;
-			vtp[var].ptrD32s = &nullVar32s;
+			vtp[var].rawGenPtr = &nullVar32s;
+			vtp[var].decodedPtr = &nullVar32s;
 			break;
 		case 1: //"Accel X"
 			vtp[var].format = FORMAT_16S;
-			vtp[var].ptr16s = &myPtr->accel.x;
-			vtp[var].ptrD32s = &myPtr->decoded.accel.x;
+			vtp[var].rawGenPtr = &myPtr->accel.x;
+			vtp[var].decodedPtr = &myPtr->decoded.accel.x;
 			break;
 		case 2: //"Accel Y"
 			vtp[var].format = FORMAT_16S;
-			vtp[var].ptr16s = &myPtr->accel.y;
-			vtp[var].ptrD32s = &myPtr->decoded.accel.y;
+			vtp[var].rawGenPtr = &myPtr->accel.y;
+			vtp[var].decodedPtr = &myPtr->decoded.accel.y;
 			break;
 		case 3: //"Accel Z"
 			vtp[var].format = FORMAT_16S;
-			vtp[var].ptr16s = &myPtr->accel.z;
-			vtp[var].ptrD32s = &myPtr->decoded.accel.z;
+			vtp[var].rawGenPtr = &myPtr->accel.z;
+			vtp[var].decodedPtr = &myPtr->decoded.accel.z;
 			break;
 		case 4: //"Gyro X"
 			vtp[var].format = FORMAT_16S;
-			vtp[var].ptr16s = &myPtr->gyro.x;
-			vtp[var].ptrD32s = &myPtr->decoded.gyro.x;
+			vtp[var].rawGenPtr = &myPtr->gyro.x;
+			vtp[var].decodedPtr = &myPtr->decoded.gyro.x;
 			break;
 		case 5: //"Gyro Y"
 			vtp[var].format = FORMAT_16S;
-			vtp[var].ptr16s = &myPtr->gyro.y;
-			vtp[var].ptrD32s = &myPtr->decoded.gyro.y;
+			vtp[var].rawGenPtr = &myPtr->gyro.y;
+			vtp[var].decodedPtr = &myPtr->decoded.gyro.y;
 			break;
 		case 6: //"Gyro Z"
 			vtp[var].format = FORMAT_16S;
-			vtp[var].ptr16s = &myPtr->gyro.z;
-			vtp[var].ptrD32s = &myPtr->decoded.gyro.z;
+			vtp[var].rawGenPtr = &myPtr->gyro.z;
+			vtp[var].decodedPtr = &myPtr->decoded.gyro.z;
 			break;
 		case 7: //"Encoder Display"
 			vtp[var].format = FORMAT_32S;
-			vtp[var].ptr32s = &myPtr->enc_display;
-			vtp[var].ptrD32s = &nullVar32s;
+			vtp[var].rawGenPtr = &myPtr->enc_display;
+			vtp[var].decodedPtr = &nullVar32s;
 			break;
 		case 8: //"Encoder Control"
 			vtp[var].format = FORMAT_32S;
-			vtp[var].ptr32s = &myPtr->enc_control;
-			vtp[var].ptrD32s = &nullVar32s;
+			vtp[var].rawGenPtr = &myPtr->enc_control;
+			vtp[var].decodedPtr = &nullVar32s;
 			break;
 		case 9: //"Encoder Commutation"
 			vtp[var].format = FORMAT_32S;
-			vtp[var].ptr32s = &myPtr->enc_commut;
-			vtp[var].ptrD32s = &nullVar32s;
+			vtp[var].rawGenPtr = &myPtr->enc_commut;
+			vtp[var].decodedPtr = &nullVar32s;
 			break;
 		case 10: //"Motor current"
 			vtp[var].format = FORMAT_16S;
-			vtp[var].ptr16s = &myPtr->current;
-			vtp[var].ptrD32s = &myPtr->decoded.current;
+			vtp[var].rawGenPtr = &myPtr->current;
+			vtp[var].decodedPtr = &myPtr->decoded.current;
 			break;
 		case 11: //"Analog[0]"
 			vtp[var].format = FORMAT_16U;
-			vtp[var].ptr16u = &myPtr->analog[0];
-			vtp[var].ptrD32s = &myPtr->decoded.analog[0];
+			vtp[var].rawGenPtr = &myPtr->analog[0];
+			vtp[var].decodedPtr = &myPtr->decoded.analog[0];
 			break;
 		case 12: //Analog[1]
 			vtp[var].format = FORMAT_16U;
-			vtp[var].ptr16u = &myPtr->analog[1];
-			vtp[var].ptrD32s = &myPtr->decoded.analog[1];
+			vtp[var].rawGenPtr = &myPtr->analog[1];
+			vtp[var].decodedPtr = &myPtr->decoded.analog[1];
 			break;
 		case 13: //"Strain"
 			vtp[var].format = FORMAT_16U;
-			vtp[var].ptr16u = &myPtr->strain;
-			vtp[var].ptrD32s = &myPtr->decoded.strain;
+			vtp[var].rawGenPtr = &myPtr->strain;
+			vtp[var].decodedPtr = &myPtr->decoded.strain;
 			break;
 		case 14: //"+VB"
 			vtp[var].format = FORMAT_8U;
-			vtp[var].ptr8u = &myPtr->volt_batt;
-			vtp[var].ptrD32s = &myPtr->decoded.volt_batt;
+			vtp[var].rawGenPtr = &myPtr->volt_batt;
+			vtp[var].decodedPtr = &myPtr->decoded.volt_batt;
 			break;
 		case 15: //"+VG"
 			vtp[var].format = FORMAT_8U;
-			vtp[var].ptr8u = &myPtr->volt_int;
-			vtp[var].ptrD32s = &myPtr->decoded.volt_int;
+			vtp[var].rawGenPtr = &myPtr->volt_int;
+			vtp[var].decodedPtr = &myPtr->decoded.volt_int;
 			break;
 		case 16: //"Temp"
 			vtp[var].format = FORMAT_8U;
-			vtp[var].ptr8u = &myPtr->temp;
-			vtp[var].ptrD32s = &myPtr->decoded.temp;
+			vtp[var].rawGenPtr = &myPtr->temp;
+			vtp[var].decodedPtr = &myPtr->decoded.temp;
 			break;
 		case 17: //"Status 1"
 			vtp[var].format = FORMAT_8U;
-			vtp[var].ptr8u = &myPtr->status1;
-			vtp[var].ptrD32s = &nullVar32s;
+			vtp[var].rawGenPtr = &myPtr->status1;
+			vtp[var].decodedPtr = &nullVar32s;
 			break;
 		case 18: //"Status 2"
 			vtp[var].format = FORMAT_8U;
-			vtp[var].ptr8u = &myPtr->status2;
-			vtp[var].ptrD32s = &nullVar32s;
+			vtp[var].rawGenPtr = &myPtr->status2;
+			vtp[var].decodedPtr = &nullVar32s;
 			break;
 		case 19: //"Setpoint (square)"
 			vtp[var].format = FORMAT_32S;
-			vtp[var].ptr32s = &nullVar32s;//ctrl_setpoint);   //ToDo Fix
-			vtp[var].ptrD32s = &nullVar32s;
+			vtp[var].rawGenPtr = &nullVar32s;//ctrl_setpoint);   //ToDo Fix
+			vtp[var].decodedPtr = &nullVar32s;
 			break;
 		case 20: //"Setpoint (trap)"
 			vtp[var].format = FORMAT_32S;
-			vtp[var].ptr32s = &nullVar32s;//ctrl_setpoint_trap);  //ToDo Fix
-			vtp[var].ptrD32s = &nullVar32s;
+			vtp[var].rawGenPtr = &nullVar32s;//ctrl_setpoint_trap);  //ToDo Fix
+			vtp[var].decodedPtr = &nullVar32s;
 			break;
 		case 21: //"Fake Data"
 			vtp[var].format = FORMAT_32S;
-			vtp[var].ptr32s = &myFakeData;
-			vtp[var].ptrD32s = &nullVar32s;
+			vtp[var].rawGenPtr = &myFakeData;
+			vtp[var].decodedPtr = &nullVar32s;
 			break;
 		default:
 			vtp[var].format = FORMAT_32S;
-			vtp[var].ptr32s = &nullVar32s;
-			vtp[var].ptrD32s = &nullVar32s;
+			vtp[var].rawGenPtr = &nullVar32s;
+			vtp[var].decodedPtr = &nullVar32s;
 			vtp[var].used = false;
 			break;
 	}
@@ -1221,88 +1215,88 @@ void W_2DPlot::assignVariableRicnu(uint8_t var, struct ricnu_s *myPtr)
 		case 0: //"**Unused**"
 			vtp[var].used = false;
 			vtp[var].format = FORMAT_32S;
-			vtp[var].ptr32s = &nullVar32s;
-			vtp[var].ptrD32s = &nullVar32s;
+			vtp[var].rawGenPtr = &nullVar32s;
+			vtp[var].decodedPtr = &nullVar32s;
 			break;
 		case 1: //"Accel X"
 			vtp[var].format = FORMAT_16S;
-			vtp[var].ptr16s = &myPtr->ex.accel.x;
-			vtp[var].ptrD32s = &myPtr->ex.decoded.accel.x;
+			vtp[var].rawGenPtr = &myPtr->ex.accel.x;
+			vtp[var].decodedPtr = &myPtr->ex.decoded.accel.x;
 			break;
 		case 2: //"Accel Y"
 			vtp[var].format = FORMAT_16S;
-			vtp[var].ptr16s = &myPtr->ex.accel.y;
-			vtp[var].ptrD32s = &myPtr->ex.decoded.accel.y;
+			vtp[var].rawGenPtr = &myPtr->ex.accel.y;
+			vtp[var].decodedPtr = &myPtr->ex.decoded.accel.y;
 			break;
 		case 3: //"Accel Z"
 			vtp[var].format = FORMAT_16S;
-			vtp[var].ptr16s = &myPtr->ex.accel.z;
-			vtp[var].ptrD32s = &myPtr->ex.decoded.accel.z;
+			vtp[var].rawGenPtr = &myPtr->ex.accel.z;
+			vtp[var].decodedPtr = &myPtr->ex.decoded.accel.z;
 			break;
 		case 4: //"Gyro X"
 			vtp[var].format = FORMAT_16S;
-			vtp[var].ptr16s = &myPtr->ex.gyro.x;
-			vtp[var].ptrD32s = &myPtr->ex.decoded.gyro.x;
+			vtp[var].rawGenPtr = &myPtr->ex.gyro.x;
+			vtp[var].decodedPtr = &myPtr->ex.decoded.gyro.x;
 			break;
 		case 5: //"Gyro Y"
 			vtp[var].format = FORMAT_16S;
-			vtp[var].ptr16s = &myPtr->ex.gyro.y;
-			vtp[var].ptrD32s = &myPtr->ex.decoded.gyro.y;
+			vtp[var].rawGenPtr = &myPtr->ex.gyro.y;
+			vtp[var].decodedPtr = &myPtr->ex.decoded.gyro.y;
 			break;
 		case 6: //"Gyro Z"
 			vtp[var].format = FORMAT_16S;
-			vtp[var].ptr16s = &myPtr->ex.gyro.z;
-			vtp[var].ptrD32s = &myPtr->ex.decoded.gyro.z;
+			vtp[var].rawGenPtr = &myPtr->ex.gyro.z;
+			vtp[var].decodedPtr = &myPtr->ex.decoded.gyro.z;
 			break;
 		case 7: //"Encoder Motor"
 			vtp[var].format = FORMAT_32S;
-			vtp[var].ptr32s = &myPtr->ex.enc_motor;
-			vtp[var].ptrD32s = &nullVar32s;
+			vtp[var].rawGenPtr = &myPtr->ex.enc_motor;
+			vtp[var].decodedPtr = &nullVar32s;
 			break;
 		case 8: //"Encoder Control"
 			vtp[var].format = FORMAT_32S;
-			vtp[var].ptr32s = &myPtr->ex.enc_joint;
-			vtp[var].ptrD32s = &nullVar32s;
+			vtp[var].rawGenPtr = &myPtr->ex.enc_joint;
+			vtp[var].decodedPtr = &nullVar32s;
 			break;
 		case 9: //"Motor current"
 			vtp[var].format = FORMAT_16S;
-			vtp[var].ptr16s = &myPtr->ex.current;
-			vtp[var].ptrD32s = &myPtr->ex.decoded.current;
+			vtp[var].rawGenPtr = &myPtr->ex.current;
+			vtp[var].decodedPtr = &myPtr->ex.decoded.current;
 			break;
 		case 10: //"Strain[0]"
 			vtp[var].format = FORMAT_16U;
-			vtp[var].ptr16u = &myPtr->st.ch[0].strain_filtered;
-			vtp[var].ptrD32s = &myPtr->decoded.ext_strain[0];
+			vtp[var].rawGenPtr = &myPtr->st.ch[0].strain_filtered;
+			vtp[var].decodedPtr = &myPtr->decoded.ext_strain[0];
 			break;
 		case 11: //"Strain[1]"
 			vtp[var].format = FORMAT_16U;
-			vtp[var].ptr16u = &myPtr->st.ch[1].strain_filtered;
-			vtp[var].ptrD32s = &myPtr->decoded.ext_strain[1];
+			vtp[var].rawGenPtr = &myPtr->st.ch[1].strain_filtered;
+			vtp[var].decodedPtr = &myPtr->decoded.ext_strain[1];
 			break;
 		case 12: //"Strain[2]"
 			vtp[var].format = FORMAT_16U;
-			vtp[var].ptr16u = &myPtr->st.ch[2].strain_filtered;
-			vtp[var].ptrD32s = &myPtr->decoded.ext_strain[2];
+			vtp[var].rawGenPtr = &myPtr->st.ch[2].strain_filtered;
+			vtp[var].decodedPtr = &myPtr->decoded.ext_strain[2];
 			break;
 		case 13: //"Strain[3]"
 			vtp[var].format = FORMAT_16U;
-			vtp[var].ptr16u = &myPtr->st.ch[3].strain_filtered;
-			vtp[var].ptrD32s = &myPtr->decoded.ext_strain[3];
+			vtp[var].rawGenPtr = &myPtr->st.ch[3].strain_filtered;
+			vtp[var].decodedPtr = &myPtr->decoded.ext_strain[3];
 			break;
 		case 14: //"Strain[4]"
 			vtp[var].format = FORMAT_16U;
-			vtp[var].ptr16u = &myPtr->st.ch[4].strain_filtered;
-			vtp[var].ptrD32s = &myPtr->decoded.ext_strain[4];
+			vtp[var].rawGenPtr = &myPtr->st.ch[4].strain_filtered;
+			vtp[var].decodedPtr = &myPtr->decoded.ext_strain[4];
 			break;
 		case 15: //"Strain[5]"
 			vtp[var].format = FORMAT_16U;
-			vtp[var].ptr16u = &myPtr->st.ch[5].strain_filtered;
-			vtp[var].ptrD32s = &myPtr->decoded.ext_strain[5];
+			vtp[var].rawGenPtr = &myPtr->st.ch[5].strain_filtered;
+			vtp[var].decodedPtr = &myPtr->decoded.ext_strain[5];
 			break;
 		case 16: //"PWM"
 			vtp[var].format = FORMAT_16S;
-			vtp[var].ptr16s = &myPtr->ex.sine_commut_pwm;
-			vtp[var].ptrD32s = &nullVar32s;
+			vtp[var].rawGenPtr = &myPtr->ex.sine_commut_pwm;
+			vtp[var].decodedPtr = &nullVar32s;
 			break;
 	}
 }
@@ -1325,98 +1319,98 @@ void W_2DPlot::assignVariableMn(uint8_t var, struct manage_s *myPtr)
 		case 0: //"**Unused**"
 			vtp[var].used = false;
 			vtp[var].format = FORMAT_32S;
-			vtp[var].ptr32s = &nullVar32s;
-			vtp[var].ptrD32s = &nullVar32s;
+			vtp[var].rawGenPtr = &nullVar32s;
+			vtp[var].decodedPtr = &nullVar32s;
 			break;
 		case 1: //"Accel X"
 			vtp[var].format = FORMAT_16S;
-			vtp[var].ptr16s = &myPtr->accel.x;
-			vtp[var].ptrD32s = &myPtr->decoded.accel.x;
+			vtp[var].rawGenPtr = &myPtr->accel.x;
+			vtp[var].decodedPtr = &myPtr->decoded.accel.x;
 			break;
 		case 2: //"Accel Y"
 			vtp[var].format = FORMAT_16S;
-			vtp[var].ptr16s = &myPtr->accel.y;
-			vtp[var].ptrD32s = &myPtr->decoded.accel.y;
+			vtp[var].rawGenPtr = &myPtr->accel.y;
+			vtp[var].decodedPtr = &myPtr->decoded.accel.y;
 			break;
 		case 3: //"Accel Z"
 			vtp[var].format = FORMAT_16S;
-			vtp[var].ptr16s = &myPtr->accel.z;
-			vtp[var].ptrD32s = &myPtr->decoded.accel.z;
+			vtp[var].rawGenPtr = &myPtr->accel.z;
+			vtp[var].decodedPtr = &myPtr->decoded.accel.z;
 			break;
 		case 4: //"Gyro X"
 			vtp[var].format = FORMAT_16S;
-			vtp[var].ptr16s = &myPtr->gyro.x;
-			vtp[var].ptrD32s = &myPtr->decoded.gyro.x;
+			vtp[var].rawGenPtr = &myPtr->gyro.x;
+			vtp[var].decodedPtr = &myPtr->decoded.gyro.x;
 			break;
 		case 5: //"Gyro Y"
 			vtp[var].format = FORMAT_16S;
-			vtp[var].ptr16s = &myPtr->gyro.y;
-			vtp[var].ptrD32s = &myPtr->decoded.gyro.y;
+			vtp[var].rawGenPtr = &myPtr->gyro.y;
+			vtp[var].decodedPtr = &myPtr->decoded.gyro.y;
 			break;
 		case 6: //"Gyro Z"
 			vtp[var].format = FORMAT_16S;
-			vtp[var].ptr16s = &myPtr->gyro.z;
-			vtp[var].ptrD32s = &myPtr->decoded.gyro.z;
+			vtp[var].rawGenPtr = &myPtr->gyro.z;
+			vtp[var].decodedPtr = &myPtr->decoded.gyro.z;
 			break;
 		case 7: //"Pushbutton"
 			vtp[var].format = FORMAT_8U;
-			vtp[var].ptr8u = &myPtr->sw1;
-			vtp[var].ptrD32s = &nullVar32s;
+			vtp[var].rawGenPtr = &myPtr->sw1;
+			vtp[var].decodedPtr = &nullVar32s;
 			break;
 		case 8: //"Digital inputs"
 			vtp[var].format = FORMAT_16U;
-			vtp[var].ptr16u = &myPtr->digitalIn;
-			vtp[var].ptrD32s = &nullVar32s;
+			vtp[var].rawGenPtr = &myPtr->digitalIn;
+			vtp[var].decodedPtr = &nullVar32s;
 			break;
 		case 9: //"Analog[0]"
 			vtp[var].format = FORMAT_16U;
-			vtp[var].ptr16u = &myPtr->analog[0];
-			vtp[var].ptrD32s = &myPtr->decoded.analog[0];
+			vtp[var].rawGenPtr = &myPtr->analog[0];
+			vtp[var].decodedPtr = &myPtr->decoded.analog[0];
 			break;
 		case 10: //Analog[1]
 			vtp[var].format = FORMAT_16U;
-			vtp[var].ptr16u = &myPtr->analog[1];
-			vtp[var].ptrD32s = &myPtr->decoded.analog[1];
+			vtp[var].rawGenPtr = &myPtr->analog[1];
+			vtp[var].decodedPtr = &myPtr->decoded.analog[1];
 			break;
 		case 11: //"Analog[2]"
 			vtp[var].format = FORMAT_16U;
-			vtp[var].ptr16u = &myPtr->analog[2];
-			vtp[var].ptrD32s = &myPtr->decoded.analog[2];
+			vtp[var].rawGenPtr = &myPtr->analog[2];
+			vtp[var].decodedPtr = &myPtr->decoded.analog[2];
 			break;
 		case 12: //Analog[3]
 			vtp[var].format = FORMAT_16U;
-			vtp[var].ptr16u = &myPtr->analog[3];
-			vtp[var].ptrD32s = &myPtr->decoded.analog[3];
+			vtp[var].rawGenPtr = &myPtr->analog[3];
+			vtp[var].decodedPtr = &myPtr->decoded.analog[3];
 			break;
 		case 13: //"Analog[4]"
 			vtp[var].format = FORMAT_16U;
-			vtp[var].ptr16u = &myPtr->analog[4];
-			vtp[var].ptrD32s = &myPtr->decoded.analog[4];
+			vtp[var].rawGenPtr = &myPtr->analog[4];
+			vtp[var].decodedPtr = &myPtr->decoded.analog[4];
 			break;
 		case 14: //Analog[5]
 			vtp[var].format = FORMAT_16U;
-			vtp[var].ptr16u = &myPtr->analog[5];
-			vtp[var].ptrD32s = &myPtr->decoded.analog[5];
+			vtp[var].rawGenPtr = &myPtr->analog[5];
+			vtp[var].decodedPtr = &myPtr->decoded.analog[5];
 			break;
 		case 15: //"Analog[6]"
 			vtp[var].format = FORMAT_16U;
-			vtp[var].ptr16u = &myPtr->analog[6];
-			vtp[var].ptrD32s = &myPtr->decoded.analog[6];
+			vtp[var].rawGenPtr = &myPtr->analog[6];
+			vtp[var].decodedPtr = &myPtr->decoded.analog[6];
 			break;
 		case 16: //Analog[7]
 			vtp[var].format = FORMAT_16U;
-			vtp[var].ptr16u = &myPtr->analog[7];
-			vtp[var].ptrD32s = &myPtr->decoded.analog[7];
+			vtp[var].rawGenPtr = &myPtr->analog[7];
+			vtp[var].decodedPtr = &myPtr->decoded.analog[7];
 			break;
 		case 17: //"Status"
 			vtp[var].format = FORMAT_8U;
-			vtp[var].ptr8u = &myPtr->status1;
-			vtp[var].ptrD32s = &nullVar32s;
+			vtp[var].rawGenPtr = &myPtr->status1;
+			vtp[var].decodedPtr = &nullVar32s;
 			break;
 		default:
 			vtp[var].format = FORMAT_32S;
-			vtp[var].ptr32s = &nullVar32s;
-			vtp[var].ptrD32s = &nullVar32s;
+			vtp[var].rawGenPtr = &nullVar32s;
+			vtp[var].decodedPtr = &nullVar32s;
 			vtp[var].used = false;
 			break;
 	}
@@ -1440,90 +1434,90 @@ void W_2DPlot::assignVariableGo(uint8_t var, struct gossip_s *myPtr)
 		case 0: //"**Unused**"
 			vtp[var].used = false;
 			vtp[var].format = FORMAT_32S;
-			vtp[var].ptr32s = &nullVar32s;
-			vtp[var].ptrD32s = &nullVar32s;
+			vtp[var].rawGenPtr = &nullVar32s;
+			vtp[var].decodedPtr = &nullVar32s;
 			break;
 		case 1: //"Accel X"
 			vtp[var].format = FORMAT_16S;
-			vtp[var].ptr16s = &myPtr->accel.x;
-			vtp[var].ptrD32s = &myPtr->decoded.accel.x;
+			vtp[var].rawGenPtr = &myPtr->accel.x;
+			vtp[var].decodedPtr = &myPtr->decoded.accel.x;
 			break;
 		case 2: //"Accel Y"
 			vtp[var].format = FORMAT_16S;
-			vtp[var].ptr16s = &myPtr->accel.y;
-			vtp[var].ptrD32s = &myPtr->decoded.accel.y;
+			vtp[var].rawGenPtr = &myPtr->accel.y;
+			vtp[var].decodedPtr = &myPtr->decoded.accel.y;
 			break;
 		case 3: //"Accel Z"
 			vtp[var].format = FORMAT_16S;
-			vtp[var].ptr16s = &myPtr->accel.z;
-			vtp[var].ptrD32s = &myPtr->decoded.accel.z;
+			vtp[var].rawGenPtr = &myPtr->accel.z;
+			vtp[var].decodedPtr = &myPtr->decoded.accel.z;
 			break;
 		case 4: //"Gyro X"
 			vtp[var].format = FORMAT_16S;
-			vtp[var].ptr16s = &myPtr->gyro.x;
-			vtp[var].ptrD32s = &myPtr->decoded.gyro.x;
+			vtp[var].rawGenPtr = &myPtr->gyro.x;
+			vtp[var].decodedPtr = &myPtr->decoded.gyro.x;
 			break;
 		case 5: //"Gyro Y"
 			vtp[var].format = FORMAT_16S;
-			vtp[var].ptr16s = &myPtr->gyro.y;
-			vtp[var].ptrD32s = &myPtr->decoded.gyro.y;
+			vtp[var].rawGenPtr = &myPtr->gyro.y;
+			vtp[var].decodedPtr = &myPtr->decoded.gyro.y;
 			break;
 		case 6: //"Gyro Z"
 			vtp[var].format = FORMAT_16S;
-			vtp[var].ptr16s = &myPtr->gyro.z;
-			vtp[var].ptrD32s = &myPtr->decoded.gyro.z;
+			vtp[var].rawGenPtr = &myPtr->gyro.z;
+			vtp[var].decodedPtr = &myPtr->decoded.gyro.z;
 			break;
 		case 7: //"Magneto X"
 			vtp[var].format = FORMAT_16S;
-			vtp[var].ptr16s = &myPtr->magneto.x;
-			vtp[var].ptrD32s = &myPtr->decoded.magneto.x;
+			vtp[var].rawGenPtr = &myPtr->magneto.x;
+			vtp[var].decodedPtr = &myPtr->decoded.magneto.x;
 			break;
 		case 8: //"Magneto Y"
 			vtp[var].format = FORMAT_16S;
-			vtp[var].ptr16s = &myPtr->magneto.y;
-			vtp[var].ptrD32s = &myPtr->decoded.magneto.y;
+			vtp[var].rawGenPtr = &myPtr->magneto.y;
+			vtp[var].decodedPtr = &myPtr->decoded.magneto.y;
 			break;
 		case 9: //"Magneto Z"
 			vtp[var].format = FORMAT_16S;
-			vtp[var].ptr16s = &myPtr->magneto.z;
-			vtp[var].ptrD32s = &myPtr->decoded.magneto.z;
+			vtp[var].rawGenPtr = &myPtr->magneto.z;
+			vtp[var].decodedPtr = &myPtr->decoded.magneto.z;
 			break;
 		case 10: //"IO 1"
 			vtp[var].format = FORMAT_16U;
-			vtp[var].ptr16u = &myPtr->io[0];
-			vtp[var].ptrD32s = &nullVar32s;
+			vtp[var].rawGenPtr = &myPtr->io[0];
+			vtp[var].decodedPtr = &nullVar32s;
 			break;
 		case 11: //"IO 2"
 			vtp[var].format = FORMAT_16U;
-			vtp[var].ptr16u = &myPtr->io[1];
-			vtp[var].ptrD32s = &nullVar32s;
+			vtp[var].rawGenPtr = &myPtr->io[1];
+			vtp[var].decodedPtr = &nullVar32s;
 			break;
 		case 12: //"Capsense 1"
 			vtp[var].format = FORMAT_16U;
-			vtp[var].ptr16u = &myPtr->capsense[0];
-			vtp[var].ptrD32s = &nullVar32s;
+			vtp[var].rawGenPtr = &myPtr->capsense[0];
+			vtp[var].decodedPtr = &nullVar32s;
 			break;
 		case 13: //"Capsense 2"
 			vtp[var].format = FORMAT_16U;
-			vtp[var].ptr16u = &myPtr->capsense[1];
-			vtp[var].ptrD32s = &nullVar32s;
+			vtp[var].rawGenPtr = &myPtr->capsense[1];
+			vtp[var].decodedPtr = &nullVar32s;
 		case 14: //"Capsense 3"
 			vtp[var].format = FORMAT_16U;
-			vtp[var].ptr16u = &myPtr->capsense[2];
-			vtp[var].ptrD32s = &nullVar32s;
+			vtp[var].rawGenPtr = &myPtr->capsense[2];
+			vtp[var].decodedPtr = &nullVar32s;
 		case 15: //"Capsense 4"
 			vtp[var].format = FORMAT_16U;
-			vtp[var].ptr16u = &myPtr->capsense[3];
-			vtp[var].ptrD32s = &nullVar32s;
+			vtp[var].rawGenPtr = &myPtr->capsense[3];
+			vtp[var].decodedPtr = &nullVar32s;
 		case 16: //"Status"
 			vtp[var].format = FORMAT_8U;
-			vtp[var].ptr8u = &myPtr->status;
-			vtp[var].ptrD32s = &nullVar32s;
+			vtp[var].rawGenPtr = &myPtr->status;
+			vtp[var].decodedPtr = &nullVar32s;
 			break;
 		default:
 			vtp[var].format = FORMAT_32S;
-			vtp[var].ptr32s = &nullVar32s;
-			vtp[var].ptrD32s = &nullVar32s;
+			vtp[var].rawGenPtr = &nullVar32s;
+			vtp[var].decodedPtr = &nullVar32s;
 			vtp[var].used = false;
 			break;
 	}
@@ -1547,43 +1541,43 @@ void W_2DPlot::assignVariableBa(uint8_t var, struct battery_s *myPtr)
 		case 0: //"**Unused**"
 			vtp[var].used = false;
 			vtp[var].format = FORMAT_32S;
-			vtp[var].ptr32s = &nullVar32s;
-			vtp[var].ptrD32s = &nullVar32s;
+			vtp[var].rawGenPtr = &nullVar32s;
+			vtp[var].decodedPtr = &nullVar32s;
 			break;
 		case 1: //"Voltage"
 			vtp[var].format = FORMAT_16U;
-			vtp[var].ptr16u = &myPtr->voltage;
-			vtp[var].ptrD32s = &myPtr->decoded.voltage;
+			vtp[var].rawGenPtr = &myPtr->voltage;
+			vtp[var].decodedPtr = &myPtr->decoded.voltage;
 			break;
 		case 2: //"Current"
 			vtp[var].format = FORMAT_16S;
-			vtp[var].ptr16s = &myPtr->current;
-			vtp[var].ptrD32s = &myPtr->decoded.current;
+			vtp[var].rawGenPtr = &myPtr->current;
+			vtp[var].decodedPtr = &myPtr->decoded.current;
 			break;
 		case 3: //"Power"
 			vtp[var].format = FORMAT_16U;
-			vtp[var].ptr16u = &nullVar16u;
-			vtp[var].ptrD32s = &myPtr->decoded.power;
+			vtp[var].rawGenPtr = &nullVar16u;
+			vtp[var].decodedPtr = &myPtr->decoded.power;
 			break;
 		case 4: //"Temperature"
 			vtp[var].format = FORMAT_8U;
-			vtp[var].ptr8u = &myPtr->temp;
-			vtp[var].ptrD32s = &myPtr->decoded.temp;
+			vtp[var].rawGenPtr = &myPtr->temp;
+			vtp[var].decodedPtr = &myPtr->decoded.temp;
 			break;
 		case 5: //"Pushbutton"
 			vtp[var].format = FORMAT_8U;
-			vtp[var].ptr8u = &myPtr->pushbutton;
-			vtp[var].ptrD32s = &nullVar32s;
+			vtp[var].rawGenPtr = &myPtr->pushbutton;
+			vtp[var].decodedPtr = &nullVar32s;
 			break;
 		case 6: //"Status"
 			vtp[var].format = FORMAT_8U;
-			vtp[var].ptr8u = &myPtr->status;
-			vtp[var].ptrD32s = &nullVar32s;
+			vtp[var].rawGenPtr = &myPtr->status;
+			vtp[var].decodedPtr = &nullVar32s;
 			break;
 		default:
 			vtp[var].format = FORMAT_32S;
-			vtp[var].ptr32s = &nullVar32s;
-			vtp[var].ptrD32s = &nullVar32s;
+			vtp[var].rawGenPtr = &nullVar32s;
+			vtp[var].decodedPtr = &nullVar32s;
 			vtp[var].used = false;
 			break;
 	}
@@ -1608,51 +1602,51 @@ void W_2DPlot::assignVariableSt(uint8_t var, struct strain_s *myPtr)
 		case 0: //"**Unused**"
 			vtp[var].used = false;
 			vtp[var].format = FORMAT_32S;
-			vtp[var].ptr32s = &nullVar32s;
-			vtp[var].ptrD32s = &nullVar32s;
+			vtp[var].rawGenPtr = &nullVar32s;
+			vtp[var].decodedPtr = &nullVar32s;
 			break;
 		case 1: //"Ch 1"
 			vtp[var].format = FORMAT_16U;
-			vtp[var].ptr16u = &myPtr->ch[0].strain_filtered;
-			vtp[var].ptrD32s = &myPtr->decoded.strain[0];
+			vtp[var].rawGenPtr = &myPtr->ch[0].strain_filtered;
+			vtp[var].decodedPtr = &myPtr->decoded.strain[0];
 			break;
 		case 2: //"Ch 2"
 			vtp[var].format = FORMAT_16U;
-			vtp[var].ptr16u = &myPtr->ch[1].strain_filtered;
-			vtp[var].ptrD32s = &myPtr->decoded.strain[1];
+			vtp[var].rawGenPtr = &myPtr->ch[1].strain_filtered;
+			vtp[var].decodedPtr = &myPtr->decoded.strain[1];
 			break;
 		case 3: //"Ch 3"
 			vtp[var].format = FORMAT_16U;
-			vtp[var].ptr16u = &myPtr->ch[2].strain_filtered;
-			vtp[var].ptrD32s = &myPtr->decoded.strain[2];
+			vtp[var].rawGenPtr = &myPtr->ch[2].strain_filtered;
+			vtp[var].decodedPtr = &myPtr->decoded.strain[2];
 			break;
 		case 4: //"Ch 4"
 			vtp[var].format = FORMAT_16U;
-			vtp[var].ptr16u = &myPtr->ch[3].strain_filtered;
-			vtp[var].ptrD32s = &myPtr->decoded.strain[3];
+			vtp[var].rawGenPtr = &myPtr->ch[3].strain_filtered;
+			vtp[var].decodedPtr = &myPtr->decoded.strain[3];
 			break;
 		case 5: //"Ch 5"
 			vtp[var].format = FORMAT_16U;
-			vtp[var].ptr16u = &myPtr->ch[4].strain_filtered;
-			vtp[var].ptrD32s = &myPtr->decoded.strain[4];
+			vtp[var].rawGenPtr = &myPtr->ch[4].strain_filtered;
+			vtp[var].decodedPtr = &myPtr->decoded.strain[4];
 			break;
 		case 6: //"Ch 6"
 			vtp[var].format = FORMAT_16U;
-			vtp[var].ptr16u = &myPtr->ch[5].strain_filtered;
-			vtp[var].ptrD32s = &myPtr->decoded.strain[5];
+			vtp[var].rawGenPtr = &myPtr->ch[5].strain_filtered;
+			vtp[var].decodedPtr = &myPtr->decoded.strain[5];
 			break;
 /*
 		case 7: //"Status"
 			vtp[var].format = FORMAT_8U;
-			vtp[var].ptr8u = &myPtr->status;
+			vtp[var].gptr = &myPtr->status;
 			vtp[var].ptrD32s = &nullVar32s;
 			break;
 */
 
 		default:
 			vtp[var].format = FORMAT_32S;
-			vtp[var].ptr32s = &nullVar32s;
-			vtp[var].ptrD32s = &nullVar32s;
+			vtp[var].rawGenPtr = &nullVar32s;
+			vtp[var].decodedPtr = &nullVar32s;
 			vtp[var].used = false;
 			break;
 	}
@@ -2079,6 +2073,11 @@ void W_2DPlot::on_checkBoxOpenGL_clicked(bool checked)
 
 void W_2DPlot::useOpenGL(bool yesNo)
 {
+	for(int item = 0; item < VAR_NUM; ++item)
+	{
+		qlsChart[item]->setUseOpenGL(yesNo);
+	}
+
 	if(yesNo == true)
 	{
 		qDebug() << "OpenGL Enabled";
@@ -2086,10 +2085,5 @@ void W_2DPlot::useOpenGL(bool yesNo)
 	else
 	{
 		qDebug() << "OpenGL Disabled";
-	}
-
-	for(int item = 0; item < VAR_NUM; ++item)
-	{
-		qlsChart[item]->setUseOpenGL(yesNo);
 	}
 }

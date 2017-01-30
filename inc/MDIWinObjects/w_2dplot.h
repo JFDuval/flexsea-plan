@@ -80,14 +80,10 @@
 //VTP = Variable To Plot
 struct vtp_s
 {
-	int32_t *ptr32s, *ptrD32s;
-	uint32_t *ptr32u;
-	int16_t *ptr16s;
-	uint16_t *ptr16u;
-	int8_t *ptr8s;
-	uint8_t *ptr8u;
-	uint8_t format, decode;
-	bool used;
+	void *rawGenPtr;
+	uint8_t format;
+	int32_t *decodedPtr;
+	bool used, decode;
 };
 
 //****************************************************************************
@@ -195,11 +191,7 @@ private:
 	struct vtp_s vtp[6];
 	uint8_t varToPlotFormat[6];
 	int32_t nullVar32s;
-	uint32_t nullVar32u;
-	int16_t nullVar16s;
 	uint16_t nullVar16u;
-	int8_t nullVar8s;
-	uint8_t nullVar8u;
 
 	uint8_t slaveIndex[VAR_NUM], slaveAddr[VAR_NUM], slaveBType[VAR_NUM];
 	uint8_t varIndex[VAR_NUM];
