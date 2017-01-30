@@ -93,6 +93,6 @@ signals:
 #define INDICATOR_TIMEOUT		110
 
 //USB driver:
-#define USB_READ_TIMEOUT		10		//ms
+#define USB_READ_TIMEOUT		100		//ms
 
 #endif // SERIALDRIVER_H
