@@ -832,6 +832,14 @@ void W_2DPlot::setChartAxisAutomatic(void)
 		plot_ymin = globalYmin;
 		plot_ymax = globalYmax;
 
+		// If the range is going to be equal, or overlapping,
+		// We adjust the axis to some minimum height
+		while(plot_ymin >= plot_ymax)
+		{
+			plot_ymin -= 5;
+			plot_ymax += 5;
+		}
+
 		//Apply a margin:
 		addMargins(&plot_ymin, &plot_ymax);
 
