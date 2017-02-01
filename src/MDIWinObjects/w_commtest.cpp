@@ -101,6 +101,8 @@ void W_CommTest::init(void)
 	initTab1();
 	initTab2();
 
+	//Always start on the first tab:
+	ui->tabWidget->setCurrentIndex(0);
 }
 
 //First tab: Plan <> Device test
@@ -124,7 +126,7 @@ void W_CommTest::initTab1(void)
 	initRandomGenerator(myTime.msecsSinceStartOfDay());
 }
 
-//Second tab: Mnaage <> Execute test
+//Second tab: Manage <> Execute test
 void W_CommTest::initTab2(void)
 {
 	//Displays:
