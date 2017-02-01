@@ -268,6 +268,7 @@ void MainWindow::translatorUpdateDataSourceStatus(DataSource status)
 
 void MainWindow::manageLogKeyPad(DataSource status, FlexseaDevice *devPtr)
 {
+	(void)status; //Unused for now
 	createLogKeyPad(devPtr);
 }
 

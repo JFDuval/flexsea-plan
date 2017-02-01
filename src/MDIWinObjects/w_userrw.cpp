@@ -181,6 +181,6 @@ void W_UserRW::refreshDisplay(void)
 
 void W_UserRW::on_comboBox_slave_currentIndexChanged(int index)
 {
-	active_slave_index = ui->comboBox_slave->currentIndex();
+	active_slave_index = index;
 	active_slave = FlexSEA_Generic::getSlaveID(SL_BASE_ALL, active_slave_index);
 }
