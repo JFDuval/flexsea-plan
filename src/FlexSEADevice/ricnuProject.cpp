@@ -189,6 +189,8 @@ void RicnuProject::decode(struct ricnu_s_plan *riPtr)
 
 QString RicnuProject::getStatusStr(int index)
 {
+	(void)index;	//Unused
+
 	return QString("No decoding available for this board");
 }
 

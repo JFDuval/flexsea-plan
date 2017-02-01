@@ -135,6 +135,8 @@ void StrainDevice::decodeAllLine(void)
 
 QString StrainDevice::getStatusStr(int index)
 {
+	(void)index;	//Unused
+
 	return QString("No decoding available for this board");
 }
 

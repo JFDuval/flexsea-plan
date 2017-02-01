@@ -243,6 +243,8 @@ void Ankle2DofProject::decode(struct ankle2Dof_s_plan *akPtr)
 
 QString Ankle2DofProject::getStatusStr(int index)
 {
+	(void)index;	//Unused
+
 	return QString("No decoding available for this board");
 }
 

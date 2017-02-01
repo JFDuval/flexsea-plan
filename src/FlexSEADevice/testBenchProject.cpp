@@ -265,6 +265,8 @@ void TestBenchProject::decode(struct testBench_s_plan *tbPtr)
 
 QString TestBenchProject::getStatusStr(int index)
 {
+	(void)index;	//Unused
+
 	return QString("No decoding available for this board");
 }
 
