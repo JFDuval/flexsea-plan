@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>293</width>
-    <height>378</height>
+    <height>375</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -70,7 +70,7 @@
    <item>
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
-      <number>1</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="tab">
       <attribute name="title">
@@ -448,25 +448,19 @@
         </layout>
        </item>
        <item row="1" column="0">
-        <spacer name="verticalSpacer_2">
+        <spacer name="verticalSpacer_4">
          <property name="orientation">
           <enum>Qt::Vertical</enum>
-         </property>
-         <property name="sizeType">
-          <enum>QSizePolicy::MinimumExpanding</enum>
          </property>
          <property name="sizeHint" stdset="0">
           <size>
            <width>5</width>
-           <height>3</height>
+           <height>5</height>
           </size>
          </property>
         </spacer>
        </item>
       </layout>
-      <zorder></zorder>
-      <zorder>verticalSpacer_2</zorder>
-      <zorder>verticalSpacer_2</zorder>
      </widget>
      <widget class="QWidget" name="tab_2">
       <attribute name="title">
