@@ -52,7 +52,12 @@ MainWindow::MainWindow(QWidget *parent) :
 	ui->setupUi(this);
 	QMainWindow::showMaximized();
 
-	setWindowTitle("FlexSEA Plan GUI v2.0 (Alpha Release - 01/2017)");
+	//Header contains timestamp:
+	QString winHeader = "FlexSEA-Plan GUI v2.0 (Alpha) [Last full build: ";
+	winHeader = winHeader + QString(__DATE__) + QString(' ') + QString(__TIME__) \
+				+ QString(']');
+	setWindowTitle(winHeader);
+
 	ui->statusBar->showMessage("Program launched. COM: Not Connected. \
 								Stream status: N/A", 0);
 	setWindowIcon(QIcon(":icons/d_logo_small_outlined.png"));
