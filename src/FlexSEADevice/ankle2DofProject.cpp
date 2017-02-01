@@ -238,7 +238,7 @@ void Ankle2DofProject::decodeAllLine(void)
 void Ankle2DofProject::decode(struct ankle2Dof_s_plan *akPtr)
 {
 	ExecuteDevice::decode(akPtr->ex1);
-	ExecuteDevice::decode(akPtr->ex1);
+	ExecuteDevice::decode(akPtr->ex2);
 }
 
 QString Ankle2DofProject::getStatusStr(int index)
