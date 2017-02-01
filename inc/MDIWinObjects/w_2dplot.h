@@ -80,14 +80,10 @@
 //VTP = Variable To Plot
 struct vtp_s
 {
-	int32_t *ptr32s, *ptrD32s;
-	uint32_t *ptr32u;
-	int16_t *ptr16s;
-	uint16_t *ptr16u;
-	int8_t *ptr8s;
-	uint8_t *ptr8u;
-	uint8_t format, decode;
-	bool used;
+	void *rawGenPtr;
+	uint8_t format;
+	int32_t *decodedPtr;
+	bool used, decode;
 };
 
 //****************************************************************************
@@ -165,13 +161,23 @@ signals:
 
 private:
 
+	// GUI Pointer table
+
+	QLabel **lbT[VAR_NUM];
+	QComboBox **cbVar[VAR_NUM];
+	QComboBox **cbVarSlave[VAR_NUM];
+	QCheckBox **ckbDecode[VAR_NUM];
+	QLabel **lbMin[VAR_NUM];
+	QLabel **lbMax[VAR_NUM];
+	QLabel **lbAvg[VAR_NUM];
+
 	//Variables & Objects:
 
 	Ui::W_2DPlot *ui;
 	QChart *chart;
 	QChartView *chartView;
-	QLineSeries *qlsData[VAR_NUM];
-	QLineSeries qlsDataBuffer[6];
+	QLineSeries *qlsChart[VAR_NUM];
+	QVector<QPointF> vDataBuffer[VAR_NUM];
 	QDateTime *timerRefreshDisplay, *timerRefreshData;
 	int plot_xmin, plot_ymin, plot_xmax, plot_ymax, plot_len;
 	int globalYmin, globalYmax;
@@ -185,11 +191,7 @@ private:
 	struct vtp_s vtp[6];
 	uint8_t varToPlotFormat[6];
 	int32_t nullVar32s;
-	uint32_t nullVar32u;
-	int16_t nullVar16s;
 	uint16_t nullVar16u;
-	int8_t nullVar8s;
-	uint8_t nullVar8u;
 
 	uint8_t slaveIndex[VAR_NUM], slaveAddr[VAR_NUM], slaveBType[VAR_NUM];
 	uint8_t varIndex[VAR_NUM];
@@ -212,11 +214,12 @@ private:
 	void setChartAxisAutomatic(void);
 	bool allChannelUnused(void);
 	void initStats(void);
+	void initPtr(void);
 	void refreshStats(void);
 	void refreshStatBar(float fDisp, float fData);
 	void useOpenGL(bool yesNo);
 
-	void updateVarList(uint8_t var, QComboBox *myCombo);
+	void updateVarList(uint8_t var);
 	void assignVariable(uint8_t var);
 	void assignVariableEx(uint8_t var, struct execute_s *myPtr);
 	void assignVariableMn(uint8_t var, struct manage_s *myPtr);

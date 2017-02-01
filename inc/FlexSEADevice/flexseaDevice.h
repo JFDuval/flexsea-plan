@@ -67,6 +67,8 @@ class FlexseaDevice
 {
 public:
 	explicit FlexseaDevice();
+	virtual ~FlexseaDevice(){}
+
 	virtual QString getHeaderStr(void) = 0;
 	virtual QString getLastSerializedStr(void) = 0;
 	virtual void appendSerializedStr(QStringList *splitLine) = 0;

@@ -40,9 +40,9 @@
 //****************************************************************************
 
 W_Ricnu::W_Ricnu(QWidget *parent,
-				 RicnuDevice *deviceLogPtr,
+				 RicnuProject *deviceLogPtr,
 				 DisplayMode mode,
-				 QList<RicnuDevice> *deviceListPtr) :
+				 QList<RicnuProject> *deviceListPtr) :
 	QWidget(parent),
 	ui(new Ui::W_Ricnu)
 {
@@ -122,10 +122,10 @@ void W_Ricnu::initLog(void)
 {
 	//Populates Slave list:
 	ui->comboBox_slave->clear();
-	ui->comboBox_slave->addItem("Log 1");
+	ui->comboBox_slave->addItem(deviceLog->slaveName);
 }
 
-void W_Ricnu::display(RicnuDevice *devicePtr, int index)
+void W_Ricnu::display(RicnuProject *devicePtr, int index)
 {
 	struct ricnu_s_plan *ricnu = devicePtr->riList[index];
 

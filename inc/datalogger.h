@@ -49,7 +49,10 @@
 #include "gossipDevice.h"
 #include "batteryDevice.h"
 #include "strainDevice.h"
-#include "ricnuDevice.h"
+#include "ricnuProject.h"
+
+#define LOG_NUM 4
+#define MAX_NUM_LINES 50000
 
 //****************************************************************************
 // Namespace & Class
@@ -70,7 +73,7 @@ public:
 						GossipDevice *gossipInitPtr = nullptr,
 						BatteryDevice *batteryInitPtr = nullptr,
 						StrainDevice *strainInitPtr = nullptr,
-						RicnuDevice *ricnuInitPtr = nullptr);
+						RicnuProject *ricnuInitPtr = nullptr);
 
 public slots:
 	void openRecordingFile(FlexseaDevice *devicePtr, uint8_t item);
@@ -83,7 +86,10 @@ private slots:
 
 private:
 	//Variables & Objects:
-	QFile logRecordingFile[4];
+	QFile logRecordingFile[LOG_NUM];
+	QString logShortFileName[LOG_NUM];
+	int writedLines[LOG_NUM];
+	int logFileIndex[LOG_NUM];
 	QFile logReadingFile;
 	static bool sessionDirectoryCreated;
 
@@ -92,9 +98,7 @@ private:
 	GossipDevice *gossipDevPtr;
 	BatteryDevice *batteryDevPtr;
 	StrainDevice *strainDevPtr;
-	RicnuDevice *ricnuDevPtr;
-
-
+	RicnuProject *ricnuDevPtr;
 
 	QString planGUIRootPath;
 	QString logFolder;
@@ -103,14 +107,14 @@ private:
 	QTextStream logFileStream;
 	QDateTime *myTime;
 
-	bool fileOpened[4];
+	bool fileOpened[LOG_NUM];
 
 	//Function(s):
 	void init(void);
 	void logTimestamp(qint64 *t_ms, QString *t_text);
 	void writeManageA2DOFHeader(uint8_t item);
 	void writeManageTestBenchHeader(uint8_t item);
-	void openfile(uint8_t item, QString shortFileName);
+	void openfile(QString logShortFileName, uint8_t item);
 	void initLogDirectory(void);
 	void setStatus(QString str);
 

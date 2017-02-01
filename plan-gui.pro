@@ -75,26 +75,28 @@ SOURCES += src/main.cpp \
 	src/MDIWinObjects/w_logkeypad.cpp \
 	src/MDIWinObjects/w_userrw.cpp \
 	src/FlexSEADevice/executeDevice.cpp \
-    src/FlexSEADevice/flexseaDevice.cpp \
-    src/FlexSEADevice/batteryDevice.cpp \
-    src/FlexSEADevice/gossipDevice.cpp \
-    src/FlexSEADevice/manageDevice.cpp \
-    src/FlexSEADevice/ricnuDevice.cpp \
-    src/FlexSEADevice/strainDevice.cpp \
-    flexsea-user/MIT_2DoF_Ankle_v1/src/user-ex-MIT_2DoF_Ankle_v1.c \
-    flexsea-user/MIT_2DoF_Ankle_v1/src/user-mn-MIT_2DoF_Ankle_v1.c \
-    flexsea-user/MotorTestBench/src/cmd-MotorTestBench.c \
-    flexsea-user/MotorTestBench/src/user-ex-MotorTestBench.c \
-    flexsea-user/MotorTestBench/src/user-mn-MotorTestBench.c \
-    flexsea-user/RICNU_Knee_v1/src/user-ex-RICNU_Knee_v1.c \
-    flexsea-user/RICNU_Knee_v1/src/user-mn-RICNU_Knee_v1.c \
-    flexsea-user/src/flexsea_user_structs.c \
-    flexsea-user/src/user-ex.c \
-    flexsea-user/src/user-mn.c \
-    src/MDIWinObjects/w_testbench.cpp \
-    src/MDIWinObjects/w_commtest.cpp \
-    flexsea-system/src/flexsea_cmd_tools.c \
-    flexsea-system/test/test-flexsea_cmd_tools.c
+	src/FlexSEADevice/flexseaDevice.cpp \
+	src/FlexSEADevice/batteryDevice.cpp \
+	src/FlexSEADevice/gossipDevice.cpp \
+	src/FlexSEADevice/manageDevice.cpp \
+	src/FlexSEADevice/strainDevice.cpp \
+	flexsea-user/MIT_2DoF_Ankle_v1/src/user-ex-MIT_2DoF_Ankle_v1.c \
+	flexsea-user/MIT_2DoF_Ankle_v1/src/user-mn-MIT_2DoF_Ankle_v1.c \
+	flexsea-user/MotorTestBench/src/cmd-MotorTestBench.c \
+	flexsea-user/MotorTestBench/src/user-ex-MotorTestBench.c \
+	flexsea-user/MotorTestBench/src/user-mn-MotorTestBench.c \
+	flexsea-user/RICNU_Knee_v1/src/user-ex-RICNU_Knee_v1.c \
+	flexsea-user/RICNU_Knee_v1/src/user-mn-RICNU_Knee_v1.c \
+	flexsea-user/src/flexsea_user_structs.c \
+	flexsea-user/src/user-ex.c \
+	flexsea-user/src/user-mn.c \
+	src/MDIWinObjects/w_testbench.cpp \
+	src/MDIWinObjects/w_commtest.cpp \
+	flexsea-system/src/flexsea_cmd_tools.c \
+	flexsea-system/test/test-flexsea_cmd_tools.c \
+	src/FlexSEADevice/ricnuProject.cpp \
+    src/FlexSEADevice/ankle2DofProject.cpp \
+    src/FlexSEADevice/testBenchProject.cpp
 
 HEADERS  += inc/main.h \
 	inc/mainwindow.h \
@@ -141,24 +143,26 @@ HEADERS  += inc/main.h \
 	inc/flexsea_generic.h \
 	inc/FlexSEADevice/executeDevice.h \
 	inc/FlexSEADevice/flexseaDevice.h \
-    inc/FlexSEADevice/batteryDevice.h \
-    inc/FlexSEADevice/gossipDevice.h \
-    inc/FlexSEADevice/manageDevice.h \
-    inc/FlexSEADevice/ricnuDevice.h \
-    inc/FlexSEADevice/strainDevice.h \
-    flexsea-user/inc/flexsea_user_structs.h \
-    flexsea-user/inc/user-ex.h \
-    flexsea-user/inc/user-mn.h \
-    flexsea-user/MIT_2DoF_Ankle_v1/inc/user-ex-MIT_2DoF_Ankle_v1.h \
-    flexsea-user/MIT_2DoF_Ankle_v1/inc/user-mn-MIT_2DoF_Ankle_v1.h \
-    flexsea-user/MotorTestBench/inc/cmd-MotorTestBench.h \
-    flexsea-user/MotorTestBench/inc/user-ex-MotorTestBench.h \
-    flexsea-user/MotorTestBench/inc/user-mn-MotorTestBench.h \
-    flexsea-user/RICNU_Knee_v1/inc/user-ex-RICNU_Knee_v1.h \
-    flexsea-user/RICNU_Knee_v1/inc/user-mn-RICNU_Knee_v1.h \
-    inc/MDIWinObjects/w_commtest.h \
-    inc/MDIWinObjects/w_testbench.h \
-    flexsea-system/inc/flexsea_cmd_tools.h
+	inc/FlexSEADevice/batteryDevice.h \
+	inc/FlexSEADevice/gossipDevice.h \
+	inc/FlexSEADevice/manageDevice.h \
+	inc/FlexSEADevice/strainDevice.h \
+	flexsea-user/inc/flexsea_user_structs.h \
+	flexsea-user/inc/user-ex.h \
+	flexsea-user/inc/user-mn.h \
+	flexsea-user/MIT_2DoF_Ankle_v1/inc/user-ex-MIT_2DoF_Ankle_v1.h \
+	flexsea-user/MIT_2DoF_Ankle_v1/inc/user-mn-MIT_2DoF_Ankle_v1.h \
+	flexsea-user/MotorTestBench/inc/cmd-MotorTestBench.h \
+	flexsea-user/MotorTestBench/inc/user-ex-MotorTestBench.h \
+	flexsea-user/MotorTestBench/inc/user-mn-MotorTestBench.h \
+	flexsea-user/RICNU_Knee_v1/inc/user-ex-RICNU_Knee_v1.h \
+	flexsea-user/RICNU_Knee_v1/inc/user-mn-RICNU_Knee_v1.h \
+	inc/MDIWinObjects/w_commtest.h \
+	inc/MDIWinObjects/w_testbench.h \
+	flexsea-system/inc/flexsea_cmd_tools.h \
+	inc/FlexSEADevice/ricnuProject.h \
+    inc/FlexSEADevice/ankle2DofProject.h \
+    inc/FlexSEADevice/testBenchProject.h
 
 FORMS    += ui/mainwindow.ui \
 	ui/w_execute.ui \
@@ -176,8 +180,8 @@ FORMS    += ui/mainwindow.ui \
 	ui/w_config.ui \
 	ui/w_logkeypad.ui \
 	ui/w_userrw.ui \
-    ui/w_commtest.ui \
-    ui/w_testbench.ui
+	ui/w_commtest.ui \
+	ui/w_testbench.ui
 
 RESOURCES += \
 	misc/icons.qrc
@@ -197,20 +201,20 @@ QMAKE_CFLAGS = $$QMAKE_CFLAGS -Wno-unused-but-set-variable
 #	flexsea-system/README.md
 
 DISTFILES += \
-    flexsea-user/flexsea.gitignore \
-    flexsea-user/GPL-3.0.txt \
-    flexsea-user/README.md \
-    flexsea-comm/flexsea.gitignore \
-    flexsea-comm/GPL-3.0.txt \
-    flexsea-shared/unity/readme.txt \
-    flexsea-shared/flexsea.gitignore \
-    flexsea-shared/GPL-3.0.txt \
-    flexsea-system/flexsea.gitignore \
-    flexsea-system/GPL-3.0.txt \
-    .gitignore \
-    .gitmodules \
-    GPL-3.0.txt \
-    flexsea-comm/README.md \
-    flexsea-shared/README.md \
-    flexsea-system/README.md \
-    README.md
+	flexsea-user/flexsea.gitignore \
+	flexsea-user/GPL-3.0.txt \
+	flexsea-user/README.md \
+	flexsea-comm/flexsea.gitignore \
+	flexsea-comm/GPL-3.0.txt \
+	flexsea-shared/unity/readme.txt \
+	flexsea-shared/flexsea.gitignore \
+	flexsea-shared/GPL-3.0.txt \
+	flexsea-system/flexsea.gitignore \
+	flexsea-system/GPL-3.0.txt \
+	.gitignore \
+	.gitmodules \
+	GPL-3.0.txt \
+	flexsea-comm/README.md \
+	flexsea-shared/README.md \
+	flexsea-system/README.md \
+	README.md

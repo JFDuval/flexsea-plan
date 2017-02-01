@@ -42,7 +42,7 @@
 #include "executeDevice.h"
 #include "gossipDevice.h"
 #include "manageDevice.h"
-#include "ricnuDevice.h"
+#include "ricnuProject.h"
 #include "strainDevice.h"
 
 

@@ -132,6 +132,8 @@ void BatteryDevice::decodeAllLine(void)
 
 QString BatteryDevice::getStatusStr(int index)
 {
+	(void)index;	//Unused
+
 	return QString("No decoding available for this board");
 }
 

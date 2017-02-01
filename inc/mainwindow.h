@@ -55,7 +55,6 @@
 #include "flexseaDevice.h"
 #include "w_testbench.h"
 #include "w_commtest.h"
-#include "manageDevice.h"
 
 #include "main.h"
 
@@ -99,14 +98,27 @@ private:
 	Ui::MainWindow *ui;
 
 	// Device Object
-	QList<ExecuteDevice> executeDevList;
-	QList<ManageDevice>	manageDevList;
-	QList<GossipDevice>	gossipDevList;
-	QList<BatteryDevice> batteryDevList;
-	QList<StrainDevice>	strainDevList;
-	QList<RicnuDevice> ricnuDevList;
+	QList<ExecuteDevice>	executeDevList;
+	QList<ManageDevice>		manageDevList;
+	QList<GossipDevice>		gossipDevList;
+	QList<BatteryDevice>	batteryDevList;
+	QList<StrainDevice>		strainDevList;
+	QList<RicnuProject>		ricnuDevList;
+	QList<Ankle2DofProject> ankle2DofDevList;
+	QList<TestBenchProject> testBenchDevList;
 
-	QList<FlexseaDevice*> flexseaDevicePtrlist;
+	// Specific Flexsea list
+	QList<FlexseaDevice*>	executeFlexList;
+	QList<FlexseaDevice*>	manageFlexList;
+	QList<FlexseaDevice*>	gossipFlexList;
+	QList<FlexseaDevice*>	batteryFlexList;
+	QList<FlexseaDevice*>	strainFlexList;
+	QList<FlexseaDevice*>	ricnuFlexList;
+	QList<FlexseaDevice*>	ankle2DofFlexList;
+	QList<FlexseaDevice*>	testBenchFlexList;
+
+	// Global Flexsea List
+	QList<FlexseaDevice*> flexseaPtrlist;
 
 	// Log Object
 	ExecuteDevice executeLog = ExecuteDevice();
@@ -114,7 +126,7 @@ private:
 	GossipDevice gossipLog = GossipDevice();
 	BatteryDevice batteryLog = BatteryDevice();
 	StrainDevice strainLog = StrainDevice();
-	RicnuDevice ricnuLog = RicnuDevice();
+	RicnuProject ricnuLog = RicnuProject();
 
 
 	// Sub-Windows

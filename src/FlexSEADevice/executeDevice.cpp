@@ -243,6 +243,8 @@ void ExecuteDevice::decode(struct execute_s *exPtr)
 	exPtr->decoded.gyro.y = (100*exPtr->gyro.y)/164;
 	exPtr->decoded.gyro.z = (100*exPtr->gyro.z)/164;
 
+	exPtr->decoded.strain = 0;
+
 	//exPtr->decoded.current = (185*exPtr->current)/10;   //mA
 	exPtr->decoded.current = exPtr->current;   //1mA/bit for sine comm.
 
@@ -259,6 +261,14 @@ void ExecuteDevice::decode(struct execute_s *exPtr)
 
 	exPtr->decoded.analog[0] = (int32_t)1000*((float)exPtr->analog[0]/ \
 						P5_ADC_MAX)*P5_ADC_SUPPLY;
+
+	exPtr->decoded.analog[1] = 0;
+	exPtr->decoded.analog[2] = 0;
+	exPtr->decoded.analog[3] = 0;
+	exPtr->decoded.analog[4] = 0;
+	exPtr->decoded.analog[5] = 0;
+	exPtr->decoded.analog[6] = 0;
+	exPtr->decoded.analog[7] = 0;
 }
 
 //****************************************************************************

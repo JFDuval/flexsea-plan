@@ -1,7 +1,7 @@
 /****************************************************************************
 	[Project] FlexSEA: Flexible & Scalable Electronics Architecture
 	[Sub-project] 'plan-gui' Graphical User Interface
-	Copyright (C) 2016 Dephy, Inc. <http://dephy.com/>
+	Copyright (C) 2017 Dephy, Inc. <http://dephy.com/>
 
 	This program is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -21,71 +21,75 @@
 	Biomechatronics research group <http://biomech.media.mit.edu/>
 	[Contributors]
 *****************************************************************************
-	[This file] WinViewRicnu: RIC/NU Kneww View Window
+	[This file] ankle2DofProject: ankle2Dof Project Data Class
 *****************************************************************************
 	[Change log] (Convention: YYYY-MM-DD | author | comment)
-	* 2016-09-12 | jfduval | New file
-	* 2016-09-12 | jfduval | Enabling stream
+	* 2017-01-16 | sbelanger | Initial GPL-3.0 release
+	*
 ****************************************************************************/
 
-#ifndef W_RICNU_H
-#define W_RICNU_H
+#ifndef ANKLE2DOFPROJECT_H
+#define ANKLE2DOFPROJECT_H
 
 //****************************************************************************
 // Include(s)
 //****************************************************************************
 
-#include <QWidget>
-#include "counter.h"
-#include "flexsea_generic.h"
-#include "ricnuProject.h"
-#include "define.h"
-
-//****************************************************************************
-// Namespace & Class Definition:
-//****************************************************************************
-
-namespace Ui {
-class W_Ricnu;
-}
-
-class W_Ricnu : public QWidget, public Counter<W_Ricnu>
-{
-	Q_OBJECT
-
-public:
-	//Constructor & Destructor:
-	explicit W_Ricnu(QWidget *parent = 0,
-					 RicnuProject *deviceLogPtr = nullptr,
-					 DisplayMode mode = DisplayLiveData,
-					 QList<RicnuProject> *deviceListPtr = nullptr);
-	~W_Ricnu();
-
-public slots:
-	void refreshDisplay(void);
-	void refreshDisplayLog(int index, FlexseaDevice * devPtr);
-	void updateDisplayMode(DisplayMode mode);
-
-signals:
-	void windowClosed(void);
-
-private:
-	//Variables & Objects:
-	Ui::W_Ricnu *ui;
-
-	DisplayMode displayMode;
-
-	QList<RicnuProject> * deviceList;
-	RicnuProject *deviceLog;
-
-	//Function(s):
-	void initLive(void);
-	void initLog(void);
-	void display(RicnuProject *devicePtr, int index);
-};
+#include <QList>
+#include <QString>
+#include <flexsea_global_structs.h>
+#include "flexseaDevice.h"
 
 //****************************************************************************
 // Definition(s)
 //****************************************************************************
 
-#endif // W_RICNU_H
+//****************************************************************************
+// Namespace & Class
+//****************************************************************************
+
+namespace Ui
+{
+	class Ankle2DofProject;
+}
+
+struct ankle2Dof_s_plan
+{
+	//Execute:
+	struct execute_s *ex1;
+	struct execute_s *ex2;
+};
+
+class Ankle2DofProject : public FlexseaDevice
+{
+public:
+	explicit Ankle2DofProject(void);
+	explicit Ankle2DofProject(execute_s *ex1Ptr, execute_s *ex2Ptr);
+
+
+	// Interface implementation
+	QString getHeaderStr(void);
+	QString getLastSerializedStr(void);
+	void appendSerializedStr(QStringList *splitLine);
+	void decodeLastLine(void);
+	void decodeAllLine(void);
+	void clear(void);
+	void appendEmptyLine(void);
+	QString getStatusStr(int index);
+
+	void appendEmptyLineWithStruct(void);
+
+	QList<struct ankle2Dof_s_plan*> akList;
+	static void decode(struct ankle2Dof_s_plan *akPtr);
+
+private:
+	static QStringList header;
+
+};
+
+
+//****************************************************************************
+// Definition(s)
+//****************************************************************************
+
+#endif // ANKLE2DOFPROJECT_H
