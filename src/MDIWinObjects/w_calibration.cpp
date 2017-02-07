@@ -32,10 +32,12 @@
 // Include(s)
 //****************************************************************************
 
+#include <stdint.h>
 #include "w_calibration.h"
 #include "flexsea_generic.h"
 #include "ui_w_calibration.h"
-#include "main.h"
+#include "flexsea_system.h"
+#include "flexsea_cmd_calibration.h"
 #include <QString>
 #include <QTextStream>
 
@@ -69,7 +71,19 @@ W_Calibration::~W_Calibration()
 //****************************************************************************
 // Public slot(s):
 //****************************************************************************
+void W_Calibration::on_pbFindPoles_clicked()
+{
+    active_slave_index = ui->comboBox_slave->currentIndex();
+    active_slave = FlexSEA_Generic::getSlaveID(SL_BASE_ALL, active_slave_index);
 
+    uint16_t numBytes = 0;
+    uint8_t info[2] = {PORT_USB, PORT_USB};
+
+    //we should check first that active slave is an execute
+    tx_cmd_calibration_mode_rw(TX_N_DEFAULT, CALIBRATION_FIND_POLES);
+    pack(P_AND_S_DEFAULT, active_slave, info, &numBytes, comm_str_usb);
+    emit writeCommand(numBytes, comm_str_usb, WRITE);
+}
 //****************************************************************************
 // Private function(s):
 //****************************************************************************

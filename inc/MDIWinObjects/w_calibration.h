@@ -59,8 +59,10 @@ public:
 	//Function(s):
 
 public slots:
+    void on_pbFindPoles_clicked();
 
 signals:
+    void writeCommand(uint8_t numb, uint8_t *tx_data, uint8_t r_w);
 	void windowClosed(void);
 
 private:

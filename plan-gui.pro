@@ -36,6 +36,7 @@ SOURCES += src/main.cpp \
 	flexsea-system/src/flexsea_cmd_data.c \
 	flexsea-system/src/flexsea_cmd_external.c \
 	flexsea-system/src/flexsea_cmd_sensors.c \
+        flexsea-system/src/flexsea_cmd_calibration.c \
 	flexsea-system/src/flexsea_system.c \
 	flexsea-system/src/flexsea_global_structs.c \
 	flexsea-system/test/test-flexsea_system.c  \
@@ -109,6 +110,7 @@ HEADERS  += inc/main.h \
 	flexsea-system/inc/flexsea_cmd_data.h \
 	flexsea-system/inc/flexsea_cmd_external.h \
 	flexsea-system/inc/flexsea_cmd_sensors.h \
+        flexsea-system/inc/flexsea_cmd_calibration.h \
 	flexsea-system/inc/flexsea_system.h \
 	flexsea-system/inc/flexsea_global_structs.h \
 	flexsea-shared/unity/unity.h \
