@@ -123,9 +123,7 @@ QString Ankle2DofProject::getLastSerializedStr(void)
 							akList.last()->ex1->analog[0]	<< ',' << \
 							akList.last()->ex1->analog[1]	<< ',' << \
 							akList.last()->ex1->current		<< ',' << \
-							akList.last()->ex1->enc_display	<< ',' << \
-							akList.last()->ex1->enc_control	<< ',' << \
-							akList.last()->ex1->enc_commut	<< ',' << \
+                            *(akList.last()->ex1->enc_ang)	<< ',' << \
 							akList.last()->ex1->volt_batt	<< ',' << \
 							akList.last()->ex1->volt_int	<< ',' << \
 							akList.last()->ex1->temp		<< ',' << \
@@ -141,9 +139,7 @@ QString Ankle2DofProject::getLastSerializedStr(void)
 							akList.last()->ex2->analog[0]	<< ',' << \
 							akList.last()->ex2->analog[1]	<< ',' << \
 							akList.last()->ex2->current		<< ',' << \
-							akList.last()->ex2->enc_display	<< ',' << \
-							akList.last()->ex2->enc_control	<< ',' << \
-							akList.last()->ex2->enc_commut	<< ',' << \
+                            *(akList.last()->ex2->enc_ang) 	<< ',' << \
 							akList.last()->ex2->volt_batt	<< ',' << \
 							akList.last()->ex2->volt_int	<< ',' << \
 							akList.last()->ex2->temp		<< ',' << \
@@ -173,9 +169,7 @@ void Ankle2DofProject::appendSerializedStr(QStringList *splitLine)
 		akList.last()->ex1->analog[0]		= (*splitLine)[9].toInt();
 		akList.last()->ex1->analog[1]		= (*splitLine)[10].toInt();
 		akList.last()->ex1->current			= (*splitLine)[11].toInt();
-		akList.last()->ex1->enc_display		= (*splitLine)[12].toInt();
-		akList.last()->ex1->enc_control		= (*splitLine)[13].toInt();
-		akList.last()->ex1->enc_commut		= (*splitLine)[14].toInt();
+        *(akList.last()->ex1->enc_ang) 		= (*splitLine)[12].toInt();
 		akList.last()->ex1->volt_batt		= (*splitLine)[15].toInt();
 		akList.last()->ex1->volt_int		= (*splitLine)[16].toInt();
 		akList.last()->ex1->temp			= (*splitLine)[17].toInt();
@@ -191,9 +185,7 @@ void Ankle2DofProject::appendSerializedStr(QStringList *splitLine)
 		akList.last()->ex2->analog[0]		= (*splitLine)[27].toInt();
 		akList.last()->ex2->analog[1]		= (*splitLine)[28].toInt();
 		akList.last()->ex2->current			= (*splitLine)[29].toInt();
-		akList.last()->ex2->enc_display		= (*splitLine)[30].toInt();
-		akList.last()->ex2->enc_control		= (*splitLine)[31].toInt();
-		akList.last()->ex2->enc_commut		= (*splitLine)[32].toInt();
+        *(akList.last()->ex2->enc_ang)         = (*splitLine)[30].toInt();
 		akList.last()->ex2->volt_batt		= (*splitLine)[33].toInt();
 		akList.last()->ex2->volt_int		= (*splitLine)[34].toInt();
 		akList.last()->ex2->temp			= (*splitLine)[35].toInt();

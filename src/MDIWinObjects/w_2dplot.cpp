@@ -1123,19 +1123,13 @@ void W_2DPlot::assignVariableEx(uint8_t var, struct execute_s *myPtr)
 			break;
 		case 7: //"Encoder Display"
 			vtp[var].format = FORMAT_32S;
-			vtp[var].rawGenPtr = &myPtr->enc_display;
+            vtp[var].rawGenPtr = myPtr->enc_ang;
 			vtp[var].decodedPtr = &nullVar32s;
 			break;
-		case 8: //"Encoder Control"
-			vtp[var].format = FORMAT_32S;
-			vtp[var].rawGenPtr = &myPtr->enc_control;
-			vtp[var].decodedPtr = &nullVar32s;
-			break;
-		case 9: //"Encoder Commutation"
-			vtp[var].format = FORMAT_32S;
-			vtp[var].rawGenPtr = &myPtr->enc_commut;
-			vtp[var].decodedPtr = &nullVar32s;
-			break;
+        case 8: //"Encoder Control"
+            break;
+        case 9: //"Encoder Commutation"
+            break;
 		case 10: //"Motor current"
 			vtp[var].format = FORMAT_16S;
 			vtp[var].rawGenPtr = &myPtr->current;
@@ -1258,12 +1252,12 @@ void W_2DPlot::assignVariableRicnu(uint8_t var, struct ricnu_s *myPtr)
 			break;
 		case 7: //"Encoder Motor"
 			vtp[var].format = FORMAT_32S;
-			vtp[var].rawGenPtr = &myPtr->ex.enc_motor;
+            vtp[var].rawGenPtr = &myPtr->enc_motor;
 			vtp[var].decodedPtr = &nullVar32s;
 			break;
 		case 8: //"Encoder Control"
 			vtp[var].format = FORMAT_32S;
-			vtp[var].rawGenPtr = &myPtr->ex.enc_joint;
+            vtp[var].rawGenPtr = &myPtr->enc_joint;
 			vtp[var].decodedPtr = &nullVar32s;
 			break;
 		case 9: //"Motor current"

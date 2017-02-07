@@ -58,6 +58,9 @@ struct ricnu_s_plan
 	//Execute:
 	struct execute_s *ex;
 
+    int32_t enc_motor;
+    int32_t enc_joint;
+
 	//Extra sensors (Strain):
 	//uint16_t ext_strain[6];
 	struct strain_s *st;

@@ -139,8 +139,8 @@ void W_Ricnu::display(RicnuProject *devicePtr, int index)
 	ui->disp_gyroy->setText(QString::number(ricnu->ex->gyro.y));
 	ui->disp_gyroz->setText(QString::number(ricnu->ex->gyro.z));
 
-	ui->enc_mot->setText(QString::number(ricnu->ex->enc_motor));
-	ui->enc_joint->setText(QString::number(ricnu->ex->enc_joint));
+    ui->enc_mot->setText(QString::number(ricnu->enc_motor));
+    ui->enc_joint->setText(QString::number(ricnu->enc_joint));
 	ui->pwm->setText(QString::number(ricnu->ex->sine_commut_pwm));
 
 	ui->strain1->setText(QString::number(ricnu->st->ch[0].strain_filtered));

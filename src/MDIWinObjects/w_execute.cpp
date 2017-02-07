@@ -151,7 +151,7 @@ void W_Execute::display(ExecuteDevice *devicePtr, int index)
 	ui->disp_gyroy->setText(QString::number(ex->gyro.y));
 	ui->disp_gyroz->setText(QString::number(ex->gyro.z));
 
-	ui->disp_encDisplay->setText(QString::number(ex->enc_display));
+    ui->disp_encDisplay->setText(QString::number(*(ex->enc_ang)));
 
 	ui->disp_strain->setText(QString::number(ex->strain));
 	ui->disp_ana->setText(QString::number(ex->analog[0]));

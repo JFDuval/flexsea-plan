@@ -102,9 +102,7 @@ QString ExecuteDevice::getLastSerializedStr(void)
 							exList.last()->analog[0]	<< ',' << \
 							exList.last()->analog[1]	<< ',' << \
 							exList.last()->current		<< ',' << \
-							exList.last()->enc_display	<< ',' << \
-							exList.last()->enc_control	<< ',' << \
-							exList.last()->enc_commut	<< ',' << \
+                            *(exList.last()->enc_ang)   << ',' << \
 							exList.last()->volt_batt	<< ',' << \
 							exList.last()->volt_int		<< ',' << \
 							exList.last()->temp			<< ',' << \
@@ -131,9 +129,7 @@ void ExecuteDevice::appendSerializedStr(QStringList *splitLine)
 		exList.last()->analog[0]	= (*splitLine)[9].toInt();
 		exList.last()->analog[1]	= (*splitLine)[10].toInt();
 		exList.last()->current		= (*splitLine)[11].toInt();
-		exList.last()->enc_display	= (*splitLine)[12].toInt();
-		exList.last()->enc_control	= (*splitLine)[13].toInt();
-		exList.last()->enc_commut	= (*splitLine)[14].toInt();
+        *(exList.last()->enc_ang)   = (*splitLine)[12].toInt();
 		exList.last()->volt_batt	= (*splitLine)[15].toInt();
 		exList.last()->volt_int		= (*splitLine)[16].toInt();
 		exList.last()->temp			= (*splitLine)[17].toInt();

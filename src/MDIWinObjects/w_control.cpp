@@ -222,15 +222,15 @@ void W_Control::stream_ctrl(void)
 
 	if(ui->comboBoxDispSel->currentIndex() == 0)    //Execute's
 	{
-		ui->labelDispEncoder->setText(QString::number(ex_ptr->enc_control));
+        ui->labelDispEncoder->setText(QString::number(*ex_ptr->enc_ang));
 	}
 	else if(ui->comboBoxDispSel->currentIndex() == 1)   //RIC/NU - Motor
 	{
-		ui->labelDispEncoder->setText(QString::number(ricnu_1.ex.enc_motor));
+        ui->labelDispEncoder->setText(QString::number(ricnu_1.enc_motor));
 	}
 	else if(ui->comboBoxDispSel->currentIndex() == 2)   //RIC/NU - Joint
 	{
-		ui->labelDispEncoder->setText(QString::number(ricnu_1.ex.enc_joint));
+        ui->labelDispEncoder->setText(QString::number(ricnu_1.enc_joint));
 	}
 	else
 	{
@@ -278,7 +278,6 @@ void W_Control::timerCtrlEvent(void)
 
 	controller_setpoint(ctrl_setpoint);
 }
-
 
 //****************************************************************************
 // Private slot(s):
