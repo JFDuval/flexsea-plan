@@ -51,7 +51,8 @@ QT_CHARTS_USE_NAMESPACE
 // Constructor & Destructor:
 //****************************************************************************
 
-W_2DPlot::W_2DPlot(QWidget *parent) :
+W_2DPlot::W_2DPlot(QWidget *parent,
+				   QList<ExecuteDevice> *devListInit) :
 	QWidget(parent),
 	ui(new Ui::W_2DPlot)
 {
@@ -60,6 +61,7 @@ W_2DPlot::W_2DPlot(QWidget *parent) :
 	setWindowTitle(this->getDescription());
 	setWindowIcon(QIcon(":icons/d_logo_small.png"));
 
+	devList = devListInit;
 	initFlag = true;
 	initPtr();
 	initStats();
@@ -98,34 +100,48 @@ void W_2DPlot::receiveNewData(void)
 	{
 		if(vtp[item].decode == false)
 		{
-			switch(vtp[item].format)
+			if((vtp[item].rawGenPtr) == nullptr)
 			{
-				case FORMAT_32S:
-					val[item] = (*(int32_t*)vtp[item].rawGenPtr);
-					break;
-				case FORMAT_32U:
-					val[item] = (int)(*(uint32_t*)vtp[item].rawGenPtr);
-					break;
-				case FORMAT_16S:
-					val[item] = (int)(*(int16_t*)vtp[item].rawGenPtr);
-					break;
-				case FORMAT_16U:
-					val[item] = (int)(*(uint16_t*)vtp[item].rawGenPtr);
-					break;
-				case FORMAT_8S:
-					val[item] = (int)(*(int8_t*)vtp[item].rawGenPtr);
-					break;
-				case FORMAT_8U:
-					val[item] = (int)(*(uint8_t*)vtp[item].rawGenPtr);
-					break;
-				default:
-					val[item] = 0;
-					break;
+				val[item] = 0;
+			}
+			else
+			{
+				switch(vtp[item].format)
+				{
+					case FORMAT_32S:
+						val[item] = (*(int32_t*)vtp[item].rawGenPtr);
+						break;
+					case FORMAT_32U:
+						val[item] = (int)(*(uint32_t*)vtp[item].rawGenPtr);
+						break;
+					case FORMAT_16S:
+						val[item] = (int)(*(int16_t*)vtp[item].rawGenPtr);
+						break;
+					case FORMAT_16U:
+						val[item] = (int)(*(uint16_t*)vtp[item].rawGenPtr);
+						break;
+					case FORMAT_8S:
+						val[item] = (int)(*(int8_t*)vtp[item].rawGenPtr);
+						break;
+					case FORMAT_8U:
+						val[item] = (int)(*(uint8_t*)vtp[item].rawGenPtr);
+						break;
+					default:
+						val[item] = 0;
+						break;
+				}
 			}
 		}
 		else
 		{
-			val[item] = (*vtp[item].decodedPtr);
+			if((vtp[item].decodedPtr) == nullptr)
+			{
+				val[item] = 0;
+			}
+			else
+			{
+				val[item] = (*vtp[item].decodedPtr);
+			}
 		}
 	}
 
@@ -363,12 +379,14 @@ void W_2DPlot::initUserInput(void)
 	//Slave combo box:
 	for(int i = 0; i < VAR_NUM; i++)
 	{
-		FlexSEA_Generic::populateSlaveComboBox((*cbVarSlave[i]), SL_BASE_ALL, \
-												SL_LEN_ALL);
-	}
+		for(int ii = 0; ii < devList->length(); ++ii)
+		{
+			(*cbVarSlave[i])->addItem((*devList)[ii].slaveName);
+		}
 
-	//Variable comboBoxes:
-	saveCurrentSettings();  //Needed for the 1st var_list
+		//Variable comboBoxes:
+		saveCurrentSettings(i);  //Needed for the 1st var_list
+	}
 
 	//Decode Checkbox tooltips:
 	QString ttip = "<html><head/><body><p>Plot data in physical units (instead \
@@ -404,8 +422,6 @@ void W_2DPlot::initUserInput(void)
 	ui->checkBoxOpenGL->setToolTip(ttip);
 
 	dataRate = 0;
-
-	saveCurrentSettings();
 
 	//Init flag:
 	initFlag = false;
@@ -654,21 +670,16 @@ float W_2DPlot::getRefreshRateData(void)
 }
 
 //Based on the current state of comboBoxes, saves the info in variables
-void W_2DPlot::saveCurrentSettings(void)
+void W_2DPlot::saveCurrentSettings(int item)
 {
-	for(int i = 0; i < VAR_NUM; i++)
-	{
-		//Slave:
-		slaveIndex[i] = (*cbVarSlave[i])->currentIndex();
-		slaveAddr[i] = FlexSEA_Generic::getSlaveID(SL_BASE_ALL, slaveIndex[i]);
-		slaveBType[i] = FlexSEA_Generic::getSlaveBoardType(SL_BASE_ALL, \
-														   slaveIndex[i]);
-		//Variable:
-		varIndex[i] = (*cbVar[i])->currentIndex();
+	//Slave: // TODO remove the & when the flexlist will be used.
+	selectedDevList[item] = &(*devList)[(*cbVarSlave[item])->currentIndex()];
 
-		//Decode:
-		vtp[i].decode = (*ckbDecode[i])->isChecked();
-	}
+	//Variable:
+	varIndex[item] = (*cbVar[item])->currentIndex();
+
+	//Decode:
+	vtp[item].decode = (*ckbDecode[item])->isChecked();
 }
 
 //We use a bigger Y scale than the minimum span to make it clearer
@@ -917,291 +928,132 @@ void W_2DPlot::updateVarList(uint8_t item)
 
 	uint8_t bType = slaveBType[item];
 
-	//Build the string:
-	switch(bType)
-	{
-		case FLEXSEA_PLAN_BASE:
-			var_list << "****";
-			toolTipList << "";
-			break;
-		case FLEXSEA_MANAGE_BASE:
-			var_list << "**Unused**" << "Accel X" << "Accel Y" << "Accel Z" \
-					<< "Gyro X" << "Gyro Y" << "Gyro Z" << "Pushbutton" \
-					<< "Digital Inputs" << "Analog[0]" << "Analog[1]" \
-					<< "Analog[2]" << "Analog[3]" << "Analog[4]" \
-					<< "Analog[5]" << "Analog[6]" << "Analog[7]" << "Status";
-			toolTipList << "Unused" << "Decoded: mg" << "Decoded: mg" << "Decoded: mg" \
-						<< "Decoded: deg/s" << "Decoded: deg/s" << "Decoded: deg/s" << "Raw Value Only" \
-						<< "Raw Value Only" << "Decoded: mV" << "Decoded: mV" \
-						<< "Decoded: mV" << "Decoded: mV" << "Decoded: mV" \
-						<< "Decoded: mV" << "Decoded: mV" << "Decoded: mV" << "Raw Value Only";
-			break;
-		case FLEXSEA_EXECUTE_BASE:
-			var_list << "**Unused**" << "Accel X" << "Accel Y" << "Accel Z" \
-					<< "Gyro X" << "Gyro Y" << "Gyro Z" << "Encoder Display" \
-					<< "Encoder Control" << "Encoder Commutation" \
-					<< "Motor current" << "Analog[0]" << "Analog[1]" \
-					<< "Strain" << "Battery Voltage" << "Int. voltage" \
-					<< "Temperature" << "Status 1" << "Status 2" \
-					<< "Setpoint (square)" << "Setpoint (trapezoidal)" \
-					<< "Fake Data";
-			toolTipList << "Unused" << "Decoded: mg" << "Decoded: mg" << "Decoded: mg" \
-					<< "Decoded: deg/s" << "Decoded: deg/s" << "Decoded: deg/s" << "Raw Value Only" \
-					<< "Raw value only" << "Raw value only" \
-					<< "Decoded: mA" << "Decoded: mV" << "Decoded: mV" \
-					<< "Decoded: ±100%" << "Decoded: mV" << "Decoded: mV" \
-					<< "Decoded: 10x C" << "Raw value only" << "Raw value only" \
-					<< "Raw value only" << "Raw value only" \
-					<< "Raw value only";
-			break;
-		case FLEXSEA_BATTERY_BASE:
-			var_list << "**Unused**" << "Battery Voltage" << "Battery Current" \
-					<< "Power" << "Temperature" << "Pushbutton" << "Status";
-			toolTipList << "Unused" << "Decoded: mV" << "Decoded: mA" \
-					<< "Decoded: mW" << "Decoded: 10x C" << "Raw Values Only" \
-					<< "Raw Values Only";
-			break;
-		case FLEXSEA_STRAIN_BASE:
-			var_list << "**Unused**" << "Strain ch[1]" << "Strain ch[2]" \
-					<< "Strain ch[3]" << "Strain ch[4]" << "Strain ch[5]" \
-					<< "Strain ch[6]";
-			toolTipList << "Unused" << "Decoded: ±100%" << "Decoded: ±100%" \
-					<< "Decoded: ±100%" << "Decoded: ±100%" << "Decoded: ±100%" \
-					<< "Decoded: ±100%";
-			break;
-		case FLEXSEA_GOSSIP_BASE:
-			var_list << "**Unused**" << "Accel X" << "Accel Y" << "Accel Z" \
-					<< "Gyro X" << "Gyro Y" << "Gyro Z" << "Magneto X" \
-					<< "Magneto Y" << "Magneto Z" << "IO[1]" << "IO[2]" \
-					<< "CapSense[1]" << "CapSense[2]" << "CapSense[3]" \
-					<< "CapSense[4]" << "Status";
-			toolTipList << "Unused" << "Decoded: mg" << "Decoded: mg" << "Decoded: mg" \
-					<< "Decoded: deg/s" << "Decoded: deg/s" << "Decoded: deg/s" << "Decoded: uT" \
-					<< "Decoded: uT" << "Decoded: uT" << "Raw Values Only" << "Raw Values Only" \
-					<< "Raw Values Only" << "Raw Values Only" << "Raw Values Only" \
-					<< "Raw Values Only" << "Raw Values Only";
-			break;
-		case FLEXSEA_VIRTUAL_BASE:
-			//TODO: Virtual can be many things. For now we only use it with
-			//RIC/NU. Generalize.
-			var_list << "**Unused**" << "Accel X" << "Accel Y" << "Accel Z" \
-					<< "Gyro X" << "Gyro Y" << "Gyro Z" << "Encoder Motor" \
-					<< "Encoder Joint" << "Motor current" << "Strain[0]" << "Strain[1]" \
-					<< "Strain[2]" << "Strain[3]" << "Strain[4]" << "Strain[5]" \
-					<< "PWM";
-			toolTipList << "Unused" << "Decoded: mg" << "Decoded: mg" << "Decoded: mg" \
-					<< "Decoded: deg/s" << "Decoded: deg/s" << "Decoded: deg/s" << "Raw Value Only" \
-					<< "Raw value only" << "Decoded: mA" << "Decoded: ±100%" << "Decoded: ±100%" \
-					<< "Decoded: ±100%"<< "Decoded: ±100%"<< "Decoded: ±100%"\
-					<< "Decoded: ±100%" << "PWM, -1024 to 1024";
-			break;
-		default:
-			var_list << "Invalid";
-			toolTipList << "Invalid";
-	}
+//	//Build the string:
+//	switch(bType)
+//	{
+//		case FLEXSEA_PLAN_BASE:
+//			var_list << "****";
+//			toolTipList << "";
+//			break;
+//		case FLEXSEA_MANAGE_BASE:
+//			var_list << "**Unused**" << "Accel X" << "Accel Y" << "Accel Z" \
+//					<< "Gyro X" << "Gyro Y" << "Gyro Z" << "Pushbutton" \
+//					<< "Digital Inputs" << "Analog[0]" << "Analog[1]" \
+//					<< "Analog[2]" << "Analog[3]" << "Analog[4]" \
+//					<< "Analog[5]" << "Analog[6]" << "Analog[7]" << "Status";
+//			toolTipList << "Unused" << "Decoded: mg" << "Decoded: mg" << "Decoded: mg" \
+//						<< "Decoded: deg/s" << "Decoded: deg/s" << "Decoded: deg/s" << "Raw Value Only" \
+//						<< "Raw Value Only" << "Decoded: mV" << "Decoded: mV" \
+//						<< "Decoded: mV" << "Decoded: mV" << "Decoded: mV" \
+//						<< "Decoded: mV" << "Decoded: mV" << "Decoded: mV" << "Raw Value Only";
+//			break;
+//		case FLEXSEA_EXECUTE_BASE:
+//			var_list << "**Unused**" << "Accel X" << "Accel Y" << "Accel Z" \
+//					<< "Gyro X" << "Gyro Y" << "Gyro Z" << "Encoder Display" \
+//					<< "Encoder Control" << "Encoder Commutation" \
+//					<< "Motor current" << "Analog[0]" << "Analog[1]" \
+//					<< "Strain" << "Battery Voltage" << "Int. voltage" \
+//					<< "Temperature" << "Status 1" << "Status 2" \
+//					<< "Setpoint (square)" << "Setpoint (trapezoidal)" \
+//					<< "Fake Data";
+//			toolTipList << "Unused" << "Decoded: mg" << "Decoded: mg" << "Decoded: mg" \
+//					<< "Decoded: deg/s" << "Decoded: deg/s" << "Decoded: deg/s" << "Raw Value Only" \
+//					<< "Raw value only" << "Raw value only" \
+//					<< "Decoded: mA" << "Decoded: mV" << "Decoded: mV" \
+//					<< "Decoded: ±100%" << "Decoded: mV" << "Decoded: mV" \
+//					<< "Decoded: 10x C" << "Raw value only" << "Raw value only" \
+//					<< "Raw value only" << "Raw value only" \
+//					<< "Raw value only";
+//			break;
+//		case FLEXSEA_BATTERY_BASE:
+//			var_list << "**Unused**" << "Battery Voltage" << "Battery Current" \
+//					<< "Power" << "Temperature" << "Pushbutton" << "Status";
+//			toolTipList << "Unused" << "Decoded: mV" << "Decoded: mA" \
+//					<< "Decoded: mW" << "Decoded: 10x C" << "Raw Values Only" \
+//					<< "Raw Values Only";
+//			break;
+//		case FLEXSEA_STRAIN_BASE:
+//			var_list << "**Unused**" << "Strain ch[1]" << "Strain ch[2]" \
+//					<< "Strain ch[3]" << "Strain ch[4]" << "Strain ch[5]" \
+//					<< "Strain ch[6]";
+//			toolTipList << "Unused" << "Decoded: ±100%" << "Decoded: ±100%" \
+//					<< "Decoded: ±100%" << "Decoded: ±100%" << "Decoded: ±100%" \
+//					<< "Decoded: ±100%";
+//			break;
+//		case FLEXSEA_GOSSIP_BASE:
+//			var_list << "**Unused**" << "Accel X" << "Accel Y" << "Accel Z" \
+//					<< "Gyro X" << "Gyro Y" << "Gyro Z" << "Magneto X" \
+//					<< "Magneto Y" << "Magneto Z" << "IO[1]" << "IO[2]" \
+//					<< "CapSense[1]" << "CapSense[2]" << "CapSense[3]" \
+//					<< "CapSense[4]" << "Status";
+//			toolTipList << "Unused" << "Decoded: mg" << "Decoded: mg" << "Decoded: mg" \
+//					<< "Decoded: deg/s" << "Decoded: deg/s" << "Decoded: deg/s" << "Decoded: uT" \
+//					<< "Decoded: uT" << "Decoded: uT" << "Raw Values Only" << "Raw Values Only" \
+//					<< "Raw Values Only" << "Raw Values Only" << "Raw Values Only" \
+//					<< "Raw Values Only" << "Raw Values Only";
+//			break;
+//		case FLEXSEA_VIRTUAL_BASE:
+//			//TODO: Virtual can be many things. For now we only use it with
+//			//RIC/NU. Generalize.
+//			var_list << "**Unused**" << "Accel X" << "Accel Y" << "Accel Z" \
+//					<< "Gyro X" << "Gyro Y" << "Gyro Z" << "Encoder Motor" \
+//					<< "Encoder Joint" << "Motor current" << "Strain[0]" << "Strain[1]" \
+//					<< "Strain[2]" << "Strain[3]" << "Strain[4]" << "Strain[5]" \
+//					<< "PWM";
+//			toolTipList << "Unused" << "Decoded: mg" << "Decoded: mg" << "Decoded: mg" \
+//					<< "Decoded: deg/s" << "Decoded: deg/s" << "Decoded: deg/s" << "Raw Value Only" \
+//					<< "Raw value only" << "Decoded: mA" << "Decoded: ±100%" << "Decoded: ±100%" \
+//					<< "Decoded: ±100%"<< "Decoded: ±100%"<< "Decoded: ±100%"\
+//					<< "Decoded: ±100%" << "PWM, -1024 to 1024";
+//			break;
+//		default:
+//			var_list << "Invalid";
+//			toolTipList << "Invalid";
+//	}
 
 	//var_list & toolTipList need to be the same length:
-	if(var_list.length() != toolTipList.length())
-	{
-		qDebug() << "Error in updateVarList()!";
-	}
+//	if(var_list.length() != toolTipList.length())
+//	{
+//		qDebug() << "Error in updateVarList()!";
+//	}
 
 	//Fill the comboBox:
 	(*cbVar[item])->clear();
 	(*cbVar[item])->setToolTipDuration(350);
-	for(int index = 0; index < var_list.count(); index++)
+
+	QStringList headerList(selectedDevList[item]->getHeaderList());
+	QStringList headerDecList(selectedDevList[item]->getHeaderDecList());
+
+	(*cbVar[item])->addItem("**Unused**");
+	(*cbVar[item])->setItemData(0, "Unused", Qt::ToolTipRole);
+	for(int i = 2; i < headerList.length(); i++)
 	{
-		(*cbVar[item])->addItem(var_list.at(index));
-		(*cbVar[item])->setItemData(index, toolTipList.at(index), Qt::ToolTipRole);
+		(*cbVar[item])->addItem(headerList[i]);
+		(*cbVar[item])->setItemData(i - 1, headerDecList[i], Qt::ToolTipRole);
 	}
 }
 
 //Assigns a pointer to the desired variable. This function is called whenever
 //we change Slave or Variable. The runtime plotting function will then use the
 //pointer.
-void W_2DPlot::assignVariable(uint8_t var)
+void W_2DPlot::assignVariable(uint8_t item)
 {
-	switch(slaveBType[var])
+
+	struct std_variable varHandle = selectedDevList[item]->getSerializedVar(varIndex[item]+2);
+
+	if(varIndex[item] == 0)
 	{
-		case FLEXSEA_PLAN_BASE:
-			//ToDo, if needed
-			break;
-		case FLEXSEA_MANAGE_BASE:
-			struct manage_s *mnPtr;
-			FlexSEA_Generic::assignManagePtr(&mnPtr, SL_BASE_ALL, \
-											   slaveIndex[var]);
-			assignVariableMn(var, mnPtr);
-			break;
-		case FLEXSEA_EXECUTE_BASE:
-			struct execute_s *exPtr;
-			FlexSEA_Generic::assignExecutePtr(&exPtr, SL_BASE_ALL, \
-											   slaveIndex[var]);
-			assignVariableEx(var, exPtr);
-			break;
-		case FLEXSEA_BATTERY_BASE:
-			struct battery_s *baPtr;
-			FlexSEA_Generic::assignBatteryPtr(&baPtr, SL_BASE_ALL, \
-											   slaveIndex[var]);
-			assignVariableBa(var, baPtr);
-			break;
-		case FLEXSEA_STRAIN_BASE:
-			struct strain_s *stPtr;
-			FlexSEA_Generic::assignStrainPtr(&stPtr, SL_BASE_ALL, \
-											   slaveIndex[var]);
-			assignVariableSt(var, stPtr);
-			break;
-		case FLEXSEA_GOSSIP_BASE:
-			struct gossip_s *goPtr;
-			FlexSEA_Generic::assignGossipPtr(&goPtr, SL_BASE_ALL, \
-											   slaveIndex[var]);
-			assignVariableGo(var, goPtr);
-			break;
-		case FLEXSEA_VIRTUAL_BASE:
-			//TODO Generalize for other projects than RIC/NU
-			struct ricnu_s *myPtr;
-			FlexSEA_Generic::assignRicnuPtr(&myPtr, SL_BASE_ALL, \
-											   slaveIndex[var]);
-			assignVariableRicnu(var, myPtr);
-			break;
-		default:
-			break;
+		vtp[item].used = false;
+		vtp[item].format = NULL_PTR;
+		vtp[item].rawGenPtr = nullptr;
+		vtp[item].decodedPtr = nullptr;
 	}
-}
-
-//TODO move this to the w_board files
-
-//Assigns a pointer to the desired variable - Execute boards
-void W_2DPlot::assignVariableEx(uint8_t var, struct execute_s *myPtr)
-{
-	//'Used' as default, 'false' when set at Unused
-	vtp[var].used = true;
-	vtp[var].format = FORMAT_32S;
-
-	//Assign pointer:
-	switch(varIndex[var])
+	else
 	{
-		/*Format: (every Case except Unused)
-		 * Line 1: data format, raw variable
-		 * Line 2: raw variable
-		 * Line 3: decoded variable (always int32),
-					null if not decoded  */
-		case 0: //"**Unused**"
-			vtp[var].used = false;
-			vtp[var].format = FORMAT_32S;
-			vtp[var].rawGenPtr = &nullVar32s;
-			vtp[var].decodedPtr = &nullVar32s;
-			break;
-		case 1: //"Accel X"
-			vtp[var].format = FORMAT_16S;
-			vtp[var].rawGenPtr = &myPtr->accel.x;
-			vtp[var].decodedPtr = &myPtr->decoded.accel.x;
-			break;
-		case 2: //"Accel Y"
-			vtp[var].format = FORMAT_16S;
-			vtp[var].rawGenPtr = &myPtr->accel.y;
-			vtp[var].decodedPtr = &myPtr->decoded.accel.y;
-			break;
-		case 3: //"Accel Z"
-			vtp[var].format = FORMAT_16S;
-			vtp[var].rawGenPtr = &myPtr->accel.z;
-			vtp[var].decodedPtr = &myPtr->decoded.accel.z;
-			break;
-		case 4: //"Gyro X"
-			vtp[var].format = FORMAT_16S;
-			vtp[var].rawGenPtr = &myPtr->gyro.x;
-			vtp[var].decodedPtr = &myPtr->decoded.gyro.x;
-			break;
-		case 5: //"Gyro Y"
-			vtp[var].format = FORMAT_16S;
-			vtp[var].rawGenPtr = &myPtr->gyro.y;
-			vtp[var].decodedPtr = &myPtr->decoded.gyro.y;
-			break;
-		case 6: //"Gyro Z"
-			vtp[var].format = FORMAT_16S;
-			vtp[var].rawGenPtr = &myPtr->gyro.z;
-			vtp[var].decodedPtr = &myPtr->decoded.gyro.z;
-			break;
-		case 7: //"Encoder Display"
-			vtp[var].format = FORMAT_32S;
-			vtp[var].rawGenPtr = &myPtr->enc_display;
-			vtp[var].decodedPtr = &nullVar32s;
-			break;
-		case 8: //"Encoder Control"
-			vtp[var].format = FORMAT_32S;
-			vtp[var].rawGenPtr = &myPtr->enc_control;
-			vtp[var].decodedPtr = &nullVar32s;
-			break;
-		case 9: //"Encoder Commutation"
-			vtp[var].format = FORMAT_32S;
-			vtp[var].rawGenPtr = &myPtr->enc_commut;
-			vtp[var].decodedPtr = &nullVar32s;
-			break;
-		case 10: //"Motor current"
-			vtp[var].format = FORMAT_16S;
-			vtp[var].rawGenPtr = &myPtr->current;
-			vtp[var].decodedPtr = &myPtr->decoded.current;
-			break;
-		case 11: //"Analog[0]"
-			vtp[var].format = FORMAT_16U;
-			vtp[var].rawGenPtr = &myPtr->analog[0];
-			vtp[var].decodedPtr = &myPtr->decoded.analog[0];
-			break;
-		case 12: //Analog[1]
-			vtp[var].format = FORMAT_16U;
-			vtp[var].rawGenPtr = &myPtr->analog[1];
-			vtp[var].decodedPtr = &myPtr->decoded.analog[1];
-			break;
-		case 13: //"Strain"
-			vtp[var].format = FORMAT_16U;
-			vtp[var].rawGenPtr = &myPtr->strain;
-			vtp[var].decodedPtr = &myPtr->decoded.strain;
-			break;
-		case 14: //"+VB"
-			vtp[var].format = FORMAT_8U;
-			vtp[var].rawGenPtr = &myPtr->volt_batt;
-			vtp[var].decodedPtr = &myPtr->decoded.volt_batt;
-			break;
-		case 15: //"+VG"
-			vtp[var].format = FORMAT_8U;
-			vtp[var].rawGenPtr = &myPtr->volt_int;
-			vtp[var].decodedPtr = &myPtr->decoded.volt_int;
-			break;
-		case 16: //"Temp"
-			vtp[var].format = FORMAT_8U;
-			vtp[var].rawGenPtr = &myPtr->temp;
-			vtp[var].decodedPtr = &myPtr->decoded.temp;
-			break;
-		case 17: //"Status 1"
-			vtp[var].format = FORMAT_8U;
-			vtp[var].rawGenPtr = &myPtr->status1;
-			vtp[var].decodedPtr = &nullVar32s;
-			break;
-		case 18: //"Status 2"
-			vtp[var].format = FORMAT_8U;
-			vtp[var].rawGenPtr = &myPtr->status2;
-			vtp[var].decodedPtr = &nullVar32s;
-			break;
-		case 19: //"Setpoint (square)"
-			vtp[var].format = FORMAT_32S;
-			vtp[var].rawGenPtr = &nullVar32s;//ctrl_setpoint);   //ToDo Fix
-			vtp[var].decodedPtr = &nullVar32s;
-			break;
-		case 20: //"Setpoint (trap)"
-			vtp[var].format = FORMAT_32S;
-			vtp[var].rawGenPtr = &nullVar32s;//ctrl_setpoint_trap);  //ToDo Fix
-			vtp[var].decodedPtr = &nullVar32s;
-			break;
-		case 21: //"Fake Data"
-			vtp[var].format = FORMAT_32S;
-			vtp[var].rawGenPtr = &myFakeData;
-			vtp[var].decodedPtr = &nullVar32s;
-			break;
-		default:
-			vtp[var].format = FORMAT_32S;
-			vtp[var].rawGenPtr = &nullVar32s;
-			vtp[var].decodedPtr = &nullVar32s;
-			vtp[var].used = false;
-			break;
+		vtp[item].used = true;
+		vtp[item].format = varHandle.format;
+		vtp[item].rawGenPtr = varHandle.rawGenPtr;
+		vtp[item].decodedPtr = varHandle.decodedPtr;
 	}
 }
 
@@ -1742,7 +1594,7 @@ void W_2DPlot::on_cBoxvar1slave_currentIndexChanged(int index)
 
 	if(initFlag == false)
 	{
-		saveCurrentSettings();
+		saveCurrentSettings(0);
 
 		if(ui->checkBoxTrack->isChecked() == false)
 		{
@@ -1772,7 +1624,7 @@ void W_2DPlot::on_cBoxvar2slave_currentIndexChanged(int index)
 
 	if(initFlag == false)
 	{
-		saveCurrentSettings();
+		saveCurrentSettings(1);
 		updateVarList(1);
 		assignVariable(1);
 	}
@@ -1784,7 +1636,7 @@ void W_2DPlot::on_cBoxvar3slave_currentIndexChanged(int index)
 
 	if(initFlag == false)
 	{
-		saveCurrentSettings();
+		saveCurrentSettings(2);
 		updateVarList(2);
 		assignVariable(2);
 	}
@@ -1796,7 +1648,7 @@ void W_2DPlot::on_cBoxvar4slave_currentIndexChanged(int index)
 
 	if(initFlag == false)
 	{
-		saveCurrentSettings();
+		saveCurrentSettings(3);
 		updateVarList(3);
 		assignVariable(3);
 	}
@@ -1808,7 +1660,7 @@ void W_2DPlot::on_cBoxvar5slave_currentIndexChanged(int index)
 
 	if(initFlag == false)
 	{
-		saveCurrentSettings();
+		saveCurrentSettings(4);
 		updateVarList(4);
 		assignVariable(4);
 	}
@@ -1820,7 +1672,7 @@ void W_2DPlot::on_cBoxvar6slave_currentIndexChanged(int index)
 
 	if(initFlag == false)
 	{
-		saveCurrentSettings();
+		saveCurrentSettings(5);
 		updateVarList(5);
 		assignVariable(5);
 	}
@@ -1834,7 +1686,7 @@ void W_2DPlot::on_cBoxvar1_currentIndexChanged(int index)
 
 	if(initFlag == false)
 	{
-		saveCurrentSettings();
+		saveCurrentSettings(0);
 		assignVariable(0);
 	}
 }
@@ -1845,7 +1697,7 @@ void W_2DPlot::on_cBoxvar2_currentIndexChanged(int index)
 
 	if(initFlag == false)
 	{
-		saveCurrentSettings();
+		saveCurrentSettings(1);
 		assignVariable(1);
 	}
 }
@@ -1856,7 +1708,7 @@ void W_2DPlot::on_cBoxvar3_currentIndexChanged(int index)
 
 	if(initFlag == false)
 	{
-		saveCurrentSettings();
+		saveCurrentSettings(2);
 		assignVariable(2);
 	}
 }
@@ -1867,7 +1719,7 @@ void W_2DPlot::on_cBoxvar4_currentIndexChanged(int index)
 
 	if(initFlag == false)
 	{
-		saveCurrentSettings();
+		saveCurrentSettings(3);
 		assignVariable(3);
 	}
 }
@@ -1878,7 +1730,7 @@ void W_2DPlot::on_cBoxvar5_currentIndexChanged(int index)
 
 	if(initFlag == false)
 	{
-		saveCurrentSettings();
+		saveCurrentSettings(4);
 		assignVariable(4);
 	}
 }
@@ -1889,7 +1741,7 @@ void W_2DPlot::on_cBoxvar6_currentIndexChanged(int index)
 
 	if(initFlag == false)
 	{
-		saveCurrentSettings();
+		saveCurrentSettings(5);
 		assignVariable(5);
 	}
 }
@@ -1902,7 +1754,7 @@ void W_2DPlot::on_checkBoxD1_stateChanged(int arg1)
 
 	if(initFlag == false)
 	{
-		saveCurrentSettings();
+		saveCurrentSettings(0);
 		assignVariable(0);
 	}
 }
@@ -1913,7 +1765,7 @@ void W_2DPlot::on_checkBoxD2_stateChanged(int arg1)
 
 	if(initFlag == false)
 	{
-		saveCurrentSettings();
+		saveCurrentSettings(1);
 		assignVariable(1);
 	}
 }
@@ -1924,7 +1776,7 @@ void W_2DPlot::on_checkBoxD3_stateChanged(int arg1)
 
 	if(initFlag == false)
 	{
-		saveCurrentSettings();
+		saveCurrentSettings(2);
 		assignVariable(2);
 	}
 }
@@ -1935,7 +1787,7 @@ void W_2DPlot::on_checkBoxD4_stateChanged(int arg1)
 
 	if(initFlag == false)
 	{
-		saveCurrentSettings();
+		saveCurrentSettings(3);
 		assignVariable(3);
 	}
 }
@@ -1946,7 +1798,7 @@ void W_2DPlot::on_checkBoxD5_stateChanged(int arg1)
 
 	if(initFlag == false)
 	{
-		saveCurrentSettings();
+		saveCurrentSettings(4);
 		assignVariable(4);
 	}
 }
@@ -1957,7 +1809,7 @@ void W_2DPlot::on_checkBoxD6_stateChanged(int arg1)
 
 	if(initFlag == false)
 	{
-		saveCurrentSettings();
+		saveCurrentSettings(5);
 		assignVariable(5);
 	}
 }

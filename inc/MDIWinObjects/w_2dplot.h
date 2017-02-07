@@ -41,7 +41,9 @@
 #include <QtCharts>
 #include <QtCharts/QChartView>
 #include "flexsea_generic.h"
+#include "flexseaDevice.h"
 #include <QtCharts/QXYSeries>
+#include "executeDevice.h"
 
 //****************************************************************************
 // Definition(s)
@@ -66,14 +68,6 @@
 #define STATS_AVG					2
 #define STATS_RMS					3
 
-//Variable formats:
-#define FORMAT_32U					0
-#define FORMAT_32S					1
-#define FORMAT_16U					2
-#define FORMAT_16S					3
-#define FORMAT_8U					4
-#define FORMAT_8S					5
-
 //Test code:
 //#define VECLEN	200
 
@@ -83,7 +77,8 @@ struct vtp_s
 	void *rawGenPtr;
 	uint8_t format;
 	int32_t *decodedPtr;
-	bool used, decode;
+	bool used;
+	bool decode;
 };
 
 //****************************************************************************
@@ -103,7 +98,8 @@ class W_2DPlot : public QWidget, public Counter<W_2DPlot>
 public:
 
 	//Constructor & Destructor:
-	explicit W_2DPlot(QWidget *parent = 0);
+	explicit W_2DPlot(QWidget *parent = 0,
+					  QList<ExecuteDevice> *devListInit = nullptr);
 	~W_2DPlot();
 
 public slots:
@@ -173,6 +169,10 @@ private:
 
 	//Variables & Objects:
 
+	QList<ExecuteDevice> *devList;
+
+	ExecuteDevice* selectedDevList[VAR_NUM];
+
 	Ui::W_2DPlot *ui;
 	QChart *chart;
 	QChartView *chartView;
@@ -208,7 +208,7 @@ private:
 	float getRefreshRateDisplay(void);
 	float getRefreshRateData(void);
 	void initData(void);
-	void saveCurrentSettings(void);
+	void saveCurrentSettings(int item);
 	void addMargins(int *ymin, int *ymax);
 	void setChartAxis(void);
 	void setChartAxisAutomatic(void);

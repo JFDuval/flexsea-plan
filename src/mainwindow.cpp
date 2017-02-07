@@ -460,7 +460,7 @@ void MainWindow::createView2DPlot(void)
 	//Limited number of windows:
 	if(objectCount < (PLOT2D_WINDOWS_MAX))
 	{
-		myView2DPlot[objectCount] = new W_2DPlot(this);
+		myView2DPlot[objectCount] = new W_2DPlot(this, &executeDevList);
 		ui->mdiArea->addSubWindow(myView2DPlot[objectCount]);
 		myView2DPlot[objectCount]->show();
 
