@@ -96,7 +96,7 @@ SOURCES += src/main.cpp \
 	flexsea-system/test/test-flexsea_cmd_tools.c \
 	src/FlexSEADevice/ricnuProject.cpp \
     src/FlexSEADevice/ankle2DofProject.cpp \
-    src/FlexSEADevice/testBenchProject.cpp
+    src/FlexSEADevice/testBenchProject.cpp \
 
 HEADERS  += inc/main.h \
 	inc/mainwindow.h \
@@ -162,7 +162,7 @@ HEADERS  += inc/main.h \
 	flexsea-system/inc/flexsea_cmd_tools.h \
 	inc/FlexSEADevice/ricnuProject.h \
     inc/FlexSEADevice/ankle2DofProject.h \
-    inc/FlexSEADevice/testBenchProject.h
+    inc/FlexSEADevice/testBenchProject.h \
 
 FORMS    += ui/mainwindow.ui \
 	ui/w_execute.ui \
