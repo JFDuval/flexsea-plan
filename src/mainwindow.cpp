@@ -687,7 +687,7 @@ void MainWindow::createCalib(void)
 				this, SLOT(closeCalib()));
 
         //Link to SlaveComm to send commands:
-        connect(myViewControl[objectCount], SIGNAL(writeCommand(uint8_t,uint8_t*,uint8_t)), \
+        connect(myViewCalibration[objectCount], SIGNAL(writeCommand(uint8_t,uint8_t*,uint8_t)), \
                 this, SIGNAL(connectorWriteCommand(uint8_t,uint8_t*,uint8_t)));
 	}
 	else

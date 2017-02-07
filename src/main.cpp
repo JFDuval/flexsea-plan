@@ -48,6 +48,8 @@ int main(int argc, char *argv[])
 	flexsea_system_test();
 	flexsea_user_test();
 
+    initializeGlobalStructs();
+
 	QApplication a(argc, argv);
 	MainWindow w;
 	w.show();

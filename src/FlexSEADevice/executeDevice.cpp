@@ -79,8 +79,6 @@ QStringList ExecuteDevice::header = QStringList()
 								<< "analog_1"
 								<< "current"
 								<< "enc-disp"
-								<< "enc-cont"
-								<< "enc-comm"
 								<< "VB"
 								<< "VG"
 								<< "Temp"
