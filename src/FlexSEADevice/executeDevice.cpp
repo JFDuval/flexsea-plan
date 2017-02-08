@@ -42,6 +42,11 @@
 
 ExecuteDevice::ExecuteDevice(void): FlexseaDevice()
 {
+	if(header.length() != headerDecoded.length())
+	{
+		qDebug() << "Mismatch between header lenght Execute!";
+	}
+
 	this->dataSource = LogDataFile;
 	serializedLength = header.length();
 	slaveType = "execute";
@@ -49,6 +54,11 @@ ExecuteDevice::ExecuteDevice(void): FlexseaDevice()
 
 ExecuteDevice::ExecuteDevice(execute_s *devicePtr): FlexseaDevice()
 {
+	if(header.length() != headerDecoded.length())
+	{
+		qDebug() << "Mismatch between header lenght Execute!";
+	}
+
 	this->dataSource = LiveDataFile;
 	timeStamp.append(TimeStamp());
 	exList.append(devicePtr);

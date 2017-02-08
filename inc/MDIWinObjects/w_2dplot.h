@@ -99,7 +99,7 @@ public:
 
 	//Constructor & Destructor:
 	explicit W_2DPlot(QWidget *parent = 0,
-					  QList<ExecuteDevice> *devListInit = nullptr);
+					  QList<FlexseaDevice*> *devListInit = nullptr);
 	~W_2DPlot();
 
 public slots:
@@ -169,9 +169,9 @@ private:
 
 	//Variables & Objects:
 
-	QList<ExecuteDevice> *devList;
+	QList<FlexseaDevice*> *devList;
 
-	ExecuteDevice* selectedDevList[VAR_NUM];
+	FlexseaDevice* selectedDevList[VAR_NUM];
 
 	Ui::W_2DPlot *ui;
 	QChart *chart;
@@ -190,8 +190,6 @@ private:
 
 	struct vtp_s vtp[6];
 	uint8_t varToPlotFormat[6];
-	int32_t nullVar32s;
-	uint16_t nullVar16u;
 
 	uint8_t slaveIndex[VAR_NUM], slaveAddr[VAR_NUM], slaveBType[VAR_NUM];
 	uint8_t varIndex[VAR_NUM];

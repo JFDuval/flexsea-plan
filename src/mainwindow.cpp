@@ -233,7 +233,7 @@ void MainWindow::initFlexSeaDeviceObject(void)
 	ankle2DofFlexList.append(&ankle2DofDevList.last());
 
 	testBenchDevList.append(TestBenchProject(&exec1, &exec2, &motortb, &batt1));
-	testBenchDevList.last().slaveName = "Ankle 2 DoF";
+	testBenchDevList.last().slaveName = "Test Bench";
 	testBenchDevList.last().slaveIndex = 11;
 	testBenchDevList.last().slaveID = FLEXSEA_VIRTUAL_1; // TODO: Does it make sens?
 	flexseaPtrlist.append(&testBenchDevList.last());
@@ -460,7 +460,7 @@ void MainWindow::createView2DPlot(void)
 	//Limited number of windows:
 	if(objectCount < (PLOT2D_WINDOWS_MAX))
 	{
-		myView2DPlot[objectCount] = new W_2DPlot(this, &executeDevList);
+		myView2DPlot[objectCount] = new W_2DPlot(this, &flexseaPtrlist);
 		ui->mdiArea->addSubWindow(myView2DPlot[objectCount]);
 		myView2DPlot[objectCount]->show();
 

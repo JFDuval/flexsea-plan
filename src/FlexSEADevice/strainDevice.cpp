@@ -42,6 +42,11 @@
 
 StrainDevice::StrainDevice(void): FlexseaDevice()
 {
+	if(header.length() != headerDecoded.length())
+	{
+		qDebug() << "Mismatch between header lenght Strain!";
+	}
+
 	this->dataSource = LogDataFile;
 	serializedLength = header.length();
 	slaveType = "strain";
@@ -49,6 +54,11 @@ StrainDevice::StrainDevice(void): FlexseaDevice()
 
 StrainDevice::StrainDevice(strain_s *devicePtr): FlexseaDevice()
 {
+	if(header.length() != headerDecoded.length())
+	{
+		qDebug() << "Mismatch between header lenght Strain!";
+	}
+
 	this->dataSource = LiveDataFile;
 	timeStamp.append(TimeStamp());
 	stList.append(devicePtr);
@@ -68,12 +78,22 @@ QString StrainDevice::getHeaderStr(void)
 QStringList StrainDevice::header = QStringList()
 								<< "Timestamp"
 								<< "Timestamp (ms)"
-								<< "ch1"
-								<< "ch2"
-								<< "ch3"
-								<< "ch4"
-								<< "ch5"
-								<< "ch6";
+								<< "Strain ch[1]"
+								<< "Strain ch[2]"
+								<< "Strain ch[3]"
+								<< "Strain ch[4]"
+								<< "Strain ch[5]"
+								<< "Strain ch[6]";
+
+QStringList StrainDevice::headerDecoded = QStringList()
+								<< "Raw Value Only"
+								<< "Raw Value Only"
+								<< "Decoded: ±100%"
+								<< "Decoded: ±100%"
+								<< "Decoded: ±100%"
+								<< "Decoded: ±100%"
+								<< "Decoded: ±100%"
+								<< "Decoded: ±100%";
 
 QString StrainDevice::getLastSerializedStr(void)
 {
@@ -104,6 +124,78 @@ void StrainDevice::appendSerializedStr(QStringList *splitLine)
 		stList.last()->ch[4].strain_filtered	= (*splitLine)[6].toInt();
 		stList.last()->ch[5].strain_filtered	= (*splitLine)[7].toInt();
 	}
+}
+
+struct std_variable StrainDevice::getSerializedVar(int parameter)
+{
+	return getSerializedVar(parameter, 0);
+}
+
+struct std_variable StrainDevice::getSerializedVar(int parameter, int index)
+{
+	struct std_variable var;
+
+	if(index >= stList.length())
+	{
+		parameter = INT_MAX;
+	}
+
+	//Assign pointer:
+	switch(parameter)
+	{
+		/*Format: (every Case except Unused)
+		 * Line 1: data format, raw variable
+		 * Line 2: raw variable
+		 * Line 3: decoded variable (always int32),
+					null if not decoded  */
+		case 0: //"TimeStamp"
+			var.format = FORMAT_QSTR;
+			var.rawGenPtr = &timeStamp[index].date;
+			var.decodedPtr = nullptr;
+			break;
+		case 1: //"TimeStamp (ms)"
+			var.format = FORMAT_32S;
+			var.rawGenPtr = &timeStamp[index].ms;
+			var.decodedPtr = nullptr;
+			break;
+		case 2: //"Ch 1"
+			var.format = FORMAT_16U;
+			var.rawGenPtr = &stList[index]->ch[0].strain_filtered;
+			var.decodedPtr = &stList[index]->decoded.strain[0];
+			break;
+		case 3: //"Ch 2"
+			var.format = FORMAT_16U;
+			var.rawGenPtr = &stList[index]->ch[1].strain_filtered;
+			var.decodedPtr = &stList[index]->decoded.strain[1];
+			break;
+		case 4: //"Ch 3"
+			var.format = FORMAT_16U;
+			var.rawGenPtr = &stList[index]->ch[2].strain_filtered;
+			var.decodedPtr = &stList[index]->decoded.strain[2];
+			break;
+		case 5: //"Ch 4"
+			var.format = FORMAT_16U;
+			var.rawGenPtr = &stList[index]->ch[3].strain_filtered;
+			var.decodedPtr = &stList[index]->decoded.strain[3];
+			break;
+		case 6: //"Ch 5"
+			var.format = FORMAT_16U;
+			var.rawGenPtr = &stList[index]->ch[4].strain_filtered;
+			var.decodedPtr = &stList[index]->decoded.strain[4];
+			break;
+		case 7: //"Ch 6"
+			var.format = FORMAT_16U;
+			var.rawGenPtr = &stList[index]->ch[5].strain_filtered;
+			var.decodedPtr = &stList[index]->decoded.strain[5];
+			break;
+		default:
+			var.format = NULL_PTR;
+			var.rawGenPtr = nullptr;
+			var.decodedPtr = nullptr;
+			break;
+	}
+
+	return var;
 }
 
 void StrainDevice::clear(void)

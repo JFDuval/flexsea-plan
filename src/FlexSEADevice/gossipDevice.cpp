@@ -42,6 +42,11 @@
 
 GossipDevice::GossipDevice(void): FlexseaDevice()
 {
+	if(header.length() != headerDecoded.length())
+	{
+		qDebug() << "Mismatch between header lenght Gossip!";
+	}
+
 	this->dataSource = LogDataFile;
 	serializedLength = header.length();
 	slaveType = "gossip";
@@ -49,6 +54,11 @@ GossipDevice::GossipDevice(void): FlexseaDevice()
 
 GossipDevice::GossipDevice(gossip_s *devicePtr): FlexseaDevice()
 {
+	if(header.length() != headerDecoded.length())
+	{
+		qDebug() << "Mismatch between header lenght Gossip!";
+	}
+
 	this->dataSource = LiveDataFile;
 	timeStamp.append(TimeStamp());
 	goList.append(devicePtr);
@@ -68,22 +78,42 @@ QString GossipDevice::getHeaderStr(void)
 QStringList GossipDevice::header = QStringList()
 								<< "Timestamp"
 								<< "Timestamp (ms)"
-								<< "accel.x"
-								<< "accel.y"
-								<< "accel.z"
-								<< "gyro.x"
-								<< "gyro.y"
-								<< "gyro.z"
-								<< "magneto.x"
-								<< "magneto.y"
-								<< "magneto.z"
-								<< "io1"
-								<< "io2"
-								<< "capsense1"
-								<< "capsense2"
-								<< "capsense3"
-								<< "capsense4"
-								<< "Status1";
+								<< "Accel X"
+								<< "Accel Y"
+								<< "Accel Z"
+								<< "Gyro X"
+								<< "Gyro Y"
+								<< "Gyro Z"
+								<< "Magneto X"
+								<< "Magneto X"
+								<< "Magneto Z"
+								<< "IO[0]"
+								<< "IO[0]"
+								<< "CapSense[1]"
+								<< "CapSense[2]"
+								<< "CapSense[3]"
+								<< "CapSense[4]"
+								<< "Status";
+
+QStringList GossipDevice::headerDecoded = QStringList()
+								<< "Raw Value Only"
+								<< "Raw Value Only"
+								<< "Decoded: mg"
+								<< "Decoded: mg"
+								<< "Decoded: mg"
+								<< "Decoded: deg/s"
+								<< "Decoded: deg/s"
+								<< "Decoded: deg/s"
+								<< "Decoded: uT"
+								<< "Decoded: uT"
+								<< "Decoded: uT"
+								<< "Raw value only"
+								<< "Raw value only"
+								<< "Raw value only"
+								<< "Raw value only"
+								<< "Raw value only"
+								<< "Raw value only"
+								<< "Raw value only";
 
 QString GossipDevice::getLastSerializedStr(void)
 {
@@ -134,6 +164,125 @@ void GossipDevice::appendSerializedStr(QStringList *splitLine)
 		goList.last()->capsense[3]	= (*splitLine)[16].toInt();
 		goList.last()->status		= (*splitLine)[17].toInt();
 	}
+}
+
+struct std_variable GossipDevice::getSerializedVar(int parameter)
+{
+	return getSerializedVar(parameter, 0);
+}
+
+struct std_variable GossipDevice::getSerializedVar(int parameter, int index)
+{
+	struct std_variable var;
+
+	if(index >= goList.length())
+	{
+		parameter = INT_MAX;
+	}
+
+	//Assign pointer:
+	switch(parameter)
+	{
+		/*Format: (every Case except Unused)
+		 * Line 1: data format, raw variable
+		 * Line 2: raw variable
+		 * Line 3: decoded variable (always int32),
+					null if not decoded  */
+		case 0: //"TimeStamp"
+			var.format = FORMAT_QSTR;
+			var.rawGenPtr = &timeStamp[index].date;
+			var.decodedPtr = nullptr;
+			break;
+		case 1: //"TimeStamp (ms)"
+			var.format = FORMAT_32S;
+			var.rawGenPtr = &timeStamp[index].ms;
+			var.decodedPtr = nullptr;
+			break;
+		case 2: //"Accel X"
+			var.format = FORMAT_16S;
+			var.rawGenPtr = &goList[index]->accel.x;
+			var.decodedPtr = &goList[index]->decoded.accel.x;
+			break;
+		case 3: //"Accel Y"
+			var.format = FORMAT_16S;
+			var.rawGenPtr = &goList[index]->accel.y;
+			var.decodedPtr = &goList[index]->decoded.accel.y;
+			break;
+		case 4: //"Accel Z"
+			var.format = FORMAT_16S;
+			var.rawGenPtr = &goList[index]->accel.z;
+			var.decodedPtr = &goList[index]->decoded.accel.z;
+			break;
+		case 5: //"Gyro X"
+			var.format = FORMAT_16S;
+			var.rawGenPtr = &goList[index]->gyro.x;
+			var.decodedPtr = &goList[index]->decoded.gyro.x;
+			break;
+		case 6: //"Gyro Y"
+			var.format = FORMAT_16S;
+			var.rawGenPtr = &goList[index]->gyro.y;
+			var.decodedPtr = &goList[index]->decoded.gyro.y;
+			break;
+		case 7: //"Gyro Z"
+			var.format = FORMAT_16S;
+			var.rawGenPtr = &goList[index]->gyro.z;
+			var.decodedPtr = &goList[index]->decoded.gyro.z;
+			break;
+		case 8: //"Magneto X"
+			var.format = FORMAT_16S;
+			var.rawGenPtr = &goList[index]->magneto.x;
+			var.decodedPtr = &goList[index]->decoded.magneto.x;
+			break;
+		case 9: //"Magneto Y"
+			var.format = FORMAT_16S;
+			var.rawGenPtr = &goList[index]->magneto.y;
+			var.decodedPtr = &goList[index]->decoded.magneto.y;
+			break;
+		case 10: //"Magneto Z"
+			var.format = FORMAT_16S;
+			var.rawGenPtr = &goList[index]->magneto.z;
+			var.decodedPtr = &goList[index]->decoded.magneto.z;
+			break;
+		case 11: //"IO 1"
+			var.format = FORMAT_16U;
+			var.rawGenPtr = &goList[index]->io[0];
+			var.decodedPtr = nullptr;
+			break;
+		case 12: //"IO 2"
+			var.format = FORMAT_16U;
+			var.rawGenPtr = &goList[index]->io[1];
+			var.decodedPtr = nullptr;
+			break;
+		case 13: //"Capsense 1"
+			var.format = FORMAT_16U;
+			var.rawGenPtr = &goList[index]->capsense[0];
+			var.decodedPtr = nullptr;
+			break;
+		case 14: //"Capsense 2"
+			var.format = FORMAT_16U;
+			var.rawGenPtr = &goList[index]->capsense[1];
+			var.decodedPtr = nullptr;
+		case 15: //"Capsense 3"
+			var.format = FORMAT_16U;
+			var.rawGenPtr = &goList[index]->capsense[2];
+			var.decodedPtr = nullptr;
+		case 16: //"Capsense 4"
+			var.format = FORMAT_16U;
+			var.rawGenPtr = &goList[index]->capsense[3];
+			var.decodedPtr = nullptr;
+		case 17: //"Status"
+			var.format = FORMAT_8U;
+			var.rawGenPtr = &goList[index]->status;
+			var.decodedPtr = nullptr;
+			break;
+		default:
+			var.format = NULL_PTR;
+			var.rawGenPtr = nullptr;
+			var.decodedPtr = nullptr;
+			break;
+	}
+
+	return var;
 }
 
 void GossipDevice::clear(void)

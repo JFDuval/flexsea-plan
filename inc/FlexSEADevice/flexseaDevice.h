@@ -87,7 +87,11 @@ public:
 	virtual ~FlexseaDevice(){}
 
 	virtual QString getHeaderStr(void) = 0;
+	virtual QStringList getHeaderList(void) = 0;
+	virtual QStringList getHeaderDecList(void) = 0;
 	virtual QString getLastSerializedStr(void) = 0;
+	virtual struct std_variable getSerializedVar(int parameter) = 0;
+	virtual struct std_variable getSerializedVar(int parameter, int index) = 0;
 	virtual void appendSerializedStr(QStringList *splitLine) = 0;
 	virtual void decodeLastLine(void) = 0;
 	virtual void decodeAllLine(void) = 0;
