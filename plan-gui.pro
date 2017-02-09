@@ -98,6 +98,8 @@ SOURCES += src/main.cpp \
 	src/FlexSEADevice/ricnuProject.cpp \
     src/FlexSEADevice/ankle2DofProject.cpp \
     src/FlexSEADevice/testBenchProject.cpp \
+    src/MDIWinObjects/w_incontrol.cpp \
+    flexsea-system/src/flexsea_cmd_in_control.c
 
 HEADERS  += inc/main.h \
 	inc/mainwindow.h \
@@ -165,6 +167,8 @@ HEADERS  += inc/main.h \
 	inc/FlexSEADevice/ricnuProject.h \
     inc/FlexSEADevice/ankle2DofProject.h \
     inc/FlexSEADevice/testBenchProject.h \
+    inc/MDIWinObjects/w_incontrol.h \
+    flexsea-system/inc/flexsea_cmd_in_control.h
 
 FORMS    += ui/mainwindow.ui \
 	ui/w_execute.ui \
@@ -184,6 +188,7 @@ FORMS    += ui/mainwindow.ui \
 	ui/w_userrw.ui \
 	ui/w_commtest.ui \
 	ui/w_testbench.ui
+        ui/w_incontrol.ui
 
 RESOURCES += \
 	misc/icons.qrc

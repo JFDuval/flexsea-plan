@@ -568,6 +568,22 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>actionIn_Control_Tool</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>createInControl()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>594</x>
+     <y>433</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>createViewExecute()</slot>
@@ -590,5 +606,6 @@
   <slot>createUserRW()</slot>
   <slot>createViewTestBench()</slot>
   <slot>createViewCommTest()</slot>
+  <slot>createInControl()</slot>
  </slots>
 </ui>
