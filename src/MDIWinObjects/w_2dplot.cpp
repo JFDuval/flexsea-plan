@@ -927,10 +927,6 @@ void W_2DPlot::refreshStatBar(float fDisp, float fData)
 //ToDo: those lists should come from the w_BoardName files
 void W_2DPlot::updateVarList(uint8_t item)
 {
-	QStringList var_list, toolTipList;
-
-	uint8_t bType = slaveBType[item];
-
 	//Fill the comboBox:
 	(*cbVar[item])->clear();
 	(*cbVar[item])->setToolTipDuration(350);
