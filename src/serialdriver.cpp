@@ -213,7 +213,25 @@ void SerialDriver::readWrite(uint numb, uint8_t *dataPacket, uint8_t r_w)
 		}
 	}
 }
+void SerialDriver::readWrite(uint8_t numb, uint8_t *dataPacket, uint8_t r_w)
+{
+	write(numb, dataPacket);
+	//qDebug() << dataPacket;
 
+	//Should we look for a reply?
+	if(r_w == READ)
+	{
+		//Status to Yellow before we get the reply:
+		emit dataStatus(0, DATAIN_STATUS_YELLOW);
+
+		//Did we receive data? Can we decode it?
+		if(read(usb_rx))
+		{
+			decode_usb_rx(usb_rx);
+			emit newDataReady();
+		}
+	}
+}
 //****************************************************************************
 // Private function(s):
 //****************************************************************************

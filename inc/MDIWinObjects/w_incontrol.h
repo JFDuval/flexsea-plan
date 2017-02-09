@@ -36,7 +36,7 @@ public:
 	explicit W_InControl(QWidget *parent = 0);
 	virtual ~W_InControl();
 	
-    int getActiveSlave() const;
+	int getActiveSlave() const;
 
 public slots:
     void init_tab_stream_in_ctrl(void);
@@ -46,20 +46,19 @@ public slots:
     void on_pushButton_inctrl_w2_clicked();
     void on_pushButton_inctrl_w3_clicked();
     void write_in_control_w(uint8_t var);
+	void updateUIData(void);
 
 signals:
-    void writeCommand(uint8_t numb, uint8_t *tx_data, uint8_t r_w);
-    void windowClosed(void);
+	void writeCommand(uint8_t numb, uint8_t *tx_data, uint8_t r_w);
+	void windowClosed(void);
 
 private:
     Ui::W_InControl *ui;
-    QTimer* streamTimer;
-
-    void updateUIData(void);
+	QTimer* streamTimer;
 
 
 private slots:
-    void streamInControl(void);
+	void streamInControl(void);
 
 };
 

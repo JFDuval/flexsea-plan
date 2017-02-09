@@ -607,7 +607,10 @@ void MainWindow::createInControl(void)
 
 		//Link to SlaveComm to send commands:
 		connect(myViewInControl[objectCount], SIGNAL(writeCommand(uint8_t,uint8_t*,uint8_t)), \
-					this, SIGNAL(connectorWriteCommand(uint8_t,uint8_t*,uint8_t)));
+				mySerialDriver, SLOT(readWrite(uint8_t, uint8_t*, uint8_t)));
+
+		connect(mySerialDriver, SIGNAL(newDataReady()), \
+				myViewInControl[objectCount], SLOT(updateUIData()));
 	}
 	else
 	{

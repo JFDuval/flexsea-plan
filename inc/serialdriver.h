@@ -61,6 +61,7 @@ public slots:
 	int read(unsigned char *buf);
 	int write(char bytes_to_send, unsigned char *serial_tx_data);
 	void readWrite(uint numb, uint8_t *dataPacket, uint8_t r_w);
+	void readWrite(uint8_t numb, uint8_t *dataPacket, uint8_t r_w);
 
 private slots:
 
