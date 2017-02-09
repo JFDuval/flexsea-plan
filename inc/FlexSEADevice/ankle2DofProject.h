@@ -76,6 +76,7 @@ public:
 	void appendSerializedStr(QStringList *splitLine);
 	void decodeLastLine(void);
 	void decodeAllLine(void);
+	int lenght(void) {return akList.length();}
 	void clear(void);
 	void appendEmptyLine(void);
 	QString getStatusStr(int index);

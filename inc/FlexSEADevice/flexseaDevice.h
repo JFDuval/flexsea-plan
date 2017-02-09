@@ -97,6 +97,7 @@ public:
 	virtual void decodeAllLine(void) = 0;
 	virtual void appendEmptyLine(void) = 0;
 	virtual QString getStatusStr(int index) = 0;
+	virtual int lenght() = 0;
 	virtual void clear(void);
 
 	QString getIdentifier(void);

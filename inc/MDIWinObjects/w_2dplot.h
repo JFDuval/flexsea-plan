@@ -178,6 +178,7 @@ private:
 	QList<FlexseaDevice*> *devList;
 
 	FlexseaDevice* selectedLog;
+	int logIndex;
 
 	FlexseaDevice* selectedDevList[VAR_NUM];
 
@@ -208,12 +209,12 @@ private:
 	void initChart(void);
 	void initUserInput(void);
 	void saveNewPoints(int myDataPoints[6]);
+	void saveNewPointsLog(int index);
 	void computeStats(void);
 	void computeGlobalMinMax(void);
 	float getRefreshRateDisplay(void);
 	float getRefreshRateData(void);
 	void initData(void);
-	void saveCurrentSettingsLog(int item);
 	void saveCurrentSettings(int item);
 	void addMargins(int *ymin, int *ymax);
 	void setChartAxis(void);

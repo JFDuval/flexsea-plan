@@ -188,8 +188,9 @@ void W_2DPlot::refresh2DPlot(void)
 		qlsChart[4]->replace(vDataBuffer[4]);
 		qlsChart[5]->replace(vDataBuffer[5]);
 
-		computeGlobalMinMax();
+		computeStats();
 		refreshStats();
+		computeGlobalMinMax();
 		setChartAxisAutomatic();
 	}
 }
@@ -202,6 +203,11 @@ void W_2DPlot::refreshControl(void)
 
 void W_2DPlot::refreshDisplayLog(int index, FlexseaDevice * devPtr)
 {
+
+	logIndex = index;
+
+	saveNewPointsLog(index);
+	refresh2DPlot();
 //	if(devPtr->slaveName == deviceLog->slaveName)
 //	{
 //		if(deviceLog->exList.isEmpty() == false)
@@ -367,7 +373,7 @@ void W_2DPlot::initLog(void)
 		(*cbVarSlave[i])->blockSignals(false);
 
 		//Variable comboBoxes:
-		saveCurrentSettingsLog(i);  //Needed for the 1st var_list
+		saveCurrentSettings(i);  //Needed for the 1st var_list
 	}
 
 	//Update variable list:
@@ -502,10 +508,12 @@ void W_2DPlot::initData(void)
 	initStats();
 }
 
+
+
 //Updates 6 buffers, and compute stats (min/max/avg/...)
 void W_2DPlot::saveNewPoints(int myDataPoints[6])
 {
-	// Add or replace data point.
+	// add point if plot lenght not reached
 	if(vDataBuffer[0].length() < plot_len)
 	{
 		//First VECLEN points: append
@@ -515,6 +523,7 @@ void W_2DPlot::saveNewPoints(int myDataPoints[6])
 			vDataBuffer[i].append(QPointF(vDataBuffer[i].length(), myDataPoints[i]));
 		}
 	}
+	// replace point if max lenght reached
 	else
 	{
 		//For each variable:
@@ -530,8 +539,74 @@ void W_2DPlot::saveNewPoints(int myDataPoints[6])
 			vDataBuffer[i].replace(plot_len-1, QPointF(plot_len-1, myDataPoints[i]));
 		}
 	}
+}
 
-	computeStats();
+void W_2DPlot::saveNewPointsLog(int index)
+{
+	struct std_variable varHandle;
+	int point;
+
+	initData();
+
+	for(int item = 0; item < VAR_NUM; item++)
+	{
+		int j = index;
+
+		while(j < selectedLog->lenght() && j < plot_len)
+		{
+			varHandle = selectedDevList[item]->getSerializedVar(varIndex[item] + 1, j);
+
+			if(vtp[item].decode == false)
+			{
+				if(varHandle.rawGenPtr == nullptr)
+				{
+					point = 0;
+				}
+				else
+				{
+					switch(varHandle.format)
+					{
+						case FORMAT_32S:
+							point = (*(int32_t*)varHandle.rawGenPtr);
+							break;
+						case FORMAT_32U:
+							point = (int)(*(uint32_t*)varHandle.rawGenPtr);
+							break;
+						case FORMAT_16S:
+							point = (int)(*(int16_t*)varHandle.rawGenPtr);
+							break;
+						case FORMAT_16U:
+							point = (int)(*(uint16_t*)varHandle.rawGenPtr);
+							break;
+						case FORMAT_8S:
+							point = (int)(*(int8_t*)varHandle.rawGenPtr);
+							break;
+						case FORMAT_8U:
+							point = (int)(*(uint8_t*)varHandle.rawGenPtr);
+							break;
+						default:
+							point = 0;
+							break;
+					}
+				}
+			}
+			else
+			{
+				if((varHandle.decodedPtr) == nullptr)
+				{
+					point = 0;
+				}
+				else
+				{
+					point = (*varHandle.decodedPtr);
+				}
+			}
+
+			// Append the proper value
+			vDataBuffer[item].append(QPointF(vDataBuffer[item].length(), point));
+			++j;
+		}
+	}
 }
 
 void W_2DPlot::computeStats(void)
@@ -542,32 +617,31 @@ void W_2DPlot::computeStats(void)
 	// Compute the Stats
 	for(int i = 0; i < VAR_NUM; i++)
 	{
-		min = vDataBuffer[i].at(0).y();
-		max = vDataBuffer[i].at(0).y();
-		avg = 0;
-
-		for(int j = 0; j < vDataBuffer[i].length(); j++)
-		{
-
-			//Minimum:
-			if(vDataBuffer[i].at(j).y() < min)
-			{
-				min = vDataBuffer[i].at(j).y();
-			}
-
-			//Maximum:
-			if(vDataBuffer[i].at(j).y() > max)
-			{
-				max = vDataBuffer[i].at(j).y();
-			}
-
-			//Average - sum:
-			avg += vDataBuffer[i].at(j).y();
-
-		}
-
 		if(vDataBuffer[i].length() > 0)
 		{
+			min = vDataBuffer[i].at(0).y();
+			max = vDataBuffer[i].at(0).y();
+			avg = 0;
+
+			for(int j = 0; j < vDataBuffer[i].length(); j++)
+			{
+
+				//Minimum:
+				if(vDataBuffer[i].at(j).y() < min)
+				{
+					min = vDataBuffer[i].at(j).y();
+				}
+
+				//Maximum:
+				if(vDataBuffer[i].at(j).y() > max)
+				{
+					max = vDataBuffer[i].at(j).y();
+				}
+
+				//Average - sum:
+				avg += vDataBuffer[i].at(j).y();
+
+			}
 			//Average - result:
 			avg = avg / vDataBuffer[i].length();
 
@@ -695,23 +769,17 @@ float W_2DPlot::getRefreshRateData(void)
 }
 
 //Based on the current state of comboBoxes, saves the info in variables
-void W_2DPlot::saveCurrentSettingsLog(int item)
-{
-	//Slave:
-	selectedDevList[item] = selectedLog;
-
-	//Variable:
-	varIndex[item] = (*cbVar[item])->currentIndex();
-
-	//Decode:
-	vtp[item].decode = (*ckbDecode[item])->isChecked();
-}
-
-//Based on the current state of comboBoxes, saves the info in variables
 void W_2DPlot::saveCurrentSettings(int item)
 {
 	//Slave:
-	selectedDevList[item] = (*devList)[(*cbVarSlave[item])->currentIndex()];
+	if(displayMode == LiveDataFile)
+	{
+		selectedDevList[item] = (*devList)[(*cbVarSlave[item])->currentIndex()];
+	}
+	else
+	{
+		selectedDevList[item] = selectedLog;
+	}
 
 	//Variable:
 	varIndex[item] = (*cbVar[item])->currentIndex();
