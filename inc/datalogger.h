@@ -120,7 +120,6 @@ private:
 
 signals:
 	void setStatusBarMessage(QString msg);
-	void setNewLogFileLoaded(QList<struct execute_s> &data);
 };
 
 //****************************************************************************

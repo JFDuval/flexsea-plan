@@ -52,6 +52,8 @@ QT_CHARTS_USE_NAMESPACE
 //****************************************************************************
 
 W_2DPlot::W_2DPlot(QWidget *parent,
+				   FlexseaDevice* devLogInit,
+				   DisplayMode mode,
 				   QList<FlexseaDevice*> *devListInit) :
 	QWidget(parent),
 	ui(new Ui::W_2DPlot)
@@ -61,13 +63,18 @@ W_2DPlot::W_2DPlot(QWidget *parent,
 	setWindowTitle(this->getDescription());
 	setWindowIcon(QIcon(":icons/d_logo_small.png"));
 
+	displayMode = mode;
 	devList = devListInit;
+	selectedLog =  devLogInit;
+
 	initFlag = true;
 	initPtr();
 	initStats();
 	initUserInput();
 	initChart();
 	useOpenGL(false);
+
+	updateDisplayMode(displayMode, selectedLog);
 
 	//Timers:
 	timerRefreshDisplay = new QDateTime;
@@ -193,6 +200,33 @@ void W_2DPlot::refreshControl(void)
 
 }
 
+void W_2DPlot::refreshDisplayLog(int index, FlexseaDevice * devPtr)
+{
+//	if(devPtr->slaveName == deviceLog->slaveName)
+//	{
+//		if(deviceLog->exList.isEmpty() == false)
+//		{
+//			 display(deviceLog, index);
+//		}
+//	}
+}
+
+void W_2DPlot::updateDisplayMode(DisplayMode mode, FlexseaDevice* devPtr)
+{
+	displayMode = mode;
+	if(displayMode == DisplayLogData)
+	{
+		initUserInput();
+		initStats();
+		initLog();
+	}
+	else
+	{
+		initUserInput();
+		initStats();
+	}
+}
+
 //****************************************************************************
 // Private function(s):
 //****************************************************************************
@@ -251,8 +285,6 @@ void W_2DPlot::initPtr(void)
 
 void W_2DPlot::initChart(void)
 {
-	vecLen = 0;
-
 	for(int i = 0; i < VAR_NUM; ++i)
 	{
 		//Data series:
@@ -318,6 +350,35 @@ void W_2DPlot::initChart(void)
 			this, SLOT(myHoverHandler5(QPointF, bool)));
 }
 
+void W_2DPlot::initLog(void)
+{
+	//Data fields and variables:
+	//==========================
+
+	//Note: Color coded labels will be defined based on the chart.
+	//Update Slave List
+	for(int i = 0; i < VAR_NUM; i++)
+	{
+		(*cbVarSlave[i])->blockSignals(true);
+		(*cbVarSlave[i])->clear();
+
+		(*cbVarSlave[i])->addItem(selectedLog->slaveName);
+
+		(*cbVarSlave[i])->blockSignals(false);
+
+		//Variable comboBoxes:
+		saveCurrentSettingsLog(i);  //Needed for the 1st var_list
+	}
+
+	//Update variable list:
+
+	for(int i = 0; i < VAR_NUM; i++)
+	{
+		updateVarList(i);
+	}
+
+}
+
 //Fills the fields and combo boxes:
 void W_2DPlot::initUserInput(void)
 {
@@ -352,8 +413,6 @@ void W_2DPlot::initUserInput(void)
 	ui->lineEditYMin->setDisabled(true);
 	ui->lineEditYMax->setDisabled(true);
 
-	plotting_len = 0;
-
 	ui->comboBoxMargin->clear();
 	var_list_margin.clear();
 
@@ -380,12 +439,13 @@ void W_2DPlot::initUserInput(void)
 	{
 		(*cbVarSlave[i])->blockSignals(true);
 		(*cbVarSlave[i])->clear();
-		(*cbVarSlave[i])->blockSignals(false);
+
 
 		for(int ii = 0; ii < devList->length(); ++ii)
 		{
 			(*cbVarSlave[i])->addItem((*devList)[ii]->slaveName);
 		}
+		(*cbVarSlave[i])->blockSignals(false);
 
 		//Variable comboBoxes:
 		saveCurrentSettings(i);  //Needed for the 1st var_list
@@ -433,7 +493,6 @@ void W_2DPlot::initUserInput(void)
 //Empties all the lists
 void W_2DPlot::initData(void)
 {
-	vecLen = 0;
 	for(int i = 0; i < VAR_NUM; i++)
 	{
 		vDataBuffer[i].clear();
@@ -446,115 +505,78 @@ void W_2DPlot::initData(void)
 //Updates 6 buffers, and compute stats (min/max/avg/...)
 void W_2DPlot::saveNewPoints(int myDataPoints[6])
 {
-	QPointF min, max;
-	QPointF temp;
-	QPoint tempInt;
-	long long avg = 0;
-
-	if(vecLen <= plot_len-1)
+	// Add or replace data point.
+	if(vDataBuffer[0].length() < plot_len)
 	{
 		//First VECLEN points: append
 		//For each variable:
 		for(int i = 0; i < VAR_NUM; i++)
 		{
-			vDataBuffer[i].append(QPointF(vecLen, myDataPoints[i]));
-
-			min.setY(vDataBuffer[i].at(0).y());
-			max.setY(vDataBuffer[i].at(0).y());
-			avg = 0;
-			for(int j = 0; j < vecLen; j++)
-			{
-
-				//Minimum:
-				if(vDataBuffer[i].at(j).y() < min.y())
-				{
-					min.setY(vDataBuffer[i].at(j).y());
-				}
-
-				//Maximum:
-				if(vDataBuffer[i].at(j).y() > max.y())
-				{
-					max.setY(vDataBuffer[i].at(j).y());
-				}
-
-				//Average - sum:
-				tempInt = vDataBuffer[i].at(j).toPoint();
-				avg += tempInt.y();
-
-			}
-
-			if(vecLen > 0)
-			{
-				//Average - result:
-				avg = avg / vecLen;
-
-				//Save:
-				tempInt = min.toPoint();
-				stats[i][STATS_MIN] = tempInt.y();
-				tempInt = max.toPoint();
-				stats[i][STATS_MAX] = tempInt.y();
-				stats[i][STATS_AVG] = (int64_t) avg;
-			}
+			vDataBuffer[i].append(QPointF(vDataBuffer[i].length(), myDataPoints[i]));
 		}
-
-		vecLen++;
 	}
 	else
 	{
 		//For each variable:
 		for(int i = 0; i < VAR_NUM; i++)
 		{
-			//For each point:
-			min.setY(vDataBuffer[i].at(0).y());
-			max.setY(vDataBuffer[i].at(0).y());
-			avg = 0;
-			int index = 0;
-			for(int j = 1; j < plot_len+1; j++)
+			for(int j = 1; j < plot_len; j++)
 			{
-				index = j-1;
-				//qDebug() << "Index:" << index << "Plot len:" << plot_len;
-
-				//Minimum:
-				if(vDataBuffer[i].at(index).y() < min.y())
-				{
-					min.setY(vDataBuffer[i].at(index).y());
-				}
-
-				//Maximum:
-				if(vDataBuffer[i].at(index).y() > max.y())
-				{
-					max.setY(vDataBuffer[i].at(index).y());
-				}
-
-				//Average - sum:
-				tempInt = vDataBuffer[i].at(index).toPoint();
-				avg += tempInt.y();
-
 				//Shift by one position (all but last point):
-				if(j < plot_len)
-				{
-					temp = vDataBuffer[i].at(j);
-					vDataBuffer[i].replace(index, QPointF(index, temp.ry()));
-				}
+				vDataBuffer[i].replace(j-1, QPointF(j-1, vDataBuffer[i].at(j).y()));
 			}
-
-			//Average - result:
-			avg = avg / vecLen;
-
-			//Save:
-			tempInt = min.toPoint();
-			stats[i][STATS_MIN] = tempInt.y();
-			tempInt = max.toPoint();
-			stats[i][STATS_MAX] = tempInt.y();
-			stats[i][STATS_AVG] = (int64_t) avg;
 
 			//Last (new):
 			vDataBuffer[i].replace(plot_len-1, QPointF(plot_len-1, myDataPoints[i]));
 		}
 	}
 
-	//qDebug() << "Test, qlsData length =" << qlsDataBuffer[0].count() << "Veclen =" << vecLen;
-	plotting_len = vecLen;
+	computeStats();
+}
+
+void W_2DPlot::computeStats(void)
+{
+	qreal min, max;
+	qreal avg = 0;
+
+	// Compute the Stats
+	for(int i = 0; i < VAR_NUM; i++)
+	{
+		min = vDataBuffer[i].at(0).y();
+		max = vDataBuffer[i].at(0).y();
+		avg = 0;
+
+		for(int j = 0; j < vDataBuffer[i].length(); j++)
+		{
+
+			//Minimum:
+			if(vDataBuffer[i].at(j).y() < min)
+			{
+				min = vDataBuffer[i].at(j).y();
+			}
+
+			//Maximum:
+			if(vDataBuffer[i].at(j).y() > max)
+			{
+				max = vDataBuffer[i].at(j).y();
+			}
+
+			//Average - sum:
+			avg += vDataBuffer[i].at(j).y();
+
+		}
+
+		if(vDataBuffer[i].length() > 0)
+		{
+			//Average - result:
+			avg = avg / vDataBuffer[i].length();
+
+			//Save:
+			stats[i][STATS_MIN] = (int64_t) min;
+			stats[i][STATS_MAX] = (int64_t) max;
+			stats[i][STATS_AVG] = (int64_t) avg;
+		}
+	}
 }
 
 //Get global min & max:
@@ -673,9 +695,22 @@ float W_2DPlot::getRefreshRateData(void)
 }
 
 //Based on the current state of comboBoxes, saves the info in variables
+void W_2DPlot::saveCurrentSettingsLog(int item)
+{
+	//Slave:
+	selectedDevList[item] = selectedLog;
+
+	//Variable:
+	varIndex[item] = (*cbVar[item])->currentIndex();
+
+	//Decode:
+	vtp[item].decode = (*ckbDecode[item])->isChecked();
+}
+
+//Based on the current state of comboBoxes, saves the info in variables
 void W_2DPlot::saveCurrentSettings(int item)
 {
-	//Slave: // TODO remove the & when the flexlist will be used.
+	//Slave:
 	selectedDevList[item] = (*devList)[(*cbVarSlave[item])->currentIndex()];
 
 	//Variable:
@@ -811,8 +846,7 @@ void W_2DPlot::setChartAxis(void)
 
 		//Auto scale axis
 		plot_xmin = 0;
-		//plot_xmax = plotting_len;	//ToDo remove?
-		plot_xmax = vecLen;
+		plot_xmax = vDataBuffer[0].length();
 
 		//Notify user of value used:
 		ui->lineEditXMin->setText(QString::number(plot_xmin));;
@@ -949,7 +983,7 @@ void W_2DPlot::updateVarList(uint8_t item)
 void W_2DPlot::assignVariable(uint8_t item)
 {
 
-	struct std_variable varHandle = selectedDevList[item]->getSerializedVar(varIndex[item]+2);
+	struct std_variable varHandle = selectedDevList[item]->getSerializedVar(varIndex[item] + 1);
 
 	if(varIndex[item] == 0)
 	{

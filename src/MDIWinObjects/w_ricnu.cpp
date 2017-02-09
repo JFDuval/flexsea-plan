@@ -56,7 +56,7 @@ W_Ricnu::W_Ricnu(QWidget *parent,
 	setWindowTitle(this->getDescription());
 	setWindowIcon(QIcon(":icons/d_logo_small.png"));
 
-	updateDisplayMode(displayMode);
+	updateDisplayMode(displayMode, nullptr);
 }
 
 W_Ricnu::~W_Ricnu()
@@ -91,7 +91,7 @@ void W_Ricnu::refreshDisplayLog(int index, FlexseaDevice * devPtr)
 	}
 }
 
-void W_Ricnu::updateDisplayMode(DisplayMode mode)
+void W_Ricnu::updateDisplayMode(DisplayMode mode, FlexseaDevice* devPtr)
 {
 	displayMode = mode;
 	if(displayMode == DisplayLogData)

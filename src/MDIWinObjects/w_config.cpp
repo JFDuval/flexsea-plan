@@ -154,7 +154,7 @@ void W_Config::on_openComButton_clicked()
 	if(success)//Connection is successful.
 	{
 		dataSourceState = LiveCOM;
-		emit updateDataSourceStatus(dataSourceState);
+		emit updateDataSourceStatus(dataSourceState, nullptr);
 
 		ui->openComButton->setDisabled(true);
 		ui->closeComButton->setDisabled(false);
@@ -184,7 +184,7 @@ void W_Config::on_closeComButton_clicked()
 	//ui->pushButtonBTCon->setDisabled(false);
 
 	dataSourceState = None;
-	emit updateDataSourceStatus(dataSourceState);
+	emit updateDataSourceStatus(dataSourceState, nullptr);
 
 	// Avoid refresh lag
 	getComList();
@@ -205,8 +205,7 @@ void W_Config::on_pbLoadLogFile_clicked()
 		ui->openComButton->setDisabled(true);
 		//ui->pushButtonBTCon->setDisabled(true);
 		dataSourceState = FromLogFile;
-		emit updateDataSourceStatus(dataSourceState);
-		emit createlogkeypad(dataSourceState, devPtr);
+		emit updateDataSourceStatus(dataSourceState, devPtr);
 	}
 }
 
@@ -218,5 +217,5 @@ void W_Config::on_pbCloseLogFile_clicked()
 	ui->openComButton->setDisabled(false);
 	//ui->pushButtonBTCon->setDisabled(false);
 	dataSourceState = None;
-	emit updateDataSourceStatus(dataSourceState);
+	emit updateDataSourceStatus(dataSourceState, nullptr);
 }

@@ -44,6 +44,7 @@
 #include "flexseaDevice.h"
 #include <QtCharts/QXYSeries>
 #include "executeDevice.h"
+#include "define.h"
 
 //****************************************************************************
 // Definition(s)
@@ -99,6 +100,8 @@ public:
 
 	//Constructor & Destructor:
 	explicit W_2DPlot(QWidget *parent = 0,
+					  FlexseaDevice* devLogInit = nullptr,
+					  DisplayMode mode = DisplayLiveData,
 					  QList<FlexseaDevice*> *devListInit = nullptr);
 	~W_2DPlot();
 
@@ -107,6 +110,8 @@ public slots:
 	void receiveNewData(void);
 	void refresh2DPlot(void);
 	void refreshControl(void);
+	void refreshDisplayLog(int index, FlexseaDevice * devPtr);
+	void updateDisplayMode(DisplayMode mode, FlexseaDevice* devPtr);
 
 private slots:
 
@@ -157,8 +162,9 @@ signals:
 
 private:
 
-	// GUI Pointer table
+	DisplayMode displayMode;
 
+	// GUI Pointer table
 	QLabel **lbT[VAR_NUM];
 	QComboBox **cbVar[VAR_NUM];
 	QComboBox **cbVarSlave[VAR_NUM];
@@ -171,6 +177,8 @@ private:
 
 	QList<FlexseaDevice*> *devList;
 
+	FlexseaDevice* selectedLog;
+
 	FlexseaDevice* selectedDevList[VAR_NUM];
 
 	Ui::W_2DPlot *ui;
@@ -181,9 +189,7 @@ private:
 	QDateTime *timerRefreshDisplay, *timerRefreshData;
 	int plot_xmin, plot_ymin, plot_xmax, plot_ymax, plot_len;
 	int globalYmin, globalYmax;
-	int vecLen;
 
-	int plotting_len;
 	QStringList var_list_margin;
 	bool plotFreezed, initFlag;
 	bool pointsVisible;
@@ -191,7 +197,6 @@ private:
 	struct vtp_s vtp[6];
 	uint8_t varToPlotFormat[6];
 
-	uint8_t slaveIndex[VAR_NUM], slaveAddr[VAR_NUM], slaveBType[VAR_NUM];
 	uint8_t varIndex[VAR_NUM];
 	int64_t stats[VAR_NUM][STATS_FIELDS];
 	int32_t myFakeData;
@@ -199,13 +204,16 @@ private:
 
 	//Function(s):
 
+	void initLog(void);
 	void initChart(void);
 	void initUserInput(void);
 	void saveNewPoints(int myDataPoints[6]);
+	void computeStats(void);
 	void computeGlobalMinMax(void);
 	float getRefreshRateDisplay(void);
 	float getRefreshRateData(void);
 	void initData(void);
+	void saveCurrentSettingsLog(int item);
 	void saveCurrentSettings(int item);
 	void addMargins(int *ymin, int *ymax);
 	void setChartAxis(void);

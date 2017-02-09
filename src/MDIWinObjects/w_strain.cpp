@@ -56,7 +56,7 @@ W_Strain::W_Strain(QWidget *parent,
 	setWindowTitle(this->getDescription());
 	setWindowIcon(QIcon(":icons/d_logo_small.png"));
 
-	updateDisplayMode(displayMode);
+	updateDisplayMode(displayMode, nullptr);
 }
 
 W_Strain::~W_Strain()
@@ -91,7 +91,7 @@ void W_Strain::refreshDisplayLog(int index, FlexseaDevice * devPtr)
 	}
 }
 
-void W_Strain::updateDisplayMode(DisplayMode mode)
+void W_Strain::updateDisplayMode(DisplayMode mode, FlexseaDevice* devPtr)
 {
 	displayMode = mode;
 	if(displayMode == DisplayLogData)

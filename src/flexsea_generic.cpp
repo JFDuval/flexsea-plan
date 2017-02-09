@@ -127,19 +127,6 @@ void FlexSEA_Generic::populateExpComboBox(QComboBox *cbox)
 	}
 }
 
-//Sometimes we need to know if a board is an Execute, without caring about
-//if it's Execute 1, 2 or N. This function returns the base code.
-uint8_t FlexSEA_Generic::getSlaveBoardType(uint8_t base, uint8_t index)
-{
-	//Board type? Extract base via address&integer trick
-	uint8_t tmp = 0, bType = 0;
-	// TODO Won't work when you will have more than 10 board of one type.
-	tmp = list_to_slave[base + index] / 10;
-	bType = tmp * 10;
-
-	return bType;
-}
-
 //Returns the experiment name, as a QString
 void FlexSEA_Generic::getExpName(uint8_t index, QString *expName)
 {

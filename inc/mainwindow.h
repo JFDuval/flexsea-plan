@@ -128,6 +128,8 @@ private:
 	StrainDevice strainLog = StrainDevice();
 	RicnuProject ricnuLog = RicnuProject();
 
+	FlexseaDevice* selectedFlexLog;
+
 
 	// Sub-Windows
 	W_Execute *myViewExecute[EX_VIEW_WINDOWS_MAX];
@@ -155,12 +157,12 @@ private:
 signals:
 	//Allow window to be independly opened in any order by providing a backbone connector
 	void connectorRefreshLogTimeSlider(int index, FlexseaDevice*);
-	void connectorUpdateDisplayMode(DisplayMode mode);
+	void connectorUpdateDisplayMode(DisplayMode mode, FlexseaDevice* devPtr);
 	void connectorWriteCommand(uint8_t ch, uint8_t* chPtr, uint8_t r_w);
 
 public slots:
 
-	void translatorUpdateDataSourceStatus(DataSource status);
+	void translatorUpdateDataSourceStatus(DataSource status, FlexseaDevice* devPtr);
 	void manageLogKeyPad(DataSource status, FlexseaDevice *);
 
 	//MDI Windows (create):

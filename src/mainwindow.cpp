@@ -249,15 +249,17 @@ void MainWindow::initFlexSeaDeviceObject(void)
 //****************************************************************************
 
 //Transfer the signal from config to the
-void MainWindow::translatorUpdateDataSourceStatus(DataSource status)
+void MainWindow::translatorUpdateDataSourceStatus(DataSource status, FlexseaDevice* devPtr)
 {
+	selectedFlexLog = devPtr;
+
 	if(status == FromLogFile)
 	{
-		emit connectorUpdateDisplayMode(DisplayLogData);
+		emit connectorUpdateDisplayMode(DisplayLogData, devPtr);
 	}
 	else
 	{
-		emit connectorUpdateDisplayMode(DisplayLiveData);
+		emit connectorUpdateDisplayMode(DisplayLiveData, devPtr);
 
 		if(W_LogKeyPad::howManyInstance() > 0)
 		{
@@ -268,8 +270,10 @@ void MainWindow::translatorUpdateDataSourceStatus(DataSource status)
 
 void MainWindow::manageLogKeyPad(DataSource status, FlexseaDevice *devPtr)
 {
-	(void)status; //Unused for now
-	createLogKeyPad(devPtr);
+	if(status == FromLogFile)
+	{
+		createLogKeyPad(devPtr);
+	}
 }
 
 //Creates a new View Execute window
@@ -301,8 +305,8 @@ void MainWindow::createViewExecute(void)
 		// allow opening of window asynchroniously
 		connect(this, SIGNAL(connectorRefreshLogTimeSlider(int, FlexseaDevice *)), \
 				myViewExecute[objectCount], SLOT(refreshDisplayLog(int, FlexseaDevice *)));
-		connect(this, SIGNAL(connectorUpdateDisplayMode(DisplayMode)), \
-				myViewExecute[objectCount], SLOT(updateDisplayMode(DisplayMode)));
+		connect(this, SIGNAL(connectorUpdateDisplayMode(DisplayMode, FlexseaDevice*)), \
+				myViewExecute[objectCount], SLOT(updateDisplayMode(DisplayMode, FlexseaDevice*)));
 	}
 
 	else
@@ -345,8 +349,8 @@ void MainWindow::createViewManage(void)
 		// allow opening of window asynchroniously
 		connect(this, SIGNAL(connectorRefreshLogTimeSlider(int, FlexseaDevice *)), \
 				myViewManage[objectCount], SLOT(refreshDisplayLog(int, FlexseaDevice *)));
-		connect(this, SIGNAL(connectorUpdateDisplayMode(DisplayMode)), \
-				myViewManage[objectCount], SLOT(updateDisplayMode(DisplayMode)));
+		connect(this, SIGNAL(connectorUpdateDisplayMode(DisplayMode, FlexseaDevice*)), \
+				myViewManage[objectCount], SLOT(updateDisplayMode(DisplayMode, FlexseaDevice*)));
 	}
 
 	else
@@ -393,9 +397,9 @@ void MainWindow::createConfig(void)
 				mySerialDriver, SLOT(close()));
 		connect(mySerialDriver, SIGNAL(openProgress(int)), \
 				myViewConfig[0], SLOT(setComProgress(int)));
-		connect(myViewConfig[0], SIGNAL(updateDataSourceStatus(DataSource)),
-				this, SLOT(translatorUpdateDataSourceStatus(DataSource)));
-		connect(myViewConfig[0], SIGNAL(createlogkeypad(DataSource, FlexseaDevice *)),
+		connect(myViewConfig[0], SIGNAL(updateDataSourceStatus(DataSource, FlexseaDevice *)),
+				this, SLOT(translatorUpdateDataSourceStatus(DataSource, FlexseaDevice *)));
+		connect(myViewConfig[0], SIGNAL(updateDataSourceStatus(DataSource, FlexseaDevice *)),
 				this, SLOT(manageLogKeyPad(DataSource, FlexseaDevice *)));
 	}
 
@@ -460,7 +464,10 @@ void MainWindow::createView2DPlot(void)
 	//Limited number of windows:
 	if(objectCount < (PLOT2D_WINDOWS_MAX))
 	{
-		myView2DPlot[objectCount] = new W_2DPlot(this, &flexseaPtrlist);
+		myView2DPlot[objectCount] = new W_2DPlot(this,
+												 selectedFlexLog,
+												 getDisplayMode(),
+												 &flexseaPtrlist);
 		ui->mdiArea->addSubWindow(myView2DPlot[objectCount]);
 		myView2DPlot[objectCount]->show();
 
@@ -480,6 +487,13 @@ void MainWindow::createView2DPlot(void)
 		//Link to MainWindow for the close signal:
 		connect(myView2DPlot[objectCount], SIGNAL(windowClosed()), \
 				this, SLOT(closeView2DPlot()));
+
+		// Link to the slider of logKeyPad. Intermediate signal (connector) to
+		// allow opening of window asynchroniously
+		connect(this, SIGNAL(connectorRefreshLogTimeSlider(int, FlexseaDevice *)), \
+				myView2DPlot[objectCount], SLOT(refreshDisplayLog(int, FlexseaDevice *)));
+		connect(this, SIGNAL(connectorUpdateDisplayMode(DisplayMode, FlexseaDevice*)), \
+				myView2DPlot[objectCount], SLOT(updateDisplayMode(DisplayMode, FlexseaDevice*)));
 	}
 
 	else
@@ -619,8 +633,8 @@ void MainWindow::createViewRicnu(void)
 		// allow opening of window asynchroniously
 		connect(this, SIGNAL(connectorRefreshLogTimeSlider(int, FlexseaDevice *)), \
 				myViewRicnu[objectCount], SLOT(refreshDisplayLog(int, FlexseaDevice *)));
-		connect(this, SIGNAL(connectorUpdateDisplayMode(DisplayMode)), \
-				myViewRicnu[objectCount], SLOT(updateDisplayMode(DisplayMode)));
+		connect(this, SIGNAL(connectorUpdateDisplayMode(DisplayMode, FlexseaDevice*)), \
+				myViewRicnu[objectCount], SLOT(updateDisplayMode(DisplayMode, FlexseaDevice*)));
 	}
 
 	else
@@ -763,8 +777,8 @@ void MainWindow::createViewGossip(void)
 		// allow opening of window asynchroniously
 		connect(this, SIGNAL(connectorRefreshLogTimeSlider(int, FlexseaDevice *)), \
 				myViewGossip[objectCount], SLOT(refreshDisplayLog(int, FlexseaDevice *)));
-		connect(this, SIGNAL(connectorUpdateDisplayMode(DisplayMode)), \
-				myViewGossip[objectCount], SLOT(updateDisplayMode(DisplayMode)));
+		connect(this, SIGNAL(connectorUpdateDisplayMode(DisplayMode, FlexseaDevice*)), \
+				myViewGossip[objectCount], SLOT(updateDisplayMode(DisplayMode, FlexseaDevice*)));
 	}
 
 	else
@@ -807,8 +821,8 @@ void MainWindow::createViewStrain(void)
 		// allow opening of window asynchroniously
 		connect(this, SIGNAL(connectorRefreshLogTimeSlider(int, FlexseaDevice *)), \
 				myViewStrain[objectCount], SLOT(refreshDisplayLog(int, FlexseaDevice *)));
-		connect(this, SIGNAL(connectorUpdateDisplayMode(DisplayMode)), \
-				myViewStrain[objectCount], SLOT(updateDisplayMode(DisplayMode)));
+		connect(this, SIGNAL(connectorUpdateDisplayMode(DisplayMode, FlexseaDevice*)), \
+				myViewStrain[objectCount], SLOT(updateDisplayMode(DisplayMode, FlexseaDevice*)));
 	}
 
 	else
@@ -851,8 +865,8 @@ void MainWindow::createViewBattery(void)
 		// allow opening of window asynchroniously
 		connect(this, SIGNAL(connectorRefreshLogTimeSlider(int, FlexseaDevice *)), \
 				myViewBatt[objectCount], SLOT(refreshDisplayLog(int, FlexseaDevice *)));
-		connect(this, SIGNAL(connectorUpdateDisplayMode(DisplayMode)), \
-				myViewBatt[objectCount], SLOT(updateDisplayMode(DisplayMode)));
+		connect(this, SIGNAL(connectorUpdateDisplayMode(DisplayMode, FlexseaDevice*)), \
+				myViewBatt[objectCount], SLOT(updateDisplayMode(DisplayMode, FlexseaDevice*)));
 	}
 
 	else
