@@ -219,12 +219,29 @@ void W_2DPlot::updateDisplayMode(DisplayMode mode, FlexseaDevice* devPtr)
 		initStats();
 		initLog();
 		initData();
+
+		ui->pushButtonFreeze->setDisabled(true);
+		ui->radioButtonXA->setChecked(0);
+		ui->radioButtonXM->setChecked(1);
+		ui->radioButtonXA->setDisabled(true);
+		ui->radioButtonXM->setDisabled(true);
+		ui->lineEditXMin->setDisabled(false);
+		ui->lineEditXMax->setDisabled(false);
+
 	}
 	else
 	{
 		initUserInput();
 		initStats();
 		initData();
+
+		ui->pushButtonFreeze->setDisabled(false);
+		ui->radioButtonXA->setChecked(1);
+		ui->radioButtonXM->setChecked(0);
+		ui->radioButtonXA->setDisabled(false);
+		ui->radioButtonXM->setDisabled(false);
+		ui->lineEditXMin->setDisabled(true);
+		ui->lineEditXMax->setDisabled(true);
 	}
 }
 
@@ -400,8 +417,24 @@ void W_2DPlot::initUserInput(void)
 	plot_ymin = INIT_PLOT_YMIN;
 	plot_ymax = INIT_PLOT_YMAX;
 
-	ui->radioButtonXA->setChecked(1);
-	ui->radioButtonXM->setChecked(0);
+
+
+
+
+	if(displayMode == DisplayLogData)
+	{
+		ui->radioButtonXA->setChecked(0);
+		ui->radioButtonXM->setChecked(1);
+		ui->lineEditXMin->setDisabled(false);
+		ui->lineEditXMax->setDisabled(false);
+	}
+	else
+	{
+		ui->radioButtonXA->setChecked(1);
+		ui->radioButtonXM->setChecked(0);
+		ui->lineEditXMin->setDisabled(true);
+		ui->lineEditXMax->setDisabled(true);
+	}
 	ui->radioButtonYA->setChecked(1);
 	ui->radioButtonYM->setChecked(0);
 
@@ -409,8 +442,7 @@ void W_2DPlot::initUserInput(void)
 	ui->lineEditXMax->setText(QString::number(plot_xmax));
 	ui->lineEditYMin->setText(QString::number(plot_ymin));
 	ui->lineEditYMax->setText(QString::number(plot_ymax));
-	ui->lineEditXMin->setDisabled(true);
-	ui->lineEditXMax->setDisabled(true);
+
 	ui->lineEditYMin->setDisabled(true);
 	ui->lineEditYMax->setDisabled(true);
 
