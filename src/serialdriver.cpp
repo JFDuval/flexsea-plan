@@ -32,9 +32,11 @@
 // Include(s)
 //****************************************************************************
 
+#include "flexsea_buffers.h"
 #include "serialdriver.h"
 #include "main.h"
 #include <QDebug>
+
 
 //****************************************************************************
 // Constructor & Destructor:

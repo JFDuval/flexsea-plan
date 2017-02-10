@@ -40,7 +40,7 @@
 #include "flexsea_cmd_calibration.h"
 #include <QString>
 #include <QTextStream>
-
+#include <flexsea_comm.h>
 //****************************************************************************
 // Constructor & Destructor:
 //****************************************************************************

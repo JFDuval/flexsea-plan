@@ -32,6 +32,8 @@
 // Include(s)
 //****************************************************************************
 
+#include <flexsea_buffers.h>
+#include <flexsea_comm.h>
 #include "w_userrw.h"
 #include "flexsea_generic.h"
 #include "ui_w_userrw.h"

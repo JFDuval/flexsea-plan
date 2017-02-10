@@ -41,7 +41,7 @@
 #include <QTimer>
 #include <QDateTime>
 #include <QString>
-
+#include <flexsea_comm.h>
 //****************************************************************************
 // Constructor & Destructor:
 //****************************************************************************

@@ -36,6 +36,8 @@ extern "C" {
 // Include(s)
 //****************************************************************************
 
+#include <flexsea_buffers.h>
+#include <flexsea_comm.h>
 #include "main.h"
 #include "peripherals.h"
 

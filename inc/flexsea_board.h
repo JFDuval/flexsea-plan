@@ -44,13 +44,14 @@ extern "C" {
 //****************************************************************************
 
 #include <stdint.h>
-
+#include <flexsea.h>
+#include <flexsea_buffers.h>
 //****************************************************************************
 // Prototype(s):
 //****************************************************************************
 
-void flexsea_send_serial_slave(uint8_t port, uint8_t *str, uint8_t length);
-void flexsea_send_serial_master(uint8_t port, uint8_t *str, uint8_t length);
+void flexsea_send_serial_slave(PacketWrapper* p);
+void flexsea_send_serial_master(PacketWrapper* p);
 
 //****************************************************************************
 // Definition(s):
