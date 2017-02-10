@@ -188,7 +188,6 @@ void W_2DPlot::refresh2DPlot(void)
 		qlsChart[4]->replace(vDataBuffer[4]);
 		qlsChart[5]->replace(vDataBuffer[5]);
 
-		computeStats();
 		refreshStats();
 		computeGlobalMinMax();
 		setChartAxisAutomatic();
@@ -208,13 +207,6 @@ void W_2DPlot::refreshDisplayLog(int index, FlexseaDevice * devPtr)
 
 	saveNewPointsLog(index);
 	refresh2DPlot();
-//	if(devPtr->slaveName == deviceLog->slaveName)
-//	{
-//		if(deviceLog->exList.isEmpty() == false)
-//		{
-//			 display(deviceLog, index);
-//		}
-//	}
 }
 
 void W_2DPlot::updateDisplayMode(DisplayMode mode, FlexseaDevice* devPtr)
@@ -222,14 +214,17 @@ void W_2DPlot::updateDisplayMode(DisplayMode mode, FlexseaDevice* devPtr)
 	displayMode = mode;
 	if(displayMode == DisplayLogData)
 	{
+		selectedLog = devPtr;
 		initUserInput();
 		initStats();
 		initLog();
+		initData();
 	}
 	else
 	{
 		initUserInput();
 		initStats();
+		initData();
 	}
 }
 
@@ -539,6 +534,7 @@ void W_2DPlot::saveNewPoints(int myDataPoints[6])
 			vDataBuffer[i].replace(plot_len-1, QPointF(plot_len-1, myDataPoints[i]));
 		}
 	}
+	computeStats();
 }
 
 void W_2DPlot::saveNewPointsLog(int index)
@@ -550,9 +546,28 @@ void W_2DPlot::saveNewPointsLog(int index)
 
 	for(int item = 0; item < VAR_NUM; item++)
 	{
-		int j = index;
+		int j = 0;
+		// Manage the starting point for parsing the data
+		if(index > plot_len / 2)
+		{
+			j = index - (plot_len / 2);
+		}
+		else
+		{
+			j = 0;
+		}
 
-		while(j < selectedLog->lenght() && j < plot_len)
+
+		int i = (plot_len / 2) - index;
+
+		if(i < 0)
+		{
+			i = 0;
+		}
+
+		while(j < selectedLog->lenght() &&
+			  i < plot_len &&
+			  varIndex[item] > 0)
 		{
 			varHandle = selectedDevList[item]->getSerializedVar(varIndex[item] + 1, j);
 
@@ -586,6 +601,7 @@ void W_2DPlot::saveNewPointsLog(int index)
 							break;
 						default:
 							point = 0;
+							qDebug() << "Generic pointer format not supported";
 							break;
 					}
 				}
@@ -603,10 +619,12 @@ void W_2DPlot::saveNewPointsLog(int index)
 			}
 
 			// Append the proper value
-			vDataBuffer[item].append(QPointF(vDataBuffer[item].length(), point));
+			vDataBuffer[item].append(QPointF(i, point));
 			++j;
+			++i;
 		}
 	}
+	computeStats();
 }
 
 void W_2DPlot::computeStats(void)
@@ -772,7 +790,7 @@ float W_2DPlot::getRefreshRateData(void)
 void W_2DPlot::saveCurrentSettings(int item)
 {
 	//Slave:
-	if(displayMode == LiveDataFile)
+	if(displayMode == DisplayLiveData)
 	{
 		selectedDevList[item] = (*devList)[(*cbVarSlave[item])->currentIndex()];
 	}
@@ -891,20 +909,11 @@ void W_2DPlot::setChartAxis(void)
 			tmpXmax = tmpXmin + 1;
 		}
 
-		//Update displays:
-		ui->lineEditXMin->setText(QString::number(tmpXmin));
-		ui->lineEditXMax->setText(QString::number(tmpXmax));
-
 		//Save values:
 		plot_xmin = tmpXmin;
 		plot_xmax = tmpXmax;
-		plot_len = 1+ plot_xmax - plot_xmin;
 
-		if(plot_len < lastPlotLen)
-		{
-			initData();
-		}
-		lastPlotLen = plot_len;
+
 	}
 	else if(ui->radioButtonXA->isChecked())
 	{
@@ -916,10 +925,24 @@ void W_2DPlot::setChartAxis(void)
 		plot_xmin = 0;
 		plot_xmax = vDataBuffer[0].length();
 
-		//Notify user of value used:
-		ui->lineEditXMin->setText(QString::number(plot_xmin));;
-		ui->lineEditXMax->setText(QString::number(plot_xmax));;
+		// Limit the minimum value
+		if(plot_xmax < 1)
+		{
+			plot_xmax = 1;
+		}
 	}
+
+	//Notify user of value used:
+	ui->lineEditXMin->setText(QString::number(plot_xmin));;
+	ui->lineEditXMax->setText(QString::number(plot_xmax));;
+
+	plot_len = 1+ plot_xmax - plot_xmin;
+
+	if(plot_len < lastPlotLen)
+	{
+		initData();
+	}
+	lastPlotLen = plot_len;
 
 	//Y:
 	if(ui->radioButtonYM->isChecked())
@@ -1050,23 +1073,28 @@ void W_2DPlot::updateVarList(uint8_t item)
 //pointer.
 void W_2DPlot::assignVariable(uint8_t item)
 {
+		struct std_variable varHandle = selectedDevList[item]->getSerializedVar(varIndex[item] + 1);
 
-	struct std_variable varHandle = selectedDevList[item]->getSerializedVar(varIndex[item] + 1);
+		if(varIndex[item] == 0)
+		{
+			vtp[item].used = false;
+			vtp[item].format = NULL_PTR;
+			vtp[item].rawGenPtr = nullptr;
+			vtp[item].decodedPtr = nullptr;
+		}
+		else
+		{
+			vtp[item].used = true;
+			vtp[item].format = varHandle.format;
+			vtp[item].rawGenPtr = varHandle.rawGenPtr;
+			vtp[item].decodedPtr = varHandle.decodedPtr;
+		}
 
-	if(varIndex[item] == 0)
-	{
-		vtp[item].used = false;
-		vtp[item].format = NULL_PTR;
-		vtp[item].rawGenPtr = nullptr;
-		vtp[item].decodedPtr = nullptr;
-	}
-	else
-	{
-		vtp[item].used = true;
-		vtp[item].format = varHandle.format;
-		vtp[item].rawGenPtr = varHandle.rawGenPtr;
-		vtp[item].decodedPtr = varHandle.decodedPtr;
-	}
+		if(displayMode == DisplayLogData)
+		{
+			saveNewPointsLog(logIndex);
+			//refresh2DPlot();
+		}
 }
 
 //****************************************************************************
@@ -1381,15 +1409,34 @@ void W_2DPlot::on_pushButtonClear_clicked()
 //Reset the 2D plot to default setting
 void W_2DPlot::on_pbReset_clicked()
 {
-	initUserInput();
-	initStats();
+	if(displayMode == DisplayLogData)
+	{
+		initUserInput();
+		initStats();
+		initLog();
+	}
+	else
+	{
+		initUserInput();
+		initStats();
+	}
 }
 
 //Sets all channels to the IMU:
 void W_2DPlot::on_pbIMU_clicked()
 {
-	initUserInput();
-	initStats();
+	if(displayMode == DisplayLogData)
+	{
+		initUserInput();
+		initStats();
+		initLog();
+	}
+	else
+	{
+		initUserInput();
+		initStats();
+	}
+
 	for(int item = 0; item < VAR_NUM; ++item)
 	{
 		(*cbVar[item])->setCurrentIndex(item + 1);
