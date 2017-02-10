@@ -25,11 +25,6 @@ W_InControl::W_InControl(QWidget *parent) :
 	FlexSEA_Generic::populateSlaveComboBox(ui->comboBox_slave, SL_BASE_EX, \
 											SL_LEN_EX);
 
-	streamTimer = new QTimer();
-	streamTimer->setSingleShot(false);
-	connect(streamTimer, SIGNAL(timeout()), this, SLOT(streamInControl()));
-	streamTimer->start(1000 / 10);
-
     //setWindowTitle(this->getDescription());
     setWindowIcon(QIcon(":icons/d_logo_small.png"));
 }
@@ -38,7 +33,6 @@ W_InControl::~W_InControl()
 {
 	emit windowClosed();
 	delete ui;
-	delete streamTimer;
 }
 
 int W_InControl::getActiveSlave() const
@@ -53,22 +47,6 @@ void W_InControl::init_tab_stream_in_ctrl(void)
     ui->inctrl_w1->setText("0");
     ui->inctrl_w2->setText("0");
     ui->inctrl_w3->setText("0");
-}
-
-void W_InControl::streamInControl(void)
-{
-	//Todo, should be able to tell if the slave is actually available.
-	bool isCurrentSlaveStreaming = 1;
-	if(isCurrentSlaveStreaming)
-	{
-		uint16_t numBytes = 0;
-		uint8_t info[2] = {PORT_USB, PORT_USB};
-		int activeSlave = getActiveSlave();
-
-		tx_cmd_in_control_r(TX_N_DEFAULT);
-		pack(P_AND_S_DEFAULT, activeSlave, info, &numBytes, comm_str_usb);
-		emit writeCommand(numBytes, comm_str_usb, READ);
-	}
 }
 
 void W_InControl::updateUIData(void)

@@ -161,6 +161,7 @@ private:
 	QList<FlexseaDevice*> *testBenchDevList;
 
 	QList<FlexseaDevice*> readAllTargetList;
+	QList<FlexseaDevice*> inControlTargetList;
 	QList<FlexseaDevice*> ricnuTargetList;
 	QList<FlexseaDevice*> ankle2DofTargetList;
 	QList<FlexseaDevice*> testBenchTargetList;
@@ -211,6 +212,7 @@ private:
 	void sc_ankle2dof(uint8_t item);
 	void sc_battery(uint8_t item);
 	void sc_testbench(uint8_t item);
+	void sc_inControl(uint8_t item);
 	void decodeAndLog(uint8_t item);
 	void configSlaveComm(int item);
 	void updateStatusBar(QString txt);

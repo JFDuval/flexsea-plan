@@ -605,10 +605,6 @@ void MainWindow::createInControl(void)
 		sendWindowCreatedMsg(W_InControl::getDescription(), objectCount,
 		W_InControl::getMaxWindow() - 1);
 
-		//Link to SlaveComm to send commands:
-		connect(myViewInControl[objectCount], SIGNAL(writeCommand(uint8_t,uint8_t*,uint8_t)), \
-				mySerialDriver, SLOT(readWrite(uint8_t, uint8_t*, uint8_t)));
-
 		connect(mySerialDriver, SIGNAL(newDataReady()), \
 				myViewInControl[objectCount], SLOT(updateUIData()));
 	}

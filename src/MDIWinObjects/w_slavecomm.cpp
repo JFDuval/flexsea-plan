@@ -36,6 +36,7 @@
 #include "flexsea_generic.h"
 #include "serialdriver.h"
 #include "ui_w_slavecomm.h"
+#include "flexsea_cmd_in_control.h"
 #include "main.h"
 #include <QDebug>
 #include <QTimer>
@@ -150,6 +151,8 @@ void W_SlaveComm::initExperimentList(void)
 	readAllTargetList.append(*gossipDevList);
 	readAllTargetList.append(*batteryDevList);
 	readAllTargetList.append(*strainDevList);
+
+	inControlTargetList.append(*executeDevList);
 
 	ricnuTargetList.append(*executeDevList);
 	ricnuTargetList.append(*manageDevList);
@@ -490,7 +493,7 @@ void W_SlaveComm::configSlaveComm(int item)
 					currentTargetList[item] = &readAllTargetList;
 					break;
 				case 1: //In Control
-					currentTargetList[item] = nullptr;
+					currentTargetList[item] = &inControlTargetList;
 					break;
 				case 2: //RIC/NU Knee
 					currentTargetList[item] = &ricnuTargetList;
@@ -722,6 +725,22 @@ void W_SlaveComm::sc_testbench(uint8_t item)
 	decodeAndLog(item);
 }
 
+//Argument is the item line (0-3)
+//Communicates with a Manage, as part of our motor test bench
+void W_SlaveComm::sc_inControl(uint8_t item)
+{
+	uint16_t numb = 0;
+	uint8_t info[2] = {PORT_USB, PORT_USB};
+
+	//1) Stream
+	tx_cmd_in_control_r(TX_N_DEFAULT);
+	pack(P_AND_S_DEFAULT, targetDevice[item]->slaveID, info, &numb, comm_str_usb);
+	emit slaveReadWrite(numb, comm_str_usb, READ);
+
+	//TODO Ankle2DOF is not logging
+	decodeAndLog(item);
+}
+
 void W_SlaveComm::decodeAndLog(uint8_t item)
 {
 	qint64 t_ms = 0;
@@ -790,7 +809,7 @@ void W_SlaveComm::sc_item1_slot(void)
 				sc_read_all(0);
 				break;
 			case 1: //In Control
-				qDebug() << "Not programmed!";
+				sc_inControl(0);
 				break;
 			case 2: //RIC/NU Knee
 				sc_read_all_ricnu(0);

@@ -39,8 +39,8 @@ public:
 	int getActiveSlave() const;
 
 public slots:
-    void init_tab_stream_in_ctrl(void);
     void stream_in_ctrl(void);
+	void init_tab_stream_in_ctrl(void);
     void on_pushButton_inctrl_w0_clicked();
     void on_pushButton_inctrl_w1_clicked();
     void on_pushButton_inctrl_w2_clicked();
@@ -49,16 +49,10 @@ public slots:
 	void updateUIData(void);
 
 signals:
-	void writeCommand(uint8_t numb, uint8_t *tx_data, uint8_t r_w);
 	void windowClosed(void);
 
 private:
     Ui::W_InControl *ui;
-	QTimer* streamTimer;
-
-
-private slots:
-	void streamInControl(void);
 
 };
 
