@@ -39,7 +39,7 @@
 #include "ui_w_control.h"
 #include <QTimer>
 #include <QDebug>
-
+#include <flexsea_comm.h>
 //****************************************************************************
 // Constructor & Destructor:
 //****************************************************************************

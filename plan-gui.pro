@@ -40,6 +40,7 @@ SOURCES += src/main.cpp \
 	flexsea-system/src/flexsea_system.c \
 	flexsea-system/src/flexsea_global_structs.c \
 	flexsea-system/test/test-flexsea_system.c  \
+  flexsea-system/src/fm_block_allocator.c \
 	flexsea-shared/unity/unity.c \
 	flexsea-system/test/flexsea-system_test-all.c \
 	flexsea-system/test/test-flexsea_cmd_data.c \

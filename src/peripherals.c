@@ -36,6 +36,9 @@ extern "C" {
 // Include(s)
 //****************************************************************************
 
+#include <flexsea_buffers.h>
+#include "flexsea_payload.h"
+#include <flexsea_comm.h>
 #include "main.h"
 #include "peripherals.h"
 
@@ -83,14 +86,15 @@ uint8_t decode_usb_rx(unsigned char *newdata)
 	{
 		cmd_ready_usb = 0;
 
-		//Cheap trick to get first line	//ToDo: support more than 1
-		for(i = 0; i < PAYLOAD_BUF_LEN; i++)
-		{
-			tmp_rx_command_usb[i] = rx_command_usb[0][i];
-		}
+		PacketWrapper* p = fm_pool_allocate_block();
+		if (p == NULL)
+			return -1;
 
-		info[0] = PORT_USB;
-		result = payload_parse_str(tmp_rx_command_usb, info);
+                memcpy(p->unpaked, &rx_command_usb, COMM_STR_BUF_LEN);
+                //memcpy(p->packed, rx_buf_2, COMM_STR_BUF_LEN);
+                // parse the command and execute it
+                p->port = PORT_USB;
+                result = payload_parse_str(p);
 
 		//One or more new USB commands
 		ret = 3;
