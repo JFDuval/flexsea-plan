@@ -260,70 +260,70 @@ struct std_variable ExecuteDevice::getSerializedVar(int parameter, int index)
 			var.rawGenPtr = &exList[index]->gyro.z;
 			var.decodedPtr = &exList[index]->decoded.gyro.z;
 			break;
-		case 8: //"Encoder Display"
-			var.format = FORMAT_32S;
-			var.rawGenPtr = &exList[index]->enc_display;
-			var.decodedPtr = nullptr;
+		case 8: //"Strain"
+			var.format = FORMAT_16U;
+			var.rawGenPtr = &exList[index]->strain;
+			var.decodedPtr = &exList[index]->decoded.strain;
 			break;
-		case 9: //"Encoder Control"
-			var.format = FORMAT_32S;
-			var.rawGenPtr = &exList[index]->enc_control;
-			var.decodedPtr = nullptr;
-			break;
-		case 10: //"Encoder Commutation"
-			var.format = FORMAT_32S;
-			var.rawGenPtr = &exList[index]->enc_commut;
-			var.decodedPtr = nullptr;
-			break;
-		case 11: //"Motor current"
-			var.format = FORMAT_16S;
-			var.rawGenPtr = &exList[index]->current;
-			var.decodedPtr = &exList[index]->decoded.current;
-			break;
-		case 12: //"Analog[0]"
+		case 9: //"Analog[0]"
 			var.format = FORMAT_16U;
 			var.rawGenPtr = &exList[index]->analog[0];
 			var.decodedPtr = &exList[index]->decoded.analog[0];
 			break;
-		case 13: //Analog[1]
+		case 10: //Analog[1]
 			var.format = FORMAT_16U;
 			var.rawGenPtr = &exList[index]->analog[1];
 			var.decodedPtr = &exList[index]->decoded.analog[1];
 			break;
-		case 14: //Analog[2]
+		case 11: //Analog[2]
 			var.format = FORMAT_16U;
 			var.rawGenPtr = &exList[index]->analog[2];
 			var.decodedPtr = &exList[index]->decoded.analog[2];
 			break;
-		case 15: //Analog[3]
+		case 12: //Analog[3]
 			var.format = FORMAT_16U;
 			var.rawGenPtr = &exList[index]->analog[3];
 			var.decodedPtr = &exList[index]->decoded.analog[3];
 			break;
-		case 16: //Analog[4]
+		case 13: //Analog[4]
 			var.format = FORMAT_16U;
 			var.rawGenPtr = &exList[index]->analog[4];
 			var.decodedPtr = &exList[index]->decoded.analog[4];
 			break;
-		case 17: //Analog[5]
+		case 14: //Analog[5]
 			var.format = FORMAT_16U;
 			var.rawGenPtr = &exList[index]->analog[5];
 			var.decodedPtr = &exList[index]->decoded.analog[5];
 			break;
-		case 18: //Analog[6]
+		case 15: //Analog[6]
 			var.format = FORMAT_16U;
 			var.rawGenPtr = &exList[index]->analog[6];
 			var.decodedPtr = &exList[index]->decoded.analog[6];
 			break;
-		case 19: //Analog[7]
+		case 16: //Analog[7]
 			var.format = FORMAT_16U;
 			var.rawGenPtr = &exList[index]->analog[7];
 			var.decodedPtr = &exList[index]->decoded.analog[7];
 			break;
-		case 20: //"Strain"
-			var.format = FORMAT_16U;
-			var.rawGenPtr = &exList[index]->strain;
-			var.decodedPtr = &exList[index]->decoded.strain;
+		case 17: //"Motor current"
+			var.format = FORMAT_16S;
+			var.rawGenPtr = &exList[index]->current;
+			var.decodedPtr = &exList[index]->decoded.current;
+			break;
+		case 18: //"Encoder Display"
+			var.format = FORMAT_32S;
+			var.rawGenPtr = &exList[index]->enc_display;
+			var.decodedPtr = nullptr;
+			break;
+		case 19: //"Encoder Control"
+			var.format = FORMAT_32S;
+			var.rawGenPtr = &exList[index]->enc_control;
+			var.decodedPtr = nullptr;
+			break;
+		case 20: //"Encoder Commutation"
+			var.format = FORMAT_32S;
+			var.rawGenPtr = &exList[index]->enc_commut;
+			var.decodedPtr = nullptr;
 			break;
 		case 21: //"+VB"
 			var.format = FORMAT_8U;
