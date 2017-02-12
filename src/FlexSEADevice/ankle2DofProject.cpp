@@ -81,6 +81,7 @@ QString Ankle2DofProject::getHeaderStr(void)
 QStringList Ankle2DofProject::header = QStringList()
 								<< "Timestamp"
 								<< "Timestamp (ms)"
+
 								<< "ex1 Accel X"
 								<< "ex1 Accel Y"
 								<< "ex1 Accel Z"
@@ -99,6 +100,7 @@ QStringList Ankle2DofProject::header = QStringList()
 								<< "ex1 Temperature"
 								<< "ex1 Status1"
 								<< "ex1 Status2"
+
 								<< "ex2 Accel X"
 								<< "ex2 Accel Y"
 								<< "ex2 Accel Z"
@@ -121,6 +123,7 @@ QStringList Ankle2DofProject::header = QStringList()
 QStringList Ankle2DofProject::headerDecoded = QStringList()
 								<< "Raw Value Only"
 								<< "Raw Value Only"
+
 								<< "Decoded: mg"
 								<< "Decoded: mg"
 								<< "Decoded: mg"
@@ -139,6 +142,7 @@ QStringList Ankle2DofProject::headerDecoded = QStringList()
 								<< "Decoded: 10x C"
 								<< "Raw value only"
 								<< "Raw value only"
+
 								<< "Decoded: mg"
 								<< "Decoded: mg"
 								<< "Decoded: mg"
@@ -163,6 +167,7 @@ QString Ankle2DofProject::getLastSerializedStr(void)
 	QString str;
 	QTextStream(&str) <<	timeStamp.last().date			<< ',' << \
 							timeStamp.last().ms				<< ',' << \
+
 							akList.last()->ex1->accel.x		<< ',' << \
 							akList.last()->ex1->accel.y		<< ',' << \
 							akList.last()->ex1->accel.z		<< ',' << \
@@ -181,6 +186,7 @@ QString Ankle2DofProject::getLastSerializedStr(void)
 							akList.last()->ex1->temp		<< ',' << \
 							akList.last()->ex1->status1		<< ',' << \
 							akList.last()->ex1->status2		<< ',' << \
+
 							akList.last()->ex2->accel.x		<< ',' << \
 							akList.last()->ex2->accel.y		<< ',' << \
 							akList.last()->ex2->accel.z		<< ',' << \
@@ -213,6 +219,7 @@ void Ankle2DofProject::appendSerializedStr(QStringList *splitLine)
 
 		timeStamp.last().date				= (*splitLine)[0];
 		timeStamp.last().ms					= (*splitLine)[1].toInt();
+
 		akList.last()->ex1->accel.x			= (*splitLine)[2].toInt();
 		akList.last()->ex1->accel.y			= (*splitLine)[3].toInt();
 		akList.last()->ex1->accel.z			= (*splitLine)[4].toInt();
@@ -231,6 +238,7 @@ void Ankle2DofProject::appendSerializedStr(QStringList *splitLine)
 		akList.last()->ex1->temp			= (*splitLine)[17].toInt();
 		akList.last()->ex1->status1			= (*splitLine)[18].toInt();
 		akList.last()->ex1->status2			= (*splitLine)[19].toInt();
+
 		akList.last()->ex2->accel.x			= (*splitLine)[20].toInt();
 		akList.last()->ex2->accel.y			= (*splitLine)[21].toInt();
 		akList.last()->ex2->accel.z			= (*splitLine)[22].toInt();
@@ -284,6 +292,8 @@ struct std_variable Ankle2DofProject::getSerializedVar(int parameter, int index)
 			var.rawGenPtr = &timeStamp[index].ms;
 			var.decodedPtr = nullptr;
 			break;
+
+
 		case 2: //"Ex1 Accel X"
 			var.format = FORMAT_16S;
 			var.rawGenPtr = &akList[index]->ex1->accel.x;
@@ -371,6 +381,8 @@ struct std_variable Ankle2DofProject::getSerializedVar(int parameter, int index)
 			var.rawGenPtr = &akList[index]->ex1->status2;
 			var.decodedPtr = nullptr;
 			break;
+
+
 		case 20: //"Ex2 Accel X"
 			var.format = FORMAT_16S;
 			var.rawGenPtr = &akList[index]->ex2->accel.x;

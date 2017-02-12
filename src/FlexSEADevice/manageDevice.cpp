@@ -77,6 +77,7 @@ QString ManageDevice::getHeaderStr(void)
 QStringList ManageDevice::header = QStringList()
 								<< "Timestamp"
 								<< "Timestamp (ms)"
+
 								<< "Accel X"
 								<< "Accel Y"
 								<< "Accel Z"
@@ -98,6 +99,7 @@ QStringList ManageDevice::header = QStringList()
 QStringList ManageDevice::headerDecoded = QStringList()
 								<< "Raw Value Only"
 								<< "Raw Value Only"
+
 								<< "Decoded: mg"
 								<< "Decoded: mg"
 								<< "Decoded: mg"
@@ -121,6 +123,7 @@ QString ManageDevice::getLastSerializedStr(void)
 	QString str;
 	QTextStream(&str) <<	timeStamp.last().date		<< ',' << \
 							timeStamp.last().ms			<< ',' << \
+
 							mnList.last()->accel.x		<< ',' << \
 							mnList.last()->accel.y		<< ',' << \
 							mnList.last()->accel.z		<< ',' << \
@@ -149,6 +152,7 @@ void ManageDevice::appendSerializedStr(QStringList *splitLine)
 		appendEmptyLine();
 		timeStamp.last().date		= (*splitLine)[0];
 		timeStamp.last().ms			= (*splitLine)[1].toInt();
+
 		mnList.last()->accel.x		= (*splitLine)[2].toInt();
 		mnList.last()->accel.y		= (*splitLine)[3].toInt();
 		mnList.last()->accel.z		= (*splitLine)[4].toInt();
@@ -201,6 +205,7 @@ struct std_variable ManageDevice::getSerializedVar(int parameter, int index)
 			var.rawGenPtr = &timeStamp[index].ms;
 			var.decodedPtr = nullptr;
 			break;
+
 		case 2: //"Accel X"
 			var.format = FORMAT_16S;
 			var.rawGenPtr = &mnList[index]->accel.x;

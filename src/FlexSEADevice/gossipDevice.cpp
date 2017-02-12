@@ -78,6 +78,7 @@ QString GossipDevice::getHeaderStr(void)
 QStringList GossipDevice::header = QStringList()
 								<< "Timestamp"
 								<< "Timestamp (ms)"
+
 								<< "Accel X"
 								<< "Accel Y"
 								<< "Accel Z"
@@ -98,6 +99,7 @@ QStringList GossipDevice::header = QStringList()
 QStringList GossipDevice::headerDecoded = QStringList()
 								<< "Raw Value Only"
 								<< "Raw Value Only"
+
 								<< "Decoded: mg"
 								<< "Decoded: mg"
 								<< "Decoded: mg"
@@ -120,6 +122,7 @@ QString GossipDevice::getLastSerializedStr(void)
 	QString str;
 	QTextStream(&str) <<	timeStamp.last().date		<< ',' << \
 							timeStamp.last().ms			<< ',' << \
+
 							goList.last()->accel.x		<< ',' << \
 							goList.last()->accel.y		<< ',' << \
 							goList.last()->accel.z		<< ',' << \
@@ -147,6 +150,7 @@ void GossipDevice::appendSerializedStr(QStringList *splitLine)
 		appendEmptyLine();
 		timeStamp.last().date		= (*splitLine)[0];
 		timeStamp.last().ms			= (*splitLine)[1].toInt();
+
 		goList.last()->accel.x		= (*splitLine)[2].toInt();
 		goList.last()->accel.y		= (*splitLine)[3].toInt();
 		goList.last()->accel.z		= (*splitLine)[4].toInt();
@@ -198,6 +202,7 @@ struct std_variable GossipDevice::getSerializedVar(int parameter, int index)
 			var.rawGenPtr = &timeStamp[index].ms;
 			var.decodedPtr = nullptr;
 			break;
+
 		case 2: //"Accel X"
 			var.format = FORMAT_16S;
 			var.rawGenPtr = &goList[index]->accel.x;

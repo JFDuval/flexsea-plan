@@ -92,6 +92,7 @@ QStringList BatteryDevice::headerDecoded = QStringList()
 								<< "Raw Value Only"
 								<< "Decoded: mV"
 								<< "Decoded: mA"
+
 								<< "Decoded: mW"
 								<< "Decoded: 10x C"
 								<< "Raw Values Only"

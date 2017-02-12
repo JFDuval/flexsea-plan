@@ -86,42 +86,48 @@ QString TestBenchProject::getHeaderStr(void)
 QStringList TestBenchProject::header = QStringList()
 								<< "Timestamp"
 								<< "Timestamp (ms)"
+
 								<< "ex1[0]"
 								<< "ex1[1]"
 								<< "ex1[2]"
 								<< "ex1[3]"
 								<< "ex1[4]"
 								<< "ex1[5]"
-								<< "strain"
-								<< "analog_0"
-								<< "analog_1"
-								<< "current"
-								<< "enc"
-								<< "VB"
-								<< "VG"
-								<< "Temp"
-								<< "Status1"
-								<< "Status2"
+
+								<< "ex1 strain"
+								<< "ex1 analog_0"
+								<< "ex1 analog_1"
+								<< "ex1 current"
+								<< "ex1 enc"
+								<< "ex1 VB"
+								<< "ex1 VG"
+								<< "ex1 Temp"
+								<< "ex1 Status1"
+								<< "ex1 Status2"
+
 								<< "ex2[0]"
 								<< "ex2[1]"
 								<< "ex2[2]"
 								<< "ex2[3]"
 								<< "ex2[4]"
 								<< "ex2[5]"
-								<< "strain"
-								<< "analog_0"
-								<< "analog_1"
-								<< "current"
-								<< "enc"
-								<< "VB"
-								<< "VG"
-								<< "Temp"
-								<< "Status1"
-								<< "Status2"
+
+								<< "ex2 strain"
+								<< "ex2 analog_0"
+								<< "ex2 analog_1"
+								<< "ex2 current"
+								<< "ex2 enc"
+								<< "ex2 VB"
+								<< "ex2 VG"
+								<< "ex2 Temp"
+								<< "ex2 Status1"
+								<< "ex2 Status2"
+
 								<< "mn1[0]"
 								<< "mn1[1]"
 								<< "mn1[2]"
 								<< "mn1[3]"
+
 								<< "Batt.volt"
 								<< "Batt.current"
 								<< "Batt.power"
@@ -130,58 +136,66 @@ QStringList TestBenchProject::header = QStringList()
 QStringList TestBenchProject::headerDecoded = QStringList()
 								<< "Raw Value Only"
 								<< "Raw Value Only"
+
 								<< "Not implemented"
 								<< "Not implemented"
 								<< "Not implemented"
 								<< "Not implemented"
 								<< "Not implemented"
 								<< "Not implemented"
+
+								<< "Decoded: ±100%"
+								<< "Decoded: mV"
+								<< "Decoded: mV"
+								<< "Decoded: mA"
+								<< "Raw Value Only"
+								<< "Decoded: mV"
+								<< "Decoded: mV"
+								<< "Decoded: 10x C"
+								<< "Raw value only"
+								<< "Raw value only"
+
 								<< "Not implemented"
 								<< "Not implemented"
 								<< "Not implemented"
 								<< "Not implemented"
 								<< "Not implemented"
 								<< "Not implemented"
+
+								<< "Decoded: ±100%"
+								<< "Decoded: mV"
+								<< "Decoded: mV"
+								<< "Decoded: mA"
+								<< "Raw Value Only"
+								<< "Decoded: mV"
+								<< "Decoded: mV"
+								<< "Decoded: 10x C"
+								<< "Raw value only"
+								<< "Raw value only"
+
 								<< "Not implemented"
 								<< "Not implemented"
 								<< "Not implemented"
 								<< "Not implemented"
-								<< "Not implemented"
-								<< "Not implemented"
-								<< "Not implemented"
-								<< "Not implemented"
-								<< "Not implemented"
-								<< "Not implemented"
-								<< "Not implemented"
-								<< "Not implemented"
-								<< "Not implemented"
-								<< "Not implemented"
-								<< "Not implemented"
-								<< "Not implemented"
-								<< "Not implemented"
-								<< "Not implemented"
-								<< "Not implemented"
-								<< "Not implemented"
-								<< "Not implemented"
-								<< "Not implemented"
-								<< "Not implemented"
-								<< "Not implemented"
-								<< "Not implemented"
-								<< "Not implemented"
-								<< "Not implemented"
-								<< "Not implemented";
+
+								<< "Decoded: mV"
+								<< "Decoded: mA"
+								<< "Decoded: mW"
+								<< "Decoded: 10x C";
 
 QString TestBenchProject::getLastSerializedStr(void)
 {
 	QString str;
 	QTextStream(&str) <<	timeStamp.last().date			<< ',' << \
 							timeStamp.last().ms				<< ',' << \
+
 							tbList.last()->mb->ex1[0]		<< ',' << \
 							tbList.last()->mb->ex1[1]		<< ',' << \
 							tbList.last()->mb->ex1[2]		<< ',' << \
 							tbList.last()->mb->ex1[3]		<< ',' << \
 							tbList.last()->mb->ex1[4]		<< ',' << \
 							tbList.last()->mb->ex1[5]		<< ',' << \
+
 							tbList.last()->ex1->strain		<< ',' << \
 							tbList.last()->ex1->analog[0]	<< ',' << \
 							tbList.last()->ex1->analog[1]	<< ',' << \
@@ -192,12 +206,14 @@ QString TestBenchProject::getLastSerializedStr(void)
 							tbList.last()->ex1->temp		<< ',' << \
 							tbList.last()->ex1->status1		<< ',' << \
 							tbList.last()->ex1->status2		<< ',' << \
+
 							tbList.last()->mb->ex2[0]		<< ',' << \
 							tbList.last()->mb->ex2[1]		<< ',' << \
 							tbList.last()->mb->ex2[2]		<< ',' << \
 							tbList.last()->mb->ex2[3]		<< ',' << \
 							tbList.last()->mb->ex2[4]		<< ',' << \
 							tbList.last()->mb->ex2[5]		<< ',' << \
+
 							tbList.last()->ex2->strain		<< ',' << \
 							tbList.last()->ex2->analog[0]	<< ',' << \
 							tbList.last()->ex2->analog[1]	<< ',' << \
@@ -208,10 +224,12 @@ QString TestBenchProject::getLastSerializedStr(void)
 							tbList.last()->ex2->temp		<< ',' << \
 							tbList.last()->ex2->status1		<< ',' << \
 							tbList.last()->ex2->status2		<< ',' << \
+
 							tbList.last()->mb->mn1[0]		<< ',' << \
 							tbList.last()->mb->mn1[1]		<< ',' << \
 							tbList.last()->mb->mn1[2]		<< ',' << \
 							tbList.last()->mb->mn1[3]		<< ',' << \
+
 							tbList.last()->ba->voltage		<< ',' << \
 							tbList.last()->ba->current		<< ',' << \
 							tbList.last()->ba->decoded.power<< ',' << \
@@ -230,12 +248,14 @@ void TestBenchProject::appendSerializedStr(QStringList *splitLine)
 
 		timeStamp.last().date				= (*splitLine)[0];
 		timeStamp.last().ms					= (*splitLine)[1].toInt();
+
 		tbList.last()->mb->ex1[0]			= (*splitLine)[2].toInt();
 		tbList.last()->mb->ex1[1]			= (*splitLine)[3].toInt();
 		tbList.last()->mb->ex1[2]			= (*splitLine)[4].toInt();
 		tbList.last()->mb->ex1[3]			= (*splitLine)[5].toInt();
 		tbList.last()->mb->ex1[4]			= (*splitLine)[6].toInt();
 		tbList.last()->mb->ex1[5]			= (*splitLine)[7].toInt();
+
 		tbList.last()->ex1->strain			= (*splitLine)[8].toInt();
 		tbList.last()->ex1->analog[0]		= (*splitLine)[9].toInt();
 		tbList.last()->ex1->analog[1]		= (*splitLine)[10].toInt();
@@ -246,12 +266,14 @@ void TestBenchProject::appendSerializedStr(QStringList *splitLine)
 		tbList.last()->ex1->temp			= (*splitLine)[15].toInt();
 		tbList.last()->ex1->status1			= (*splitLine)[16].toInt();
 		tbList.last()->ex1->status2			= (*splitLine)[17].toInt();
+
 		tbList.last()->mb->ex2[0]			= (*splitLine)[18].toInt();
 		tbList.last()->mb->ex2[1]			= (*splitLine)[19].toInt();
 		tbList.last()->mb->ex2[2]			= (*splitLine)[20].toInt();
 		tbList.last()->mb->ex2[3]			= (*splitLine)[21].toInt();
 		tbList.last()->mb->ex2[4]			= (*splitLine)[22].toInt();
 		tbList.last()->mb->ex2[5]			= (*splitLine)[23].toInt();
+
 		tbList.last()->ex2->strain			= (*splitLine)[24].toInt();
 		tbList.last()->ex2->analog[0]		= (*splitLine)[25].toInt();
 		tbList.last()->ex2->analog[1]		= (*splitLine)[26].toInt();
@@ -262,10 +284,12 @@ void TestBenchProject::appendSerializedStr(QStringList *splitLine)
 		tbList.last()->ex2->temp			= (*splitLine)[31].toInt();
 		tbList.last()->ex2->status1			= (*splitLine)[32].toInt();
 		tbList.last()->ex2->status2			= (*splitLine)[33].toInt();
+
 		tbList.last()->mb->mn1[0]			= (*splitLine)[34].toInt();
 		tbList.last()->mb->mn1[1]			= (*splitLine)[35].toInt();
 		tbList.last()->mb->mn1[2]			= (*splitLine)[36].toInt();
 		tbList.last()->mb->mn1[3]			= (*splitLine)[37].toInt();
+
 		tbList.last()->ba->voltage			= (*splitLine)[38].toInt();
 		tbList.last()->ba->current			= (*splitLine)[39].toInt();
 		tbList.last()->ba->decoded.power	= (*splitLine)[40].toInt();
@@ -305,6 +329,7 @@ struct std_variable TestBenchProject::getSerializedVar(int parameter, int index)
 			var.rawGenPtr = &timeStamp[index].ms;
 			var.decodedPtr = nullptr;
 			break;
+
 		case 2: //"Ex1[0]"
 			var.format = FORMAT_16S;
 			var.rawGenPtr = &tbList[index]->mb->ex1[0];
@@ -335,6 +360,7 @@ struct std_variable TestBenchProject::getSerializedVar(int parameter, int index)
 			var.rawGenPtr = &tbList[index]->mb->ex1[5];
 			var.decodedPtr = nullptr;
 			break;
+
 		case 8: //"Strain"
 			var.format = FORMAT_16U;
 			var.rawGenPtr = &tbList[index]->ex1->strain;
@@ -385,6 +411,7 @@ struct std_variable TestBenchProject::getSerializedVar(int parameter, int index)
 			var.rawGenPtr = &tbList[index]->ex1->status2;
 			var.decodedPtr = nullptr;
 			break;
+
 		case 18: //"Ex2[0]"
 			var.format = FORMAT_16S;
 			var.rawGenPtr = &tbList[index]->mb->ex2[0];
@@ -415,6 +442,7 @@ struct std_variable TestBenchProject::getSerializedVar(int parameter, int index)
 			var.rawGenPtr = &tbList[index]->mb->ex2[5];
 			var.decodedPtr = nullptr;
 			break;
+
 		case 24: //"Strain"
 			var.format = FORMAT_16U;
 			var.rawGenPtr = &tbList[index]->ex2->strain;
@@ -465,6 +493,7 @@ struct std_variable TestBenchProject::getSerializedVar(int parameter, int index)
 			var.rawGenPtr = &tbList[index]->ex2->status2;
 			var.decodedPtr = nullptr;
 			break;
+
 		case 34: //"Mn1[0]"
 			var.format = FORMAT_16S;
 			var.rawGenPtr = &tbList[index]->mb->mn1[0];
@@ -485,6 +514,7 @@ struct std_variable TestBenchProject::getSerializedVar(int parameter, int index)
 			var.rawGenPtr = &tbList[index]->mb->mn1[3];
 			var.decodedPtr = nullptr;
 			break;
+
 		case 38: //"Battery Voltage"
 			var.format = FORMAT_16U;
 			var.rawGenPtr = &tbList[index]->ba->voltage;

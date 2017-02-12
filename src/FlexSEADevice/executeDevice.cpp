@@ -78,6 +78,7 @@ QString ExecuteDevice::getHeaderStr(void)
 QStringList ExecuteDevice::header = QStringList()
 								<< "Timestamp"
 								<< "Timestamp (ms)"
+
 								<< "Accel X"
 								<< "Accel Y"
 								<< "Accel Z"
@@ -106,6 +107,7 @@ QStringList ExecuteDevice::header = QStringList()
 QStringList ExecuteDevice::headerDecoded = QStringList()
 								<< "Raw Value Only"
 								<< "Raw Value Only"
+
 								<< "Decoded: mg"
 								<< "Decoded: mg"
 								<< "Decoded: mg"
@@ -136,6 +138,7 @@ QString ExecuteDevice::getLastSerializedStr(void)
 	QString str;
 	QTextStream(&str) <<	timeStamp.last().date		<< ',' << \
 							timeStamp.last().ms			<< ',' << \
+
 							exList.last()->accel.x		<< ',' << \
 							exList.last()->accel.y		<< ',' << \
 							exList.last()->accel.z		<< ',' << \
@@ -171,6 +174,7 @@ void ExecuteDevice::appendSerializedStr(QStringList *splitLine)
 		appendEmptyLine();
 		timeStamp.last().date		= (*splitLine)[0];
 		timeStamp.last().ms			= (*splitLine)[1].toInt();
+
 		exList.last()->accel.x		= (*splitLine)[2].toInt();
 		exList.last()->accel.y		= (*splitLine)[3].toInt();
 		exList.last()->accel.z		= (*splitLine)[4].toInt();
@@ -230,6 +234,7 @@ struct std_variable ExecuteDevice::getSerializedVar(int parameter, int index)
 			var.rawGenPtr = &timeStamp[index].ms;
 			var.decodedPtr = nullptr;
 			break;
+
 		case 2: //"Accel X"
 			var.format = FORMAT_16S;
 			var.rawGenPtr = &exList[index]->accel.x;
@@ -350,6 +355,7 @@ struct std_variable ExecuteDevice::getSerializedVar(int parameter, int index)
 			var.rawGenPtr = &exList[index]->status2;
 			var.decodedPtr = nullptr;
 			break;
+
 		default:
 			var.format = NULL_PTR;
 			var.rawGenPtr = nullptr;

@@ -78,6 +78,7 @@ QString StrainDevice::getHeaderStr(void)
 QStringList StrainDevice::header = QStringList()
 								<< "Timestamp"
 								<< "Timestamp (ms)"
+
 								<< "Strain ch[1]"
 								<< "Strain ch[2]"
 								<< "Strain ch[3]"
@@ -88,6 +89,7 @@ QStringList StrainDevice::header = QStringList()
 QStringList StrainDevice::headerDecoded = QStringList()
 								<< "Raw Value Only"
 								<< "Raw Value Only"
+
 								<< "Decoded: ±100%"
 								<< "Decoded: ±100%"
 								<< "Decoded: ±100%"
@@ -99,7 +101,8 @@ QString StrainDevice::getLastSerializedStr(void)
 {
 	QString str;
 	QTextStream(&str) <<	timeStamp.last().date					<< ',' << \
-							timeStamp.last().ms						 << ',' << \
+							timeStamp.last().ms						<< ',' << \
+
 							stList.last()->ch[0].strain_filtered	<< ',' << \
 							stList.last()->ch[1].strain_filtered	<< ',' << \
 							stList.last()->ch[2].strain_filtered	<< ',' << \
@@ -117,6 +120,7 @@ void StrainDevice::appendSerializedStr(QStringList *splitLine)
 		appendEmptyLine();
 		timeStamp.last().date					= (*splitLine)[0];
 		timeStamp.last().ms						= (*splitLine)[1].toInt();
+
 		stList.last()->ch[0].strain_filtered	= (*splitLine)[2].toInt();
 		stList.last()->ch[1].strain_filtered	= (*splitLine)[3].toInt();
 		stList.last()->ch[2].strain_filtered	= (*splitLine)[4].toInt();
@@ -158,6 +162,7 @@ struct std_variable StrainDevice::getSerializedVar(int parameter, int index)
 			var.rawGenPtr = &timeStamp[index].ms;
 			var.decodedPtr = nullptr;
 			break;
+
 		case 2: //"Ch 1"
 			var.format = FORMAT_16U;
 			var.rawGenPtr = &stList[index]->ch[0].strain_filtered;
