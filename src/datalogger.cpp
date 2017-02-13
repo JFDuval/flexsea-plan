@@ -59,7 +59,9 @@ DataLogger::DataLogger(QWidget *parent,
 					   GossipDevice *gossipInitPtr,
 					   BatteryDevice *batteryInitPtr,
 					   StrainDevice *strainInitPtr,
-					   RicnuProject *ricnuInitPtr) :
+					   RicnuProject *ricnuInitPtr,
+					   Ankle2DofProject *ankle2DofInitPtr,
+					   TestBenchProject *testBenchInitPtr) :
 	QWidget(parent)
 {
 	executeDevPtr = executeInitPtr;
@@ -68,6 +70,10 @@ DataLogger::DataLogger(QWidget *parent,
 	batteryDevPtr = batteryInitPtr;
 	strainDevPtr = strainInitPtr;
 	ricnuDevPtr = ricnuInitPtr;
+	ankle2DofDevPtr = ankle2DofInitPtr;
+	testBenchDevPtr = testBenchInitPtr;
+
+	planGUIRootPath = QDir::currentPath();
 
 	init();
 }
@@ -153,9 +159,6 @@ void DataLogger::openfile(QString shortFileName, uint8_t item)
 
 void DataLogger::openReadingFile(bool * isOpen, FlexseaDevice **devPtr)
 {
-	// Create session directory the first time you log
-	if(sessionDirectoryCreated == false){initLogDirectory();}
-
 	*isOpen = false;
 	FlexseaDevice *flexSEAPtr;
 
@@ -215,6 +218,8 @@ void DataLogger::openReadingFile(bool * isOpen, FlexseaDevice **devPtr)
 	else if(slavetype == batteryDevPtr->slaveTypeName)	{flexSEAPtr = batteryDevPtr;}
 	else if(slavetype == strainDevPtr->slaveTypeName)	{flexSEAPtr = strainDevPtr;}
 	else if(slavetype == ricnuDevPtr->slaveTypeName)	{flexSEAPtr = ricnuDevPtr;}
+	else if(slavetype == ankle2DofDevPtr->slaveTypeName)	{flexSEAPtr = ankle2DofDevPtr;}
+	else if(slavetype == testBenchDevPtr->slaveTypeName)	{flexSEAPtr = testBenchDevPtr;}
 	else
 	{
 		setStatus("Error : Loaded file Slave Type is not supported.");
@@ -336,9 +341,6 @@ void DataLogger::init(void)
 
 void DataLogger::initLogDirectory()
 {
-	// Save the root path of the execution of the program
-	planGUIRootPath = QDir::currentPath();
-
 	// Set the default folder
 	logFolder = "Plan-GUI-Logs";
 	sessionFolder = QDate::currentDate().toString("yyyy-MM-dd_") + \

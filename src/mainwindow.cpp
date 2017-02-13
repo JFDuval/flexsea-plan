@@ -113,7 +113,9 @@ MainWindow::MainWindow(QWidget *parent) :
 								  &gossipLog,
 								  &batteryLog,
 								  &strainLog,
-								  &ricnuLog);
+								  &ricnuLog,
+								  &ankle2DofLog,
+								  &testBenchLog);
 
 	//Create default objects:
 	createConfig();

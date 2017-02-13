@@ -127,6 +127,8 @@ private:
 	BatteryDevice batteryLog = BatteryDevice();
 	StrainDevice strainLog = StrainDevice();
 	RicnuProject ricnuLog = RicnuProject();
+	Ankle2DofProject ankle2DofLog = Ankle2DofProject();
+	TestBenchProject testBenchLog = TestBenchProject();
 
 	FlexseaDevice* selectedFlexLog;
 

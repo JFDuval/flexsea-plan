@@ -50,6 +50,8 @@
 #include "batteryDevice.h"
 #include "strainDevice.h"
 #include "ricnuProject.h"
+#include "ankle2DofProject.h"
+#include "testBenchProject.h"
 
 #define LOG_NUM 4
 #define MAX_NUM_LINES 50000
@@ -73,7 +75,9 @@ public:
 						GossipDevice *gossipInitPtr = nullptr,
 						BatteryDevice *batteryInitPtr = nullptr,
 						StrainDevice *strainInitPtr = nullptr,
-						RicnuProject *ricnuInitPtr = nullptr);
+						RicnuProject *ricnuInitPtr = nullptr,
+						Ankle2DofProject *ankle2DofInitPtr = nullptr,
+						TestBenchProject *testBenchInitPtr= nullptr);
 
 public slots:
 	void openRecordingFile(FlexseaDevice *devicePtr, uint8_t item);
@@ -99,6 +103,8 @@ private:
 	BatteryDevice *batteryDevPtr;
 	StrainDevice *strainDevPtr;
 	RicnuProject *ricnuDevPtr;
+	Ankle2DofProject *ankle2DofDevPtr;
+	TestBenchProject *testBenchDevPtr;
 
 	QString planGUIRootPath;
 	QString logFolder;
