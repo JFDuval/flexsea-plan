@@ -49,7 +49,7 @@ GossipDevice::GossipDevice(void): FlexseaDevice()
 
 	this->dataSource = LogDataFile;
 	serializedLength = header.length();
-	slaveType = "gossip";
+	slaveTypeName = "gossip";
 }
 
 GossipDevice::GossipDevice(gossip_s *devicePtr): FlexseaDevice()
@@ -63,7 +63,7 @@ GossipDevice::GossipDevice(gossip_s *devicePtr): FlexseaDevice()
 	timeStamp.append(TimeStamp());
 	goList.append(devicePtr);
 	serializedLength = header.length();
-	slaveType = "gossip";
+	slaveTypeName = "gossip";
 }
 
 //****************************************************************************

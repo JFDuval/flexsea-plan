@@ -143,42 +143,42 @@ void MainWindow::initFlexSeaDeviceObject(void)
 	// TODO Improve :Slave index here a prompt to error when addding new device.
 	executeDevList.append(ExecuteDevice(&exec1));
 	executeDevList.last().slaveName = "Execute 1";
-	executeDevList.last().slaveIndex = 0;
+	executeDevList.last().SlaveIndex = 0;
 	executeDevList.last().slaveID = FLEXSEA_EXECUTE_1;
 	flexseaPtrlist.append(&executeDevList.last());
 	executeFlexList.append(&executeDevList.last());
 
 	executeDevList.append(ExecuteDevice(&exec2));
 	executeDevList.last().slaveName = "Execute 2";
-	executeDevList.last().slaveIndex = 1;
+	executeDevList.last().SlaveIndex = 1;
 	executeDevList.last().slaveID = FLEXSEA_EXECUTE_2;
 	flexseaPtrlist.append(&executeDevList.last());
 	executeFlexList.append(&executeDevList.last());
 
 	executeDevList.append(ExecuteDevice(&exec3));
 	executeDevList.last().slaveName = "Execute 3";
-	executeDevList.last().slaveIndex = 2;
+	executeDevList.last().SlaveIndex = 2;
 	executeDevList.last().slaveID = FLEXSEA_EXECUTE_3;
 	flexseaPtrlist.append(&executeDevList.last());
 	executeFlexList.append(&executeDevList.last());
 
 	executeDevList.append(ExecuteDevice(&exec4));
 	executeDevList.last().slaveName = "Execute 4";
-	executeDevList.last().slaveIndex = 3;
+	executeDevList.last().SlaveIndex = 3;
 	executeDevList.last().slaveID = FLEXSEA_EXECUTE_4;
 	flexseaPtrlist.append(&executeDevList.last());
 	executeFlexList.append(&executeDevList.last());
 
 	manageDevList.append(ManageDevice(&manag1));
 	manageDevList.last().slaveName = "Manage 1";
-	manageDevList.last().slaveIndex = 4;
+	manageDevList.last().SlaveIndex = 4;
 	manageDevList.last().slaveID = FLEXSEA_MANAGE_1;
 	flexseaPtrlist.append(&manageDevList.last());
 	manageFlexList.append(&manageDevList.last());
 
 	manageDevList.append(ManageDevice(&manag2));
 	manageDevList.last().slaveName = "Manage 2";
-	manageDevList.last().slaveIndex = 5;
+	manageDevList.last().SlaveIndex = 5;
 	manageDevList.last().slaveID = FLEXSEA_MANAGE_2;
 	flexseaPtrlist.append(&manageDevList.last());
 	manageFlexList.append(&manageDevList.last());
@@ -192,49 +192,49 @@ void MainWindow::initFlexSeaDeviceObject(void)
 
 	gossipDevList.append(GossipDevice(&gossip1));
 	gossipDevList.last().slaveName = "Gossip 1";
-	gossipDevList.last().slaveIndex = 6;
+	gossipDevList.last().SlaveIndex = 6;
 	gossipDevList.last().slaveID = FLEXSEA_GOSSIP_1;
 	flexseaPtrlist.append(&gossipDevList.last());
 	gossipFlexList.append(&gossipDevList.last());
 
 	gossipDevList.append(GossipDevice(&gossip2));
 	gossipDevList.last().slaveName = "Gossip 2";
-	gossipDevList.last().slaveIndex = 7;
+	gossipDevList.last().SlaveIndex = 7;
 	gossipDevList.last().slaveID = FLEXSEA_GOSSIP_2;
 	flexseaPtrlist.append(&gossipDevList.last());
 	gossipFlexList.append(&gossipDevList.last());
 
 	batteryDevList.append(BatteryDevice(&batt1));
 	batteryDevList.last().slaveName = "Battery 1";
-	batteryDevList.last().slaveIndex = 8;
+	batteryDevList.last().SlaveIndex = 8;
 	batteryDevList.last().slaveID = FLEXSEA_BATTERY_1;
 	flexseaPtrlist.append(&batteryDevList.last());
 	batteryFlexList.append(&batteryDevList.last());
 
 	strainDevList.append(StrainDevice(&strain1));
 	strainDevList.last().slaveName = "Strain 1";
-	strainDevList.last().slaveIndex = 9;
+	strainDevList.last().SlaveIndex = 9;
 	strainDevList.last().slaveID = FLEXSEA_STRAIN_1;
 	flexseaPtrlist.append(&strainDevList.last());
 	strainFlexList.append(&strainDevList.last());
 
 	ricnuDevList.append(RicnuProject(&exec1, &strain1));
 	ricnuDevList.last().slaveName = "RIC/NU 1";
-	ricnuDevList.last().slaveIndex = 10;
+	ricnuDevList.last().SlaveIndex = 10;
 	ricnuDevList.last().slaveID = FLEXSEA_VIRTUAL_1;
 	flexseaPtrlist.append(&ricnuDevList.last());
 	ricnuFlexList.append(&ricnuDevList.last());
 
 	ankle2DofDevList.append(Ankle2DofProject(&exec1, &exec2));
 	ankle2DofDevList.last().slaveName = "Ankle 2 DoF";
-	ankle2DofDevList.last().slaveIndex = 11;
+	ankle2DofDevList.last().SlaveIndex = 11;
 	ankle2DofDevList.last().slaveID = FLEXSEA_VIRTUAL_1; // TODO: Does it make sens?
 	flexseaPtrlist.append(&ankle2DofDevList.last());
 	ankle2DofFlexList.append(&ankle2DofDevList.last());
 
 	testBenchDevList.append(TestBenchProject(&exec1, &exec2, &motortb, &batt1));
 	testBenchDevList.last().slaveName = "Test Bench";
-	testBenchDevList.last().slaveIndex = 11;
+	testBenchDevList.last().SlaveIndex = 11;
 	testBenchDevList.last().slaveID = FLEXSEA_VIRTUAL_1; // TODO: Does it make sens?
 	flexseaPtrlist.append(&testBenchDevList.last());
 	testBenchFlexList.append(&testBenchDevList.last());

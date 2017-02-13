@@ -33,6 +33,7 @@
 //****************************************************************************
 
 #include "flexseaDevice.h"
+#include <QString>
 #include <QStringList>
 
 //****************************************************************************
@@ -42,7 +43,7 @@
 FlexseaDevice::FlexseaDevice()
 {
 	logItem = 0;
-	slaveIndex = 0;
+	SlaveIndex = 0;
 	slaveID = 0;
 	experimentIndex = 0;
 	frequency = 0;
@@ -57,22 +58,29 @@ void FlexseaDevice::clear(void)
 	shortFileName.clear();
 	fileName.clear();
 	logItem = 0;
-	slaveIndex = 0;
+	SlaveIndex = 0;
 	slaveID = 0;
 	slaveName.clear();
 	experimentIndex = 0;
 	experimentName.clear();
+	targetSlaveName.clear();
 	frequency = 0;
 	timeStamp.clear();
 }
 
-QString FlexseaDevice::getIdentifier(void)
+QString FlexseaDevice::getIdentifierStr(void)
+{
+
+	return getIdentifierStrList().join(',');
+}
+
+QStringList FlexseaDevice::getIdentifierStrList(void)
 {
 	QStringList identifier = QStringList()
 							<< "Datalogging Item:"
 							<< QString::number(logItem)
 							<< "Slave Index:"
-							<< QString::number(slaveIndex)
+							<< QString::number(SlaveIndex)
 							<< "Slave Name:"
 							<< slaveName
 							<< "Experiment Index:"
@@ -82,11 +90,30 @@ QString FlexseaDevice::getIdentifier(void)
 							<< "Aquisition Frequency:"
 							<< QString::number(frequency)
 							<< "Slave type:"
-							<< slaveType;
+							<< slaveTypeName
+							<< "Target Slave Name"
+							<< targetSlaveName;
 
-	return identifier.join(',');
+	return identifier;
 }
 
+void FlexseaDevice::saveIdentifierStr(QStringList *splitLine)
+{
+	FlexseaDevice::clear();
+	//Check if data line contain the number of data expected
+	QStringList identifier = FlexseaDevice::getIdentifierStrList();
+
+	if(splitLine->length() >= identifier.length())
+	{
+		logItem			= (*splitLine)[1].toInt();
+		SlaveIndex		= (*splitLine)[3].toInt();
+		slaveName		= (*splitLine)[5];
+		experimentIndex	= (*splitLine)[7].toInt();
+		experimentName	= (*splitLine)[9];
+		frequency		= (*splitLine)[11].toInt();
+		targetSlaveName = (*splitLine)[15];
+	}
+}
 
 
 //****************************************************************************

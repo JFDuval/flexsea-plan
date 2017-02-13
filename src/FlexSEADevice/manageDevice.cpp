@@ -49,7 +49,7 @@ ManageDevice::ManageDevice(void): FlexseaDevice()
 
 	this->dataSource = LogDataFile;
 	serializedLength = header.length();
-	slaveType = "manage";
+	slaveTypeName = "manage";
 }
 
 ManageDevice::ManageDevice(manage_s *devicePtr): FlexseaDevice()
@@ -63,7 +63,7 @@ ManageDevice::ManageDevice(manage_s *devicePtr): FlexseaDevice()
 	timeStamp.append(TimeStamp());
 	mnList.append(devicePtr);
 	serializedLength = header.length();
-	slaveType = "manage";
+	slaveTypeName = "manage";
 }
 
 //****************************************************************************

@@ -49,7 +49,7 @@ StrainDevice::StrainDevice(void): FlexseaDevice()
 
 	this->dataSource = LogDataFile;
 	serializedLength = header.length();
-	slaveType = "strain";
+	slaveTypeName = "strain";
 }
 
 StrainDevice::StrainDevice(strain_s *devicePtr): FlexseaDevice()
@@ -63,7 +63,7 @@ StrainDevice::StrainDevice(strain_s *devicePtr): FlexseaDevice()
 	timeStamp.append(TimeStamp());
 	stList.append(devicePtr);
 	serializedLength = header.length();
-	slaveType = "strain";
+	slaveTypeName = "strain";
 }
 
 //****************************************************************************

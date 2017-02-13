@@ -50,7 +50,7 @@ Ankle2DofProject::Ankle2DofProject(void): FlexseaDevice()
 
 	this->dataSource = LogDataFile;
 	serializedLength = header.length();
-	slaveType = "ankle2Dof";
+	slaveTypeName = "ankle2Dof";
 }
 
 Ankle2DofProject::Ankle2DofProject(execute_s *ex1Ptr, execute_s *ex2Ptr): FlexseaDevice()
@@ -66,7 +66,7 @@ Ankle2DofProject::Ankle2DofProject(execute_s *ex1Ptr, execute_s *ex2Ptr): Flexse
 	akList.last()->ex1 = ex1Ptr;
 	akList.last()->ex2 = ex2Ptr;
 	serializedLength = header.length();
-	slaveType = "ankle2Dof";
+	slaveTypeName = "ankle2Dof";
 }
 
 //****************************************************************************

@@ -100,7 +100,9 @@ public:
 	virtual int lenght() = 0;
 	virtual void clear(void);
 
-	QString getIdentifier(void);
+	QString getIdentifierStr(void);
+	QStringList getIdentifierStrList(void);
+	void saveIdentifierStr(QStringList *splitLine);
 
 	enum DataSourceFile dataSource;
 
@@ -109,11 +111,13 @@ public:
 
 	int		logItem;
 
-	int		slaveIndex;
+	int		SlaveIndex;
 	uint8_t slaveID;
-	QString slaveType;
+	QString slaveTypeName;
 	QString slaveName;
 
+
+	QString targetSlaveName;
 	int		experimentIndex;
 	QString experimentName;
 

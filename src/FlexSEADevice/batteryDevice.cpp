@@ -49,7 +49,7 @@ BatteryDevice::BatteryDevice(void): FlexseaDevice()
 
 	this->dataSource = LogDataFile;
 	serializedLength = header.length();
-	slaveType = "battery";
+	slaveTypeName = "battery";
 }
 
 BatteryDevice::BatteryDevice(battery_s *devicePtr): FlexseaDevice()
@@ -63,7 +63,7 @@ BatteryDevice::BatteryDevice(battery_s *devicePtr): FlexseaDevice()
 	timeStamp.append(TimeStamp());
 	baList.append(devicePtr);
 	serializedLength = header.length();
-	slaveType = "battery";
+	slaveTypeName = "battery";
 }
 
 //****************************************************************************

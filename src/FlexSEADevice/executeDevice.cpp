@@ -49,7 +49,7 @@ ExecuteDevice::ExecuteDevice(void): FlexseaDevice()
 
 	this->dataSource = LogDataFile;
 	serializedLength = header.length();
-	slaveType = "execute";
+	slaveTypeName = "execute";
 }
 
 ExecuteDevice::ExecuteDevice(execute_s *devicePtr): FlexseaDevice()
@@ -63,7 +63,7 @@ ExecuteDevice::ExecuteDevice(execute_s *devicePtr): FlexseaDevice()
 	timeStamp.append(TimeStamp());
 	exList.append(devicePtr);
 	serializedLength = header.length();
-	slaveType = "execute";
+	slaveTypeName = "execute";
 }
 
 //****************************************************************************

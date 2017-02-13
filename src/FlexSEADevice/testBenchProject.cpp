@@ -51,7 +51,7 @@ TestBenchProject::TestBenchProject(void): FlexseaDevice()
 
 	this->dataSource = LogDataFile;
 	serializedLength = header.length();
-	slaveType = "testBench";
+	slaveTypeName = "testBench";
 }
 
 TestBenchProject::TestBenchProject(execute_s *ex1Ptr, execute_s *ex2Ptr,
@@ -71,7 +71,7 @@ TestBenchProject::TestBenchProject(execute_s *ex1Ptr, execute_s *ex2Ptr,
 	tbList.last()->ba  = baPtr;
 
 	serializedLength = header.length();
-	slaveType = "testBench";
+	slaveTypeName = "testBench";
 }
 
 //****************************************************************************

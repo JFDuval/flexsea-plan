@@ -153,6 +153,9 @@ void DataLogger::openfile(QString shortFileName, uint8_t item)
 
 void DataLogger::openReadingFile(bool * isOpen, FlexseaDevice **devPtr)
 {
+	// Create session directory the first time you log
+	if(sessionDirectoryCreated == false){initLogDirectory();}
+
 	*isOpen = false;
 	FlexseaDevice *flexSEAPtr;
 
@@ -193,8 +196,9 @@ void DataLogger::openReadingFile(bool * isOpen, FlexseaDevice **devPtr)
 	line = logReadingFile.readLine();
 	splitLine = line.split(',', QString::KeepEmptyParts);
 
+	QStringList identifier = executeDevPtr->getIdentifierStrList();
 	//Check if the file header contain the expected number of data
-	if(splitLine.length() < 14)
+	if(splitLine.length() < identifier.length())
 	{
 		setStatus(\
 		"Error : Loaded file header was not compatible (Header's too short)");
@@ -205,25 +209,20 @@ void DataLogger::openReadingFile(bool * isOpen, FlexseaDevice **devPtr)
 	slavetype = slavetype.simplified();
 
 	// Choose the right device class based on the slave Type.
-	if	   (slavetype == executeDevPtr->slaveType)	{flexSEAPtr = executeDevPtr;}
-	else if(slavetype == manageDevPtr->slaveType)	{flexSEAPtr = manageDevPtr;}
-	else if(slavetype == gossipDevPtr->slaveType)	{flexSEAPtr = gossipDevPtr;}
-	else if(slavetype == batteryDevPtr->slaveType)	{flexSEAPtr = batteryDevPtr;}
-	else if(slavetype == strainDevPtr->slaveType)	{flexSEAPtr = strainDevPtr;}
-	else if(slavetype == ricnuDevPtr->slaveType)	{flexSEAPtr = ricnuDevPtr;}
+	if	   (slavetype == executeDevPtr->slaveTypeName)	{flexSEAPtr = executeDevPtr;}
+	else if(slavetype == manageDevPtr->slaveTypeName)	{flexSEAPtr = manageDevPtr;}
+	else if(slavetype == gossipDevPtr->slaveTypeName)	{flexSEAPtr = gossipDevPtr;}
+	else if(slavetype == batteryDevPtr->slaveTypeName)	{flexSEAPtr = batteryDevPtr;}
+	else if(slavetype == strainDevPtr->slaveTypeName)	{flexSEAPtr = strainDevPtr;}
+	else if(slavetype == ricnuDevPtr->slaveTypeName)	{flexSEAPtr = ricnuDevPtr;}
 	else
 	{
 		setStatus("Error : Loaded file Slave Type is not supported.");
 		return;
 	}
 
-	flexSEAPtr->clear();
-	flexSEAPtr->logItem			= splitLine[1].toInt();
-	flexSEAPtr->slaveIndex		= splitLine[3].toInt();
-	flexSEAPtr->slaveName		= splitLine[5];
-	flexSEAPtr->experimentIndex	= splitLine[7].toInt();
-	flexSEAPtr->experimentName	= splitLine[9];
-	flexSEAPtr->frequency		= splitLine[11].toInt();
+	flexSEAPtr->saveIdentifierStr(&splitLine);
+
 	flexSEAPtr->shortFileName	= shortFileName;
 	flexSEAPtr->fileName		= filename;
 
@@ -285,7 +284,7 @@ void DataLogger::writeToFile(FlexseaDevice *devicePtr, uint8_t item)
 		if(logRecordingFile[item].pos() == 0)
 		{
 			//Header:
-			logFileStream << devicePtr->getIdentifier() << endl;
+			logFileStream << devicePtr->getIdentifierStr() << endl;
 			logFileStream << devicePtr->getHeaderStr() << endl;
 		}
 

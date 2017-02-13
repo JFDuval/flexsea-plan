@@ -51,7 +51,7 @@ RicnuProject::RicnuProject(void): FlexseaDevice()
 
 	this->dataSource = LogDataFile;
 	serializedLength = header.length();
-	slaveType = "ricnu";
+	slaveTypeName = "ricnu";
 }
 
 RicnuProject::RicnuProject(execute_s *exPtr, strain_s *stPtr): FlexseaDevice()
@@ -67,7 +67,7 @@ RicnuProject::RicnuProject(execute_s *exPtr, strain_s *stPtr): FlexseaDevice()
 	riList.last()->ex = exPtr;
 	riList.last()->st = stPtr;
 	serializedLength = header.length();
-	slaveType = "ricnu";
+	slaveTypeName = "ricnu";
 }
 
 //****************************************************************************
