@@ -293,6 +293,16 @@ void DataLogger::writeToFile(FlexseaDevice *devicePtr, uint8_t item)
 			logFileStream << devicePtr->getHeaderStr() << endl;
 		}
 
+		// If the stream write has failed, reset the flag. (This can happen when
+		// you open the file in read mode while logging.
+		// To avoid blocking function, we only try once.
+		// The LogFileStream buffer the data, so when the file is accessible
+		// again, it write down the accumulated buffer. No data is lost.
+		if(logFileStream.status() != QTextStream::Ok)
+		{
+			logFileStream.resetStatus();
+		}
+
 		//And we add to the text file:
 		logFileStream << devicePtr->getLastSerializedStr() << endl;
 		++writedLines[item];
