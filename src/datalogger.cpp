@@ -39,6 +39,7 @@
 #include <QFileDialog>
 #include <QTextStream>
 #include <QDateTime>
+#include <QMessageBox>
 
 #include "batteryDevice.h"
 #include "executeDevice.h"
@@ -140,10 +141,6 @@ void DataLogger::openfile(QString shortFileName, uint8_t item)
 	// Try to open the file.
 	if(logRecordingFile[item].open(QIODevice::ReadWrite))
 	{
-		// TODO Datalogger should not know that there's a logFile and bar
-		// status. Abstraction principle is not respected here. Is there a way
-		// to use some sort of return value instead of signal slot?
-
 		//Associate stream to file:
 		logFileStream.setDevice(&logRecordingFile[item]);
 
@@ -182,6 +179,8 @@ void DataLogger::openReadingFile(bool * isOpen, FlexseaDevice **devPtr)
 	if(logReadingFile.open(QIODevice::ReadOnly) == false)
 	{
 		setStatus("Error : No log file selected or the file couldn't be opened.");
+		QMessageBox::warning(this, tr("Open Logging File"), \
+		tr("Error : No log file selected or the file couldn't be opened."));
 		return;
 	}
 
@@ -189,6 +188,8 @@ void DataLogger::openReadingFile(bool * isOpen, FlexseaDevice **devPtr)
 	if(logReadingFile.size() == 0)
 	{
 		setStatus("Error : Loaded file was empty.");
+		QMessageBox::warning(this, tr("Open Logging File"), \
+		tr("Error : Loaded file was empty."));
 		return;
 	}
 
@@ -201,15 +202,16 @@ void DataLogger::openReadingFile(bool * isOpen, FlexseaDevice **devPtr)
 
 	QStringList identifier = executeDevPtr->getIdentifierStrList();
 	//Check if the file header contain the expected number of data
-	if(splitLine.length() < identifier.length())
+	if(splitLine.length() != identifier.length())
 	{
 		setStatus(\
 		"Error : Loaded file header was not compatible (Header's too short)");
+		QMessageBox::warning(this, tr("Open Logging File"), \
+		tr("Error : Loaded file header was not compatible (Header's too short)"));
 		return;
 	}
 
-	QString slavetype = splitLine[13];
-	slavetype = slavetype.simplified();
+	QString slavetype = FlexseaDevice::getSlaveType(&splitLine).simplified();
 
 	// Choose the right device class based on the slave Type.
 	if	   (slavetype == executeDevPtr->slaveTypeName)	{flexSEAPtr = executeDevPtr;}
@@ -223,6 +225,8 @@ void DataLogger::openReadingFile(bool * isOpen, FlexseaDevice **devPtr)
 	else
 	{
 		setStatus("Error : Loaded file Slave Type is not supported.");
+		QMessageBox::warning(this, tr("Open Logging File"), \
+		tr("Error : Loaded file Slave Type is not supported."));
 		return;
 	}
 
@@ -383,6 +387,9 @@ void DataLogger::initLogDirectory()
 
 void DataLogger::setStatus(QString str)
 {
+	// TODO Datalogger should not know that there's a logFile and bar
+	// status. Abstraction principle is not respected here. Is there a way
+	// to use some sort of return value instead of signal slot?
 	emit setStatusBarMessage(str);
 	qDebug() << str;
 }

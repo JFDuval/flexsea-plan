@@ -62,7 +62,7 @@ uint8_t FlexSEA_Generic::list_to_slave[SL_LEN_ALL] = {FLEXSEA_EXECUTE_1,
 														FLEXSEA_GOSSIP_2,
 														FLEXSEA_BATTERY_1,
 														FLEXSEA_STRAIN_1,
-														FLEXSEA_VIRTUAL_1};
+														FLEXSEA_VIRTUAL_PROJECT};
 //Slaves:
 QStringList FlexSEA_Generic::var_list_slave =    QStringList()
 												 << "Execute 1"

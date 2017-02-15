@@ -241,7 +241,7 @@ void BatteryDevice::decode(struct battery_s *baPtr)
 {
 	baPtr->decoded.voltage = baPtr->voltage;    //TODO mV
 	baPtr->decoded.current = baPtr->current;    //TODO mA
-	baPtr->decoded.power = baPtr->voltage * baPtr->current; // mW
+	baPtr->decoded.power = baPtr->voltage * baPtr->current; // TODO mW
 	baPtr->decoded.temp = baPtr->temp;          //TODO C*10
 }
 

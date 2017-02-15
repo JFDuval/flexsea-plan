@@ -60,9 +60,6 @@ public:
 						QList<ExecuteDevice> *deviceListPtr = nullptr);
 	~W_Execute();
 
-	//Function(s):
-	static void trackVarEx(uint8_t var, uint8_t *varToPlotPtr8s);
-
 
 public slots:
 	void refreshDisplay(void);

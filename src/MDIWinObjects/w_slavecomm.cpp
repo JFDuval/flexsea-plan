@@ -111,7 +111,7 @@ void W_SlaveComm::receiveComPortStatus(bool status)
 		if(logThisItem[0] == true)
 		{
 			logThisItem[0] = false;
-			emit closeRecordingFile(0);   //ToDo support multiple files
+			emit closeRecordingFile(0);
 		}
 	}
 	else
@@ -587,9 +587,6 @@ void W_SlaveComm::configSlaveComm(int item)
 					var_list_refresh[selected_refresh_index[item]] +
 					".csv";
 
-			// TODO: Is usefull anymore?
-			logDevice[item]->logItem = item;
-
 			//If refresh has changed, connect a time slot to that stream command:
 			if(previous_refresh_index[item] != selected_refresh_index[item])
 			{
@@ -684,7 +681,6 @@ void W_SlaveComm::sc_ankle2dof(uint8_t item)
 	index++;
 	index %= 2;
 
-	//TODO Ankle2DOF is not logging
 	decodeAndLog(item);
 }
 
@@ -721,7 +717,6 @@ void W_SlaveComm::sc_testbench(uint8_t item)
 	index++;
 	index %= 3;
 
-	//TODO Ankle2DOF is not logging
 	decodeAndLog(item);
 }
 

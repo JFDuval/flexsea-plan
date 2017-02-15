@@ -42,8 +42,6 @@
 
 FlexseaDevice::FlexseaDevice()
 {
-	logItem = 0;
-	SlaveIndex = 0;
 	slaveID = 0;
 	experimentIndex = 0;
 	frequency = 0;
@@ -57,8 +55,6 @@ void FlexseaDevice::clear(void)
 {
 	shortFileName.clear();
 	fileName.clear();
-	logItem = 0;
-	SlaveIndex = 0;
 	slaveID = 0;
 	slaveName.clear();
 	experimentIndex = 0;
@@ -77,11 +73,7 @@ QString FlexseaDevice::getIdentifierStr(void)
 QStringList FlexseaDevice::getIdentifierStrList(void)
 {
 	QStringList identifier = QStringList()
-							<< "Datalogging Item:"
-							<< QString::number(logItem)
-							<< "Slave Index:"
-							<< QString::number(SlaveIndex)
-							<< "Slave Name:"
+							<< "Slave Name (or Project):"
 							<< slaveName
 							<< "Experiment Index:"
 							<< QString::number(experimentIndex)
@@ -97,6 +89,11 @@ QStringList FlexseaDevice::getIdentifierStrList(void)
 	return identifier;
 }
 
+QString FlexseaDevice::getSlaveType(QStringList *splitLine)
+{
+	return (*splitLine)[9];
+}
+
 void FlexseaDevice::saveIdentifierStr(QStringList *splitLine)
 {
 	FlexseaDevice::clear();
@@ -105,13 +102,11 @@ void FlexseaDevice::saveIdentifierStr(QStringList *splitLine)
 
 	if(splitLine->length() >= identifier.length())
 	{
-		logItem			= (*splitLine)[1].toInt();
-		SlaveIndex		= (*splitLine)[3].toInt();
-		slaveName		= (*splitLine)[5];
-		experimentIndex	= (*splitLine)[7].toInt();
-		experimentName	= (*splitLine)[9];
-		frequency		= (*splitLine)[11].toInt();
-		targetSlaveName = (*splitLine)[15];
+		slaveName		= (*splitLine)[1];
+		experimentIndex	= (*splitLine)[3].toInt();
+		experimentName	= (*splitLine)[5];
+		frequency		= (*splitLine)[7].toInt();
+		targetSlaveName = (*splitLine)[11];
 	}
 }
 

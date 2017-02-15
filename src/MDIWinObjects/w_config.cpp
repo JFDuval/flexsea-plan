@@ -150,8 +150,8 @@ void W_Config::on_openComButton_clicked()
 	//Emit signal:
 	emit openCom(ui->comPortComboBox->currentText(), 25, 100000, &success);
 
-	// TODO We Should have a way to know if the connection was successful
-	if(success)//Connection is successful.
+	//Connection is successful.
+	if(success)
 	{
 		dataSourceState = LiveCOM;
 		emit updateDataSourceStatus(dataSourceState, nullptr);

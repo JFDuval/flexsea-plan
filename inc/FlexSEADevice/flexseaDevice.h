@@ -100,6 +100,8 @@ public:
 	virtual int lenght() = 0;
 	virtual void clear(void);
 
+	static QString getSlaveType(QStringList *splitLine);
+
 	QString getIdentifierStr(void);
 	QStringList getIdentifierStrList(void);
 	void saveIdentifierStr(QStringList *splitLine);
@@ -109,9 +111,6 @@ public:
 	QString shortFileName;
 	QString fileName;
 
-	int		logItem;
-
-	int		SlaveIndex;
 	uint8_t slaveID;
 	QString slaveTypeName;
 	QString slaveName;

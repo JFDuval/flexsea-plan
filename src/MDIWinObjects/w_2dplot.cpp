@@ -1081,7 +1081,6 @@ void W_2DPlot::refreshStatBar(float fDisp, float fData)
 }
 
 //Each board type has a different variable list.
-//ToDo: those lists should come from the w_BoardName files
 void W_2DPlot::updateVarList(uint8_t item)
 {
 	//Fill the comboBox:
