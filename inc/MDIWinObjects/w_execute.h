@@ -37,7 +37,9 @@
 
 #include <QWidget>
 #include "counter.h"
+#include "flexseaDevice.h"
 #include "executeDevice.h"
+#include "ankle2DofProject.h"
 #include "define.h"
 
 //****************************************************************************
@@ -55,7 +57,9 @@ class W_Execute : public QWidget, public Counter<W_Execute>
 public:
 	//Constructor & Destructor:
 	explicit W_Execute(	QWidget *parent = 0,
-						ExecuteDevice *deviceLogPtr = nullptr,
+						FlexseaDevice *currentLog = nullptr,
+						ExecuteDevice *executeLogPtrInit = nullptr,
+						Ankle2DofProject * ankle2DofLogPtrInit = nullptr,
 						DisplayMode mode = DisplayLiveData,
 						QList<ExecuteDevice> *deviceListPtr = nullptr);
 	~W_Execute();
@@ -76,12 +80,14 @@ private:
 	DisplayMode displayMode;
 
 	QList<ExecuteDevice> *deviceList;
-	ExecuteDevice *deviceLog;
+	ExecuteDevice *executeLog;
+	Ankle2DofProject *ankle2DofLog;
 
 	//Function(s):
 	void initLive(void);
-	void initLog(void);
+	void initLog(FlexseaDevice *devPtr);
 	void display(ExecuteDevice *devicePtr, int index);
+	void display(struct execute_s *ex);
 };
 
 //****************************************************************************

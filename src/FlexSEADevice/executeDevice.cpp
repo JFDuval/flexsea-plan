@@ -392,10 +392,10 @@ void ExecuteDevice::decodeAllLine(void)
 	}
 }
 
-QString ExecuteDevice::getStatusStr(int index)
+QString ExecuteDevice::getStatusStr(struct execute_s *ex)
 {
 	QString str;
-	uint8_t status1 = exList[index]->status1;
+	uint8_t status1 = ex->status1;
 
 	//WDCLK:
 	if(GET_WDCLK_FLAG(status1))

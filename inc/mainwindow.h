@@ -130,7 +130,7 @@ private:
 	Ankle2DofProject ankle2DofLog = Ankle2DofProject();
 	TestBenchProject testBenchLog = TestBenchProject();
 
-	FlexseaDevice* selectedFlexLog;
+	FlexseaDevice* currentFlexLog;
 
 
 	// Sub-Windows

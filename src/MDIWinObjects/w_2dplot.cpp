@@ -578,30 +578,30 @@ void W_2DPlot::saveNewPointsLog(int index)
 
 	for(int item = 0; item < VAR_NUM; item++)
 	{
-		int j = 0;
+		int dataIter = 0;
 		// Manage the starting point for parsing the data
 		if(index > plot_len / 2)
 		{
-			j = index - (plot_len / 2);
+			dataIter = index - (plot_len / 2);
 		}
 		else
 		{
-			j = 0;
+			dataIter = 0;
 		}
 
 
-		int i = (plot_len / 2) - index;
+		int graphIter = (plot_len / 2) - index;
 
-		if(i < 0)
+		if(graphIter < 0)
 		{
-			i = 0;
+			graphIter = 0;
 		}
 
-		while(j < selectedLog->lenght() &&
-			  i < plot_len &&
+		while(dataIter < selectedDevList[item]->lenght() &&
+			  graphIter < plot_len &&
 			  varIndex[item] > 0)
 		{
-			varHandle = selectedDevList[item]->getSerializedVar(varIndex[item] + 1, j);
+			varHandle = selectedDevList[item]->getSerializedVar(varIndex[item] + 1, dataIter);
 
 			if(vtp[item].decode == false)
 			{
@@ -651,9 +651,9 @@ void W_2DPlot::saveNewPointsLog(int index)
 			}
 
 			// Append the proper value
-			vDataBuffer[item].append(QPointF(i, point));
-			++j;
-			++i;
+			vDataBuffer[item].append(QPointF(graphIter, point));
+			++dataIter;
+			++graphIter;
 		}
 	}
 	computeStats();

@@ -232,7 +232,7 @@ void MainWindow::initFlexSeaDeviceObject(void)
 //Transfer the signal from config to the
 void MainWindow::translatorUpdateDataSourceStatus(DataSource status, FlexseaDevice* devPtr)
 {
-	selectedFlexLog = devPtr;
+	currentFlexLog = devPtr;
 
 	if(status == FromLogFile)
 	{
@@ -266,8 +266,12 @@ void MainWindow::createViewExecute(void)
 	if(objectCount < EX_VIEW_WINDOWS_MAX)
 	{
 		myViewExecute[objectCount] = \
-				new W_Execute(this, &executeLog,
-							  getDisplayMode(), &executeDevList);
+				new W_Execute(this,
+							  currentFlexLog,
+							  &executeLog,
+							  &ankle2DofLog,
+							  getDisplayMode(),
+							  &executeDevList);
 		ui->mdiArea->addSubWindow(myViewExecute[objectCount]);
 		myViewExecute[objectCount]->show();
 
@@ -446,7 +450,7 @@ void MainWindow::createView2DPlot(void)
 	if(objectCount < (PLOT2D_WINDOWS_MAX))
 	{
 		myView2DPlot[objectCount] = new W_2DPlot(this,
-												 selectedFlexLog,
+												 currentFlexLog,
 												 getDisplayMode(),
 												 &flexseaPtrlist);
 		ui->mdiArea->addSubWindow(myView2DPlot[objectCount]);

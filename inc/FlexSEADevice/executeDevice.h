@@ -104,7 +104,7 @@ public:
 	int lenght(void) {return exList.length();}
 	void clear(void);
 	void appendEmptyLine(void);
-	QString getStatusStr(int index);
+	static QString getStatusStr(struct execute_s *ex);
 
 	QList<struct execute_s*> exList;
 	static void decode(struct execute_s *exPtr);
