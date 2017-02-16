@@ -93,6 +93,7 @@ void W_Ricnu::refreshDisplayLog(int index, FlexseaDevice * devPtr)
 
 void W_Ricnu::updateDisplayMode(DisplayMode mode, FlexseaDevice* devPtr)
 {
+	(void)devPtr;
 	displayMode = mode;
 	if(displayMode == DisplayLogData)
 	{

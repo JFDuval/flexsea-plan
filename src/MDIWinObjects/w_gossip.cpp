@@ -93,6 +93,7 @@ void W_Gossip::refreshDisplayLog(int index, FlexseaDevice * devPtr)
 
 void W_Gossip::updateDisplayMode(DisplayMode mode, FlexseaDevice* devPtr)
 {
+	(void)devPtr;
 	displayMode = mode;
 	if(displayMode == DisplayLogData)
 	{

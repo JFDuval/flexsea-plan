@@ -93,6 +93,7 @@ void W_Strain::refreshDisplayLog(int index, FlexseaDevice * devPtr)
 
 void W_Strain::updateDisplayMode(DisplayMode mode, FlexseaDevice* devPtr)
 {
+	(void)devPtr;
 	displayMode = mode;
 	if(displayMode == DisplayLogData)
 	{

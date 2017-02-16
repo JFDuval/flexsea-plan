@@ -202,7 +202,7 @@ void W_2DPlot::refreshControl(void)
 
 void W_2DPlot::refreshDisplayLog(int index, FlexseaDevice * devPtr)
 {
-
+	(void)devPtr;
 	logIndex = index;
 
 	saveNewPointsLog(index);

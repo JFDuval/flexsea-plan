@@ -94,6 +94,7 @@ void W_Execute::refreshDisplayLog(int index, FlexseaDevice * devPtr)
 
 void W_Execute::updateDisplayMode(DisplayMode mode, FlexseaDevice* devPtr)
 {
+	(void)devPtr;
 	displayMode = mode;
 	if(displayMode == DisplayLogData)
 	{

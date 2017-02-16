@@ -108,6 +108,7 @@ void W_Battery::refreshDisplayLog(int index, FlexseaDevice * devPtr)
 
 void W_Battery::updateDisplayMode(DisplayMode mode, FlexseaDevice* devPtr)
 {
+	(void)devPtr;
 	displayMode = mode;
 	if(displayMode == DisplayLogData)
 	{
@@ -135,7 +136,7 @@ void W_Battery::initLive(void)
 	}
 
 // TODO: S.B. what will be the purpose of this box?
-//	FlexSEA_Generic::populateSlaveComboBox(ui->comboBox_slaveM, \
+//	FlexSEA_Generic::populateSlaveComboBox(ui->comboBox_slaveM,
 //											SL_BASE_ALL, SL_LEN_ALL);
 //	//Start with manage 1:
 //	ui->comboBox_slaveM->setCurrentIndex(SL_BASE_MN);
