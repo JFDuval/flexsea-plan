@@ -175,9 +175,12 @@ private:
 
 	//Variables & Objects:
 
-	QList<FlexseaDevice*> *devList;
+	QList<FlexseaDevice*> *liveDevList;
 
-	FlexseaDevice* selectedLog;
+	QList<FlexseaDevice*> logDevList;
+
+	QList<FlexseaDevice*> *currentDevList;
+
 	int logIndex;
 
 	FlexseaDevice* selectedDevList[VAR_NUM];
@@ -205,7 +208,6 @@ private:
 
 	//Function(s):
 
-	void initLog(void);
 	void initChart(void);
 	void initUserInput(void);
 	void saveNewPoints(int myDataPoints[6]);

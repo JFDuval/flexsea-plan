@@ -230,6 +230,7 @@ void DataLogger::openReadingFile(bool * isOpen, FlexseaDevice **devPtr)
 		return;
 	}
 
+	flexSEAPtr->clear();
 	flexSEAPtr->saveIdentifierStr(&splitLine);
 
 	flexSEAPtr->shortFileName	= shortFileName;

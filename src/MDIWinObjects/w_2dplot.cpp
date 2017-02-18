@@ -63,18 +63,18 @@ W_2DPlot::W_2DPlot(QWidget *parent,
 	setWindowTitle(this->getDescription());
 	setWindowIcon(QIcon(":icons/d_logo_small.png"));
 
-	displayMode = mode;
-	devList = devListInit;
-	selectedLog =  devLogInit;
+	liveDevList = devListInit;
+
+	logIndex = 0;
 
 	initFlag = true;
 	initPtr();
-	initStats();
-	initUserInput();
 	initChart();
-	useOpenGL(false);
 
-	updateDisplayMode(displayMode, selectedLog);
+	// Big part of the init have been moved to this function.
+	updateDisplayMode(mode, devLogInit);
+
+	useOpenGL(false);
 
 	//Timers:
 	timerRefreshDisplay = new QDateTime;
@@ -162,7 +162,6 @@ void W_2DPlot::refresh2DPlot(void)
 	//Refresh Stat Bar:
 	refreshStatBar(getRefreshRateDisplay(), dataRate);
 
-
 	//For every variable:
 	for(index = 0; index < VAR_NUM; index++)
 	{
@@ -214,10 +213,11 @@ void W_2DPlot::updateDisplayMode(DisplayMode mode, FlexseaDevice* devPtr)
 	displayMode = mode;
 	if(displayMode == DisplayLogData)
 	{
-		selectedLog = devPtr;
+		logDevList.clear();
+		logDevList.append(devPtr);
+		currentDevList = &logDevList;
+
 		initUserInput();
-		initStats();
-		initLog();
 		initData();
 
 		ui->pushButtonFreeze->setDisabled(true);
@@ -227,12 +227,12 @@ void W_2DPlot::updateDisplayMode(DisplayMode mode, FlexseaDevice* devPtr)
 		ui->radioButtonXM->setDisabled(true);
 		ui->lineEditXMin->setDisabled(false);
 		ui->lineEditXMax->setDisabled(false);
-
 	}
 	else
 	{
+		currentDevList = liveDevList;
+
 		initUserInput();
-		initStats();
 		initData();
 
 		ui->pushButtonFreeze->setDisabled(false);
@@ -322,8 +322,8 @@ void W_2DPlot::initChart(void)
 	}
 
 	chart->createDefaultAxes();
-	chart->axisX()->setRange(plot_xmin, plot_xmax);
-	chart->axisY()->setRange(plot_ymin, plot_ymax);
+	chart->axisX()->setRange(INIT_PLOT_XMIN, INIT_PLOT_XMAX);
+	chart->axisY()->setRange(INIT_PLOT_YMIN, INIT_PLOT_YMAX);
 
 	//Colors:
 	chart->setTheme(QChart::ChartThemeDark);
@@ -368,35 +368,6 @@ void W_2DPlot::initChart(void)
 			this, SLOT(myHoverHandler5(QPointF, bool)));
 }
 
-void W_2DPlot::initLog(void)
-{
-	//Data fields and variables:
-	//==========================
-
-	//Note: Color coded labels will be defined based on the chart.
-	//Update Slave List
-	for(int i = 0; i < VAR_NUM; i++)
-	{
-		(*cbVarSlave[i])->blockSignals(true);
-		(*cbVarSlave[i])->clear();
-
-		(*cbVarSlave[i])->addItem(selectedLog->slaveName);
-
-		(*cbVarSlave[i])->blockSignals(false);
-
-		//Variable comboBoxes:
-		saveCurrentSettings(i);  //Needed for the 1st var_list
-	}
-
-	//Update variable list:
-
-	for(int i = 0; i < VAR_NUM; i++)
-	{
-		updateVarList(i);
-	}
-
-}
-
 //Fills the fields and combo boxes:
 void W_2DPlot::initUserInput(void)
 {
@@ -416,10 +387,6 @@ void W_2DPlot::initUserInput(void)
 	plot_xmax = INIT_PLOT_XMAX;
 	plot_ymin = INIT_PLOT_YMIN;
 	plot_ymax = INIT_PLOT_YMAX;
-
-
-
-
 
 	if(displayMode == DisplayLogData)
 	{
@@ -474,9 +441,9 @@ void W_2DPlot::initUserInput(void)
 		(*cbVarSlave[i])->clear();
 
 
-		for(int ii = 0; ii < devList->length(); ++ii)
+		for(int ii = 0; ii < currentDevList->length(); ++ii)
 		{
-			(*cbVarSlave[i])->addItem((*devList)[ii]->slaveName);
+			(*cbVarSlave[i])->addItem((*currentDevList)[ii]->slaveName);
 		}
 		(*cbVarSlave[i])->blockSignals(false);
 
@@ -488,10 +455,10 @@ void W_2DPlot::initUserInput(void)
 	QString ttip = "<html><head/><body><p>Plot data in physical units (instead \
 					of ticks)</p></body></html>";
 
-	for(int i = 0; i < VAR_NUM; i++)
+	for(int item = 0; item < VAR_NUM; item++)
 	{
-		updateVarList(i);
-		(*ckbDecode[i])->setToolTip(ttip);
+		updateVarList(item);
+		(*ckbDecode[item])->setToolTip(ttip);
 	}
 
 	//By default, we track Slave 1:
@@ -822,14 +789,7 @@ float W_2DPlot::getRefreshRateData(void)
 void W_2DPlot::saveCurrentSettings(int item)
 {
 	//Slave:
-	if(displayMode == DisplayLiveData)
-	{
-		selectedDevList[item] = (*devList)[(*cbVarSlave[item])->currentIndex()];
-	}
-	else
-	{
-		selectedDevList[item] = selectedLog;
-	}
+	selectedDevList[item] = (*currentDevList)[(*cbVarSlave[item])->currentIndex()];
 
 	//Variable:
 	varIndex[item] = (*cbVar[item])->currentIndex();
@@ -1440,33 +1400,15 @@ void W_2DPlot::on_pushButtonClear_clicked()
 //Reset the 2D plot to default setting
 void W_2DPlot::on_pbReset_clicked()
 {
-	if(displayMode == DisplayLogData)
-	{
-		initUserInput();
-		initStats();
-		initLog();
-	}
-	else
-	{
-		initUserInput();
-		initStats();
-	}
+	initUserInput();
+	initStats();
 }
 
 //Sets all channels to the IMU:
 void W_2DPlot::on_pbIMU_clicked()
 {
-	if(displayMode == DisplayLogData)
-	{
-		initUserInput();
-		initStats();
-		initLog();
-	}
-	else
-	{
-		initUserInput();
-		initStats();
-	}
+	initUserInput();
+	initStats();
 
 	for(int item = 0; item < VAR_NUM; ++item)
 	{
