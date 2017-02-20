@@ -270,6 +270,7 @@ void MainWindow::createViewExecute(void)
 							  currentFlexLog,
 							  &executeLog,
 							  &ankle2DofLog,
+							  &testBenchLog,
 							  getDisplayMode(),
 							  &executeDevList);
 		ui->mdiArea->addSubWindow(myViewExecute[objectCount]);
@@ -830,8 +831,12 @@ void MainWindow::createViewBattery(void)
 	//Limited number of windows:
 	if(objectCount < (BATT_WINDOWS_MAX))
 	{
-		myViewBatt[objectCount] = new W_Battery(this, &batteryLog,
-												getDisplayMode(), &batteryDevList);
+		myViewBatt[objectCount] = new W_Battery(this,
+												currentFlexLog,
+												&batteryLog,
+												&testBenchLog,
+												getDisplayMode(),
+												&batteryDevList);
 		ui->mdiArea->addSubWindow(myViewBatt[objectCount]);
 		myViewBatt[objectCount]->show();
 
@@ -925,7 +930,10 @@ void MainWindow::createViewTestBench(void)
 	//Limited number of windows:
 	if(objectCount < (TESTBENCH_WINDOWS_MAX))
 	{
-		myViewTestBench[objectCount] = new W_TestBench(this);
+		myViewTestBench[objectCount] = new W_TestBench(this,
+													   &testBenchLog,
+														getDisplayMode(),
+													   &testBenchDevList);
 		ui->mdiArea->addSubWindow(myViewTestBench[objectCount]);
 		myViewTestBench[objectCount]->show();
 
@@ -934,11 +942,18 @@ void MainWindow::createViewTestBench(void)
 
 		//Link SerialDriver and Battery:
 		connect(mySerialDriver, SIGNAL(newDataReady()), \
-				myViewTestBench[objectCount], SLOT(refreshDisplayTestBench()));
+				myViewTestBench[objectCount], SLOT(refreshDisplay()));
 
 		//Link to MainWindow for the close signal:
 		connect(myViewTestBench[objectCount], SIGNAL(windowClosed()), \
 				this, SLOT(closeViewBattery()));
+
+		// Link to the slider of logKeyPad. Intermediate signal (connector) to
+		// allow opening of window asynchroniously
+		connect(this, SIGNAL(connectorRefreshLogTimeSlider(int, FlexseaDevice *)), \
+				myViewTestBench[objectCount], SLOT(refreshDisplayLog(int, FlexseaDevice *)));
+		connect(this, SIGNAL(connectorUpdateDisplayMode(DisplayMode, FlexseaDevice*)), \
+				myViewTestBench[objectCount], SLOT(updateDisplayMode(DisplayMode, FlexseaDevice*)));
 	}
 
 	else

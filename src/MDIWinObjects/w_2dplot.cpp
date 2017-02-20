@@ -388,6 +388,9 @@ void W_2DPlot::initUserInput(void)
 	plot_ymin = INIT_PLOT_YMIN;
 	plot_ymax = INIT_PLOT_YMAX;
 
+	chart->axisX()->setRange(plot_xmin, plot_xmax);
+	chart->axisY()->setRange(plot_ymin, plot_ymax);
+
 	if(displayMode == DisplayLogData)
 	{
 		ui->radioButtonXA->setChecked(0);

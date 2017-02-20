@@ -40,6 +40,7 @@
 #include "flexseaDevice.h"
 #include "executeDevice.h"
 #include "ankle2DofProject.h"
+#include "testBenchProject.h"
 #include "define.h"
 
 //****************************************************************************
@@ -60,6 +61,7 @@ public:
 						FlexseaDevice *currentLog = nullptr,
 						ExecuteDevice *executeLogPtrInit = nullptr,
 						Ankle2DofProject * ankle2DofLogPtrInit = nullptr,
+						TestBenchProject * testBenchLogPtrInit = nullptr,
 						DisplayMode mode = DisplayLiveData,
 						QList<ExecuteDevice> *deviceListPtr = nullptr);
 	~W_Execute();
@@ -82,6 +84,7 @@ private:
 	QList<ExecuteDevice> *deviceList;
 	ExecuteDevice *executeLog;
 	Ankle2DofProject *ankle2DofLog;
+	TestBenchProject *testbenchLog;
 
 	//Function(s):
 	void initLive(void);

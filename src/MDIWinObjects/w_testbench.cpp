@@ -44,16 +44,22 @@
 // Constructor & Destructor:
 //****************************************************************************
 
-W_TestBench::W_TestBench(QWidget *parent) :
+W_TestBench::W_TestBench(QWidget *parent,
+						 TestBenchProject *deviceLogPtr,
+						 DisplayMode mode,
+						 QList<TestBenchProject> *deviceListPtr) :
 	QWidget(parent),
 	ui(new Ui::W_TestBench)
 {
 	ui->setupUi(this);
 
+	deviceLog = deviceLogPtr;
+	deviceList = deviceListPtr;
+
 	setWindowTitle(this->getDescription());
 	setWindowIcon(QIcon(":icons/d_logo_small.png"));
 
-	init();
+	updateDisplayMode(mode, nullptr);
 }
 
 W_TestBench::~W_TestBench()
@@ -71,60 +77,79 @@ W_TestBench::~W_TestBench()
 //****************************************************************************
 
 //Call this function to refresh the display
-void W_TestBench::refreshDisplayTestBench(void)
+void W_TestBench::refreshDisplay(void)
 {
-	//Execute 1:
-	ui->dispEx1_0->setText(QString::number(motortb.ex1[0]));
-	ui->dispEx1_1->setText(QString::number(motortb.ex1[1]));
-	ui->dispEx1_2->setText(QString::number(motortb.ex1[2]));
-	ui->dispEx1_3->setText(QString::number(motortb.ex1[3]));
-	ui->dispEx1_4->setText(QString::number(motortb.ex1[4]));
-	ui->dispEx1_5->setText(QString::number(motortb.ex1[5]));
+	display(&((*deviceList)[0]), 0);
+}
 
-	//Execute 2:
-	ui->dispEx2_0->setText(QString::number(motortb.ex2[0]));
-	ui->dispEx2_1->setText(QString::number(motortb.ex2[1]));
-	ui->dispEx2_2->setText(QString::number(motortb.ex2[2]));
-	ui->dispEx2_3->setText(QString::number(motortb.ex2[3]));
-	ui->dispEx2_4->setText(QString::number(motortb.ex2[4]));
-	ui->dispEx2_5->setText(QString::number(motortb.ex2[5]));
+void W_TestBench::refreshDisplayLog(int index, FlexseaDevice * devPtr)
+{
+	if(devPtr->slaveName == deviceLog->slaveName)
+	{
+		if(deviceLog->tbList.isEmpty() == false)
+		{
+			 display(deviceLog, index);
+		}
+	}
+}
 
-	//Manage 1:
-	ui->dispMn1_0->setText(QString::number(motortb.mn1[0]));
-	ui->dispMn1_1->setText(QString::number(motortb.mn1[1]));
-	ui->dispMn1_2->setText(QString::number(motortb.mn1[2]));
-	ui->dispMn1_3->setText(QString::number(motortb.mn1[3]));
+void W_TestBench::updateDisplayMode(DisplayMode mode, FlexseaDevice* devPtr)
+{
+	(void)devPtr;
+	displayMode = mode;
+	if(displayMode == DisplayLogData)
+	{
+		initLog();
+	}
+	else
+	{
+		initLive();
+	}
 }
 
 //****************************************************************************
 // Private function(s):
 //****************************************************************************
 
-void W_TestBench::init(void)
+void W_TestBench::initLive(void)
 {
-	//All displays at 0:
 
+}
+
+void W_TestBench::initLog(void)
+{
+
+}
+
+void W_TestBench::display(TestBenchProject *devicePtr, int index)
+{
+	display(devicePtr->tbList[index]->mb);
+}
+
+//Call this function to refresh the display
+void W_TestBench::display(struct motortb_s *mb)
+{
 	//Execute 1:
-	ui->dispEx1_0->setText("0");
-	ui->dispEx1_1->setText("0");
-	ui->dispEx1_2->setText("0");
-	ui->dispEx1_3->setText("0");
-	ui->dispEx1_4->setText("0");
-	ui->dispEx1_5->setText("0");
+	ui->dispEx1_0->setText(QString::number(mb->ex1[0]));
+	ui->dispEx1_1->setText(QString::number(mb->ex1[1]));
+	ui->dispEx1_2->setText(QString::number(mb->ex1[2]));
+	ui->dispEx1_3->setText(QString::number(mb->ex1[3]));
+	ui->dispEx1_4->setText(QString::number(mb->ex1[4]));
+	ui->dispEx1_5->setText(QString::number(mb->ex1[5]));
 
 	//Execute 2:
-	ui->dispEx2_0->setText("0");
-	ui->dispEx2_1->setText("0");
-	ui->dispEx2_2->setText("0");
-	ui->dispEx2_3->setText("0");
-	ui->dispEx2_4->setText("0");
-	ui->dispEx2_5->setText("0");
+	ui->dispEx2_0->setText(QString::number(mb->ex2[0]));
+	ui->dispEx2_1->setText(QString::number(mb->ex2[1]));
+	ui->dispEx2_2->setText(QString::number(mb->ex2[2]));
+	ui->dispEx2_3->setText(QString::number(mb->ex2[3]));
+	ui->dispEx2_4->setText(QString::number(mb->ex2[4]));
+	ui->dispEx2_5->setText(QString::number(mb->ex2[5]));
 
 	//Manage 1:
-	ui->dispMn1_0->setText("0");
-	ui->dispMn1_1->setText("0");
-	ui->dispMn1_2->setText("0");
-	ui->dispMn1_3->setText("0");
+	ui->dispMn1_0->setText(QString::number(mb->mn1[0]));
+	ui->dispMn1_1->setText(QString::number(mb->mn1[1]));
+	ui->dispMn1_2->setText(QString::number(mb->mn1[2]));
+	ui->dispMn1_3->setText(QString::number(mb->mn1[3]));
 }
 
 //****************************************************************************

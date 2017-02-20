@@ -43,6 +43,7 @@ W_Execute::W_Execute(QWidget *parent,
 					 FlexseaDevice *currentLog,
 					 ExecuteDevice *executeLogPtrInit,
 					 Ankle2DofProject * ankle2DofLogPtrInit,
+					 TestBenchProject * testBenchLogPtrInit,
 					 DisplayMode mode,
 					 QList<ExecuteDevice> *deviceListPtr) :
 	QWidget(parent),
@@ -52,6 +53,7 @@ W_Execute::W_Execute(QWidget *parent,
 
 	executeLog  = executeLogPtrInit;
 	ankle2DofLog = ankle2DofLogPtrInit;
+	testbenchLog = testBenchLogPtrInit;
 	deviceList = deviceListPtr;
 
 	setWindowTitle(this->getDescription());
@@ -109,6 +111,20 @@ void W_Execute::refreshDisplayLog(int index, FlexseaDevice * devPtr)
 			}
 		}
 	}
+	else if (slaveName == testbenchLog->slaveName)
+	{
+		if(testbenchLog->tbList.isEmpty() == false)
+		{
+			if(slaveIndex == 0)
+			{
+				display(testbenchLog->tbList[index]->ex1);
+			}
+			if(slaveIndex == 1)
+			{
+				display(testbenchLog->tbList[index]->ex2);
+			}
+		}
+	}
 }
 
 void W_Execute::updateDisplayMode(DisplayMode mode, FlexseaDevice* devPtr)
@@ -155,12 +171,16 @@ void W_Execute::initLog(FlexseaDevice *devPtr)
 		ui->comboBox_slave->addItem("execute 1");
 		ui->comboBox_slave->addItem("execute 2");
 	}
+	else if (slaveName == testbenchLog->slaveName)
+	{
+		ui->comboBox_slave->addItem("execute 1");
+		ui->comboBox_slave->addItem("execute 2");
+	}
 }
 
 void W_Execute::display(ExecuteDevice *devicePtr, int index)
 {
-	struct execute_s *ex = devicePtr->exList[index];
-	display(ex);
+	display(devicePtr->exList[index]);
 }
 
 void W_Execute::display(struct execute_s *ex)
