@@ -133,6 +133,12 @@ MainWindow::MainWindow(QWidget *parent) :
 	//SerialDriver and MainWindow
 	connect(mySerialDriver, SIGNAL(setStatusBarMessage(QString)), \
 			this, SLOT(setStatusBar(QString)));
+
+	//Link SlaveComm and SerialDriver:
+	connect(mySerialDriver, SIGNAL(openStatus(bool)), \
+			this, SLOT(saveComPortStatus(bool)));
+
+	comPortStatus = false;
 }
 
 MainWindow::~MainWindow()
@@ -228,6 +234,11 @@ void MainWindow::initFlexSeaDeviceObject(void)
 //****************************************************************************
 // Public slot(s):
 //****************************************************************************
+
+void MainWindow::saveComPortStatus(bool status)
+{
+	comPortStatus = status;
+}
 
 //Transfer the signal from config to the
 void MainWindow::translatorUpdateDataSourceStatus(DataSource status, FlexseaDevice* devPtr)
@@ -976,7 +987,8 @@ void MainWindow::createViewCommTest(void)
 	//Limited number of windows:
 	if(objectCount < W_CommTest::getMaxWindow())
 	{
-		myViewCommTest[objectCount] = new W_CommTest(this);
+		myViewCommTest[objectCount] = new W_CommTest(this,
+													 comPortStatus);
 		ui->mdiArea->addSubWindow(myViewCommTest[objectCount]);
 		myViewCommTest[objectCount]->show();
 
@@ -988,6 +1000,9 @@ void MainWindow::createViewCommTest(void)
 				this, SLOT(closeViewCommTest()));
 
 		//Link to SerialDriver to know when we receive data:
+		connect(mySerialDriver, SIGNAL(openStatus(bool)), \
+				myViewCommTest[objectCount], SLOT(receiveComPortStatus(bool)));
+
 		connect(mySerialDriver, SIGNAL(newDataReady()), \
 				myViewCommTest[objectCount], SLOT(receivedData()));
 

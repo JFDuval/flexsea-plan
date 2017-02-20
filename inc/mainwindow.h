@@ -132,6 +132,8 @@ private:
 
 	FlexseaDevice* currentFlexLog;
 
+	bool comPortStatus;
+
 
 	// Sub-Windows
 	W_Execute *myViewExecute[EX_VIEW_WINDOWS_MAX];
@@ -164,6 +166,7 @@ signals:
 
 public slots:
 
+	void saveComPortStatus(bool status);
 	void translatorUpdateDataSourceStatus(DataSource status, FlexseaDevice* devPtr);
 	void manageLogKeyPad(DataSource status, FlexseaDevice *);
 
