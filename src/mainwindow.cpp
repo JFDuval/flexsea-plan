@@ -393,6 +393,7 @@ void MainWindow::createConfig(void)
 				mySerialDriver, SLOT(close()));
 		connect(mySerialDriver, SIGNAL(openProgress(int)), \
 				myViewConfig[0], SLOT(setComProgress(int)));
+
 		connect(myViewConfig[0], SIGNAL(updateDataSourceStatus(DataSource)),
 				this, SLOT(translatorUpdateDataSourceStatus(DataSource)));
 		connect(myViewConfig[0], SIGNAL(createlogkeypad(DataSource, FlexseaDevice *)),
@@ -524,8 +525,8 @@ void MainWindow::createSlaveComm(void)
 		//Link SlaveComm and SerialDriver:
 		connect(mySerialDriver, SIGNAL(openStatus(bool)), \
 				myViewSlaveComm[0], SLOT(receiveComPortStatus(bool)));
-		connect(myViewSlaveComm[0], SIGNAL(slaveReadWrite(uint, uint8_t*, uint8_t)), \
-				mySerialDriver, SLOT(readWrite(uint, uint8_t*, uint8_t)));
+		connect(myViewSlaveComm[0], SIGNAL(slaveReadWrite(uint8_t, uint8_t*, uint8_t)), \
+				mySerialDriver, SLOT(readWrite(uint8_t, uint8_t*, uint8_t)));
 		connect(mySerialDriver, SIGNAL(newDataReady()), \
 				myViewSlaveComm[0], SLOT(receiveNewDataReady()));
 		connect(mySerialDriver, SIGNAL(dataStatus(int, int)), \
@@ -542,9 +543,8 @@ void MainWindow::createSlaveComm(void)
 		connect(myViewSlaveComm[0], SIGNAL(closeRecordingFile(uint8_t)), \
 				myDataLogger, SLOT(closeRecordingFile(uint8_t)));
 
-		//Link SlaveComm and Control Through connector
 		connect(this, SIGNAL(connectorWriteCommand(uint8_t,uint8_t*,uint8_t)), \
-				myViewSlaveComm[0], SLOT(externalSlaveReadWrite(uint8_t,uint8_t*,uint8_t)));
+				mySerialDriver, SLOT(readWrite(uint8_t,uint8_t*,uint8_t)));
 	}
 
 	else

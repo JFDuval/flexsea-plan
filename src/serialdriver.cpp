@@ -196,7 +196,7 @@ int SerialDriver::write(char bytes_to_send, unsigned char *serial_tx_data)
 	return (int) write_ret;
 }
 
-void SerialDriver::readWrite(uint numb, uint8_t *dataPacket, uint8_t r_w)
+void SerialDriver::readWrite(uint8_t numb, uint8_t *dataPacket, uint8_t r_w)
 {
 	write(numb, dataPacket);
 	//qDebug() << dataPacket;

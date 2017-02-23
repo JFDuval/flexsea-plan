@@ -143,7 +143,7 @@ signals:
 	void openRecordingFile(uint8_t item, QString fileName);
 	void openRecordingFile(FlexseaDevice *devicePtr, uint8_t item);
 	void closeRecordingFile(uint8_t item);
-	void slaveReadWrite(uint numb, uint8_t *dataPacket, uint8_t r_w);
+	void slaveReadWrite(uint8_t numb, uint8_t *dataPacket, uint8_t r_w);
 
 private:
 	//Variables & Objects:
