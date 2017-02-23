@@ -55,6 +55,7 @@
 #include "flexseaDevice.h"
 #include "w_testbench.h"
 #include "w_commtest.h"
+#include <streammanager.h>
 
 #include "main.h"
 
@@ -151,6 +152,7 @@ private:
 	// Objects
 	SerialDriver *mySerialDriver;
 	DataLogger *myDataLogger;
+	StreamManager* streamManager;
 
 signals:
 	//Allow window to be independly opened in any order by providing a backbone connector

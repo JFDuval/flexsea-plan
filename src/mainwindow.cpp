@@ -115,6 +115,8 @@ MainWindow::MainWindow(QWidget *parent) :
 								  &strainLog,
 								  &ricnuLog);
 
+	streamManager = new StreamManager(this, mySerialDriver);
+
 	//Create default objects:
 	createConfig();
 	createSlaveComm();
