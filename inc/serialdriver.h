@@ -38,6 +38,8 @@
 #include <QWidget>
 #include <QString>
 #include <QSerialPort>
+#include <QTimer>
+#include <QQueue>
 
 //****************************************************************************
 // Namespace & Class
@@ -53,26 +55,60 @@ class SerialDriver : public QWidget
 
 public:
 	explicit SerialDriver(QWidget *parent = 0);
+	virtual ~SerialDriver();
+
 	void init(void);
 
 public slots:
 	void open(QString name, int tries, int delay, bool* success);
 	void close(void);
+
+	void enqueueReadWrite(uint8_t numb, uint8_t* dataPacket, uint8_t r_w);
+
+private slots:
+	void handleTimeout();
+
+private:
 	int read(unsigned char *buf);
 	int write(char bytes_to_send, unsigned char *serial_tx_data);
 	void readWrite(uint8_t numb, uint8_t *dataPacket, uint8_t r_w);
 
-private slots:
-
-private:
 	//Variables & Objects:
+	class Message {
+	public:
+		Message(uint8_t nb, uint8_t* data, uint8_t rw) {
+			numBytes = nb;
+			r_w = rw;
+			dataPacket = new uint8_t[nb];
+			for(int i = 0; i < numBytes; i++)
+				dataPacket[i] = data[i];
+		}
+		~Message()
+		{
+#ifdef QT_DEBUG
+			for(int i = 0; i < numBytes; i++)
+				dataPacket[i] = 0;
+#endif
+			delete [] dataPacket;
+			dataPacket = nullptr;
+		}
+
+		uint8_t numBytes;
+		uint8_t* dataPacket;
+		uint8_t r_w;
+	};
+
+	QQueue<Message*> outgoingBuffer;
 	QSerialPort USBSerialPort;
 	bool comPortOpen;
 	unsigned char usb_rx[256];
 
+	QTimer* clockTimer;
+
 	//Function(s):
 
 signals:
+	void timerClocked(void);
 	void openProgress(int val);
 	void openStatus(bool status);
 	void newDataReady(void);

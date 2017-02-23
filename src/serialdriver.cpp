@@ -32,8 +32,9 @@
 // Include(s)
 //****************************************************************************
 
-#include "flexsea_buffers.h"
 #include "serialdriver.h"
+#include <flexsea_buffers.h>
+#include <flexsea_comm.h>
 #include "main.h"
 #include <QDebug>
 
@@ -45,8 +46,25 @@
 SerialDriver::SerialDriver(QWidget *parent) : QWidget(parent)
 {
 	comPortOpen = false;
+
+	clockTimer = new QTimer();
+	clockTimer->setSingleShot(false);
+	clockTimer->setInterval(1);
+	clockTimer->setTimerType(Qt::PreciseTimer);
+	connect(clockTimer, &QTimer::timeout, this, &SerialDriver::handleTimeout);
 }
 
+SerialDriver::~SerialDriver()
+{
+	   if(clockTimer) delete clockTimer;
+	   clockTimer = nullptr;
+
+	   while(outgoingBuffer.size() > 0)
+	   {
+		   Message* m = outgoingBuffer.dequeue();
+		   delete m;
+	   }
+}
 //****************************************************************************
 // Public function(s):
 //****************************************************************************
@@ -54,6 +72,24 @@ SerialDriver::SerialDriver(QWidget *parent) : QWidget(parent)
 //****************************************************************************
 // Public slot(s):
 //****************************************************************************
+
+
+void SerialDriver::enqueueReadWrite(uint8_t numb, uint8_t* dataPacket, uint8_t r_w)
+{
+	outgoingBuffer.enqueue(new Message(numb, dataPacket, r_w));
+}
+
+void SerialDriver::handleTimeout()
+{
+	emit timerClocked();
+	if(outgoingBuffer.size() > 0)
+	{
+		Message* m = outgoingBuffer.dequeue();
+		readWrite(m->numBytes, m->dataPacket, m->r_w);
+		delete m;
+		m = nullptr;
+	}
+}
 
 //Open port
 void SerialDriver::open(QString name, int tries, int delay, bool *success)
@@ -113,6 +149,7 @@ void SerialDriver::open(QString name, int tries, int delay, bool *success)
 		}
 
 		*success = true;
+		clockTimer->start();
 	}
 }
 
@@ -128,6 +165,7 @@ void SerialDriver::close(void)
 
 	USBSerialPort.clear((QSerialPort::AllDirections));
 	USBSerialPort.close();
+	clockTimer->stop();
 }
 
 //Read

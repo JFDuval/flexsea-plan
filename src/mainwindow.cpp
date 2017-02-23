@@ -526,7 +526,7 @@ void MainWindow::createSlaveComm(void)
 		connect(mySerialDriver, SIGNAL(openStatus(bool)), \
 				myViewSlaveComm[0], SLOT(receiveComPortStatus(bool)));
 		connect(myViewSlaveComm[0], SIGNAL(slaveReadWrite(uint8_t, uint8_t*, uint8_t)), \
-				mySerialDriver, SLOT(readWrite(uint8_t, uint8_t*, uint8_t)));
+				mySerialDriver, SLOT(enqueueReadWrite(uint8_t, uint8_t*, uint8_t)));
 		connect(mySerialDriver, SIGNAL(newDataReady()), \
 				myViewSlaveComm[0], SLOT(receiveNewDataReady()));
 		connect(mySerialDriver, SIGNAL(dataStatus(int, int)), \
@@ -544,7 +544,7 @@ void MainWindow::createSlaveComm(void)
 				myDataLogger, SLOT(closeRecordingFile(uint8_t)));
 
 		connect(this, SIGNAL(connectorWriteCommand(uint8_t,uint8_t*,uint8_t)), \
-				mySerialDriver, SLOT(readWrite(uint8_t,uint8_t*,uint8_t)));
+				mySerialDriver, SLOT(enqueueReadWrite(uint8_t,uint8_t*,uint8_t)));
 	}
 
 	else
