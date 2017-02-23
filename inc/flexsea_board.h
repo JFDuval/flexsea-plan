@@ -87,20 +87,6 @@ void flexsea_send_serial_master(PacketWrapper* p);
 //#define ENABLE_FLEXSEA_BUF_4      //
 //#define ENABLE_FLEXSEA_BUF_5      //
 
-//Overload buffer & function names (for user convenience):
-
-#define comm_str_usb				comm_str_1
-#define unpack_payload_usb			unpack_payload_1
-#define rx_command_usb				rx_command_1
-#define update_rx_buf_byte_usb		update_rx_buf_byte_1
-#define update_rx_buf_array_usb		update_rx_buf_array_1
-
-#define comm_str_spi				comm_str_2
-#define unpack_payload_spi			unpack_payload_2
-#define rx_command_spi				rx_command_2
-#define update_rx_buf_byte_spi		update_rx_buf_byte_2
-#define update_rx_buf_array_spi		update_rx_buf_array_2
-
 //===============
 //</FlexSEA User>
 
