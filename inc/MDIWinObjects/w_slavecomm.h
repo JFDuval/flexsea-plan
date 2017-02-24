@@ -114,10 +114,6 @@ private slots:
 
 signals:
 	void windowClosed(void);
-	void writeToLogFile(FlexseaDevice *devicePtr, uint8_t item);
-	void openRecordingFile(uint8_t item, QString fileName);
-	void openRecordingFile(FlexseaDevice *devicePtr, uint8_t item);
-	void closeRecordingFile(uint8_t item);
 
 private:
 	//Helper Functions

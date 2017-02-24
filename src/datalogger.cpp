@@ -337,9 +337,9 @@ void DataLogger::closeRecordingFile(FlexseaDevice *devicePtr)
 	{
 		logFileStream << endl;
 		logFile->close();
-		//writedLines[devicePtr] = 0;
 		delete logFile;
 		delete deviceFileMap.value(devicePtr).numLines;
+		delete deviceFileMap.value(devicePtr).fileIndex;
 		deviceFileMap.remove(devicePtr);
 	}
 }
