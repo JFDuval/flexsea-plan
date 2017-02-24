@@ -134,6 +134,19 @@ void W_2DPlot::receiveNewData(void)
 
 void W_2DPlot::refresh2DPlot(void)
 {
+	//sub sample the clock we receive, which is at 1kHz. We want 33Hz
+	static double ticks = 0;
+	const double REFRESH_PERIOD = 1000.0 / 33.0;
+	ticks += 1.0;
+	if(ticks > REFRESH_PERIOD)
+	{
+		ticks -= REFRESH_PERIOD;
+	}
+	else
+	{
+		return;
+	}
+
 	uint8_t index = 0;
 
 	//Refresh Stat Bar:
@@ -169,12 +182,6 @@ void W_2DPlot::refresh2DPlot(void)
 		refreshStats();
 		setChartAxisAutomatic();
 	}
-}
-
-//We use this function for the trapeze setpoints. Refreshed at 100Hz.
-void W_2DPlot::refreshControl(void)
-{
-
 }
 
 //****************************************************************************

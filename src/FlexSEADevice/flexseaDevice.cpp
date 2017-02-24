@@ -79,7 +79,7 @@ QString FlexseaDevice::getIdentifier(void)
 							<< QString::number(experimentIndex)
 							<< "Experiment Name:"
 							<< experimentName
-							<< "Aquisition Frequency:"
+							<< "Acquisition Frequency:"
 							<< QString::number(frequency)
 							<< "Slave type:"
 							<< slaveType;

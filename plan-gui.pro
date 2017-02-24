@@ -98,7 +98,8 @@ SOURCES += src/main.cpp \
 	src/FlexSEADevice/ricnuProject.cpp \
     src/FlexSEADevice/ankle2DofProject.cpp \
     src/FlexSEADevice/testBenchProject.cpp \
-    src/streammanager.cpp
+    src/streammanager.cpp \
+    flexsea-system/src/fm_block_allocator.c
 
 HEADERS  += inc/main.h \
 	inc/mainwindow.h \
@@ -167,6 +168,7 @@ HEADERS  += inc/main.h \
     inc/FlexSEADevice/ankle2DofProject.h \
     inc/FlexSEADevice/testBenchProject.h \
     inc/streammanager.h \
+    flexsea-system/inc/fm_block_allocator.h
 
 FORMS    += ui/mainwindow.ui \
 	ui/w_execute.ui \

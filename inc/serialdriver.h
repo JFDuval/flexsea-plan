@@ -58,6 +58,7 @@ public:
 	virtual ~SerialDriver();
 
 	void init(void);
+	bool isOpen() { return USBSerialPort.isOpen(); }
 
 public slots:
 	void open(QString name, int tries, int delay, bool* success);

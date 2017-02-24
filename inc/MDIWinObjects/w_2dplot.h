@@ -110,7 +110,6 @@ public slots:
 
 	void receiveNewData(void);
 	void refresh2DPlot(void);
-	void refreshControl(void);
 
 private slots:
 

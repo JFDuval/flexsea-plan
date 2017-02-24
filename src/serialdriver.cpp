@@ -165,6 +165,8 @@ void SerialDriver::close(void)
 
 	USBSerialPort.clear((QSerialPort::AllDirections));
 	USBSerialPort.close();
+
+	outgoingBuffer.clear();
 	clockTimer->stop();
 }
 
