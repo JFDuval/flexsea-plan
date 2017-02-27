@@ -36,11 +36,11 @@ SOURCES += src/main.cpp \
 	flexsea-system/src/flexsea_cmd_data.c \
 	flexsea-system/src/flexsea_cmd_external.c \
 	flexsea-system/src/flexsea_cmd_sensors.c \
-        flexsea-system/src/flexsea_cmd_calibration.c \
+	flexsea-system/src/flexsea_cmd_calibration.c \
 	flexsea-system/src/flexsea_system.c \
 	flexsea-system/src/flexsea_global_structs.c \
 	flexsea-system/test/test-flexsea_system.c  \
-  flexsea-system/src/fm_block_allocator.c \
+	flexsea-system/src/fm_block_allocator.c \
 	flexsea-shared/unity/unity.c \
 	flexsea-system/test/flexsea-system_test-all.c \
 	flexsea-system/test/test-flexsea_cmd_data.c \
@@ -97,8 +97,8 @@ SOURCES += src/main.cpp \
 	flexsea-system/src/flexsea_cmd_tools.c \
 	flexsea-system/test/test-flexsea_cmd_tools.c \
 	src/FlexSEADevice/ricnuProject.cpp \
-    src/FlexSEADevice/ankle2DofProject.cpp \
-    src/FlexSEADevice/testBenchProject.cpp \
+	src/FlexSEADevice/ankle2DofProject.cpp \
+	src/FlexSEADevice/testBenchProject.cpp \
 
 HEADERS  += inc/main.h \
 	inc/mainwindow.h \
@@ -111,9 +111,10 @@ HEADERS  += inc/main.h \
 	flexsea-system/inc/flexsea_cmd_data.h \
 	flexsea-system/inc/flexsea_cmd_external.h \
 	flexsea-system/inc/flexsea_cmd_sensors.h \
-        flexsea-system/inc/flexsea_cmd_calibration.h \
+	flexsea-system/inc/flexsea_cmd_calibration.h \
 	flexsea-system/inc/flexsea_system.h \
 	flexsea-system/inc/flexsea_global_structs.h \
+	flexsea-system/inc/fm_block_allocator.h \
 	flexsea-shared/unity/unity.h \
 	flexsea-shared/unity/unity_internals.h \
 	flexsea-system/test/flexsea-system_test-all.h \
@@ -164,8 +165,8 @@ HEADERS  += inc/main.h \
 	inc/MDIWinObjects/w_testbench.h \
 	flexsea-system/inc/flexsea_cmd_tools.h \
 	inc/FlexSEADevice/ricnuProject.h \
-    inc/FlexSEADevice/ankle2DofProject.h \
-    inc/FlexSEADevice/testBenchProject.h \
+	inc/FlexSEADevice/ankle2DofProject.h \
+	inc/FlexSEADevice/testBenchProject.h \
 
 FORMS    += ui/mainwindow.ui \
 	ui/w_execute.ui \
