@@ -178,7 +178,7 @@ QString Ankle2DofProject::getLastSerializedStr(void)
 							akList.last()->ex1->analog[0]	<< ',' << \
 							akList.last()->ex1->analog[1]	<< ',' << \
 							akList.last()->ex1->current		<< ',' << \
-                            *(akList.last()->ex1->enc_ang)	<< ',' << \
+							*(akList.last()->ex1->enc_ang)	<< ',' << \
 							akList.last()->ex1->volt_batt	<< ',' << \
 							akList.last()->ex1->volt_int	<< ',' << \
 							akList.last()->ex1->temp		<< ',' << \
@@ -195,7 +195,7 @@ QString Ankle2DofProject::getLastSerializedStr(void)
 							akList.last()->ex2->analog[0]	<< ',' << \
 							akList.last()->ex2->analog[1]	<< ',' << \
 							akList.last()->ex2->current		<< ',' << \
-                            *(akList.last()->ex2->enc_ang) 	<< ',' << \
+							*(akList.last()->ex2->enc_ang) 	<< ',' << \
 							akList.last()->ex2->volt_batt	<< ',' << \
 							akList.last()->ex2->volt_int	<< ',' << \
 							akList.last()->ex2->temp		<< ',' << \
@@ -226,7 +226,7 @@ void Ankle2DofProject::appendSerializedStr(QStringList *splitLine)
 		akList.last()->ex1->analog[0]		= (*splitLine)[9].toInt();
 		akList.last()->ex1->analog[1]		= (*splitLine)[10].toInt();
 		akList.last()->ex1->current			= (*splitLine)[11].toInt();
-        *(akList.last()->ex1->enc_ang) 		= (*splitLine)[12].toInt();
+		*(akList.last()->ex1->enc_ang) 		= (*splitLine)[12].toInt();
 		akList.last()->ex1->volt_batt		= (*splitLine)[15].toInt();
 		akList.last()->ex1->volt_int		= (*splitLine)[16].toInt();
 		akList.last()->ex1->temp			= (*splitLine)[17].toInt();
@@ -243,7 +243,7 @@ void Ankle2DofProject::appendSerializedStr(QStringList *splitLine)
 		akList.last()->ex2->analog[0]		= (*splitLine)[27].toInt();
 		akList.last()->ex2->analog[1]		= (*splitLine)[28].toInt();
 		akList.last()->ex2->current			= (*splitLine)[29].toInt();
-        *(akList.last()->ex2->enc_ang)         = (*splitLine)[30].toInt();
+		*(akList.last()->ex2->enc_ang)         = (*splitLine)[30].toInt();
 		akList.last()->ex2->volt_batt		= (*splitLine)[33].toInt();
 		akList.last()->ex2->volt_int		= (*splitLine)[34].toInt();
 		akList.last()->ex2->temp			= (*splitLine)[35].toInt();
@@ -336,19 +336,20 @@ struct std_variable Ankle2DofProject::getSerializedVar(int parameter, int index)
 			var.rawGenPtr = &akList[index]->ex1->current;
 			var.decodedPtr = &akList[index]->ex1->decoded.current;
 			break;
-		case 12: //"Ex1 Enc_Display"
+		case 12: //"Ex1 Encoder Velocity"
 			var.format = FORMAT_32S;
-			var.rawGenPtr = &akList[index]->ex1->enc_display;
+			var.rawGenPtr = &akList[index]->ex1->enc_ang;
 			var.decodedPtr = nullptr;
 			break;
-		case 13: //"Ex1 Encoder Control"
+		case 13: //"Ex1 Encoder Velocity"
 			var.format = FORMAT_32S;
-			var.rawGenPtr = &akList[index]->ex1->enc_control;
+			var.rawGenPtr = &akList[index]->ex1->enc_ang_vel;
 			var.decodedPtr = nullptr;
 			break;
 		case 14: //"Ex1 Encoder Commut"
 			var.format = FORMAT_32S;
-			var.rawGenPtr = &akList[index]->ex1->enc_commut;
+			//var.rawGenPtr = &akList[index]->ex1->enc_commut;	//ToDo remove/fix
+			var.rawGenPtr = nullptr;
 			var.decodedPtr = nullptr;
 		case 15: //"Ex1 Battery Voltage"
 			var.format = FORMAT_8U;
@@ -425,19 +426,20 @@ struct std_variable Ankle2DofProject::getSerializedVar(int parameter, int index)
 			var.rawGenPtr = &akList[index]->ex2->current;
 			var.decodedPtr = &akList[index]->ex2->decoded.current;
 			break;
-		case 30: //"Ex2 Enc_Display"
+		case 30: //"Ex2 Encoder"
 			var.format = FORMAT_32S;
-			var.rawGenPtr = &akList[index]->ex2->enc_display;
+			var.rawGenPtr = &akList[index]->ex2->enc_ang;
 			var.decodedPtr = nullptr;
 			break;
-		case 31: //"Ex2 Encoder Control"
+		case 31: //"Ex2 Encoder Velocity"
 			var.format = FORMAT_32S;
-			var.rawGenPtr = &akList[index]->ex2->enc_control;
+			var.rawGenPtr = &akList[index]->ex2->enc_ang_vel;
 			var.decodedPtr = nullptr;
 			break;
 		case 32: //"Ex2 Encoder Commut"
 			var.format = FORMAT_32S;
-			var.rawGenPtr = &akList[index]->ex2->enc_commut;
+			//var.rawGenPtr = &akList[index]->ex2->enc_commut;	//ToDo remove/fix
+			var.rawGenPtr = nullptr;
 			var.decodedPtr = nullptr;
 		case 33: //"Ex2 Battery Voltage"
 			var.format = FORMAT_8U;

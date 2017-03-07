@@ -134,8 +134,8 @@ QString RicnuProject::getLastSerializedStr(void)
 							riList.last()->ex->gyro.y					<< ',' << \
 							riList.last()->ex->gyro.z					<< ',' << \
 							riList.last()->ex->current					<< ',' << \
-                            riList.last()->enc_motor                	<< ',' << \
-                            riList.last()->enc_joint                	<< ',' << \
+							riList.last()->enc_motor                	<< ',' << \
+							riList.last()->enc_joint                	<< ',' << \
 							riList.last()->st->ch[0].strain_filtered	<< ',' << \
 							riList.last()->st->ch[1].strain_filtered	<< ',' << \
 							riList.last()->st->ch[2].strain_filtered	<< ',' << \
@@ -165,8 +165,8 @@ void RicnuProject::appendSerializedStr(QStringList *splitLine)
 		riList.last()->ex->gyro.y					= (*splitLine)[6].toInt();
 		riList.last()->ex->gyro.z					= (*splitLine)[7].toInt();
 		riList.last()->ex->current					= (*splitLine)[8].toInt();
-        riList.last()->enc_motor                	= (*splitLine)[9].toInt();
-        riList.last()->enc_joint                	= (*splitLine)[10].toInt();
+		riList.last()->enc_motor                	= (*splitLine)[9].toInt();
+		riList.last()->enc_joint                	= (*splitLine)[10].toInt();
 		riList.last()->st->ch[0].strain_filtered	= (*splitLine)[11].toInt();
 		riList.last()->st->ch[1].strain_filtered	= (*splitLine)[12].toInt();
 		riList.last()->st->ch[2].strain_filtered	= (*splitLine)[13].toInt();
@@ -247,12 +247,12 @@ struct std_variable RicnuProject::getSerializedVar(int parameter, int index)
 			break;
 		case 9: //"Encoder Motor"
 			var.format = FORMAT_32S;
-			var.rawGenPtr = &riList[index]->ex->enc_motor;
+			var.rawGenPtr = &riList[index]->enc_motor;
 			var.decodedPtr = nullptr;
 			break;
 		case 10: //"Encoder Joint"
 			var.format = FORMAT_32S;
-			var.rawGenPtr = &riList[index]->ex->enc_joint;
+			var.rawGenPtr = &riList[index]->enc_joint;
 			var.decodedPtr = nullptr;
 			break;
 		case 11: //"Strain[0]"

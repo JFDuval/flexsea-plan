@@ -94,14 +94,14 @@ QStringList ExecuteDevice::header = QStringList()
 								<< "Analog[6]"
 								<< "Analog[7]"
 								<< "Motor Current"
-								<< "Encoder Display"
-								<< "Encoder Control"
-								<< "Encoder Commutation"
+								<< "Encoder"
+								<< "Encoder Velocity"
 								<< "Battery Voltage"
 								<< "Int. Voltage"
 								<< "Temperature"
 								<< "Status1"
-								<< "Status2";
+								<< "Status2"
+								<< "Sine Commut PWM";
 
 QStringList ExecuteDevice::headerDecoded = QStringList()
 								<< "Raw Value Only"
@@ -125,41 +125,43 @@ QStringList ExecuteDevice::headerDecoded = QStringList()
 								<< "Decoded: mA"
 								<< "Raw Value Only"
 								<< "Raw Value Only"
-								<< "Raw Value Only"
 								<< "Decoded: mV"
 								<< "Decoded: mV"
 								<< "Decoded: 10x C"
+								<< "Raw value only"
 								<< "Raw value only"
 								<< "Raw value only";
 
 QString ExecuteDevice::getLastSerializedStr(void)
 {
 	QString str;
-	QTextStream(&str) <<	timeStamp.last().date		<< ',' << \
-							timeStamp.last().ms			<< ',' << \
+	QTextStream(&str) <<	timeStamp.last().date			<< ',' << \
+							timeStamp.last().ms				<< ',' << \
 
-							exList.last()->accel.x		<< ',' << \
-							exList.last()->accel.y		<< ',' << \
-							exList.last()->accel.z		<< ',' << \
-							exList.last()->gyro.x		<< ',' << \
-							exList.last()->gyro.y		<< ',' << \
-							exList.last()->gyro.z		<< ',' << \
-							exList.last()->strain		<< ',' << \
-							exList.last()->analog[0]	<< ',' << \
-							exList.last()->analog[1]	<< ',' << \
-							exList.last()->analog[2]	<< ',' << \
-							exList.last()->analog[3]	<< ',' << \
-							exList.last()->analog[4]	<< ',' << \
-							exList.last()->analog[5]	<< ',' << \
-							exList.last()->analog[6]	<< ',' << \
-							exList.last()->analog[7]	<< ',' << \
-							exList.last()->current		<< ',' << \
-                            *(exList.last()->enc_ang)   << ',' << \
-							exList.last()->volt_batt	<< ',' << \
-							exList.last()->volt_int		<< ',' << \
-							exList.last()->temp			<< ',' << \
-							exList.last()->status1		<< ',' << \
-							exList.last()->status2;
+							exList.last()->accel.x			<< ',' << \
+							exList.last()->accel.y			<< ',' << \
+							exList.last()->accel.z			<< ',' << \
+							exList.last()->gyro.x			<< ',' << \
+							exList.last()->gyro.y			<< ',' << \
+							exList.last()->gyro.z			<< ',' << \
+							exList.last()->strain			<< ',' << \
+							exList.last()->analog[0]		<< ',' << \
+							exList.last()->analog[1]		<< ',' << \
+							exList.last()->analog[2]		<< ',' << \
+							exList.last()->analog[3]		<< ',' << \
+							exList.last()->analog[4]		<< ',' << \
+							exList.last()->analog[5]		<< ',' << \
+							exList.last()->analog[6]		<< ',' << \
+							exList.last()->analog[7]		<< ',' << \
+							exList.last()->current			<< ',' << \
+							*(exList.last()->enc_ang)		<< ',' << \
+							*(exList.last()->enc_ang_vel)	<< ',' << \
+							exList.last()->volt_batt		<< ',' << \
+							exList.last()->volt_int			<< ',' << \
+							exList.last()->temp				<< ',' << \
+							exList.last()->status1			<< ',' << \
+							exList.last()->status2			<< ',' << \
+							exList.last()->sine_commut_pwm;
 	return str;
 }
 
@@ -169,33 +171,33 @@ void ExecuteDevice::appendSerializedStr(QStringList *splitLine)
 	if(splitLine->length() >= serializedLength)
 	{
 		appendEmptyLine();
-		timeStamp.last().date		= (*splitLine)[0];
-		timeStamp.last().ms			= (*splitLine)[1].toInt();
+		timeStamp.last().date			= (*splitLine)[0];
+		timeStamp.last().ms				= (*splitLine)[1].toInt();
 
-		exList.last()->accel.x		= (*splitLine)[2].toInt();
-		exList.last()->accel.y		= (*splitLine)[3].toInt();
-		exList.last()->accel.z		= (*splitLine)[4].toInt();
-		exList.last()->gyro.x		= (*splitLine)[5].toInt();
-		exList.last()->gyro.y		= (*splitLine)[6].toInt();
-		exList.last()->gyro.z		= (*splitLine)[7].toInt();
-		exList.last()->strain		= (*splitLine)[8].toInt();
-		exList.last()->analog[0]	= (*splitLine)[9].toInt();
-		exList.last()->analog[1]	= (*splitLine)[10].toInt();
-		exList.last()->analog[2]	= (*splitLine)[11].toInt();
-		exList.last()->analog[3]	= (*splitLine)[12].toInt();
-		exList.last()->analog[4]	= (*splitLine)[13].toInt();
-		exList.last()->analog[5]	= (*splitLine)[14].toInt();
-		exList.last()->analog[6]	= (*splitLine)[15].toInt();
-		exList.last()->analog[7]	= (*splitLine)[16].toInt();
-		exList.last()->current		= (*splitLine)[17].toInt();
-		exList.last()->enc_display	= (*splitLine)[18].toInt();
-		exList.last()->enc_control	= (*splitLine)[19].toInt();
-		exList.last()->enc_commut	= (*splitLine)[20].toInt();
-		exList.last()->volt_batt	= (*splitLine)[21].toInt();
-		exList.last()->volt_int		= (*splitLine)[22].toInt();
-		exList.last()->temp			= (*splitLine)[23].toInt();
-		exList.last()->status1		= (*splitLine)[24].toInt();
-		exList.last()->status2		= (*splitLine)[25].toInt();
+		exList.last()->accel.x			= (*splitLine)[2].toInt();
+		exList.last()->accel.y			= (*splitLine)[3].toInt();
+		exList.last()->accel.z			= (*splitLine)[4].toInt();
+		exList.last()->gyro.x			= (*splitLine)[5].toInt();
+		exList.last()->gyro.y			= (*splitLine)[6].toInt();
+		exList.last()->gyro.z			= (*splitLine)[7].toInt();
+		exList.last()->strain			= (*splitLine)[8].toInt();
+		exList.last()->analog[0]		= (*splitLine)[9].toInt();
+		exList.last()->analog[1]		= (*splitLine)[10].toInt();
+		exList.last()->analog[2]		= (*splitLine)[11].toInt();
+		exList.last()->analog[3]		= (*splitLine)[12].toInt();
+		exList.last()->analog[4]		= (*splitLine)[13].toInt();
+		exList.last()->analog[5]		= (*splitLine)[14].toInt();
+		exList.last()->analog[6]		= (*splitLine)[15].toInt();
+		exList.last()->analog[7]		= (*splitLine)[16].toInt();
+		exList.last()->current			= (*splitLine)[17].toInt();
+		*(exList.last()->enc_ang)		= (*splitLine)[18].toInt();
+		*(exList.last()->enc_ang_vel)	= (*splitLine)[19].toInt();
+		exList.last()->volt_batt		= (*splitLine)[20].toInt();
+		exList.last()->volt_int			= (*splitLine)[21].toInt();
+		exList.last()->temp				= (*splitLine)[22].toInt();
+		exList.last()->status1			= (*splitLine)[23].toInt();
+		exList.last()->status2			= (*splitLine)[24].toInt();
+		exList.last()->sine_commut_pwm	= (*splitLine)[25].toInt();
 	}
 }
 
@@ -312,44 +314,44 @@ struct std_variable ExecuteDevice::getSerializedVar(int parameter, int index)
 			var.rawGenPtr = &exList[index]->current;
 			var.decodedPtr = &exList[index]->decoded.current;
 			break;
-		case 18: //"Encoder Display"
+		case 18: //"Encoder"
 			var.format = FORMAT_32S;
-			var.rawGenPtr = &exList[index]->enc_display;
+			var.rawGenPtr = &exList[index]->enc_ang;
 			var.decodedPtr = nullptr;
 			break;
-		case 19: //"Encoder Control"
+		case 19: //"Encoder Velocity"
 			var.format = FORMAT_32S;
-			var.rawGenPtr = &exList[index]->enc_control;
+			var.rawGenPtr = &exList[index]->enc_ang_vel;
 			var.decodedPtr = nullptr;
 			break;
-		case 20: //"Encoder Commutation"
-			var.format = FORMAT_32S;
-			var.rawGenPtr = &exList[index]->enc_commut;
-			var.decodedPtr = nullptr;
-			break;
-		case 21: //"+VB"
+		case 20: //"+VB"
 			var.format = FORMAT_8U;
 			var.rawGenPtr = &exList[index]->volt_batt;
 			var.decodedPtr = &exList[index]->decoded.volt_batt;
 			break;
-		case 22: //"+VG"
+		case 21: //"+VG"
 			var.format = FORMAT_8U;
 			var.rawGenPtr = &exList[index]->volt_int;
 			var.decodedPtr = &exList[index]->decoded.volt_int;
 			break;
-		case 23: //"Temp"
+		case 22: //"Temp"
 			var.format = FORMAT_8U;
 			var.rawGenPtr = &exList[index]->temp;
 			var.decodedPtr = &exList[index]->decoded.temp;
 			break;
-		case 24: //"Status 1"
+		case 23: //"Status 1"
 			var.format = FORMAT_8U;
 			var.rawGenPtr = &exList[index]->status1;
 			var.decodedPtr = nullptr;
 			break;
-		case 25: //"Status 2"
+		case 24: //"Status 2"
 			var.format = FORMAT_8U;
 			var.rawGenPtr = &exList[index]->status2;
+			var.decodedPtr = nullptr;
+			break;
+		case 25: //"Sine Commut PWM"
+			var.format = FORMAT_16S;
+			var.rawGenPtr = &exList[index]->sine_commut_pwm;
 			var.decodedPtr = nullptr;
 			break;
 

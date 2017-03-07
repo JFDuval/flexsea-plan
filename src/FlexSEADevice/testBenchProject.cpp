@@ -200,7 +200,7 @@ QString TestBenchProject::getLastSerializedStr(void)
 							tbList.last()->ex1->analog[0]	<< ',' << \
 							tbList.last()->ex1->analog[1]	<< ',' << \
 							tbList.last()->ex1->current		<< ',' << \
-                            *(tbList.last()->ex1->enc_ang)  << ',' << \
+							*(tbList.last()->ex1->enc_ang)  << ',' << \
 							tbList.last()->ex1->volt_batt	<< ',' << \
 							tbList.last()->ex1->volt_int	<< ',' << \
 							tbList.last()->ex1->temp		<< ',' << \
@@ -218,7 +218,7 @@ QString TestBenchProject::getLastSerializedStr(void)
 							tbList.last()->ex2->analog[0]	<< ',' << \
 							tbList.last()->ex2->analog[1]	<< ',' << \
 							tbList.last()->ex2->current		<< ',' << \
-                            *(tbList.last()->ex2->enc_ang)	<< ',' << \
+							*(tbList.last()->ex2->enc_ang)	<< ',' << \
 							tbList.last()->ex2->volt_batt	<< ',' << \
 							tbList.last()->ex2->volt_int	<< ',' << \
 							tbList.last()->ex2->temp		<< ',' << \
@@ -260,7 +260,7 @@ void TestBenchProject::appendSerializedStr(QStringList *splitLine)
 		tbList.last()->ex1->analog[0]		= (*splitLine)[9].toInt();
 		tbList.last()->ex1->analog[1]		= (*splitLine)[10].toInt();
 		tbList.last()->ex1->current			= (*splitLine)[11].toInt();
-        *(tbList.last()->ex1->enc_ang)		= (*splitLine)[12].toInt();
+		*(tbList.last()->ex1->enc_ang)		= (*splitLine)[12].toInt();
 		tbList.last()->ex1->volt_batt		= (*splitLine)[13].toInt();
 		tbList.last()->ex1->volt_int		= (*splitLine)[14].toInt();
 		tbList.last()->ex1->temp			= (*splitLine)[15].toInt();
@@ -278,7 +278,7 @@ void TestBenchProject::appendSerializedStr(QStringList *splitLine)
 		tbList.last()->ex2->analog[0]		= (*splitLine)[25].toInt();
 		tbList.last()->ex2->analog[1]		= (*splitLine)[26].toInt();
 		tbList.last()->ex2->current			= (*splitLine)[27].toInt();
-        *(tbList.last()->ex2->enc_ang)		= (*splitLine)[28].toInt();
+		*(tbList.last()->ex2->enc_ang)		= (*splitLine)[28].toInt();
 		tbList.last()->ex2->volt_batt		= (*splitLine)[29].toInt();
 		tbList.last()->ex2->volt_int		= (*splitLine)[30].toInt();
 		tbList.last()->ex2->temp			= (*splitLine)[31].toInt();
@@ -381,9 +381,9 @@ struct std_variable TestBenchProject::getSerializedVar(int parameter, int index)
 			var.rawGenPtr = &tbList[index]->ex1->current;
 			var.decodedPtr = &tbList[index]->ex1->decoded.current;
 			break;
-		case 12: //"Encoder Display"
+		case 12: //"Encoder"
 			var.format = FORMAT_32S;
-			var.rawGenPtr = &tbList[index]->ex1->enc_display;
+			var.rawGenPtr = &tbList[index]->ex1->enc_ang;
 			var.decodedPtr = nullptr;
 			break;
 		case 13: //"Battery Voltage"
@@ -463,9 +463,9 @@ struct std_variable TestBenchProject::getSerializedVar(int parameter, int index)
 			var.rawGenPtr = &tbList[index]->ex2->current;
 			var.decodedPtr = &tbList[index]->ex2->decoded.current;
 			break;
-		case 28: //"Encoder Display"
+		case 28: //"Encoder"
 			var.format = FORMAT_32S;
-			var.rawGenPtr = &tbList[index]->ex2->enc_display;
+			var.rawGenPtr = &tbList[index]->ex2->enc_ang;
 			var.decodedPtr = nullptr;
 			break;
 		case 29: //"Battery Voltage"
