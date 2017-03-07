@@ -35,7 +35,7 @@
 #include "main.h"
 #include "mainwindow.h"
 #include <QApplication>
-
+//#include "peripherals.h"
 
 //****************************************************************************
 // Main
@@ -48,7 +48,8 @@ int main(int argc, char *argv[])
 	flexsea_system_test();
 	flexsea_user_test();
 
-    initializeGlobalStructs();
+	initLocalComm();
+	initializeGlobalStructs();
 
 	QApplication a(argc, argv);
 	MainWindow w;
