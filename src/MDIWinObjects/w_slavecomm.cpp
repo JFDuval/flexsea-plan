@@ -111,7 +111,7 @@ void W_SlaveComm::receiveComPortStatus(bool status)
 		if(logThisItem[0] == true)
 		{
 			logThisItem[0] = false;
-			emit closeRecordingFile(0);   //ToDo support multiple files
+			emit closeRecordingFile(0);
 		}
 	}
 	else
@@ -353,8 +353,10 @@ void W_SlaveComm::manageLogStatus(uint8_t item)
 	if((*log_cb_ptr[item])->isChecked() &&
 		(*on_off_pb_ptr[item])->isChecked())
 	{
-		emit openRecordingFile(targetDevice[item] ,item);
+		emit openRecordingFile(logDevice[item] ,item);
 
+		// Allow to reset the time when only stream is toggled.
+		previousLogThisItem[item] = false;
 		logThisItem[item] = true;
 
 		// Update GUI
@@ -571,6 +573,7 @@ void W_SlaveComm::configSlaveComm(int item)
 			// Fill the log flexSEADevice metadata properly
 			QString name;
 
+			logDevice[item]->targetSlaveName = targetDevice[item]->slaveName;
 			logDevice[item]->experimentIndex = selected_exp_index[item];
 			FlexSEA_Generic::getExpName(selected_exp_index[item], &name);
 			logDevice[item]->experimentName = name;
@@ -579,13 +582,10 @@ void W_SlaveComm::configSlaveComm(int item)
 					uint16_t(refreshRate[selected_refresh_index[item]]);
 
 			logDevice[item]->shortFileName =
-					logDevice[item]->slaveName + "_" +
+					targetDevice[item]->slaveName + "_" +
 					logDevice[item]->experimentName + "_" +
 					var_list_refresh[selected_refresh_index[item]] +
 					".csv";
-
-			// TODO: Is usefull anymore?
-			logDevice[item]->logItem = item;
 
 			//If refresh has changed, connect a time slot to that stream command:
 			if(previous_refresh_index[item] != selected_refresh_index[item])
@@ -681,7 +681,6 @@ void W_SlaveComm::sc_ankle2dof(uint8_t item)
 	index++;
 	index %= 2;
 
-	//TODO Ankle2DOF is not logging
 	decodeAndLog(item);
 }
 
@@ -718,7 +717,6 @@ void W_SlaveComm::sc_testbench(uint8_t item)
 	index++;
 	index %= 3;
 
-	//TODO Ankle2DOF is not logging
 	decodeAndLog(item);
 }
 

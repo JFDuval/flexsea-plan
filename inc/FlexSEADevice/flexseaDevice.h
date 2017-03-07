@@ -42,10 +42,27 @@
 // Definition(s)
 //****************************************************************************
 
+//Variable formats:
+#define FORMAT_32U	0
+#define FORMAT_32S	1
+#define FORMAT_16U	2
+#define FORMAT_16S	3
+#define FORMAT_8U	4
+#define FORMAT_8S	5
+#define FORMAT_QSTR 6
+#define NULL_PTR	7
+
 enum DataSourceFile
 {
 	LiveDataFile,
 	LogDataFile
+};
+
+struct std_variable
+{
+	void *rawGenPtr;
+	uint8_t format;
+	int32_t *decodedPtr;
 };
 
 //****************************************************************************
@@ -70,28 +87,35 @@ public:
 	virtual ~FlexseaDevice(){}
 
 	virtual QString getHeaderStr(void) = 0;
+	virtual QStringList getHeaderList(void) = 0;
+	virtual QStringList getHeaderDecList(void) = 0;
 	virtual QString getLastSerializedStr(void) = 0;
+	virtual struct std_variable getSerializedVar(int parameter) = 0;
+	virtual struct std_variable getSerializedVar(int parameter, int index) = 0;
 	virtual void appendSerializedStr(QStringList *splitLine) = 0;
 	virtual void decodeLastLine(void) = 0;
 	virtual void decodeAllLine(void) = 0;
 	virtual void appendEmptyLine(void) = 0;
-	virtual QString getStatusStr(int index) = 0;
+	virtual int lenght() = 0;
 	virtual void clear(void);
 
-	QString getIdentifier(void);
+	static QString getSlaveType(QStringList *splitLine);
+
+	QString getIdentifierStr(void);
+	QStringList getIdentifierStrList(void);
+	void saveIdentifierStr(QStringList *splitLine);
 
 	enum DataSourceFile dataSource;
 
 	QString shortFileName;
 	QString fileName;
 
-	int		logItem;
-
-	int		slaveIndex;
 	uint8_t slaveID;
-	QString slaveType;
+	QString slaveTypeName;
 	QString slaveName;
 
+
+	QString targetSlaveName;
 	int		experimentIndex;
 	QString experimentName;
 

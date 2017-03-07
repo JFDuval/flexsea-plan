@@ -97,7 +97,7 @@ private:
 	void openReadingFile(bool *, FlexseaDevice **);
 	void createlogkeypad(DataSource, FlexseaDevice *);
 	void closeReadingFile(void);
-	void updateDataSourceStatus(DataSource status);
+	void updateDataSourceStatus(DataSource , FlexseaDevice *);
 	void windowClosed(void);
 
 };

@@ -39,6 +39,7 @@
 #include <QFileDialog>
 #include <QTextStream>
 #include <QDateTime>
+#include <QMessageBox>
 
 #include "batteryDevice.h"
 #include "executeDevice.h"
@@ -59,7 +60,9 @@ DataLogger::DataLogger(QWidget *parent,
 					   GossipDevice *gossipInitPtr,
 					   BatteryDevice *batteryInitPtr,
 					   StrainDevice *strainInitPtr,
-					   RicnuProject *ricnuInitPtr) :
+					   RicnuProject *ricnuInitPtr,
+					   Ankle2DofProject *ankle2DofInitPtr,
+					   TestBenchProject *testBenchInitPtr) :
 	QWidget(parent)
 {
 	executeDevPtr = executeInitPtr;
@@ -68,6 +71,10 @@ DataLogger::DataLogger(QWidget *parent,
 	batteryDevPtr = batteryInitPtr;
 	strainDevPtr = strainInitPtr;
 	ricnuDevPtr = ricnuInitPtr;
+	ankle2DofDevPtr = ankle2DofInitPtr;
+	testBenchDevPtr = testBenchInitPtr;
+
+	planGUIRootPath = QDir::currentPath();
 
 	init();
 }
@@ -134,10 +141,6 @@ void DataLogger::openfile(QString shortFileName, uint8_t item)
 	// Try to open the file.
 	if(logRecordingFile[item].open(QIODevice::ReadWrite))
 	{
-		// TODO Datalogger should not know that there's a logFile and bar
-		// status. Abstraction principle is not respected here. Is there a way
-		// to use some sort of return value instead of signal slot?
-
 		//Associate stream to file:
 		logFileStream.setDevice(&logRecordingFile[item]);
 
@@ -176,6 +179,8 @@ void DataLogger::openReadingFile(bool * isOpen, FlexseaDevice **devPtr)
 	if(logReadingFile.open(QIODevice::ReadOnly) == false)
 	{
 		setStatus("Error : No log file selected or the file couldn't be opened.");
+		QMessageBox::warning(this, tr("Open Logging File"), \
+		tr("Error : No log file selected or the file couldn't be opened."));
 		return;
 	}
 
@@ -183,6 +188,8 @@ void DataLogger::openReadingFile(bool * isOpen, FlexseaDevice **devPtr)
 	if(logReadingFile.size() == 0)
 	{
 		setStatus("Error : Loaded file was empty.");
+		QMessageBox::warning(this, tr("Open Logging File"), \
+		tr("Error : Loaded file was empty."));
 		return;
 	}
 
@@ -193,37 +200,39 @@ void DataLogger::openReadingFile(bool * isOpen, FlexseaDevice **devPtr)
 	line = logReadingFile.readLine();
 	splitLine = line.split(',', QString::KeepEmptyParts);
 
+	QStringList identifier = executeDevPtr->getIdentifierStrList();
 	//Check if the file header contain the expected number of data
-	if(splitLine.length() < 14)
+	if(splitLine.length() != identifier.length())
 	{
 		setStatus(\
 		"Error : Loaded file header was not compatible (Header's too short)");
+		QMessageBox::warning(this, tr("Open Logging File"), \
+		tr("Error : Loaded file header was not compatible (Header's too short)"));
 		return;
 	}
 
-	QString slavetype = splitLine[13];
-	slavetype = slavetype.simplified();
+	QString slavetype = FlexseaDevice::getSlaveType(&splitLine).simplified();
 
 	// Choose the right device class based on the slave Type.
-	if	   (slavetype == executeDevPtr->slaveType)	{flexSEAPtr = executeDevPtr;}
-	else if(slavetype == manageDevPtr->slaveType)	{flexSEAPtr = manageDevPtr;}
-	else if(slavetype == gossipDevPtr->slaveType)	{flexSEAPtr = gossipDevPtr;}
-	else if(slavetype == batteryDevPtr->slaveType)	{flexSEAPtr = batteryDevPtr;}
-	else if(slavetype == strainDevPtr->slaveType)	{flexSEAPtr = strainDevPtr;}
-	else if(slavetype == ricnuDevPtr->slaveType)	{flexSEAPtr = ricnuDevPtr;}
+	if	   (slavetype == executeDevPtr->slaveTypeName)	{flexSEAPtr = executeDevPtr;}
+	else if(slavetype == manageDevPtr->slaveTypeName)	{flexSEAPtr = manageDevPtr;}
+	else if(slavetype == gossipDevPtr->slaveTypeName)	{flexSEAPtr = gossipDevPtr;}
+	else if(slavetype == batteryDevPtr->slaveTypeName)	{flexSEAPtr = batteryDevPtr;}
+	else if(slavetype == strainDevPtr->slaveTypeName)	{flexSEAPtr = strainDevPtr;}
+	else if(slavetype == ricnuDevPtr->slaveTypeName)	{flexSEAPtr = ricnuDevPtr;}
+	else if(slavetype == ankle2DofDevPtr->slaveTypeName)	{flexSEAPtr = ankle2DofDevPtr;}
+	else if(slavetype == testBenchDevPtr->slaveTypeName)	{flexSEAPtr = testBenchDevPtr;}
 	else
 	{
 		setStatus("Error : Loaded file Slave Type is not supported.");
+		QMessageBox::warning(this, tr("Open Logging File"), \
+		tr("Error : Loaded file Slave Type is not supported."));
 		return;
 	}
 
 	flexSEAPtr->clear();
-	flexSEAPtr->logItem			= splitLine[1].toInt();
-	flexSEAPtr->slaveIndex		= splitLine[3].toInt();
-	flexSEAPtr->slaveName		= splitLine[5];
-	flexSEAPtr->experimentIndex	= splitLine[7].toInt();
-	flexSEAPtr->experimentName	= splitLine[9];
-	flexSEAPtr->frequency		= splitLine[11].toInt();
+	flexSEAPtr->saveIdentifierStr(&splitLine);
+
 	flexSEAPtr->shortFileName	= shortFileName;
 	flexSEAPtr->fileName		= filename;
 
@@ -285,8 +294,18 @@ void DataLogger::writeToFile(FlexseaDevice *devicePtr, uint8_t item)
 		if(logRecordingFile[item].pos() == 0)
 		{
 			//Header:
-			logFileStream << devicePtr->getIdentifier() << endl;
+			logFileStream << devicePtr->getIdentifierStr() << endl;
 			logFileStream << devicePtr->getHeaderStr() << endl;
+		}
+
+		// If the stream write has failed, reset the flag. (This can happen when
+		// you open the file in read mode while logging.
+		// To avoid blocking function, we only try once.
+		// The LogFileStream buffer the data, so when the file is accessible
+		// again, it write down the accumulated buffer. No data is lost.
+		if(logFileStream.status() != QTextStream::Ok)
+		{
+			logFileStream.resetStatus();
 		}
 
 		//And we add to the text file:
@@ -337,9 +356,6 @@ void DataLogger::init(void)
 
 void DataLogger::initLogDirectory()
 {
-	// Save the root path of the execution of the program
-	planGUIRootPath = QDir::currentPath();
-
 	// Set the default folder
 	logFolder = "Plan-GUI-Logs";
 	sessionFolder = QDate::currentDate().toString("yyyy-MM-dd_") + \
@@ -372,6 +388,9 @@ void DataLogger::initLogDirectory()
 
 void DataLogger::setStatus(QString str)
 {
+	// TODO Datalogger should not know that there's a logFile and bar
+	// status. Abstraction principle is not respected here. Is there a way
+	// to use some sort of return value instead of signal slot?
 	emit setStatusBarMessage(str);
 	qDebug() << str;
 }
