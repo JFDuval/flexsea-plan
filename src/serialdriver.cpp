@@ -37,6 +37,7 @@
 #include <flexsea_comm.h>
 #include "main.h"
 #include <QDebug>
+#include <QTime>
 #include <flexsea_comm.h>
 #include <flexsea_payload.h>
 
@@ -62,8 +63,7 @@ SerialDriver::~SerialDriver()
 
 	   while(outgoingBuffer.size() > 0)
 	   {
-		   Message* m = outgoingBuffer.dequeue();
-		   delete m;
+		   outgoingBuffer.pop();
 	   }
 }
 //****************************************************************************
@@ -77,7 +77,7 @@ SerialDriver::~SerialDriver()
 
 void SerialDriver::enqueueReadWrite(uint8_t numb, uint8_t* dataPacket, uint8_t r_w)
 {
-	outgoingBuffer.enqueue(new Message(numb, dataPacket, r_w));
+	outgoingBuffer.push(Message(numb, dataPacket, r_w));
 }
 
 void SerialDriver::handleTimeout()
@@ -85,10 +85,9 @@ void SerialDriver::handleTimeout()
 	emit timerClocked();
 	if(outgoingBuffer.size() > 0)
 	{
-		Message* m = outgoingBuffer.dequeue();
-		readWrite(m->numBytes, m->dataPacket, m->r_w);
-		delete m;
-		m = nullptr;
+		Message m = outgoingBuffer.front();
+		readWrite(m.numBytes, m.dataPacket.data(), m.r_w);
+		outgoingBuffer.pop();
 	}
 }
 
@@ -167,7 +166,8 @@ void SerialDriver::close(void)
 	USBSerialPort.clear((QSerialPort::AllDirections));
 	USBSerialPort.close();
 
-	outgoingBuffer.clear();
+	while(outgoingBuffer.size()) { outgoingBuffer.pop(); }
+
 	clockTimer->stop();
 }
 
@@ -240,6 +240,22 @@ int SerialDriver::write(char bytes_to_send, unsigned char *serial_tx_data)
 
 void SerialDriver::readWrite(uint8_t numb, uint8_t *dataPacket, uint8_t r_w)
 {
+	/*	For Bench marking
+	static QTime lastTime = QTime::currentTime();
+	static double lp_msecs = 0;
+	QTime currTime = QTime::currentTime();
+	int msecs = lastTime.msecsTo(currTime);
+	lastTime = currTime;
+	lp_msecs = 0.1*msecs + 0.9*lp_msecs;
+	//lp_msecs = msecs;
+	static int debugCount = 0;
+	debugCount++;
+	debugCount%=100;
+	if(debugCount == 0)
+	{
+		qDebug() << "Period in msecs: " << lp_msecs << ", frequency: " << 1000.0 / lp_msecs;
+	}
+	*/
 	write(numb, dataPacket);
 	//qDebug() << dataPacket;
 

@@ -13,7 +13,7 @@ StreamManager::StreamManager(QObject *parent, SerialDriver* driver) :
 	for(int i = 0; i < NUM_TIMER_FREQS; i++)
 	{
 		timerFrequencies[i] = timerFreqsInHz[i];
-		streamLists[i] = QList<CmdSlaveRecord>();
+		streamLists[i] = std::vector<CmdSlaveRecord>();
 	}
 
 	connect(driver, &SerialDriver::timerClocked, this, &StreamManager::receiveClock);
@@ -42,7 +42,7 @@ void StreamManager::startStreaming(int cmd, int slave, int freq, bool shouldLog,
 
 	if(indexOfFreq >= 0 && indexOfFreq < NUM_TIMER_FREQS)
 	{
-		streamLists[indexOfFreq].append(record);
+		streamLists[indexOfFreq].push_back(record);
 		qDebug() << "Started streaming cmd: " << cmd << ", for slave id: " << slave << "at frequency: " << freq;
 	}
 	else
@@ -67,7 +67,7 @@ void StreamManager::stopStreaming(int cmd, int slave, int freq)
 		{
 			delete record.initialTime;
 			record.initialTime = nullptr;
-			streamLists[indexOfFreq].removeAt(i);
+			streamLists[indexOfFreq].erase(streamLists[indexOfFreq].begin() + i);
 			qDebug() << "Stopped streaming cmd: " << cmd << ", for slave id: " << slave << "at frequency: " << freq;
 		}
 		if(record.shouldLog)
@@ -84,7 +84,7 @@ QList<int> StreamManager::getRefreshRates()
 	return result;
 }
 
-void StreamManager::sendCommands(QList<CmdSlaveRecord> streamList)
+void StreamManager::sendCommands(const std::vector<CmdSlaveRecord> &streamList)
 {
 	for(int i = 0; i < streamList.size(); i++)
 	{
@@ -142,7 +142,7 @@ void StreamManager::tryPackAndSend(int cmd, uint8_t slaveId)
 void StreamManager::receiveClock()
 {
 	static double msSinceLast[NUM_TIMER_FREQS] = {0};
-	const double TOLERANCE = 0.001;
+	const double TOLERANCE = 0.0001;
 	for(int i = 0; i < NUM_TIMER_FREQS; i++)
 	{
 		//received clocks comes in at 1ms/clock

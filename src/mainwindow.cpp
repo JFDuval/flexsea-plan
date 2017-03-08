@@ -541,9 +541,6 @@ void MainWindow::createSlaveComm(void)
 		//Link SlaveComm and SerialDriver:
 		connect(mySerialDriver, SIGNAL(openStatus(bool)), \
 				myViewSlaveComm[0], SLOT(receiveComPortStatus(bool)));
-
-		connect(mySerialDriver, SIGNAL(newDataReady()), \
-				myViewSlaveComm[0], SLOT(receiveNewDataReady()));
 		connect(mySerialDriver, SIGNAL(dataStatus(int, int)), \
 				myViewSlaveComm[0], SLOT(displayDataReceived(int, int)));
 		connect(mySerialDriver, SIGNAL(newDataTimeout(bool)), \

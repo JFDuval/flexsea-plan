@@ -7,6 +7,7 @@
 #include <QString>
 #include <QDateTime>
 #include <FlexSEADevice/flexseaDevice.h>
+#include <vector>
 
 class StreamManager : public QObject
 {
@@ -49,7 +50,7 @@ private:
 		FlexseaDevice* device;
 	};
 
-	void sendCommands(QList<CmdSlaveRecord> streamList);
+	void sendCommands(const std::vector<CmdSlaveRecord> &streamList);
 	void tryPackAndSend(int cmd, uint8_t slaveId);
 	int getIndexOfFrequency(int freq);
 	QString getNameOfExperiment(int cmd);
@@ -58,7 +59,7 @@ private:
 
 	QList<QString> experimentLabels;
 	QList<int> experimentCodes;
-	QList<CmdSlaveRecord> streamLists[NUM_TIMER_FREQS];
+	std::vector<CmdSlaveRecord> streamLists[NUM_TIMER_FREQS];
 
 };
 

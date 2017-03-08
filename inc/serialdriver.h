@@ -39,8 +39,8 @@
 #include <QString>
 #include <QSerialPort>
 #include <QTimer>
-#include <QQueue>
-
+#include <queue>
+#include <QSharedPointer>
 //****************************************************************************
 // Namespace & Class
 //****************************************************************************
@@ -77,29 +77,32 @@ private:
 	//Variables & Objects:
 	class Message {
 	public:
+		static void do_delete(uint8_t buf[]) { delete[] buf; }
 		Message(uint8_t nb, uint8_t* data, uint8_t rw) {
 			numBytes = nb;
 			r_w = rw;
-			dataPacket = new uint8_t[nb];
+			dataPacket = QSharedPointer<uint8_t>(new uint8_t[nb], do_delete);
+			uint8_t* temp = dataPacket.data();
 			for(int i = 0; i < numBytes; i++)
-				dataPacket[i] = data[i];
+				temp[i] = data[i];
 		}
 		~Message()
 		{
 #ifdef QT_DEBUG
-			for(int i = 0; i < numBytes; i++)
-				dataPacket[i] = 0;
+			//for(int i = 0; i < numBytes; i++)
+			//	dataPacket[i] = 0;
 #endif
-			delete [] dataPacket;
-			dataPacket = nullptr;
+			//delete [] dataPacket;
+			//dataPacket = nullptr;
 		}
 
 		uint8_t numBytes;
-		uint8_t* dataPacket;
+		QSharedPointer<uint8_t> dataPacket;
+		//uint8_t* dataPacket;
 		uint8_t r_w;
 	};
 
-	QQueue<Message*> outgoingBuffer;
+	std::queue<Message> outgoingBuffer;
 	QSerialPort USBSerialPort;
 	bool comPortOpen;
 	unsigned char usb_rx[256];
