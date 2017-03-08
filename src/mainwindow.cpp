@@ -53,7 +53,7 @@ MainWindow::MainWindow(QWidget *parent) :
 	QMainWindow::showMaximized();
 
 	//Header contains timestamp:
-	QString winHeader = "FlexSEA-Plan GUI v2.0 (Alpha) [Last full build: ";
+	QString winHeader = "FlexSEA-Plan GUI v2.1 (Beta) [Last full build: ";
 	winHeader = winHeader + QString(__DATE__) + QString(' ') + QString(__TIME__) \
 				+ QString(']');
 	setWindowTitle(winHeader);
@@ -698,9 +698,9 @@ void MainWindow::createCalib(void)
 		connect(myViewCalibration[objectCount], SIGNAL(windowClosed()), \
 				this, SLOT(closeCalib()));
 
-        //Link to SlaveComm to send commands:
-        connect(myViewCalibration[objectCount], SIGNAL(writeCommand(uint8_t,uint8_t*,uint8_t)), \
-                this, SIGNAL(connectorWriteCommand(uint8_t,uint8_t*,uint8_t)));
+		//Link to SlaveComm to send commands:
+		connect(myViewCalibration[objectCount], SIGNAL(writeCommand(uint8_t,uint8_t*,uint8_t)), \
+				this, SIGNAL(connectorWriteCommand(uint8_t,uint8_t*,uint8_t)));
 	}
 	else
 	{
@@ -1060,14 +1060,14 @@ void MainWindow::displayAbout()
 	 <b>A</b>rchitecture.</u><br><br>Project originaly developped at the \
 	<a href='http://biomech.media.mit.edu/'>MIT Media Lab Biomechatronics \
 	group</a>, now supported by <a href='http://dephy.com/'>Dephy, Inc.</a>\
-	<br><br><b>Copyright &copy; Dephy, Inc. 2016</b><br><br>Software released \
+	<br><br><b>Copyright &copy; Dephy, Inc. 2017</b><br><br>Software released \
 	under the GNU GPL-3.0 license</center>"));
 }
 
 void MainWindow::displayLicense()
 {
 	QMessageBox::information(this, tr("Software License Information"), \
-	tr("<center><b>Copyright &copy; Dephy, Inc. 2016</b>\
+	tr("<center><b>Copyright &copy; Dephy, Inc. 2017</b>\
 		<br><br>This program is free software: you can redistribute it and/or modify \
 		it under the terms of the GNU General Public License as published by \
 		the Free Software Foundation, either version 3 of the License, or \

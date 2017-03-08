@@ -1417,10 +1417,9 @@ void W_2DPlot::on_pbReset_clicked()
 //Sets all channels to the IMU:
 void W_2DPlot::on_pbIMU_clicked()
 {
-	initUserInput();
 	initStats();
 
-	for(int item = 0; item < VAR_NUM; ++item)
+	for(int item = 0; item < VAR_NUM; item++)
 	{
 		(*cbVar[item])->setCurrentIndex(item + 1);
 	}

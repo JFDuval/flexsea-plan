@@ -240,6 +240,7 @@ QString Ankle2DofProject::getLastSerializedStr(void)
 
 void Ankle2DofProject::appendSerializedStr(QStringList *splitLine)
 {
+	uint8_t idx = 0;
 	//Check if data line contain the number of data expected
 	if(splitLine->length() >= serializedLength)
 	{
@@ -247,45 +248,46 @@ void Ankle2DofProject::appendSerializedStr(QStringList *splitLine)
 		// need to also add data structure
 		appendEmptyLineWithStruct();
 
-		timeStamp.last().date				= (*splitLine)[0];
-		timeStamp.last().ms					= (*splitLine)[1].toInt();
 
-		akList.last()->ex1->accel.x			= (*splitLine)[2].toInt();
-		akList.last()->ex1->accel.y			= (*splitLine)[3].toInt();
-		akList.last()->ex1->accel.z			= (*splitLine)[4].toInt();
-		akList.last()->ex1->gyro.x			= (*splitLine)[5].toInt();
-		akList.last()->ex1->gyro.y			= (*splitLine)[6].toInt();
-		akList.last()->ex1->gyro.z			= (*splitLine)[7].toInt();
-		akList.last()->ex1->strain			= (*splitLine)[8].toInt();
-		akList.last()->ex1->analog[0]		= (*splitLine)[9].toInt();
-		akList.last()->ex1->analog[1]		= (*splitLine)[10].toInt();
-		akList.last()->ex1->current			= (*splitLine)[11].toInt();
-		*(akList.last()->ex1->enc_ang) 		= (*splitLine)[12].toInt();
-		*(akList.last()->ex1->enc_ang_vel)  = (*splitLine)[13].toInt();
-		akList.last()->ex1->volt_batt		= (*splitLine)[15].toInt();
-		akList.last()->ex1->volt_int		= (*splitLine)[16].toInt();
-		akList.last()->ex1->temp			= (*splitLine)[17].toInt();
-		akList.last()->ex1->status1			= (*splitLine)[18].toInt();
-		akList.last()->ex1->status2			= (*splitLine)[19].toInt();
+		timeStamp.last().date				= (*splitLine)[idx++];
+		timeStamp.last().ms					= (*splitLine)[idx++].toInt();
 
-		akList.last()->ex2->accel.x			= (*splitLine)[20].toInt();
-		akList.last()->ex2->accel.y			= (*splitLine)[21].toInt();
-		akList.last()->ex2->accel.z			= (*splitLine)[22].toInt();
-		akList.last()->ex2->gyro.x			= (*splitLine)[23].toInt();
-		akList.last()->ex2->gyro.y			= (*splitLine)[24].toInt();
-		akList.last()->ex2->gyro.z			= (*splitLine)[25].toInt();
-		akList.last()->ex2->strain			= (*splitLine)[26].toInt();
-		akList.last()->ex2->analog[0]		= (*splitLine)[27].toInt();
-		akList.last()->ex2->analog[1]		= (*splitLine)[28].toInt();
-		akList.last()->ex2->current			= (*splitLine)[29].toInt();
-		*(akList.last()->ex2->enc_ang)      = (*splitLine)[30].toInt();
-		*(akList.last()->ex2->enc_ang_vel)  = (*splitLine)[31].toInt();
+		akList.last()->ex1->accel.x			= (*splitLine)[idx++].toInt();
+		akList.last()->ex1->accel.y			= (*splitLine)[idx++].toInt();
+		akList.last()->ex1->accel.z			= (*splitLine)[idx++].toInt();
+		akList.last()->ex1->gyro.x			= (*splitLine)[idx++].toInt();
+		akList.last()->ex1->gyro.y			= (*splitLine)[idx++].toInt();
+		akList.last()->ex1->gyro.z			= (*splitLine)[idx++].toInt();
+		akList.last()->ex1->strain			= (*splitLine)[idx++].toInt();
+		akList.last()->ex1->analog[0]		= (*splitLine)[idx++].toInt();
+		akList.last()->ex1->analog[1]		= (*splitLine)[idx++].toInt();
+		akList.last()->ex1->current			= (*splitLine)[idx++].toInt();
+		*(akList.last()->ex1->enc_ang) 		= (*splitLine)[idx++].toInt();
+		*(akList.last()->ex1->enc_ang_vel)  = (*splitLine)[idx++].toInt();
+		akList.last()->ex1->volt_batt		= (*splitLine)[idx++].toInt();
+		akList.last()->ex1->volt_int		= (*splitLine)[idx++].toInt();
+		akList.last()->ex1->temp			= (*splitLine)[idx++].toInt();
+		akList.last()->ex1->status1			= (*splitLine)[idx++].toInt();
+		akList.last()->ex1->status2			= (*splitLine)[idx++].toInt();
 
-		akList.last()->ex2->volt_batt		= (*splitLine)[33].toInt();
-		akList.last()->ex2->volt_int		= (*splitLine)[34].toInt();
-		akList.last()->ex2->temp			= (*splitLine)[35].toInt();
-		akList.last()->ex2->status1			= (*splitLine)[36].toInt();
-		akList.last()->ex2->status2			= (*splitLine)[37].toInt();
+		akList.last()->ex2->accel.x			= (*splitLine)[idx++].toInt();
+		akList.last()->ex2->accel.y			= (*splitLine)[idx++].toInt();
+		akList.last()->ex2->accel.z			= (*splitLine)[idx++].toInt();
+		akList.last()->ex2->gyro.x			= (*splitLine)[idx++].toInt();
+		akList.last()->ex2->gyro.y			= (*splitLine)[idx++].toInt();
+		akList.last()->ex2->gyro.z			= (*splitLine)[idx++].toInt();
+		akList.last()->ex2->strain			= (*splitLine)[idx++].toInt();
+		akList.last()->ex2->analog[0]		= (*splitLine)[idx++].toInt();
+		akList.last()->ex2->analog[1]		= (*splitLine)[idx++].toInt();
+		akList.last()->ex2->current			= (*splitLine)[idx++].toInt();
+		*(akList.last()->ex2->enc_ang)      = (*splitLine)[idx++].toInt();
+		*(akList.last()->ex2->enc_ang_vel)  = (*splitLine)[idx++].toInt();
+
+		akList.last()->ex2->volt_batt		= (*splitLine)[idx++].toInt();
+		akList.last()->ex2->volt_int		= (*splitLine)[idx++].toInt();
+		akList.last()->ex2->temp			= (*splitLine)[idx++].toInt();
+		akList.last()->ex2->status1			= (*splitLine)[idx++].toInt();
+		akList.last()->ex2->status2			= (*splitLine)[idx++].toInt();
 	}
 }
 
