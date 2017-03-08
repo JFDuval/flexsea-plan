@@ -377,12 +377,12 @@ struct std_variable Ankle2DofProject::getSerializedVar(int parameter, int index)
 			break;
 		case 12: //"Ex1 Encoder Velocity"
 			var.format = FORMAT_32S;
-			var.rawGenPtr = &akList[index]->ex1->enc_ang;
+			var.rawGenPtr = akList[index]->ex1->enc_ang;
 			var.decodedPtr = nullptr;
 			break;
 		case 13: //"Ex1 Encoder Velocity"
 			var.format = FORMAT_32S;
-			var.rawGenPtr = &akList[index]->ex1->enc_ang_vel;
+			var.rawGenPtr = akList[index]->ex1->enc_ang_vel;
 			var.decodedPtr = nullptr;
 			break;
 		case 14: //"Ex1 Encoder Commut"

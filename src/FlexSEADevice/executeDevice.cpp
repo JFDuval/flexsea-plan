@@ -345,12 +345,12 @@ struct std_variable ExecuteDevice::getSerializedVar(int parameter, int index)
 			break;
 		case 18: //"Encoder"
 			var.format = FORMAT_32S;
-			var.rawGenPtr = &exList[index]->enc_ang;
+			var.rawGenPtr = exList[index]->enc_ang;
 			var.decodedPtr = nullptr;
 			break;
 		case 19: //"Encoder Velocity"
 			var.format = FORMAT_32S;
-			var.rawGenPtr = &exList[index]->enc_ang_vel;
+			var.rawGenPtr = exList[index]->enc_ang_vel;
 			var.decodedPtr = nullptr;
 			break;
 		case 20: //"+VB"
