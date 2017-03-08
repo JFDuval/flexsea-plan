@@ -57,7 +57,7 @@ Ankle2DofProject::Ankle2DofProject(execute_s *ex1Ptr, execute_s *ex2Ptr): Flexse
 {
 	if(header.length() != headerDecoded.length())
 	{
-		qDebug() << "Mismatch between header lenght Ankle2DOF!";
+		qDebug() << "Mismatch between header length Ankle2DOF!";
 	}
 
 	this->dataSource = LiveDataFile;
@@ -65,8 +65,44 @@ Ankle2DofProject::Ankle2DofProject(execute_s *ex1Ptr, execute_s *ex2Ptr): Flexse
 	akList.append(new ankle2Dof_s_plan());
 	akList.last()->ex1 = ex1Ptr;
 	akList.last()->ex2 = ex2Ptr;
+	ownershipList.append(false);	//since these were past in we assume we don't clean them up on destruction
+
 	serializedLength = header.length();
 	slaveTypeName = "ankle2Dof";
+}
+
+Ankle2DofProject::~Ankle2DofProject()
+{
+	while(akList.size())
+	{
+		ankle2Dof_s_plan* data = akList.takeLast();
+		bool shouldDelete = ownershipList.takeLast();
+
+		if(shouldDelete && data)
+		{
+			if(data->ex1)
+			{
+				if(data->ex1->enc_ang) delete (data->ex1->enc_ang);
+				if(data->ex1->enc_ang_vel) delete (data->ex1->enc_ang_vel);
+
+				data->ex1->enc_ang = nullptr;
+				data->ex1->enc_ang_vel = nullptr;
+				delete (data->ex1);
+				data->ex1 = nullptr;
+			}
+			if(data->ex2)
+			{
+				if(data->ex2->enc_ang) delete (data->ex2->enc_ang);
+				if(data->ex2->enc_ang_vel) delete (data->ex2->enc_ang_vel);
+
+				data->ex2->enc_ang = nullptr;
+				data->ex2->enc_ang_vel = nullptr;
+				delete (data->ex2);
+				data->ex2 = nullptr;
+			}
+		}
+		data = nullptr;
+	}
 }
 
 //****************************************************************************
@@ -92,9 +128,8 @@ QStringList Ankle2DofProject::header = QStringList()
 								<< "ex1 Analog[0]"
 								<< "ex1 Analog[1]"
 								<< "ex1 Current"
-								<< "ex1 Encoder Display"
-								<< "ex1 Encoder Control"
-								<< "ex1 Encoder Commutation"
+								<< "ex1 Encoder Angle"
+								<< "ex1 Encoder Velocity"
 								<< "ex1 Battery Voltage"
 								<< "ex1 Int. Voltage"
 								<< "ex1 Temperature"
@@ -111,9 +146,8 @@ QStringList Ankle2DofProject::header = QStringList()
 								<< "ex2 Analog[0]"
 								<< "ex2 Analog[1]"
 								<< "ex2 Current"
-								<< "ex2 Encoder Display"
-								<< "ex2 Encoder Control"
-								<< "ex2 Encoder Commutation"
+								<< "ex1 Encoder Angle"
+								<< "ex1 Encoder Velocity"
 								<< "ex2 Battery Voltage"
 								<< "ex2 Int. Voltage"
 								<< "ex2 Temperature"
@@ -136,7 +170,6 @@ QStringList Ankle2DofProject::headerDecoded = QStringList()
 								<< "Decoded: mA"
 								<< "Raw Value Only"
 								<< "Raw Value Only"
-								<< "Raw Value Only"
 								<< "Decoded: mV"
 								<< "Decoded: mV"
 								<< "Decoded: 10x C"
@@ -153,7 +186,6 @@ QStringList Ankle2DofProject::headerDecoded = QStringList()
 								<< "Decoded: mV"
 								<< "Decoded: mV"
 								<< "Decoded: mA"
-								<< "Raw Value Only"
 								<< "Raw Value Only"
 								<< "Raw Value Only"
 								<< "Decoded: mV"
@@ -179,6 +211,7 @@ QString Ankle2DofProject::getLastSerializedStr(void)
 							akList.last()->ex1->analog[1]	<< ',' << \
 							akList.last()->ex1->current		<< ',' << \
 							*(akList.last()->ex1->enc_ang)	<< ',' << \
+							*(akList.last()->ex1->enc_ang_vel)	<< ',' << \
 							akList.last()->ex1->volt_batt	<< ',' << \
 							akList.last()->ex1->volt_int	<< ',' << \
 							akList.last()->ex1->temp		<< ',' << \
@@ -196,11 +229,12 @@ QString Ankle2DofProject::getLastSerializedStr(void)
 							akList.last()->ex2->analog[1]	<< ',' << \
 							akList.last()->ex2->current		<< ',' << \
 							*(akList.last()->ex2->enc_ang) 	<< ',' << \
+							*(akList.last()->ex2->enc_ang_vel) 	<< ',' << \
 							akList.last()->ex2->volt_batt	<< ',' << \
 							akList.last()->ex2->volt_int	<< ',' << \
 							akList.last()->ex2->temp		<< ',' << \
 							akList.last()->ex2->status1		<< ',' << \
-							akList.last()->ex2->status2;;
+							akList.last()->ex2->status2;
 	return str;
 }
 
@@ -227,6 +261,7 @@ void Ankle2DofProject::appendSerializedStr(QStringList *splitLine)
 		akList.last()->ex1->analog[1]		= (*splitLine)[10].toInt();
 		akList.last()->ex1->current			= (*splitLine)[11].toInt();
 		*(akList.last()->ex1->enc_ang) 		= (*splitLine)[12].toInt();
+		*(akList.last()->ex1->enc_ang_vel)  = (*splitLine)[13].toInt();
 		akList.last()->ex1->volt_batt		= (*splitLine)[15].toInt();
 		akList.last()->ex1->volt_int		= (*splitLine)[16].toInt();
 		akList.last()->ex1->temp			= (*splitLine)[17].toInt();
@@ -243,7 +278,9 @@ void Ankle2DofProject::appendSerializedStr(QStringList *splitLine)
 		akList.last()->ex2->analog[0]		= (*splitLine)[27].toInt();
 		akList.last()->ex2->analog[1]		= (*splitLine)[28].toInt();
 		akList.last()->ex2->current			= (*splitLine)[29].toInt();
-		*(akList.last()->ex2->enc_ang)         = (*splitLine)[30].toInt();
+		*(akList.last()->ex2->enc_ang)      = (*splitLine)[30].toInt();
+		*(akList.last()->ex2->enc_ang_vel)  = (*splitLine)[31].toInt();
+
 		akList.last()->ex2->volt_batt		= (*splitLine)[33].toInt();
 		akList.last()->ex2->volt_int		= (*splitLine)[34].toInt();
 		akList.last()->ex2->temp			= (*splitLine)[35].toInt();
@@ -478,6 +515,7 @@ void Ankle2DofProject::clear(void)
 {
 	FlexseaDevice::clear();
 	akList.clear();
+	ownershipList.clear();
 	timeStamp.clear();
 }
 
@@ -485,13 +523,21 @@ void Ankle2DofProject::appendEmptyLine(void)
 {
 	timeStamp.append(TimeStamp());
 	akList.append(new ankle2Dof_s_plan());
+	ownershipList.append(true);
 }
 
 void Ankle2DofProject::appendEmptyLineWithStruct(void)
 {
 	appendEmptyLine();
-	akList.last()->ex1 = new execute_s();
-	akList.last()->ex2 = new execute_s();
+	execute_s* emptyEx = new execute_s();
+	emptyEx->enc_ang = new int32_t();
+	emptyEx->enc_ang_vel = new int32_t();
+	akList.last()->ex1 = emptyEx;
+
+	emptyEx = new execute_s();
+	emptyEx->enc_ang = new int32_t();
+	emptyEx->enc_ang_vel = new int32_t();
+	akList.last()->ex2 = emptyEx;
 }
 
 void Ankle2DofProject::decodeLastLine(void)

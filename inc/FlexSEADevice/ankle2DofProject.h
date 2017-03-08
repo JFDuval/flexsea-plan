@@ -65,6 +65,7 @@ class Ankle2DofProject : public FlexseaDevice
 public:
 	explicit Ankle2DofProject(void);
 	explicit Ankle2DofProject(execute_s *ex1Ptr, execute_s *ex2Ptr);
+	virtual ~Ankle2DofProject();
 
 	// Interface implementation
 	QString getHeaderStr(void);
@@ -84,6 +85,8 @@ public:
 	void appendEmptyLineWithStruct(void);
 
 	QList<struct ankle2Dof_s_plan*> akList;
+	QList<bool> ownershipList;
+
 	static void decode(struct ankle2Dof_s_plan *akPtr);
 
 private:
