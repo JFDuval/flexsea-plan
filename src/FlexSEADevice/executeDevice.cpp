@@ -398,6 +398,7 @@ void ExecuteDevice::clear(void)
 {
 	FlexseaDevice::clear();
 	exList.clear();
+	ownershipList.clear();
 	timeStamp.clear();
 }
 
