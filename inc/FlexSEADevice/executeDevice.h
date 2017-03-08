@@ -90,6 +90,7 @@ class ExecuteDevice : public FlexseaDevice
 public:
 	explicit ExecuteDevice(void);
 	explicit ExecuteDevice(execute_s *devicePtr);
+	virtual ~ExecuteDevice();
 
 	// Interface implementation
 	QString getHeaderStr(void);
@@ -107,6 +108,8 @@ public:
 	static QString getStatusStr(struct execute_s *ex);
 
 	QList<struct execute_s*> exList;
+	QList<bool> ownershipList;
+
 	static void decode(struct execute_s *exPtr);
 
 private:

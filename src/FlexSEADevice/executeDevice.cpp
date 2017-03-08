@@ -61,9 +61,38 @@ ExecuteDevice::ExecuteDevice(execute_s *devicePtr): FlexseaDevice()
 
 	this->dataSource = LiveDataFile;
 	timeStamp.append(TimeStamp());
+
 	exList.append(devicePtr);
+	ownershipList.append(false); //we assume we don't own this device ptr, and whoever passed it to us is responsible for clean up
+
 	serializedLength = header.length();
 	slaveTypeName = "execute";
+}
+
+ExecuteDevice::~ExecuteDevice()
+{
+	if(ownershipList.size() != exList.size())
+	{
+		qDebug() << "Execute Device class cleaning up: execute list size doesn't match list of ownership info size.";
+		qDebug() << "Not sure whether it is safe to delete these device records.";
+		return;
+	}
+
+	while(ownershipList.size())
+	{
+		bool shouldDelete = ownershipList.takeLast();
+		execute_s* readyToDelete = exList.takeLast();
+		if(shouldDelete)
+		{
+			delete readyToDelete->enc_ang;
+			readyToDelete->enc_ang = nullptr;
+
+			delete readyToDelete->enc_ang_vel;
+			readyToDelete->enc_ang_vel = nullptr;
+
+			delete readyToDelete;
+		}
+	}
 }
 
 //****************************************************************************
@@ -375,7 +404,11 @@ void ExecuteDevice::clear(void)
 void ExecuteDevice::appendEmptyLine(void)
 {
 	timeStamp.append(TimeStamp());
-	exList.append(new execute_s());
+	execute_s *emptyStruct = new execute_s();
+	emptyStruct->enc_ang = new int32_t();
+	emptyStruct->enc_ang_vel = new int32_t();
+	exList.append(emptyStruct);
+	ownershipList.append(true); // we own this struct, so we must delete it in destructor
 }
 
 void ExecuteDevice::decodeLastLine(void)
