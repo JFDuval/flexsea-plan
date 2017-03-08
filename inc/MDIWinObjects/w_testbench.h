@@ -33,7 +33,8 @@
 
 #include <QWidget>
 #include "counter.h"
-#include "flexsea_generic.h"
+#include "testBenchProject.h"
+#include "define.h"
 
 //****************************************************************************
 // Namespace & Class Definition:
@@ -49,7 +50,10 @@ class W_TestBench : public QWidget, public Counter<W_TestBench>
 
 public:
 	//Constructor & Destructor:
-	explicit W_TestBench(QWidget *parent = 0);
+	explicit W_TestBench(QWidget *parent = 0,
+						 TestBenchProject *deviceLogPtr = nullptr,
+						 DisplayMode mode = DisplayLiveData,
+						 QList<TestBenchProject> *deviceListPtr = nullptr);
 	~W_TestBench();
 
 	//Function(s):
@@ -57,7 +61,9 @@ public:
 
 public slots:
 
-	void refreshDisplayTestBench(void);
+	void refreshDisplay(void);
+	void refreshDisplayLog(int index, FlexseaDevice * devPtr);
+	void updateDisplayMode(DisplayMode mode, FlexseaDevice* devPtr);
 
 signals:
 	void windowClosed(void);
@@ -65,10 +71,17 @@ signals:
 private:
 	//Variables & Objects:
 	Ui::W_TestBench *ui;
-	int active_slave, active_slave_index;
+
+	DisplayMode displayMode;
+
+	QList<TestBenchProject> *deviceList;
+	TestBenchProject *deviceLog;
 
 	//Function(s):
-	void init(void);
+	void initLive(void);
+	void initLog(void);
+	void display(TestBenchProject *devicePtr, int index);
+	void display(struct motortb_s *mb);
 };
 
 //****************************************************************************

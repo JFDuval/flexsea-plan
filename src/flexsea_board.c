@@ -65,34 +65,21 @@ uint8_t usb_rx[COMM_STR_BUF_LEN];
 
 //Wrapper for the specific serial functions. Useful to keep flexsea_network
 //plateform independant (for example, we don't need need puts_rs485() for Plan)
-void flexsea_send_serial_slave(uint8_t port, uint8_t *str, uint8_t length)
+void flexsea_send_serial_slave(PacketWrapper* p)
 {
+  (void) p;
 	//The current implementation of FlexSEA-Plan doesn't require this function,
 	//the different windows simply emit a signal to the serial driver. We are
 	//Keeping this here for compatibility reasons.
 
-	length = COMM_STR_BUF_LEN;    //Fixed length for now
-	(void)str;
-	(void)length;
-
-	if(port == PORT_SPI)
-	{
-
-	}
-	else if(port == PORT_USB)
-	{
-
-	}
-
 	return;
 }
 
-void flexsea_send_serial_master(uint8_t port, uint8_t *str, uint8_t length)
+void flexsea_send_serial_master(PacketWrapper *p)
 {
 	//Not implemented for this board
-	(void)port;
-	(void)str;
-	(void)length;
+	(void)p;
+
 }
 
 #ifdef __cplusplus

@@ -40,7 +40,10 @@
 //****************************************************************************
 
 W_Execute::W_Execute(QWidget *parent,
-					 ExecuteDevice *deviceLogPtr,
+					 FlexseaDevice *currentLog,
+					 ExecuteDevice *executeLogPtrInit,
+					 Ankle2DofProject * ankle2DofLogPtrInit,
+					 TestBenchProject * testBenchLogPtrInit,
 					 DisplayMode mode,
 					 QList<ExecuteDevice> *deviceListPtr) :
 	QWidget(parent),
@@ -48,15 +51,15 @@ W_Execute::W_Execute(QWidget *parent,
 {
 	ui->setupUi(this);
 
-	deviceLog  = deviceLogPtr;
+	executeLog  = executeLogPtrInit;
+	ankle2DofLog = ankle2DofLogPtrInit;
+	testbenchLog = testBenchLogPtrInit;
 	deviceList = deviceListPtr;
-
-	displayMode = mode;
 
 	setWindowTitle(this->getDescription());
 	setWindowIcon(QIcon(":icons/d_logo_small.png"));
 
-	updateDisplayMode(displayMode);
+	updateDisplayMode(mode, currentLog);
 }
 
 W_Execute::~W_Execute()
@@ -69,14 +72,6 @@ W_Execute::~W_Execute()
 // Public function(s):
 //****************************************************************************
 
-//ToDo: incomplete function (test in progress)
-void W_Execute::trackVarEx(uint8_t var, uint8_t *varToPlotPtr8s)
-{
-	if(var == 0)
-	{
-		varToPlotPtr8s = &exec1.volt_batt;
-	}
-}
 
 //****************************************************************************
 // Public slot(s):
@@ -91,21 +86,53 @@ void W_Execute::refreshDisplay(void)
 
 void W_Execute::refreshDisplayLog(int index, FlexseaDevice * devPtr)
 {
-	if(devPtr->slaveName == deviceLog->slaveName)
+	QString slaveName = devPtr->slaveName;
+
+	int slaveIndex = ui->comboBox_slave->currentIndex();
+
+	if(slaveName == executeLog->slaveName)
 	{
-		if(deviceLog->exList.isEmpty() == false)
+		if(executeLog->exList.isEmpty() == false)
 		{
-			 display(deviceLog, index);
+			display(executeLog, index);
+		}
+	}
+	else if (slaveName == ankle2DofLog->slaveName)
+	{
+		if(ankle2DofLog->akList.isEmpty() == false)
+		{
+			if(slaveIndex == 0)
+			{
+				display(ankle2DofLog->akList[index]->ex1);
+			}
+			if(slaveIndex == 1)
+			{
+				display(ankle2DofLog->akList[index]->ex2);
+			}
+		}
+	}
+	else if (slaveName == testbenchLog->slaveName)
+	{
+		if(testbenchLog->tbList.isEmpty() == false)
+		{
+			if(slaveIndex == 0)
+			{
+				display(testbenchLog->tbList[index]->ex1);
+			}
+			if(slaveIndex == 1)
+			{
+				display(testbenchLog->tbList[index]->ex2);
+			}
 		}
 	}
 }
 
-void W_Execute::updateDisplayMode(DisplayMode mode)
+void W_Execute::updateDisplayMode(DisplayMode mode, FlexseaDevice* devPtr)
 {
 	displayMode = mode;
 	if(displayMode == DisplayLogData)
 	{
-		initLog();
+		initLog(devPtr);
 	}
 	else
 	{
@@ -128,18 +155,37 @@ void W_Execute::initLive(void)
 	}
 }
 
-void W_Execute::initLog(void)
+void W_Execute::initLog(FlexseaDevice *devPtr)
 {
+	QString slaveName = devPtr->slaveName;
+
 	//Populates Slave list:
 	ui->comboBox_slave->clear();
-	ui->comboBox_slave->addItem(deviceLog->slaveName);
+
+	if(slaveName == executeLog->slaveName)
+	{
+		ui->comboBox_slave->addItem(executeLog->slaveName);
+	}
+	else if (slaveName == ankle2DofLog->slaveName)
+	{
+		ui->comboBox_slave->addItem("execute 1");
+		ui->comboBox_slave->addItem("execute 2");
+	}
+	else if (slaveName == testbenchLog->slaveName)
+	{
+		ui->comboBox_slave->addItem("execute 1");
+		ui->comboBox_slave->addItem("execute 2");
+	}
 }
 
 void W_Execute::display(ExecuteDevice *devicePtr, int index)
 {
-	int combined_status = 0;
+	display(devicePtr->exList[index]);
+}
 
-	struct execute_s *ex = devicePtr->exList[index];
+void W_Execute::display(struct execute_s *ex)
+{
+	int combined_status = 0;
 
 	//Raw values:
 	//===========
@@ -187,7 +233,7 @@ void W_Execute::display(ExecuteDevice *devicePtr, int index)
 
 	ui->disp_strain_d->setText(QString::number(ex->decoded.strain,'i', 0));
 
-	ui->label_status1->setText(devicePtr->getStatusStr(index));
+	ui->label_status1->setText(ExecuteDevice::getStatusStr(ex));
 
 	//==========
 }

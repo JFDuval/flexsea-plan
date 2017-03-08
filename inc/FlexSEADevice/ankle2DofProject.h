@@ -65,14 +65,19 @@ class Ankle2DofProject : public FlexseaDevice
 public:
 	explicit Ankle2DofProject(void);
 	explicit Ankle2DofProject(execute_s *ex1Ptr, execute_s *ex2Ptr);
-
+	virtual ~Ankle2DofProject();
 
 	// Interface implementation
 	QString getHeaderStr(void);
+	QStringList getHeaderList(void) {return header;}
+	QStringList getHeaderDecList(void) {return headerDecoded;}
 	QString getLastSerializedStr(void);
+	struct std_variable getSerializedVar(int parameter);
+	struct std_variable getSerializedVar(int parameter, int index);
 	void appendSerializedStr(QStringList *splitLine);
 	void decodeLastLine(void);
 	void decodeAllLine(void);
+	int lenght(void) {return akList.length();}
 	void clear(void);
 	void appendEmptyLine(void);
 	QString getStatusStr(int index);
@@ -80,11 +85,13 @@ public:
 	void appendEmptyLineWithStruct(void);
 
 	QList<struct ankle2Dof_s_plan*> akList;
+	QList<bool> ownershipList;
+
 	static void decode(struct ankle2Dof_s_plan *akPtr);
 
 private:
 	static QStringList header;
-
+	static QStringList headerDecoded;
 };
 
 

@@ -44,20 +44,30 @@
 
 RicnuProject::RicnuProject(void): FlexseaDevice()
 {
+	if(header.length() != headerDecoded.length())
+	{
+		qDebug() << "Mismatch between header lenght Ricnu!";
+	}
+
 	this->dataSource = LogDataFile;
 	serializedLength = header.length();
-	slaveType = "ricnu";
+	slaveTypeName = "ricnu";
 }
 
 RicnuProject::RicnuProject(execute_s *exPtr, strain_s *stPtr): FlexseaDevice()
 {
+	if(header.length() != headerDecoded.length())
+	{
+		qDebug() << "Mismatch between header lenght Ricnu!";
+	}
+
 	this->dataSource = LiveDataFile;
 	timeStamp.append(TimeStamp());
 	riList.append(new ricnu_s_plan());
 	riList.last()->ex = exPtr;
 	riList.last()->st = stPtr;
 	serializedLength = header.length();
-	slaveType = "ricnu";
+	slaveTypeName = "ricnu";
 }
 
 //****************************************************************************
@@ -72,27 +82,51 @@ QString RicnuProject::getHeaderStr(void)
 QStringList RicnuProject::header = QStringList()
 								<< "Timestamp"
 								<< "Timestamp (ms)"
-								<< "accel.x"
-								<< "accel.y"
-								<< "accel.z"
-								<< "gyro.x"
-								<< "gyro.y"
-								<< "gyro.z"
-								<< "current"
-								<< "enc-mot"
-								<< "enc-joint"
-								<< "strain1"
-								<< "strain2"
-								<< "strain3"
-								<< "strain4"
-								<< "strain5"
-								<< "strain6";
+
+								<< "Accel X"
+								<< "Accel Y"
+								<< "Accel Z"
+								<< "Gyro X"
+								<< "Gyro Y"
+								<< "Gyro Z"
+								<< "Motor current"
+								<< "Encoder Motor"
+								<< "Encoder Joint"
+								<< "Strain[0]"
+								<< "Strain[1]"
+								<< "Strain[2]"
+								<< "Strain[3]"
+								<< "Strain[4]"
+								<< "Strain[5]"
+								<< "PWM";
+
+QStringList RicnuProject::headerDecoded = QStringList()
+								<< "Raw Value Only"
+								<< "Raw Value Only"
+
+								<< "Decoded: mg"
+								<< "Decoded: mg"
+								<< "Decoded: mg"
+								<< "Decoded: deg/s"
+								<< "Decoded: deg/s"
+								<< "Decoded: deg/s"
+								<< "Decoded: mA"
+								<< "Raw value only"
+								<< "Raw value only"
+								<< "Decoded: ±100%"
+								<< "Decoded: ±100%"
+								<< "Decoded: ±100%"
+								<< "Decoded: ±100%"
+								<< "Decoded: ±100%"
+								<< "Decoded: ±100%"
+								<< "PWM, -1024 to 1024";
 
 QString RicnuProject::getLastSerializedStr(void)
 {
 	QString str;
 	QTextStream(&str) <<	timeStamp.last().date						<< ',' << \
 							timeStamp.last().ms							<< ',' << \
+
 							riList.last()->ex->accel.x					<< ',' << \
 							riList.last()->ex->accel.y					<< ',' << \
 							riList.last()->ex->accel.z					<< ',' << \
@@ -100,14 +134,15 @@ QString RicnuProject::getLastSerializedStr(void)
 							riList.last()->ex->gyro.y					<< ',' << \
 							riList.last()->ex->gyro.z					<< ',' << \
 							riList.last()->ex->current					<< ',' << \
-                            riList.last()->enc_motor                	<< ',' << \
-                            riList.last()->enc_joint                	<< ',' << \
+							riList.last()->enc_motor                	<< ',' << \
+							riList.last()->enc_joint                	<< ',' << \
 							riList.last()->st->ch[0].strain_filtered	<< ',' << \
 							riList.last()->st->ch[1].strain_filtered	<< ',' << \
 							riList.last()->st->ch[2].strain_filtered	<< ',' << \
 							riList.last()->st->ch[3].strain_filtered	<< ',' << \
 							riList.last()->st->ch[4].strain_filtered	<< ',' << \
-							riList.last()->st->ch[5].strain_filtered;
+							riList.last()->st->ch[5].strain_filtered	<< ',' << \
+							riList.last()->ex->sine_commut_pwm;
 	return str;
 }
 
@@ -122,6 +157,7 @@ void RicnuProject::appendSerializedStr(QStringList *splitLine)
 
 		timeStamp.last().date						= (*splitLine)[0];
 		timeStamp.last().ms							= (*splitLine)[1].toInt();
+
 		riList.last()->ex->accel.x					= (*splitLine)[2].toInt();
 		riList.last()->ex->accel.y					= (*splitLine)[3].toInt();
 		riList.last()->ex->accel.z					= (*splitLine)[4].toInt();
@@ -129,15 +165,139 @@ void RicnuProject::appendSerializedStr(QStringList *splitLine)
 		riList.last()->ex->gyro.y					= (*splitLine)[6].toInt();
 		riList.last()->ex->gyro.z					= (*splitLine)[7].toInt();
 		riList.last()->ex->current					= (*splitLine)[8].toInt();
-        riList.last()->enc_motor                	= (*splitLine)[9].toInt();
-        riList.last()->enc_joint                	= (*splitLine)[10].toInt();
+		riList.last()->enc_motor                	= (*splitLine)[9].toInt();
+		riList.last()->enc_joint                	= (*splitLine)[10].toInt();
 		riList.last()->st->ch[0].strain_filtered	= (*splitLine)[11].toInt();
 		riList.last()->st->ch[1].strain_filtered	= (*splitLine)[12].toInt();
 		riList.last()->st->ch[2].strain_filtered	= (*splitLine)[13].toInt();
 		riList.last()->st->ch[3].strain_filtered	= (*splitLine)[14].toInt();
 		riList.last()->st->ch[4].strain_filtered	= (*splitLine)[15].toInt();
 		riList.last()->st->ch[5].strain_filtered	= (*splitLine)[16].toInt();
+		riList.last()->ex->sine_commut_pwm			= (*splitLine)[17].toInt();
 	}
+}
+
+struct std_variable RicnuProject::getSerializedVar(int parameter)
+{
+	return getSerializedVar(parameter, 0);
+}
+
+struct std_variable RicnuProject::getSerializedVar(int parameter, int index)
+{
+	struct std_variable var;
+
+	if(index >= riList.length())
+	{
+		parameter = INT_MAX;
+	}
+
+	//Assign pointer:
+	switch(parameter)
+	{
+		/*Format: (every Case except Unused)
+		 * Line 1: data format, raw variable
+		 * Line 2: raw variable
+		 * Line 3: decoded variable (always int32),
+					null if not decoded  */
+		case 0: //"TimeStamp"
+			var.format = FORMAT_QSTR;
+			var.rawGenPtr = &timeStamp[index].date;
+			var.decodedPtr = nullptr;
+			break;
+		case 1: //"TimeStamp (ms)"
+			var.format = FORMAT_32S;
+			var.rawGenPtr = &timeStamp[index].ms;
+			var.decodedPtr = nullptr;
+			break;
+
+		case 2: //"Accel X"
+			var.format = FORMAT_16S;
+			var.rawGenPtr = &riList[index]->ex->accel.x;
+			var.decodedPtr = &riList[index]->ex->decoded.accel.x;
+			break;
+		case 3: //"Accel Y"
+			var.format = FORMAT_16S;
+			var.rawGenPtr = &riList[index]->ex->accel.y;
+			var.decodedPtr = &riList[index]->ex->decoded.accel.y;
+			break;
+		case 4: //"Accel Z"
+			var.format = FORMAT_16S;
+			var.rawGenPtr = &riList[index]->ex->accel.z;
+			var.decodedPtr = &riList[index]->ex->decoded.accel.z;
+			break;
+		case 5: //"Gyro X"
+			var.format = FORMAT_16S;
+			var.rawGenPtr = &riList[index]->ex->gyro.x;
+			var.decodedPtr = &riList[index]->ex->decoded.gyro.x;
+			break;
+		case 6: //"Gyro Y"
+			var.format = FORMAT_16S;
+			var.rawGenPtr = &riList[index]->ex->gyro.y;
+			var.decodedPtr = &riList[index]->ex->decoded.gyro.y;
+			break;
+		case 7: //"Gyro Z"
+			var.format = FORMAT_16S;
+			var.rawGenPtr = &riList[index]->ex->gyro.z;
+			var.decodedPtr = &riList[index]->ex->decoded.gyro.z;
+			break;
+		case 8: //"Motor current"
+			var.format = FORMAT_16S;
+			var.rawGenPtr = &riList[index]->ex->current;
+			var.decodedPtr = &riList[index]->ex->decoded.current;
+			break;
+		case 9: //"Encoder Motor"
+			var.format = FORMAT_32S;
+			var.rawGenPtr = &riList[index]->enc_motor;
+			var.decodedPtr = nullptr;
+			break;
+		case 10: //"Encoder Joint"
+			var.format = FORMAT_32S;
+			var.rawGenPtr = &riList[index]->enc_joint;
+			var.decodedPtr = nullptr;
+			break;
+		case 11: //"Strain[0]"
+			var.format = FORMAT_16U;
+			var.rawGenPtr = &riList[index]->st->ch[0].strain_filtered;
+			var.decodedPtr = &riList[index]->decoded.ext_strain[0];
+			break;
+		case 12: //"Strain[1]"
+			var.format = FORMAT_16U;
+			var.rawGenPtr = &riList[index]->st->ch[1].strain_filtered;
+			var.decodedPtr = &riList[index]->decoded.ext_strain[1];
+			break;
+		case 13: //"Strain[2]"
+			var.format = FORMAT_16U;
+			var.rawGenPtr = &riList[index]->st->ch[2].strain_filtered;
+			var.decodedPtr = &riList[index]->decoded.ext_strain[2];
+			break;
+		case 14: //"Strain[3]"
+			var.format = FORMAT_16U;
+			var.rawGenPtr = &riList[index]->st->ch[3].strain_filtered;
+			var.decodedPtr = &riList[index]->decoded.ext_strain[3];
+			break;
+		case 15: //"Strain[4]"
+			var.format = FORMAT_16U;
+			var.rawGenPtr = &riList[index]->st->ch[4].strain_filtered;
+			var.decodedPtr = &riList[index]->decoded.ext_strain[4];
+			break;
+		case 16: //"Strain[5]"
+			var.format = FORMAT_16U;
+			var.rawGenPtr = &riList[index]->st->ch[5].strain_filtered;
+			var.decodedPtr = &riList[index]->decoded.ext_strain[5];
+			break;
+		case 17: //"PWM"
+			var.format = FORMAT_16S;
+			var.rawGenPtr = &riList[index]->ex->sine_commut_pwm;
+			var.decodedPtr = nullptr;
+			break;
+		default:
+			var.format = NULL_PTR;
+			var.rawGenPtr = nullptr;
+			var.decodedPtr = nullptr;
+			break;
+	}
+
+	return var;
 }
 
 void RicnuProject::clear(void)

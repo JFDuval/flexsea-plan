@@ -39,6 +39,7 @@
 #include <QFileDialog>
 #include <QTextStream>
 #include <QDateTime>
+#include <QMessageBox>
 
 #include "batteryDevice.h"
 #include "executeDevice.h"
@@ -59,7 +60,9 @@ DataLogger::DataLogger(QWidget *parent,
 					   GossipDevice *gossipInitPtr,
 					   BatteryDevice *batteryInitPtr,
 					   StrainDevice *strainInitPtr,
-					   RicnuProject *ricnuInitPtr) :
+					   RicnuProject *ricnuInitPtr,
+					   Ankle2DofProject *ankle2DofInitPtr,
+					   TestBenchProject *testBenchInitPtr) :
 	QWidget(parent)
 {
 	executeDevPtr = executeInitPtr;
@@ -68,6 +71,10 @@ DataLogger::DataLogger(QWidget *parent,
 	batteryDevPtr = batteryInitPtr;
 	strainDevPtr = strainInitPtr;
 	ricnuDevPtr = ricnuInitPtr;
+	ankle2DofDevPtr = ankle2DofInitPtr;
+	testBenchDevPtr = testBenchInitPtr;
+
+	planGUIRootPath = QDir::currentPath();
 
 	init();
 }
@@ -80,75 +87,106 @@ DataLogger::DataLogger(QWidget *parent,
 // Public slot(s):
 //****************************************************************************
 
-void DataLogger::openRecordingFile(FlexseaDevice *devicePtr, uint8_t item)
+// param: fileIndex		when we log, if we go past MAX_NUM_LINES we start a new file, ending in -x where x is one higher than previous file
+//						default value is shown in header (1 as of now)
+QString DataLogger::generateFileName(QString shortFileName, int fileIndex)
 {
-	logShortFileName[item] = devicePtr->shortFileName;
-	logFileIndex[item] = 2;
+	QString result = shortFileName;
 
-	if(logRecordingFile[item].isOpen())
+	// Replace whitespace by underscore
+	result.replace(" ", "_");
+	// Replace double underscores with single underscore
+
+
+
+	// Remove invalid character for a filename(According to Windows)
+	result.remove(QRegExp("[<>:\"/|?*]"));
+	result.remove("\\");
+
+	// Add date and time to the short file name
+	result.prepend(QDate::currentDate().toString("yyyy-MM-dd_") +
+						  QTime::currentTime().toString("HH'h'mm'm'ss's'_"));
+	QString prev;
+	do {
+		prev = result;
+		result.replace("__", "_");
+	}
+	while(prev.compare(result) != 0);
+
+	if(result.mid(result.length()-4) == ".csv")
+	result = result.mid(0, result.length()-4);
+	result.append("-" + QString::number(fileIndex) + ".csv");
+	return result;
+}
+
+void DataLogger::openRecordingFile(FlexseaDevice *devicePtr)
+{
+	const QString U_SCORE = "_";
+	QString shortFileName = devicePtr->slaveName + U_SCORE +
+								 devicePtr->experimentName + U_SCORE +
+								 QString::number(devicePtr->frequency) + "Hz.csv";
+
+	devicePtr->shortFileName = shortFileName;
+
+	bool isDeviceOpenAlready = false;
+	if(deviceFileMap.contains(devicePtr))
+	{
+		deviceRecordIterator i = deviceFileMap.find(devicePtr);
+		if(i.value().file->isOpen())
+			isDeviceOpenAlready = true;
+	}
+
+	if(isDeviceOpenAlready)
 	{
 		setStatus("File already open. Close it before opening a new one");
 	}
-
 	else
 	{
-		// Add date and time to the short file name
-		logShortFileName[item].prepend(QDate::currentDate().toString("yyyy-MM-dd_") +
-							  QTime::currentTime().toString("HH'h'mm'm'ss's'_"));
-
-		QString shortFileName(logShortFileName[item]);
-
-		// Append file index
-		shortFileName.append("-1");
-
-		//Add .csv extension if not present
-		if(shortFileName.mid(shortFileName.length()-4) != ".csv")
-		{
-			shortFileName.append(".csv");
-		}
-
-		openfile(shortFileName, item);
+		QFile* logFile = openfile(generateFileName(devicePtr->shortFileName));
+		FileRecord record(logFile, new int(0), new int(1));
+		deviceFileMap.insert(devicePtr, record);
 	}
 }
 
-void DataLogger::openfile(QString shortFileName, uint8_t item)
+QFile* DataLogger::openfile(QString name)
 {
 	// Create session directory the first time you log
 	if(sessionDirectoryCreated == false){initLogDirectory();}
-
-	// Replace whitespace by underscore
-	shortFileName.replace(" ", "_");
-
-	// Remove invalid character for a filename(According to Windows)
-	shortFileName.remove(QRegExp("[<>:\"/|?*]"));
-	shortFileName.remove("\\");
 
 	// Set the folder to current directory
 	QDir::setCurrent(planGUIRootPath + "\\" + logFolder + "\\" + sessionFolder);
 
 	// Set the filename from the current directory
-	QString fileName = QDir::currentPath() + "/" + shortFileName;
+	QString fullPathToFile = QDir::currentPath() + "/" + name;
 
-	logRecordingFile[item].setFileName(fileName);
+	QFile* logFile = new QFile();
+	if(!logFile)
+	{
+		qDebug("DataLogger::openfile: Failed to create file object");
+		return nullptr;
+	}
+
+	logFile->setFileName(fullPathToFile);
 
 	// Try to open the file.
-	if(logRecordingFile[item].open(QIODevice::ReadWrite))
+	if(logFile->open(QIODevice::ReadWrite))
 	{
-		// TODO Datalogger should not know that there's a logFile and bar
-		// status. Abstraction principle is not respected here. Is there a way
-		// to use some sort of return value instead of signal slot?
-
 		//Associate stream to file:
-		logFileStream.setDevice(&logRecordingFile[item]);
-
-		setStatus(tr("Opened '") + fileName + "'.");
+		//TODO this won't work if we ever want to stream multiple files at once
+		//We could add a QTextStream* to the record in the hashmap though
+		//in which case this line would move elsewhere
+		logFileStream.setDevice(logFile);
+		setStatus(tr("Opened '") + fullPathToFile + "'.");
 	}
 
 	//If no file selected
 	else
 	{
+		delete logFile;
+		logFile = nullptr;
 		setStatus("No log file selected, or the file couldn't be opened.");
 	}
+	return logFile;
 }
 
 void DataLogger::openReadingFile(bool * isOpen, FlexseaDevice **devPtr)
@@ -176,6 +214,8 @@ void DataLogger::openReadingFile(bool * isOpen, FlexseaDevice **devPtr)
 	if(logReadingFile.open(QIODevice::ReadOnly) == false)
 	{
 		setStatus("Error : No log file selected or the file couldn't be opened.");
+		QMessageBox::warning(this, tr("Open Logging File"), \
+		tr("Error : No log file selected or the file couldn't be opened."));
 		return;
 	}
 
@@ -183,6 +223,8 @@ void DataLogger::openReadingFile(bool * isOpen, FlexseaDevice **devPtr)
 	if(logReadingFile.size() == 0)
 	{
 		setStatus("Error : Loaded file was empty.");
+		QMessageBox::warning(this, tr("Open Logging File"), \
+		tr("Error : Loaded file was empty."));
 		return;
 	}
 
@@ -193,37 +235,39 @@ void DataLogger::openReadingFile(bool * isOpen, FlexseaDevice **devPtr)
 	line = logReadingFile.readLine();
 	splitLine = line.split(',', QString::KeepEmptyParts);
 
+	QStringList identifier = executeDevPtr->getIdentifierStrList();
 	//Check if the file header contain the expected number of data
-	if(splitLine.length() < 14)
+	if(splitLine.length() != identifier.length())
 	{
 		setStatus(\
 		"Error : Loaded file header was not compatible (Header's too short)");
+		QMessageBox::warning(this, tr("Open Logging File"), \
+		tr("Error : Loaded file header was not compatible (Header's too short)"));
 		return;
 	}
 
-	QString slavetype = splitLine[13];
-	slavetype = slavetype.simplified();
+	QString slavetype = FlexseaDevice::getSlaveType(&splitLine).simplified();
 
 	// Choose the right device class based on the slave Type.
-	if	   (slavetype == executeDevPtr->slaveType)	{flexSEAPtr = executeDevPtr;}
-	else if(slavetype == manageDevPtr->slaveType)	{flexSEAPtr = manageDevPtr;}
-	else if(slavetype == gossipDevPtr->slaveType)	{flexSEAPtr = gossipDevPtr;}
-	else if(slavetype == batteryDevPtr->slaveType)	{flexSEAPtr = batteryDevPtr;}
-	else if(slavetype == strainDevPtr->slaveType)	{flexSEAPtr = strainDevPtr;}
-	else if(slavetype == ricnuDevPtr->slaveType)	{flexSEAPtr = ricnuDevPtr;}
+	if	   (slavetype == executeDevPtr->slaveTypeName)	{flexSEAPtr = executeDevPtr;}
+	else if(slavetype == manageDevPtr->slaveTypeName)	{flexSEAPtr = manageDevPtr;}
+	else if(slavetype == gossipDevPtr->slaveTypeName)	{flexSEAPtr = gossipDevPtr;}
+	else if(slavetype == batteryDevPtr->slaveTypeName)	{flexSEAPtr = batteryDevPtr;}
+	else if(slavetype == strainDevPtr->slaveTypeName)	{flexSEAPtr = strainDevPtr;}
+	else if(slavetype == ricnuDevPtr->slaveTypeName)	{flexSEAPtr = ricnuDevPtr;}
+	else if(slavetype == ankle2DofDevPtr->slaveTypeName)	{flexSEAPtr = ankle2DofDevPtr;}
+	else if(slavetype == testBenchDevPtr->slaveTypeName)	{flexSEAPtr = testBenchDevPtr;}
 	else
 	{
 		setStatus("Error : Loaded file Slave Type is not supported.");
+		QMessageBox::warning(this, tr("Open Logging File"), \
+		tr("Error : Loaded file Slave Type is not supported."));
 		return;
 	}
 
 	flexSEAPtr->clear();
-	flexSEAPtr->logItem			= splitLine[1].toInt();
-	flexSEAPtr->slaveIndex		= splitLine[3].toInt();
-	flexSEAPtr->slaveName		= splitLine[5];
-	flexSEAPtr->experimentIndex	= splitLine[7].toInt();
-	flexSEAPtr->experimentName	= splitLine[9];
-	flexSEAPtr->frequency		= splitLine[11].toInt();
+	flexSEAPtr->saveIdentifierStr(&splitLine);
+
 	flexSEAPtr->shortFileName	= shortFileName;
 	flexSEAPtr->fileName		= filename;
 
@@ -255,43 +299,48 @@ void DataLogger::openReadingFile(bool * isOpen, FlexseaDevice **devPtr)
 	*devPtr = flexSEAPtr;
 }
 
-void DataLogger::writeToFile(FlexseaDevice *devicePtr, uint8_t item)
+void DataLogger::writeToFile(FlexseaDevice *devicePtr)
 {
 	// Verify that the log file is properly opened.
-	if(logRecordingFile[item].isOpen())
+	FileRecord record = deviceFileMap.value(devicePtr);
+	QFile* logFile = record.file;
+	int* numLinesWritten = record.numLines;
+
+	if(logFile && logFile->isOpen())
 	{
-		// If max number of lines reach, close and create a new indexed file
-		if(writedLines[item] >= MAX_NUM_LINES)
+		if(*numLinesWritten >= MAX_NUM_LINES)
 		{
-			closeRecordingFile(item);
-
-			QString shortFileName(logShortFileName[item]);
-
-			// Append file index
-			shortFileName.append("-" + QString::number(logFileIndex[item]));
-			++logFileIndex[item];
-
-			//Add .csv extension if not present
-			if(shortFileName.mid(shortFileName.length()-4) != ".csv")
-			{
-				shortFileName.append(".csv");
-			}
-
-			openfile(shortFileName, item);
-			writedLines[item] = 0;
+			int* fileIndex = record.fileIndex;
+			(*fileIndex)++;
+			QString nextFileName = generateFileName(devicePtr->shortFileName, *fileIndex);
+			logFile->close();
+			delete logFile;
+			logFile = openfile(nextFileName);
+			*numLinesWritten = 0;
+			deviceFileMap[devicePtr].file = logFile;
 		}
 
 		//Writting for the first time?
-		if(logRecordingFile[item].pos() == 0)
+		if(logFile->pos() == 0)
 		{
 			//Header:
-			logFileStream << devicePtr->getIdentifier() << endl;
+			logFileStream << devicePtr->getIdentifierStr() << endl;
 			logFileStream << devicePtr->getHeaderStr() << endl;
+		}
+
+		// If the stream write has failed, reset the flag. (This can happen when
+		// you open the file in read mode while logging.
+		// To avoid blocking function, we only try once.
+		// The LogFileStream buffer the data, so when the file is accessible
+		// again, it write down the accumulated buffer. No data is lost.
+		if(logFileStream.status() != QTextStream::Ok)
+		{
+			logFileStream.resetStatus();
 		}
 
 		//And we add to the text file:
 		logFileStream << devicePtr->getLastSerializedStr() << endl;
-		++writedLines[item];
+		(*numLinesWritten)++;
 
 	}
 	else
@@ -300,13 +349,17 @@ void DataLogger::writeToFile(FlexseaDevice *devicePtr, uint8_t item)
 	}
 }
 
-void DataLogger::closeRecordingFile(uint8_t item)
+void DataLogger::closeRecordingFile(FlexseaDevice *devicePtr)
 {
-	if(logRecordingFile[item].isOpen())
+	QFile* logFile = deviceFileMap.value(devicePtr).file;
+	if(logFile && logFile->isOpen())
 	{
 		logFileStream << endl;
-		logRecordingFile[item].close();
-		writedLines[item] = 0;
+		logFile->close();
+		delete logFile;
+		delete deviceFileMap.value(devicePtr).numLines;
+		delete deviceFileMap.value(devicePtr).fileIndex;
+		deviceFileMap.remove(devicePtr);
 	}
 }
 
@@ -330,16 +383,11 @@ void DataLogger::init(void)
 	myTime = new QDateTime;
 	for(int item = 0; item < LOG_NUM; ++item)
 	{
-		writedLines[item] = 0;
-		logFileIndex[item]= 2;
 	}
 }
 
 void DataLogger::initLogDirectory()
 {
-	// Save the root path of the execution of the program
-	planGUIRootPath = QDir::currentPath();
-
 	// Set the default folder
 	logFolder = "Plan-GUI-Logs";
 	sessionFolder = QDate::currentDate().toString("yyyy-MM-dd_") + \
@@ -355,7 +403,6 @@ void DataLogger::initLogDirectory()
 		QDir().mkdir(logFolder);
 		qDebug() << QString("Created ") + logFolder;
 		emit setStatusBarMessage("Created the " + logFolder + " directory.");
-		//ui->statusBar->showMessage("Created the Plan-GUI-Logs directory.");
 	}
 	else
 	{
@@ -372,6 +419,9 @@ void DataLogger::initLogDirectory()
 
 void DataLogger::setStatus(QString str)
 {
+	// TODO Datalogger should not know that there's a logFile and bar
+	// status. Abstraction principle is not respected here. Is there a way
+	// to use some sort of return value instead of signal slot?
 	emit setStatusBarMessage(str);
 	qDebug() << str;
 }

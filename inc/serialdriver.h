@@ -38,7 +38,9 @@
 #include <QWidget>
 #include <QString>
 #include <QSerialPort>
-
+#include <QTimer>
+#include <queue>
+#include <QSharedPointer>
 //****************************************************************************
 // Namespace & Class
 //****************************************************************************
@@ -53,27 +55,63 @@ class SerialDriver : public QWidget
 
 public:
 	explicit SerialDriver(QWidget *parent = 0);
+	virtual ~SerialDriver();
+
 	void init(void);
+	bool isOpen() { return USBSerialPort.isOpen(); }
 
 public slots:
 	void open(QString name, int tries, int delay, bool* success);
 	void close(void);
-	int read(unsigned char *buf);
-	int write(char bytes_to_send, unsigned char *serial_tx_data);
-	void readWrite(uint numb, uint8_t *dataPacket, uint8_t r_w);
-	void readWrite(uint8_t numb, uint8_t *dataPacket, uint8_t r_w);
+	void enqueueReadWrite(uint8_t numb, uint8_t* dataPacket, uint8_t r_w);
 
 private slots:
+	void handleTimeout();
 
 private:
+	int read(unsigned char *buf);
+	int write(char bytes_to_send, unsigned char *serial_tx_data);
+	void readWrite(uint8_t numb, uint8_t *dataPacket, uint8_t r_w);
+
 	//Variables & Objects:
+	class Message {
+	public:
+		static void do_delete(uint8_t buf[]) { delete[] buf; }
+		Message(uint8_t nb, uint8_t* data, uint8_t rw) {
+			numBytes = nb;
+			r_w = rw;
+			dataPacket = QSharedPointer<uint8_t>(new uint8_t[nb], do_delete);
+			uint8_t* temp = dataPacket.data();
+			for(int i = 0; i < numBytes; i++)
+				temp[i] = data[i];
+		}
+		~Message()
+		{
+#ifdef QT_DEBUG
+			//for(int i = 0; i < numBytes; i++)
+			//	dataPacket[i] = 0;
+#endif
+			//delete [] dataPacket;
+			//dataPacket = nullptr;
+		}
+
+		uint8_t numBytes;
+		QSharedPointer<uint8_t> dataPacket;
+		//uint8_t* dataPacket;
+		uint8_t r_w;
+	};
+
+	std::queue<Message> outgoingBuffer;
 	QSerialPort USBSerialPort;
 	bool comPortOpen;
 	unsigned char usb_rx[256];
 
+	QTimer* clockTimer;
+
 	//Function(s):
 
 signals:
+	void timerClocked(void);
 	void openProgress(int val);
 	void openStatus(bool status);
 	void newDataReady(void);

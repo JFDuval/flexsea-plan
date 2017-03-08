@@ -40,7 +40,9 @@
 //****************************************************************************
 
 W_Battery::W_Battery(QWidget *parent,
-					 BatteryDevice *deviceLogPtr,
+					 FlexseaDevice *currentLog,
+					 BatteryDevice *batteryLogPtrInit,
+					 TestBenchProject *testBenchLogPtrInit,
 					 DisplayMode mode,
 					 QList<BatteryDevice> *deviceListPtr) :
 	QWidget(parent),
@@ -48,10 +50,9 @@ W_Battery::W_Battery(QWidget *parent,
 {
 	ui->setupUi(this);
 
-	deviceLog  = deviceLogPtr;
+	batteryLog = batteryLogPtrInit;
+	testBenchLog = testBenchLogPtrInit;
 	deviceList = deviceListPtr;
-
-	displayMode = mode;
 
 	setWindowTitle(this->getDescription());
 	setWindowIcon(QIcon(":icons/d_logo_small.png"));
@@ -59,7 +60,7 @@ W_Battery::W_Battery(QWidget *parent,
 	ui->comboBox_slaveM->setDisabled(true);
 	ui->comboBox_slaveM->addItem("Not implemented");
 
-	updateDisplayMode(displayMode);
+	updateDisplayMode(mode, currentLog);
 
 	//Disable modules that aren't programmed yet:
 	ui->dispVmin->setDisabled(true);
@@ -97,21 +98,30 @@ void W_Battery::refreshDisplay(void)
 
 void W_Battery::refreshDisplayLog(int index, FlexseaDevice * devPtr)
 {
-	if(devPtr->slaveName == deviceLog->slaveName)
+	QString slaveName = devPtr->slaveName;
+
+	if(devPtr->slaveName == batteryLog->slaveName)
 	{
-		if(deviceLog->baList.isEmpty() == false)
+		if(batteryLog->baList.isEmpty() == false)
 		{
-			 display(deviceLog, index);
+			 display(batteryLog, index);
+		}
+	}
+	else if (slaveName == testBenchLog->slaveName)
+	{
+		if(testBenchLog->tbList.isEmpty() == false)
+		{
+			display(testBenchLog->tbList[index]->ba);
 		}
 	}
 }
 
-void W_Battery::updateDisplayMode(DisplayMode mode)
+void W_Battery::updateDisplayMode(DisplayMode mode, FlexseaDevice* devPtr)
 {
 	displayMode = mode;
 	if(displayMode == DisplayLogData)
 	{
-		initLog();
+		initLog(devPtr);
 	}
 	else
 	{
@@ -135,23 +145,37 @@ void W_Battery::initLive(void)
 	}
 
 // TODO: S.B. what will be the purpose of this box?
-//	FlexSEA_Generic::populateSlaveComboBox(ui->comboBox_slaveM, \
+//	FlexSEA_Generic::populateSlaveComboBox(ui->comboBox_slaveM,
 //											SL_BASE_ALL, SL_LEN_ALL);
 //	//Start with manage 1:
 //	ui->comboBox_slaveM->setCurrentIndex(SL_BASE_MN);
 
 }
 
-void W_Battery::initLog(void)
+void W_Battery::initLog(FlexseaDevice *devPtr)
 {
+	QString slaveName = devPtr->slaveName;
+
 	//Populates Slave list:
 	ui->comboBox_slave->clear();
-	ui->comboBox_slave->addItem(deviceLog->slaveName);
+
+	if(slaveName == batteryLog->slaveName)
+	{
+		ui->comboBox_slave->addItem(batteryLog->slaveName);
+	}
+	else if (slaveName == testBenchLog->slaveName)
+	{
+		ui->comboBox_slave->addItem("battery 1");
+	}
 }
 
 void W_Battery::display(BatteryDevice *devicePtr, int index)
 {
-	struct battery_s *ba = devicePtr->baList[index];
+	display(devicePtr->baList[index]);
+}
+
+void W_Battery::display(struct battery_s *ba)
+{
 
 	//Raw values:
 	//===========

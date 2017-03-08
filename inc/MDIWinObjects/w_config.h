@@ -95,9 +95,9 @@ private:
 	void openCom(QString name, int tries, int delay, bool *success);
 	void closeCom(void);
 	void openReadingFile(bool *, FlexseaDevice **);
-	void createlogkeypad(DataSource, FlexseaDevice *);
+	void createLogKeypad(DataSource, FlexseaDevice *);
 	void closeReadingFile(void);
-	void updateDataSourceStatus(DataSource status);
+	void updateDataSourceStatus(DataSource , FlexseaDevice *);
 	void windowClosed(void);
 
 };

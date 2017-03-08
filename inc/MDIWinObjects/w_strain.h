@@ -65,7 +65,7 @@ public:
 public slots:
 	void refreshDisplay(void);
 	void refreshDisplayLog(int index, FlexseaDevice * devPtr);
-	void updateDisplayMode(DisplayMode mode);
+	void updateDisplayMode(DisplayMode mode, FlexseaDevice* devPtr);
 
 signals:
 	void windowClosed(void);

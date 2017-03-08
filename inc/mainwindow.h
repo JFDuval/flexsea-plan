@@ -56,6 +56,7 @@
 #include "flexseaDevice.h"
 #include "w_testbench.h"
 #include "w_commtest.h"
+#include <streammanager.h>
 
 #include "main.h"
 
@@ -129,6 +130,12 @@ private:
 	BatteryDevice batteryLog = BatteryDevice();
 	StrainDevice strainLog = StrainDevice();
 	RicnuProject ricnuLog = RicnuProject();
+	Ankle2DofProject ankle2DofLog = Ankle2DofProject();
+	TestBenchProject testBenchLog = TestBenchProject();
+
+	FlexseaDevice* currentFlexLog;
+
+	bool comPortStatus;
 
 
 	// Sub-Windows
@@ -154,16 +161,18 @@ private:
 	// Objects
 	SerialDriver *mySerialDriver;
 	DataLogger *myDataLogger;
+	StreamManager* streamManager;
 
 signals:
 	//Allow window to be independly opened in any order by providing a backbone connector
 	void connectorRefreshLogTimeSlider(int index, FlexseaDevice*);
-	void connectorUpdateDisplayMode(DisplayMode mode);
+	void connectorUpdateDisplayMode(DisplayMode mode, FlexseaDevice* devPtr);
 	void connectorWriteCommand(uint8_t ch, uint8_t* chPtr, uint8_t r_w);
 
 public slots:
 
-	void translatorUpdateDataSourceStatus(DataSource status);
+	void saveComPortStatus(bool status);
+	void translatorUpdateDataSourceStatus(DataSource status, FlexseaDevice* devPtr);
 	void manageLogKeyPad(DataSource status, FlexseaDevice *);
 
 	//MDI Windows (create):

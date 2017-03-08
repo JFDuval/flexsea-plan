@@ -56,7 +56,7 @@ W_Gossip::W_Gossip(QWidget *parent,
 	setWindowTitle(this->getDescription());
 	setWindowIcon(QIcon(":icons/d_logo_small.png"));
 
-	updateDisplayMode(displayMode);
+	updateDisplayMode(displayMode, nullptr);
 }
 
 W_Gossip::~W_Gossip()
@@ -91,8 +91,9 @@ void W_Gossip::refreshDisplayLog(int index, FlexseaDevice * devPtr)
 	}
 }
 
-void W_Gossip::updateDisplayMode(DisplayMode mode)
+void W_Gossip::updateDisplayMode(DisplayMode mode, FlexseaDevice* devPtr)
 {
+	(void)devPtr;
 	displayMode = mode;
 	if(displayMode == DisplayLogData)
 	{

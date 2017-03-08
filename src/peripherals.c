@@ -36,6 +36,9 @@ extern "C" {
 // Include(s)
 //****************************************************************************
 
+#include <flexsea_buffers.h>
+#include "flexsea_payload.h"
+#include <flexsea_comm.h>
 #include "main.h"
 #include "peripherals.h"
 
@@ -51,20 +54,35 @@ extern "C" {
 // Function(s)
 //****************************************************************************
 
+//Prepares the structures:
+void initLocalComm(void)
+{
+	//Default state:
+	initCommPeriph(&commPeriph[PORT_USB], PORT_USB, MASTER, rx_buf_1, \
+			comm_str_1, rx_command_1, &packet[PORT_USB][INBOUND], \
+			&packet[PORT_USB][OUTBOUND]);
+
+	//Personalize specific fields:
+	//...
+}
+
 //Parse the usb_rx buffer
 uint8_t tmp_rx_command_usb[PACKAGED_PAYLOAD_LEN];
 uint8_t decode_usb_rx(unsigned char *newdata)
 {
-	int i = 0, result = 0;
-	uint8_t cmd_ready_usb = 0;
-	//uint8_t tmp_rx_command_usb[PACKAGED_PAYLOAD_LEN];
+	int result = 0;
 	uint8_t ret = 0;
-	uint8_t info[2] = {0,0};
+	(void)newdata;
 
 	//Try to decode
-	cmd_ready_usb = unpack_payload_usb();
-	if(cmd_ready_usb != 0)
+	tryUnpacking(&commPeriph[PORT_USB], &packet[PORT_USB][INBOUND]);
+
+	//Valid communication from USB?
+	if(commPeriph[PORT_USB].rx.unpackedPacketsAvailable > 0)
 	{
+		commPeriph[PORT_USB].rx.unpackedPacketsAvailable = 0;
+		result = payload_parse_str(&packet[PORT_USB][INBOUND]);
+
 		#ifdef USE_PRINTF
 		//printf("[Received a valid comm_str!]\n");
 		ret = 0;
@@ -73,33 +91,12 @@ uint8_t decode_usb_rx(unsigned char *newdata)
 	else
 	{
 		#ifdef USE_PRINTF
-	   // printf("[No intelligent data received]\n");
+		// printf("[No intelligent data received]\n");
 		ret = 2;
 		#endif
 	}
 
-	//Try to parse
-	if(cmd_ready_usb != 0)
-	{
-		cmd_ready_usb = 0;
-
-		//Cheap trick to get first line	//ToDo: support more than 1
-		for(i = 0; i < PAYLOAD_BUF_LEN; i++)
-		{
-			tmp_rx_command_usb[i] = rx_command_usb[0][i];
-		}
-
-		info[0] = PORT_USB;
-		result = payload_parse_str(tmp_rx_command_usb, info);
-
-		//One or more new USB commands
-		ret = 3;
-	}
-	else
-	{
-		//No new USB command
-		ret = 4;
-	}
+	ret = (result > 0) ? 3 : 4;
 
 	return ret;
 }

@@ -48,7 +48,8 @@
 // Constructor & Destructor:
 //****************************************************************************
 
-W_CommTest::W_CommTest(QWidget *parent) :
+W_CommTest::W_CommTest(QWidget *parent,
+					   bool comStatusInit) :
 	QWidget(parent),
 	ui(new Ui::W_CommTest)
 {
@@ -59,6 +60,8 @@ W_CommTest::W_CommTest(QWidget *parent) :
 
 	init();
 	initTimers();
+
+	receiveComPortStatus(comStatusInit);
 }
 
 W_CommTest::~W_CommTest()
@@ -74,6 +77,31 @@ W_CommTest::~W_CommTest()
 //****************************************************************************
 // Public slot(s):
 //****************************************************************************
+
+//This slot gets called when the port status changes (turned On or Off)
+void W_CommTest::receiveComPortStatus(bool status)
+{
+	sc_comPortOpen = status;
+
+	if(sc_comPortOpen == false)
+	{
+		//PushButton:
+		ui->pushButtonReset->setDisabled(true);
+		ui->pushButtonStartStop->setDisabled(true);
+		ui->pushButtonReset_2->setDisabled(true);
+		ui->pushButtonStartStop_2->setDisabled(true);
+		startStopComTest(true);
+	}
+	else
+	{
+
+		//PushButton:
+		ui->pushButtonReset->setDisabled(false);
+		ui->pushButtonStartStop->setDisabled(false);
+		ui->pushButtonReset_2->setDisabled(false);
+		ui->pushButtonStartStop_2->setDisabled(false);
+	}
+}
 
 //Received new data?
 void W_CommTest::receivedData(void)
@@ -295,10 +323,15 @@ void W_CommTest::on_comboBox_slave_currentIndexChanged(int index)
 	active_slave = FlexSEA_Generic::getSlaveID(SL_BASE_ALL, active_slave_index);
 }
 
-void W_CommTest::on_pushButtonStartStop_clicked()
+void W_CommTest::startStopComTest(bool forceStop)
 {
 	static bool status = false;
 	int32_t tmpFreq = 0;
+
+	if(forceStop == true)
+	{
+		status = true;
+	}
 
 	if(status == false)
 	{
@@ -329,8 +362,11 @@ void W_CommTest::on_pushButtonStartStop_clicked()
 		experimentTimer->stop();
 		status = false;
 	}
+}
 
-	readCommTest();
+void W_CommTest::on_pushButtonStartStop_clicked()
+{
+	startStopComTest(false);
 }
 
 void W_CommTest::on_pushButtonReset_clicked()

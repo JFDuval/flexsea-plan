@@ -42,18 +42,28 @@
 
 ManageDevice::ManageDevice(void): FlexseaDevice()
 {
+	if(header.length() != headerDecoded.length())
+	{
+		qDebug() << "Mismatch between header lenght Manage!";
+	}
+
 	this->dataSource = LogDataFile;
 	serializedLength = header.length();
-	slaveType = "manage";
+	slaveTypeName = "manage";
 }
 
 ManageDevice::ManageDevice(manage_s *devicePtr): FlexseaDevice()
 {
+	if(header.length() != headerDecoded.length())
+	{
+		qDebug() << "Mismatch between header lenght Manage!";
+	}
+
 	this->dataSource = LiveDataFile;
 	timeStamp.append(TimeStamp());
 	mnList.append(devicePtr);
 	serializedLength = header.length();
-	slaveType = "manage";
+	slaveTypeName = "manage";
 }
 
 //****************************************************************************
@@ -67,29 +77,53 @@ QString ManageDevice::getHeaderStr(void)
 QStringList ManageDevice::header = QStringList()
 								<< "Timestamp"
 								<< "Timestamp (ms)"
-								<< "accel.x"
-								<< "accel.y"
-								<< "accel.z"
-								<< "gyro.x"
-								<< "gyro.y"
-								<< "gyro.z"
-								<< "digitalIn"
-								<< "sw1"
-								<< "analog0"
-								<< "analog1"
-								<< "analog2"
-								<< "analog3"
-								<< "analog4"
-								<< "analog5"
-								<< "analog6"
-								<< "analog7"
-								<< "Status1";
+
+								<< "Accel X"
+								<< "Accel Y"
+								<< "Accel Z"
+								<< "Gyro X"
+								<< "Gyro Y"
+								<< "Gyro Z"
+								<< "Digital Inputs"
+								<< "Pushbutton"
+								<< "Analog[0]"
+								<< "Analog[1]"
+								<< "Analog[2]"
+								<< "Analog[3]"
+								<< "Analog[4]"
+								<< "Analog[5]"
+								<< "Analog[6]"
+								<< "Analog[7]"
+								<< "Status";
+
+QStringList ManageDevice::headerDecoded = QStringList()
+								<< "Raw Value Only"
+								<< "Raw Value Only"
+
+								<< "Decoded: mg"
+								<< "Decoded: mg"
+								<< "Decoded: mg"
+								<< "Decoded: deg/s"
+								<< "Decoded: deg/s"
+								<< "Decoded: deg/s"
+								<< "Raw Value Only"
+								<< "Raw Value Only"
+								<< "Decoded: mV"
+								<< "Decoded: mV"
+								<< "Decoded: mV"
+								<< "Decoded: mV"
+								<< "Decoded: mV"
+								<< "Decoded: mV"
+								<< "Decoded: mV"
+								<< "Decoded: mV"
+								<< "Raw Value Only";
 
 QString ManageDevice::getLastSerializedStr(void)
 {
 	QString str;
 	QTextStream(&str) <<	timeStamp.last().date		<< ',' << \
 							timeStamp.last().ms			<< ',' << \
+
 							mnList.last()->accel.x		<< ',' << \
 							mnList.last()->accel.y		<< ',' << \
 							mnList.last()->accel.z		<< ',' << \
@@ -118,6 +152,7 @@ void ManageDevice::appendSerializedStr(QStringList *splitLine)
 		appendEmptyLine();
 		timeStamp.last().date		= (*splitLine)[0];
 		timeStamp.last().ms			= (*splitLine)[1].toInt();
+
 		mnList.last()->accel.x		= (*splitLine)[2].toInt();
 		mnList.last()->accel.y		= (*splitLine)[3].toInt();
 		mnList.last()->accel.z		= (*splitLine)[4].toInt();
@@ -136,6 +171,134 @@ void ManageDevice::appendSerializedStr(QStringList *splitLine)
 		mnList.last()->analog[7]	= (*splitLine)[17].toInt();
 		mnList.last()->status1		= (*splitLine)[18].toInt();
 	}
+}
+
+struct std_variable ManageDevice::getSerializedVar(int parameter)
+{
+	return getSerializedVar(parameter, 0);
+}
+
+struct std_variable ManageDevice::getSerializedVar(int parameter, int index)
+{
+	struct std_variable var;
+
+	if(index >= mnList.length())
+	{
+		parameter = INT_MAX;
+	}
+
+	//Assign pointer:
+	switch(parameter)
+	{
+		/*Format: (every Case except Unused)
+		 * Line 1: data format, raw variable
+		 * Line 2: raw variable
+		 * Line 3: decoded variable (always int32),
+					null if not decoded  */
+		case 0: //"TimeStamp"
+			var.format = FORMAT_QSTR;
+			var.rawGenPtr = &timeStamp[index].date;
+			var.decodedPtr = nullptr;
+			break;
+		case 1: //"TimeStamp (ms)"
+			var.format = FORMAT_32S;
+			var.rawGenPtr = &timeStamp[index].ms;
+			var.decodedPtr = nullptr;
+			break;
+
+		case 2: //"Accel X"
+			var.format = FORMAT_16S;
+			var.rawGenPtr = &mnList[index]->accel.x;
+			var.decodedPtr = &mnList[index]->decoded.accel.x;
+			break;
+		case 3: //"Accel Y"
+			var.format = FORMAT_16S;
+			var.rawGenPtr = &mnList[index]->accel.y;
+			var.decodedPtr = &mnList[index]->decoded.accel.y;
+			break;
+		case 4: //"Accel Z"
+			var.format = FORMAT_16S;
+			var.rawGenPtr = &mnList[index]->accel.z;
+			var.decodedPtr = &mnList[index]->decoded.accel.z;
+			break;
+		case 5: //"Gyro X"
+			var.format = FORMAT_16S;
+			var.rawGenPtr = &mnList[index]->gyro.x;
+			var.decodedPtr = &mnList[index]->decoded.gyro.x;
+			break;
+		case 6: //"Gyro Y"
+			var.format = FORMAT_16S;
+			var.rawGenPtr = &mnList[index]->gyro.y;
+			var.decodedPtr = &mnList[index]->decoded.gyro.y;
+			break;
+		case 7: //"Gyro Z"
+			var.format = FORMAT_16S;
+			var.rawGenPtr = &mnList[index]->gyro.z;
+			var.decodedPtr = &mnList[index]->decoded.gyro.z;
+			break;
+		case 8: //"Digital inputs"
+			var.format = FORMAT_16U;
+			var.rawGenPtr = &mnList[index]->digitalIn;
+			var.decodedPtr = nullptr;
+			break;
+		case 9: //"Pushbutton"
+			var.format = FORMAT_8U;
+			var.rawGenPtr = &mnList[index]->sw1;
+			var.decodedPtr = nullptr;
+			break;
+		case 10: //"Analog[0]"
+			var.format = FORMAT_16U;
+			var.rawGenPtr = &mnList[index]->analog[0];
+			var.decodedPtr = &mnList[index]->decoded.analog[0];
+			break;
+		case 11: //Analog[1]
+			var.format = FORMAT_16U;
+			var.rawGenPtr = &mnList[index]->analog[1];
+			var.decodedPtr = &mnList[index]->decoded.analog[1];
+			break;
+		case 12: //"Analog[2]"
+			var.format = FORMAT_16U;
+			var.rawGenPtr = &mnList[index]->analog[2];
+			var.decodedPtr = &mnList[index]->decoded.analog[2];
+			break;
+		case 13: //Analog[3]
+			var.format = FORMAT_16U;
+			var.rawGenPtr = &mnList[index]->analog[3];
+			var.decodedPtr = &mnList[index]->decoded.analog[3];
+			break;
+		case 14: //"Analog[4]"
+			var.format = FORMAT_16U;
+			var.rawGenPtr = &mnList[index]->analog[4];
+			var.decodedPtr = &mnList[index]->decoded.analog[4];
+			break;
+		case 15: //Analog[5]
+			var.format = FORMAT_16U;
+			var.rawGenPtr = &mnList[index]->analog[5];
+			var.decodedPtr = &mnList[index]->decoded.analog[5];
+			break;
+		case 16: //"Analog[6]"
+			var.format = FORMAT_16U;
+			var.rawGenPtr = &mnList[index]->analog[6];
+			var.decodedPtr = &mnList[index]->decoded.analog[6];
+			break;
+		case 17: //Analog[7]
+			var.format = FORMAT_16U;
+			var.rawGenPtr = &mnList[index]->analog[7];
+			var.decodedPtr = &mnList[index]->decoded.analog[7];
+			break;
+		case 18: //"Status"
+			var.format = FORMAT_8U;
+			var.rawGenPtr = &mnList[index]->status1;
+			var.decodedPtr = nullptr;
+			break;
+		default:
+			var.format = NULL_PTR;
+			var.rawGenPtr = nullptr;
+			var.decodedPtr = nullptr;
+			break;
+	}
+
+	return var;
 }
 
 void ManageDevice::clear(void)
