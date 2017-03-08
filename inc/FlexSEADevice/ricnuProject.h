@@ -80,10 +80,15 @@ public:
 
 	// Interface implementation
 	QString getHeaderStr(void);
+	QStringList getHeaderList(void) {return header;}
+	QStringList getHeaderDecList(void) {return headerDecoded;}
 	QString getLastSerializedStr(void);
+	struct std_variable getSerializedVar(int parameter);
+	struct std_variable getSerializedVar(int parameter, int index);
 	void appendSerializedStr(QStringList *splitLine);
 	void decodeLastLine(void);
 	void decodeAllLine(void);
+	int lenght(void) {return riList.length();}
 	void clear(void);
 	void appendEmptyLine(void);
 	QString getStatusStr(int index);
@@ -96,6 +101,7 @@ public:
 
 private:
 	static QStringList header;
+	static QStringList headerDecoded;
 
 };
 

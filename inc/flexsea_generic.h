@@ -78,19 +78,12 @@ public:
 
 	//Pointer assignements - raw structures:
 	static void assignExecutePtr(struct execute_s **myPtr, uint8_t base, uint8_t slave);
-	static void assignManagePtr(struct manage_s **myPtr, uint8_t base, uint8_t slave);
-	static void assignRicnuPtr(struct ricnu_s **myPtr, uint8_t base, uint8_t slave);
-	static void assignStrainPtr(struct strain_s **myPtr, uint8_t base, uint8_t slave);
-	static void assignGossipPtr(struct gossip_s **myPtr, uint8_t base, uint8_t slave);
-	static void assignBatteryPtr(struct battery_s **myPtr, uint8_t base, uint8_t slave);
 
 	static void populateSlaveComboBox(QComboBox *cbox, uint8_t base, uint8_t len);
 	static void populateExpComboBox(QComboBox *cbox);
-	static uint8_t getSlaveBoardType(uint8_t base, uint8_t index);
 	static void getExpName(uint8_t index, QString *expName);
 	static uint8_t getSlaveID(uint8_t base, uint8_t index);
 	static void packetVisualizer(uint numb, uint8_t *packet);
-	static void decodeRicnu(uint8_t base, uint8_t index);
 
 	static uint8_t list_to_slave[SL_LEN_ALL];
 	static QStringList var_list_slave, var_list_exp;

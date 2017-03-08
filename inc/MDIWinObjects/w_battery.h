@@ -38,6 +38,7 @@
 #include <QWidget>
 #include "counter.h"
 #include "batteryDevice.h"
+#include "testBenchProject.h"
 #include "define.h"
 
 //****************************************************************************
@@ -55,7 +56,9 @@ class W_Battery : public QWidget, public Counter<W_Battery>
 public:
 	//Constructor & Destructor:
 	explicit W_Battery(QWidget *parent = 0,
-					   BatteryDevice *deviceLogPtr = nullptr,
+					   FlexseaDevice *currentLog = nullptr,
+					   BatteryDevice *batteryLogPtrInit = nullptr,
+					   TestBenchProject *testBenchLogPtrInit = nullptr,
 					   DisplayMode mode = DisplayLiveData,
 					   QList<BatteryDevice> *deviceListPtr = nullptr);
 	~W_Battery();
@@ -67,7 +70,7 @@ public slots:
 
 	void refreshDisplay(void);
 	void refreshDisplayLog(int index, FlexseaDevice * devPtr);
-	void updateDisplayMode(DisplayMode mode);
+	void updateDisplayMode(DisplayMode mode, FlexseaDevice* devPtr);
 
 signals:
 	void windowClosed(void);
@@ -79,12 +82,14 @@ private:
 	DisplayMode displayMode;
 
 	QList<BatteryDevice> *deviceList;
-	BatteryDevice *deviceLog;
+	BatteryDevice *batteryLog;
+	TestBenchProject *testBenchLog;
 
 	//Function(s):
 	void initLive(void);
-	void initLog(void);
+	void initLog(FlexseaDevice *devPtr);
 	void display(BatteryDevice *devicePtr, int index);
+	void display(struct battery_s *ba);
 };
 
 //****************************************************************************

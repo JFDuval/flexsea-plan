@@ -115,7 +115,6 @@ HEADERS  += inc/main.h \
 	flexsea-system/inc/flexsea_cmd_calibration.h \
 	flexsea-system/inc/flexsea_system.h \
 	flexsea-system/inc/flexsea_global_structs.h \
-	flexsea-system/inc/fm_block_allocator.h \
 	flexsea-shared/unity/unity.h \
 	flexsea-shared/unity/unity_internals.h \
 	flexsea-system/test/flexsea-system_test-all.h \

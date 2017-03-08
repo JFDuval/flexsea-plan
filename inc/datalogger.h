@@ -51,6 +51,8 @@
 #include "strainDevice.h"
 #include "ricnuProject.h"
 #include <QHash>
+#include "ankle2DofProject.h"
+#include "testBenchProject.h"
 
 #define LOG_NUM 4
 
@@ -75,7 +77,9 @@ public:
 						GossipDevice *gossipInitPtr = nullptr,
 						BatteryDevice *batteryInitPtr = nullptr,
 						StrainDevice *strainInitPtr = nullptr,
-						RicnuProject *ricnuInitPtr = nullptr);
+						RicnuProject *ricnuInitPtr = nullptr,
+						Ankle2DofProject *ankle2DofInitPtr = nullptr,
+						TestBenchProject *testBenchInitPtr= nullptr);
 
 public slots:
 	void openRecordingFile(FlexseaDevice *devicePtr);
@@ -108,6 +112,8 @@ private:
 	BatteryDevice *batteryDevPtr;
 	StrainDevice *strainDevPtr;
 	RicnuProject *ricnuDevPtr;
+	Ankle2DofProject *ankle2DofDevPtr;
+	TestBenchProject *testBenchDevPtr;
 
 	QString planGUIRootPath;
 	QString logFolder;
@@ -128,7 +134,6 @@ private:
 
 signals:
 	void setStatusBarMessage(QString msg);
-	void setNewLogFileLoaded(QList<struct execute_s> &data);
 };
 
 //****************************************************************************

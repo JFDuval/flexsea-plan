@@ -37,7 +37,8 @@
 #include <flexsea_comm.h>
 #include "main.h"
 #include <QDebug>
-
+#include <flexsea_comm.h>
+#include <flexsea_payload.h>
 
 //****************************************************************************
 // Constructor & Destructor:
@@ -199,6 +200,7 @@ int SerialDriver::read(unsigned char *buf)
 
 		//Fill the rx buf with our new bytes:
 		update_rx_buf_array_usb((uint8_t *)baData.data(), len);
+		commPeriph[PORT_USB].rx.bytesReadyFlag = 1;
 	}
 	else
 	{

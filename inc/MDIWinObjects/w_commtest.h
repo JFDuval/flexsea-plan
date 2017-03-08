@@ -53,12 +53,14 @@ class W_CommTest : public QWidget, public Counter<W_CommTest>
 
 public:
 	//Constructor & Destructor:
-	explicit W_CommTest(QWidget *parent = 0);
+	explicit W_CommTest(QWidget *parent = 0,
+						bool comStatusInit = false);
 	~W_CommTest();
 
 	//Function(s):
 
 public slots:
+	void receiveComPortStatus(bool status);
 	void receivedData(void);
 
 signals:
@@ -85,6 +87,8 @@ private:
 	int32_t experimentTimerFreq;
 	float measuredRefreshSend, measuredRefreshReceive;
 
+	bool sc_comPortOpen;
+
 	//Function(s):
 	void init(void);
 	void initTab1(void);
@@ -92,6 +96,7 @@ private:
 	void initTimers(void);
 	float getRefreshRateSend(void);
 	float getRefreshRateReceive(void);
+	void startStopComTest(bool forceStop);
 };
 
 //****************************************************************************

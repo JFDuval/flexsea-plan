@@ -62,7 +62,7 @@ uint8_t FlexSEA_Generic::list_to_slave[SL_LEN_ALL] = {FLEXSEA_EXECUTE_1,
 														FLEXSEA_GOSSIP_2,
 														FLEXSEA_BATTERY_1,
 														FLEXSEA_STRAIN_1,
-														FLEXSEA_VIRTUAL_1};
+														FLEXSEA_VIRTUAL_PROJECT};
 //Slaves:
 QStringList FlexSEA_Generic::var_list_slave =    QStringList()
 												 << "Execute 1"
@@ -127,19 +127,6 @@ void FlexSEA_Generic::populateExpComboBox(QComboBox *cbox)
 	}
 }
 
-//Sometimes we need to know if a board is an Execute, without caring about
-//if it's Execute 1, 2 or N. This function returns the base code.
-uint8_t FlexSEA_Generic::getSlaveBoardType(uint8_t base, uint8_t index)
-{
-	//Board type? Extract base via address&integer trick
-	uint8_t tmp = 0, bType = 0;
-	// TODO Won't work when you will have more than 10 board of one type.
-	tmp = list_to_slave[base + index] / 10;
-	bType = tmp * 10;
-
-	return bType;
-}
-
 //Returns the experiment name, as a QString
 void FlexSEA_Generic::getExpName(uint8_t index, QString *expName)
 {
@@ -195,18 +182,6 @@ void FlexSEA_Generic::packetVisualizer(uint numb, uint8_t *packet)
 	qDebug() << "-------------------------";
 }
 
-//RIC/NU is a special case of Execute board. It use the first struct of execute
-// and strain.
-void FlexSEA_Generic::decodeRicnu(uint8_t base, uint8_t index)
-{
-	(void)base;
-	(void)index;
-	ricnu_1.ex = exec1;
-	ricnu_1.st = strain1;
-	ExecuteDevice::decode(&ricnu_1.ex);
-	StrainDevice::decode(&ricnu_1.st);
-}
-
 //Assign pointer
 //TODO: should we use flexsea_system's executePtrXid instead?
 void FlexSEA_Generic::assignExecutePtr(struct execute_s **myPtr, uint8_t base, \
@@ -229,92 +204,6 @@ void FlexSEA_Generic::assignExecutePtr(struct execute_s **myPtr, uint8_t base, \
 			break;
 		default:
 			*myPtr = &exec1;
-			break;
-	}
-}
-
-//Assign pointer
-void FlexSEA_Generic::assignManagePtr(struct manage_s **myPtr, uint8_t base, \
-									  uint8_t slave)
-{
-	//Based on selected slave, what structure do we use?
-	switch(list_to_slave[base+slave])
-	{
-		case FLEXSEA_MANAGE_1:
-			*myPtr = &manag1;
-			break;
-		case FLEXSEA_MANAGE_2:
-			*myPtr = &manag2;
-			break;
-		default:
-			*myPtr = &manag1;
-			break;
-	}
-}
-
-//Assign pointer
-void FlexSEA_Generic::assignRicnuPtr(struct ricnu_s **myPtr, uint8_t base, \
-									 uint8_t slave)
-{
-	//Based on selected slave, what structure do we use?
-	switch(list_to_slave[base+slave])
-	{
-		case FLEXSEA_EXECUTE_1: //RIC/NU is the same as Execute
-			*myPtr = &ricnu_1;
-			break;
-		default:
-			*myPtr = &ricnu_1;
-			break;
-	}
-}
-
-//Assign pointer
-void FlexSEA_Generic::assignGossipPtr(struct gossip_s **myPtr, uint8_t base, \
-									  uint8_t slave)
-{
-	//Based on selected slave, what structure do we use?
-	switch(list_to_slave[base+slave])
-	{
-		case FLEXSEA_GOSSIP_1:
-			*myPtr = &gossip1;
-			break;
-		case FLEXSEA_GOSSIP_2:
-			*myPtr = &gossip2;
-			break;
-		default:
-			*myPtr = &gossip1;
-			break;
-	}
-}
-
-//Assign pointer
-void FlexSEA_Generic::assignStrainPtr(struct strain_s **myPtr, uint8_t base, \
-									  uint8_t slave)
-{
-	//Based on selected slave, what structure do we use?
-	switch(list_to_slave[base+slave])
-	{
-		case FLEXSEA_STRAIN_1:
-			*myPtr = &strain1;
-			break;
-		default:
-			*myPtr = &strain1;
-			break;
-	}
-}
-
-//Assign pointer
-void FlexSEA_Generic::assignBatteryPtr(struct battery_s **myPtr, uint8_t base, \
-									   uint8_t slave)
-{
-	//Based on selected slave, what structure do we use?
-	switch(list_to_slave[base+slave])
-	{
-		case FLEXSEA_BATTERY_1:
-			*myPtr = &batt1;
-			break;
-		default:
-			*myPtr = &batt1;
 			break;
 	}
 }
