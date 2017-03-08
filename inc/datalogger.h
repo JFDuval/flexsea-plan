@@ -50,10 +50,12 @@
 #include "batteryDevice.h"
 #include "strainDevice.h"
 #include "ricnuProject.h"
+#include <QHash>
 #include "ankle2DofProject.h"
 #include "testBenchProject.h"
 
 #define LOG_NUM 4
+
 #define MAX_NUM_LINES 50000
 
 //****************************************************************************
@@ -80,20 +82,27 @@ public:
 						TestBenchProject *testBenchInitPtr= nullptr);
 
 public slots:
-	void openRecordingFile(FlexseaDevice *devicePtr, uint8_t item);
-	void closeRecordingFile(uint8_t item);
+	void openRecordingFile(FlexseaDevice *devicePtr);
+	void closeRecordingFile(FlexseaDevice *devicePtr);
 	void openReadingFile(bool * isOpen, FlexseaDevice **devPtr);
 	void closeReadingFile(void);
-	void writeToFile(FlexseaDevice *devicePtr, uint8_t item);
+	void writeToFile(FlexseaDevice *devicePtr);
 
 private slots:
 
 private:
 	//Variables & Objects:
-	QFile logRecordingFile[LOG_NUM];
-	QString logShortFileName[LOG_NUM];
-	int writedLines[LOG_NUM];
-	int logFileIndex[LOG_NUM];
+	class FileRecord {
+		public:
+			FileRecord(QFile* f = nullptr, int* i = nullptr, int* n = nullptr):
+				file(f), numLines(i), fileIndex(n){}
+			QFile* file;
+			int* numLines;
+			int* fileIndex;
+	};
+	QHash<FlexseaDevice*, FileRecord> deviceFileMap;
+	typedef QHash<FlexseaDevice*, FileRecord>::iterator deviceRecordIterator;
+
 	QFile logReadingFile;
 	static bool sessionDirectoryCreated;
 
@@ -113,16 +122,15 @@ private:
 	QTextStream logFileStream;
 	QDateTime *myTime;
 
-	bool fileOpened[LOG_NUM];
-
 	//Function(s):
 	void init(void);
 	void logTimestamp(qint64 *t_ms, QString *t_text);
 	void writeManageA2DOFHeader(uint8_t item);
 	void writeManageTestBenchHeader(uint8_t item);
-	void openfile(QString logShortFileName, uint8_t item);
+	QFile* openfile(QString name);
 	void initLogDirectory(void);
 	void setStatus(QString str);
+	QString generateFileName(QString shortFileName, int fileIndex = 1);
 
 signals:
 	void setStatusBarMessage(QString msg);

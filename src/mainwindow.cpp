@@ -117,6 +117,8 @@ MainWindow::MainWindow(QWidget *parent) :
 								  &ankle2DofLog,
 								  &testBenchLog);
 
+	streamManager = new StreamManager(this, mySerialDriver);
+
 	//Create default objects:
 	createConfig();
 	createSlaveComm();
@@ -209,13 +211,13 @@ void MainWindow::initFlexSeaDeviceObject(void)
 	strainFlexList.append(&strainDevList.last());
 
 	ricnuDevList.append(RicnuProject(&exec1, &strain1));
-	ricnuDevList.last().slaveName = "RIC/NU 1";
+	ricnuDevList.last().slaveName = "";
 	ricnuDevList.last().slaveID = FLEXSEA_VIRTUAL_PROJECT;
 	flexseaPtrlist.append(&ricnuDevList.last());
 	ricnuFlexList.append(&ricnuDevList.last());
 
 	ankle2DofDevList.append(Ankle2DofProject(&exec1, &exec2));
-	ankle2DofDevList.last().slaveName = "Ankle 2 DoF";
+	ankle2DofDevList.last().slaveName = "";
 	ankle2DofDevList.last().slaveID = FLEXSEA_VIRTUAL_PROJECT;
 	flexseaPtrlist.append(&ankle2DofDevList.last());
 	ankle2DofFlexList.append(&ankle2DofDevList.last());
@@ -223,8 +225,13 @@ void MainWindow::initFlexSeaDeviceObject(void)
 	testBenchDevList.append(TestBenchProject(&exec1, &exec2, &motortb, &batt1));
 	testBenchDevList.last().slaveName = "Test Bench";
 	testBenchDevList.last().slaveID = FLEXSEA_VIRTUAL_PROJECT;
+	// TODO: Does it make sense?
+	// Answer: It does not make sense to use the same FlexseaDevice type for both:
+	//				a) slaves
+	//				b) projects / experiments
 	flexseaPtrlist.append(&testBenchDevList.last());
 	testBenchFlexList.append(&testBenchDevList.last());
+	return;
 }
 
 //****************************************************************************
@@ -396,7 +403,7 @@ void MainWindow::createConfig(void)
 				myViewConfig[0], SLOT(setComProgress(int)));
 		connect(myViewConfig[0], SIGNAL(updateDataSourceStatus(DataSource, FlexseaDevice *)),
 				this, SLOT(translatorUpdateDataSourceStatus(DataSource, FlexseaDevice *)));
-		connect(myViewConfig[0], SIGNAL(updateDataSourceStatus(DataSource, FlexseaDevice *)),
+		connect(myViewConfig[0], SIGNAL(createLogKeypad(DataSource, FlexseaDevice *)),
 				this, SLOT(manageLogKeyPad(DataSource, FlexseaDevice *)));
 	}
 
@@ -472,14 +479,11 @@ void MainWindow::createView2DPlot(void)
 							 W_2DPlot::getMaxWindow() - 1);
 
 		//Fixed rate for the display, and variable rate for the data:
-		connect(myViewSlaveComm[0], SIGNAL(refresh2DPlot()), \
+		connect(mySerialDriver, SIGNAL(timerClocked()), \
 				myView2DPlot[objectCount], SLOT(refresh2DPlot()));
+
 		connect(mySerialDriver, SIGNAL(newDataReady()), \
 				myView2DPlot[objectCount], SLOT(receiveNewData()));
-
-		//For the trapeze/control tool:
-		connect(myViewSlaveComm[0], SIGNAL(masterTimer100Hz()), \
-				myView2DPlot[objectCount], SLOT(refreshControl()));
 
 		//Link to MainWindow for the close signal:
 		connect(myView2DPlot[objectCount], SIGNAL(windowClosed()), \
@@ -521,7 +525,9 @@ void MainWindow::createSlaveComm(void)
 													   &strainFlexList,
 													   &ricnuFlexList,
 													   &ankle2DofFlexList,
-													   &testBenchFlexList);
+													   &testBenchFlexList,
+													   streamManager);
+
 		ui->mdiArea->addSubWindow(myViewSlaveComm[objectCount]);
 		myViewSlaveComm[objectCount]->show();
 
@@ -535,27 +541,22 @@ void MainWindow::createSlaveComm(void)
 		//Link SlaveComm and SerialDriver:
 		connect(mySerialDriver, SIGNAL(openStatus(bool)), \
 				myViewSlaveComm[0], SLOT(receiveComPortStatus(bool)));
-		connect(myViewSlaveComm[0], SIGNAL(slaveReadWrite(uint, uint8_t*, uint8_t)), \
-				mySerialDriver, SLOT(readWrite(uint, uint8_t*, uint8_t)));
-		connect(mySerialDriver, SIGNAL(newDataReady()), \
-				myViewSlaveComm[0], SLOT(receiveNewDataReady()));
 		connect(mySerialDriver, SIGNAL(dataStatus(int, int)), \
 				myViewSlaveComm[0], SLOT(displayDataReceived(int, int)));
 		connect(mySerialDriver, SIGNAL(newDataTimeout(bool)), \
 				myViewSlaveComm[0], SLOT(updateIndicatorTimeout(bool)));
 
-		//Link SlaveComm and DataLogger
-		connect(myViewSlaveComm[0], SIGNAL(openRecordingFile(FlexseaDevice *, uint8_t )), \
-				myDataLogger, SLOT(openRecordingFile(FlexseaDevice *, uint8_t )));
-		connect(myViewSlaveComm[0], SIGNAL(writeToLogFile(FlexseaDevice *,\
-															 uint8_t )), \
-				myDataLogger, SLOT(writeToFile(FlexseaDevice *, uint8_t)));
-		connect(myViewSlaveComm[0], SIGNAL(closeRecordingFile(uint8_t)), \
-				myDataLogger, SLOT(closeRecordingFile(uint8_t)));
+		//Link StreamManager and DataLogger
+		connect(streamManager, SIGNAL(openRecordingFile(FlexseaDevice *)), \
+				myDataLogger, SLOT(openRecordingFile(FlexseaDevice *)));
+		connect(streamManager, SIGNAL(writeToLogFile(FlexseaDevice *)), \
+				myDataLogger, SLOT(writeToFile(FlexseaDevice *)));
+		connect(streamManager, SIGNAL(closeRecordingFile(FlexseaDevice*)), \
+				myDataLogger, SLOT(closeRecordingFile(FlexseaDevice*)));
 
-		//Link SlaveComm and Control Through connector
+
 		connect(this, SIGNAL(connectorWriteCommand(uint8_t,uint8_t*,uint8_t)), \
-				myViewSlaveComm[0], SLOT(externalSlaveReadWrite(uint8_t,uint8_t*,uint8_t)));
+				mySerialDriver, SLOT(enqueueReadWrite(uint8_t,uint8_t*,uint8_t)));
 	}
 
 	else

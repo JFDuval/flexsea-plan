@@ -206,6 +206,7 @@ void W_Config::on_pbLoadLogFile_clicked()
 		//ui->pushButtonBTCon->setDisabled(true);
 		dataSourceState = FromLogFile;
 		emit updateDataSourceStatus(dataSourceState, devPtr);
+		emit createLogKeypad(dataSourceState, devPtr);
 	}
 }
 

@@ -85,14 +85,9 @@ public:
 	static uint8_t getSlaveID(uint8_t base, uint8_t index);
 	static void packetVisualizer(uint numb, uint8_t *packet);
 
-public slots:
-
-private slots:
-
-private:
-	//Lookup from list to actual slave number (FlexSEA convention):
 	static uint8_t list_to_slave[SL_LEN_ALL];
 	static QStringList var_list_slave, var_list_exp;
+
 };
 
 #endif // FLEXSEA_GENERIC_H

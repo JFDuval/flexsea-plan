@@ -109,7 +109,6 @@ public slots:
 
 	void receiveNewData(void);
 	void refresh2DPlot(void);
-	void refreshControl(void);
 	void refreshDisplayLog(int index, FlexseaDevice * devPtr);
 	void updateDisplayMode(DisplayMode mode, FlexseaDevice* devPtr);
 

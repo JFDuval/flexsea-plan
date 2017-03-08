@@ -32,10 +32,12 @@
 // Include(s)
 //****************************************************************************
 
-#include "flexsea_buffers.h"
 #include "serialdriver.h"
+#include <flexsea_buffers.h>
+#include <flexsea_comm.h>
 #include "main.h"
 #include <QDebug>
+#include <QTime>
 #include <flexsea_comm.h>
 #include <flexsea_payload.h>
 
@@ -46,8 +48,24 @@
 SerialDriver::SerialDriver(QWidget *parent) : QWidget(parent)
 {
 	comPortOpen = false;
+
+	clockTimer = new QTimer();
+	clockTimer->setSingleShot(false);
+	clockTimer->setInterval(1);
+	clockTimer->setTimerType(Qt::PreciseTimer);
+	connect(clockTimer, &QTimer::timeout, this, &SerialDriver::handleTimeout);
 }
 
+SerialDriver::~SerialDriver()
+{
+	   if(clockTimer) delete clockTimer;
+	   clockTimer = nullptr;
+
+	   while(outgoingBuffer.size() > 0)
+	   {
+		   outgoingBuffer.pop();
+	   }
+}
 //****************************************************************************
 // Public function(s):
 //****************************************************************************
@@ -55,6 +73,23 @@ SerialDriver::SerialDriver(QWidget *parent) : QWidget(parent)
 //****************************************************************************
 // Public slot(s):
 //****************************************************************************
+
+
+void SerialDriver::enqueueReadWrite(uint8_t numb, uint8_t* dataPacket, uint8_t r_w)
+{
+	outgoingBuffer.push(Message(numb, dataPacket, r_w));
+}
+
+void SerialDriver::handleTimeout()
+{
+	emit timerClocked();
+	if(outgoingBuffer.size() > 0)
+	{
+		Message m = outgoingBuffer.front();
+		readWrite(m.numBytes, m.dataPacket.data(), m.r_w);
+		outgoingBuffer.pop();
+	}
+}
 
 //Open port
 void SerialDriver::open(QString name, int tries, int delay, bool *success)
@@ -114,6 +149,7 @@ void SerialDriver::open(QString name, int tries, int delay, bool *success)
 		}
 
 		*success = true;
+		clockTimer->start();
 	}
 }
 
@@ -129,6 +165,10 @@ void SerialDriver::close(void)
 
 	USBSerialPort.clear((QSerialPort::AllDirections));
 	USBSerialPort.close();
+
+	while(outgoingBuffer.size()) { outgoingBuffer.pop(); }
+
+	clockTimer->stop();
 }
 
 //Read
@@ -198,8 +238,24 @@ int SerialDriver::write(char bytes_to_send, unsigned char *serial_tx_data)
 	return (int) write_ret;
 }
 
-void SerialDriver::readWrite(uint numb, uint8_t *dataPacket, uint8_t r_w)
+void SerialDriver::readWrite(uint8_t numb, uint8_t *dataPacket, uint8_t r_w)
 {
+	/*	For Bench marking
+	static QTime lastTime = QTime::currentTime();
+	static double lp_msecs = 0;
+	QTime currTime = QTime::currentTime();
+	int msecs = lastTime.msecsTo(currTime);
+	lastTime = currTime;
+	lp_msecs = 0.1*msecs + 0.9*lp_msecs;
+	//lp_msecs = msecs;
+	static int debugCount = 0;
+	debugCount++;
+	debugCount%=100;
+	if(debugCount == 0)
+	{
+		qDebug() << "Period in msecs: " << lp_msecs << ", frequency: " << 1000.0 / lp_msecs;
+	}
+	*/
 	write(numb, dataPacket);
 	//qDebug() << dataPacket;
 
