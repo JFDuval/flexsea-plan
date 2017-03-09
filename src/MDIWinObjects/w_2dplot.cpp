@@ -496,6 +496,9 @@ void W_2DPlot::initUserInput(void)
 
 	dataRate = 0;
 
+	//Scaling:
+	initScaling();
+
 	//Init flag:
 	initFlag = false;
 }
@@ -512,7 +515,23 @@ void W_2DPlot::initData(void)
 	initStats();
 }
 
-
+//Initialize the scaling boxes (y=mx+b)
+void W_2DPlot::initScaling(void)
+{
+	//Default: unity gain, no offset:
+	ui->lineEditB1->setText(QString::number(0));
+	ui->lineEditB2->setText(QString::number(0));
+	ui->lineEditB3->setText(QString::number(0));
+	ui->lineEditB4->setText(QString::number(0));
+	ui->lineEditB5->setText(QString::number(0));
+	ui->lineEditB6->setText(QString::number(0));
+	ui->lineEditM1->setText(QString::number(1));
+	ui->lineEditM2->setText(QString::number(1));
+	ui->lineEditM3->setText(QString::number(1));
+	ui->lineEditM4->setText(QString::number(1));
+	ui->lineEditM5->setText(QString::number(1));
+	ui->lineEditM6->setText(QString::number(1));
+}
 
 //Updates 6 buffers, and compute stats (min/max/avg/...)
 void W_2DPlot::saveNewPoints(int myDataPoints[6])
@@ -1532,4 +1551,64 @@ void W_2DPlot::useOpenGL(bool yesNo)
 	{
 		qDebug() << "OpenGL Disabled";
 	}
+}
+
+void W_2DPlot::on_lineEditM1_textEdited(const QString &arg1)
+{
+
+}
+
+void W_2DPlot::on_lineEditM2_textEdited(const QString &arg1)
+{
+
+}
+
+void W_2DPlot::on_lineEditM3_textEdited(const QString &arg1)
+{
+
+}
+
+void W_2DPlot::on_lineEditM4_textEdited(const QString &arg1)
+{
+
+}
+
+void W_2DPlot::on_lineEditM5_textEdited(const QString &arg1)
+{
+
+}
+
+void W_2DPlot::on_lineEditM6_textEdited(const QString &arg1)
+{
+
+}
+
+void W_2DPlot::on_lineEditB1_textEdited(const QString &arg1)
+{
+
+}
+
+void W_2DPlot::on_lineEditB2_textEdited(const QString &arg1)
+{
+
+}
+
+void W_2DPlot::on_lineEditB3_textEdited(const QString &arg1)
+{
+
+}
+
+void W_2DPlot::on_lineEditB4_textEdited(const QString &arg1)
+{
+
+}
+
+void W_2DPlot::on_lineEditB5_textEdited(const QString &arg1)
+{
+
+}
+
+void W_2DPlot::on_lineEditB6_textEdited(const QString &arg1)
+{
+
 }

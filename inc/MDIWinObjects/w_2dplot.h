@@ -155,6 +155,20 @@ private slots:
 	void myHoverHandlerAll(uint8_t ch, QPointF pt, QPoint cursor, bool state);
 	void on_checkBoxOpenGL_clicked(bool checked);
 
+	void on_lineEditM1_textEdited(const QString &arg1);
+	void on_lineEditM2_textEdited(const QString &arg1);
+	void on_lineEditM3_textEdited(const QString &arg1);
+	void on_lineEditM4_textEdited(const QString &arg1);
+	void on_lineEditM5_textEdited(const QString &arg1);
+	void on_lineEditM6_textEdited(const QString &arg1);
+
+	void on_lineEditB1_textEdited(const QString &arg1);
+	void on_lineEditB2_textEdited(const QString &arg1);
+	void on_lineEditB3_textEdited(const QString &arg1);
+	void on_lineEditB4_textEdited(const QString &arg1);
+	void on_lineEditB5_textEdited(const QString &arg1);
+	void on_lineEditB6_textEdited(const QString &arg1);
+
 signals:
 
 	void windowClosed(void);
@@ -216,6 +230,7 @@ private:
 	float getRefreshRateDisplay(void);
 	float getRefreshRateData(void);
 	void initData(void);
+	void initScaling(void);
 	void saveCurrentSettings(int item);
 	void addMargins(int *ymin, int *ymax);
 	void setChartAxis(void);
