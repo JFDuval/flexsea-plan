@@ -518,19 +518,41 @@ void W_2DPlot::initData(void)
 //Initialize the scaling boxes (y=mx+b)
 void W_2DPlot::initScaling(void)
 {
+	const QValidator *validator = new QIntValidator(-1000000, 1000000, this);
+
 	//Default: unity gain, no offset:
-	ui->lineEditB1->setText(QString::number(0));
-	ui->lineEditB2->setText(QString::number(0));
-	ui->lineEditB3->setText(QString::number(0));
-	ui->lineEditB4->setText(QString::number(0));
-	ui->lineEditB5->setText(QString::number(0));
-	ui->lineEditB6->setText(QString::number(0));
-	ui->lineEditM1->setText(QString::number(1));
-	ui->lineEditM2->setText(QString::number(1));
-	ui->lineEditM3->setText(QString::number(1));
-	ui->lineEditM4->setText(QString::number(1));
-	ui->lineEditM5->setText(QString::number(1));
-	ui->lineEditM6->setText(QString::number(1));
+	ui->lineEditM1->setText(QString::number(SCALE_DEFAULT_M));
+	ui->lineEditM2->setText(QString::number(SCALE_DEFAULT_M));
+	ui->lineEditM3->setText(QString::number(SCALE_DEFAULT_M));
+	ui->lineEditM4->setText(QString::number(SCALE_DEFAULT_M));
+	ui->lineEditM5->setText(QString::number(SCALE_DEFAULT_M));
+	ui->lineEditM6->setText(QString::number(SCALE_DEFAULT_M));
+	ui->lineEditB1->setText(QString::number(SCALE_DEFAULT_B));
+	ui->lineEditB2->setText(QString::number(SCALE_DEFAULT_B));
+	ui->lineEditB3->setText(QString::number(SCALE_DEFAULT_B));
+	ui->lineEditB4->setText(QString::number(SCALE_DEFAULT_B));
+	ui->lineEditB5->setText(QString::number(SCALE_DEFAULT_B));
+	ui->lineEditB6->setText(QString::number(SCALE_DEFAULT_B));
+
+	for(int i = 0; i < VAR_NUM; i++)
+	{
+		scaling[i][0] = SCALE_DEFAULT_M;
+		scaling[i][1] = SCALE_DEFAULT_B;
+	}
+
+	//Numbers only:
+	ui->lineEditB1->setValidator(validator);
+	ui->lineEditB2->setValidator(validator);
+	ui->lineEditB3->setValidator(validator);
+	ui->lineEditB4->setValidator(validator);
+	ui->lineEditB5->setValidator(validator);
+	ui->lineEditB6->setValidator(validator);
+	ui->lineEditM1->setValidator(validator);
+	ui->lineEditM2->setValidator(validator);
+	ui->lineEditM3->setValidator(validator);
+	ui->lineEditM4->setValidator(validator);
+	ui->lineEditM5->setValidator(validator);
+	ui->lineEditM6->setValidator(validator);
 }
 
 //Updates 6 buffers, and compute stats (min/max/avg/...)
@@ -1553,62 +1575,77 @@ void W_2DPlot::useOpenGL(bool yesNo)
 	}
 }
 
+void W_2DPlot::updateScalingFactors(uint8_t var, uint8_t param, QString txt)
+{
+	int32_t num = txt.toInt();
+
+	if((param > 1) || (var > (VAR_NUM-1)))
+	{
+		qDebug() << "Invalid parameter, scaling unchaged.";
+		return;
+	}
+
+	qDebug() << "scaling[" << var << "]" << "[" << param << "] =" << num;
+	//Change array:
+	scaling[var][param] = num;
+}
+
 void W_2DPlot::on_lineEditM1_textEdited(const QString &arg1)
 {
-
+	updateScalingFactors(0, 0, arg1);
 }
 
 void W_2DPlot::on_lineEditM2_textEdited(const QString &arg1)
 {
-
+	updateScalingFactors(1, 0, arg1);
 }
 
 void W_2DPlot::on_lineEditM3_textEdited(const QString &arg1)
 {
-
+	updateScalingFactors(2, 0, arg1);
 }
 
 void W_2DPlot::on_lineEditM4_textEdited(const QString &arg1)
 {
-
+	updateScalingFactors(3, 0, arg1);
 }
 
 void W_2DPlot::on_lineEditM5_textEdited(const QString &arg1)
 {
-
+	updateScalingFactors(4, 0, arg1);
 }
 
 void W_2DPlot::on_lineEditM6_textEdited(const QString &arg1)
 {
-
+	updateScalingFactors(5, 0, arg1);
 }
 
 void W_2DPlot::on_lineEditB1_textEdited(const QString &arg1)
 {
-
+	updateScalingFactors(0, 1, arg1);
 }
 
 void W_2DPlot::on_lineEditB2_textEdited(const QString &arg1)
 {
-
+	updateScalingFactors(1, 1, arg1);
 }
 
 void W_2DPlot::on_lineEditB3_textEdited(const QString &arg1)
 {
-
+	updateScalingFactors(2, 1, arg1);
 }
 
 void W_2DPlot::on_lineEditB4_textEdited(const QString &arg1)
 {
-
+	updateScalingFactors(3, 1, arg1);
 }
 
 void W_2DPlot::on_lineEditB5_textEdited(const QString &arg1)
 {
-
+	updateScalingFactors(4, 1, arg1);
 }
 
 void W_2DPlot::on_lineEditB6_textEdited(const QString &arg1)
 {
-
+	updateScalingFactors(5, 1, arg1);
 }

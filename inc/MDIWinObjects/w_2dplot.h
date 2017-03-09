@@ -69,6 +69,10 @@
 #define STATS_AVG					2
 #define STATS_RMS					3
 
+//Scaling:
+#define SCALE_DEFAULT_M				1
+#define SCALE_DEFAULT_B				0
+
 //Test code:
 //#define VECLEN	200
 
@@ -219,6 +223,9 @@ private:
 	int32_t myFakeData;
 	float dataRate;
 
+	//Scaling:
+	int32_t scaling[VAR_NUM][2];
+
 	//Function(s):
 
 	void initChart(void);
@@ -241,6 +248,7 @@ private:
 	void refreshStats(void);
 	void refreshStatBar(float fDisp, float fData);
 	void useOpenGL(bool yesNo);
+	void updateScalingFactors(uint8_t var, uint8_t param, QString txt);
 
 	void updateVarList(uint8_t var);
 	void assignVariable(uint8_t var);
