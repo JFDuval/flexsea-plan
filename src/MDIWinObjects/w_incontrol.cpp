@@ -10,23 +10,26 @@
 //****************************************************************************
 // Include(s)
 //****************************************************************************
+
 #include "w_incontrol.h"
 #include "ui_w_incontrol.h"
 #include "flexsea_cmd_in_control.h"
 #include "flexsea_system.h"
 
 W_InControl::W_InControl(QWidget *parent) :
-    QWidget(parent),
-    ui(new Ui::W_InControl)
+	QWidget(parent),
+	ui(new Ui::W_InControl)
 {
-    ui->setupUi(this);
+	ui->setupUi(this);
 
 	//Populates Slave list:
 	FlexSEA_Generic::populateSlaveComboBox(ui->comboBox_slave, SL_BASE_EX, \
 											SL_LEN_EX);
 
-    //setWindowTitle(this->getDescription());
-    setWindowIcon(QIcon(":icons/d_logo_small.png"));
+	setWindowTitle(this->getDescription());
+	setWindowIcon(QIcon(":icons/d_logo_small.png"));
+
+	init_tab_stream_in_ctrl();
 }
 
 W_InControl::~W_InControl()
@@ -43,10 +46,10 @@ int W_InControl::getActiveSlave() const
 
 void W_InControl::init_tab_stream_in_ctrl(void)
 {
-    ui->inctrl_w0->setText("0");
-    ui->inctrl_w1->setText("0");
-    ui->inctrl_w2->setText("0");
-    ui->inctrl_w3->setText("0");
+	ui->inctrl_w0->setText("0");
+	ui->inctrl_w1->setText("0");
+	ui->inctrl_w2->setText("0");
+	ui->inctrl_w3->setText("0");
 }
 
 void W_InControl::updateUIData(void)
