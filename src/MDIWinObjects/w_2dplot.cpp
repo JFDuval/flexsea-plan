@@ -157,18 +157,22 @@ void W_2DPlot::receiveNewData(void)
 
 void W_2DPlot::refresh2DPlot(void)
 {
-	//sub sample the clock we receive, which is at 1kHz. We want 33Hz
+	//if displaying live data, sub sample the clock we receive, which is at 1kHz. We want 33Hz
 	static double ticks = 0;
 	const double REFRESH_PERIOD = 1000.0 / 33.0;
-	ticks += 1.0;
-	if(ticks > REFRESH_PERIOD)
+	if(displayMode == DisplayLiveData)
 	{
-		ticks -= REFRESH_PERIOD;
+		ticks += 1.0;
+		if(ticks > REFRESH_PERIOD)
+		{
+			ticks -= REFRESH_PERIOD;
+		}
+		else
+		{
+			return;
+		}
 	}
-	else
-	{
-		return;
-	}
+
 
 	uint8_t index = 0;
 
