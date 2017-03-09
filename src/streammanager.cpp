@@ -3,6 +3,7 @@
 #include <flexsea_comm.h>
 #include <flexsea_system.h>
 #include <flexsea_cmd_data.h>
+#include <flexsea_cmd_in_control.h>
 #include <QDebug>
 
 StreamManager::StreamManager(QObject *parent, SerialDriver* driver) :
@@ -35,6 +36,8 @@ int StreamManager::getIndexOfFrequency(int freq)
 
 void StreamManager::startStreaming(int cmd, int slave, int freq, bool shouldLog, FlexseaDevice* device)
 {
+	if(!device) return;
+
 	CmdSlaveRecord record(cmd, slave, shouldLog, device);
 	record.initialTime = new QDateTime(QDateTime::currentDateTime());
 
@@ -60,7 +63,7 @@ void StreamManager::startStreaming(int cmd, int slave, int freq, bool shouldLog,
 void StreamManager::stopStreaming(int cmd, int slave, int freq)
 {
 	int indexOfFreq = getIndexOfFrequency(freq);
-	for(int i = 0; i < streamLists[indexOfFreq].size(); i++)
+	for(unsigned int i = 0; i < streamLists[indexOfFreq].size(); i++)
 	{
 		CmdSlaveRecord record = streamLists[indexOfFreq].at(i);
 		if(record.cmdType == cmd && record.slaveIndex == slave)
@@ -86,7 +89,7 @@ QList<int> StreamManager::getRefreshRates()
 
 void StreamManager::sendCommands(const std::vector<CmdSlaveRecord> &streamList)
 {
-	for(int i = 0; i < streamList.size(); i++)
+	for(unsigned int i = 0; i < streamList.size(); i++)
 	{
 		CmdSlaveRecord record = streamList.at(i);
 		switch(record.cmdType)
@@ -105,6 +108,9 @@ void StreamManager::sendCommands(const std::vector<CmdSlaveRecord> &streamList)
 			break;
 		case CMD_BATT:
 			sendCommandBattery(record.slaveIndex);
+			break;
+		case CMD_IN_CONTROL:
+			sendCommandInControl(record.slaveIndex);
 			break;
 		default:
 			qDebug() << "Unsupported command was given: " << record.cmdType;
@@ -204,4 +210,9 @@ void StreamManager::sendCommandTestBench(uint8_t slaveId)
 	index++;
 	index %= 3;
 	tryPackAndSend(CMD_MOTORTB, slaveId);
+}
+void StreamManager::sendCommandInControl(uint8_t slaveId)
+{
+	tx_cmd_in_control_r(TX_N_DEFAULT);
+	tryPackAndSend(CMD_IN_CONTROL, slaveId);
 }

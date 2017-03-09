@@ -36,6 +36,7 @@
 #include "flexsea_generic.h"
 #include "serialdriver.h"
 #include "ui_w_slavecomm.h"
+#include "flexsea_cmd_in_control.h"
 #include "main.h"
 #include <QDebug>
 #include <QTimer>
@@ -181,7 +182,7 @@ void W_SlaveComm::mapSerializedPointers(void)
 void W_SlaveComm::initializeMaps()
 {
 	targetListMap[0] = &readAllTargetList;
-	targetListMap[1] = nullptr;
+	targetListMap[1] = &inControlTargetList;
 	targetListMap[2] = &ricnuTargetList;
 	targetListMap[3] = nullptr;
 	targetListMap[4] = &ankle2DofTargetList;
@@ -189,7 +190,7 @@ void W_SlaveComm::initializeMaps()
 	targetListMap[6] = &testBenchTargetList;
 
 	cmdMap[0] = CMD_READ_ALL;
-	cmdMap[1] = -1;
+	cmdMap[1] = CMD_IN_CONTROL;
 	cmdMap[2] = CMD_READ_ALL_RICNU;
 	cmdMap[3] = -1;
 	cmdMap[4] = CMD_A2DOF;
@@ -355,6 +356,9 @@ void W_SlaveComm::managePushButton(int row, bool forceOff)
 	int slaveIndex = comboBoxSlavePtr[row]->currentIndex();
 	int refreshRateIndex = comboBoxRefreshPtr[row]->currentIndex();
 	int cmdCode = cmdMap[experimentIndex];
+	
+	if(cmdCode < 0) return;
+	
 	int refreshRate = streamManager->getRefreshRates()[refreshRateIndex];
 	FlexseaDevice* target = getTargetDevice(cmdCode, experimentIndex, slaveIndex);
 	int slaveId = (targetListMap[experimentIndex])->at(slaveIndex)->slaveID;

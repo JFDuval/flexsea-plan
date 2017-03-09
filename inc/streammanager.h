@@ -36,6 +36,7 @@ public slots:
 	void sendCommandAnkle2DOF(uint8_t slaveId);
 	void sendCommandBattery(uint8_t slaveId);
 	void sendCommandTestBench(uint8_t slaveId);
+	void sendCommandInControl(uint8_t slaveId);
 
 private:
 	class CmdSlaveRecord
@@ -62,5 +63,4 @@ private:
 	std::vector<CmdSlaveRecord> streamLists[NUM_TIMER_FREQS];
 
 };
-
 #endif // STREAMMANAGER_H
