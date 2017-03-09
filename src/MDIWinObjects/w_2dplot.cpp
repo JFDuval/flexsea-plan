@@ -179,7 +179,6 @@ void W_2DPlot::refresh2DPlot(void)
 		}
 	}
 
-
 	uint8_t index = 0;
 
 	//Refresh Stat Bar:
@@ -568,7 +567,7 @@ void W_2DPlot::initScaling(void)
 //Updates 6 buffers, and compute stats (min/max/avg/...)
 void W_2DPlot::saveNewPoints(int myDataPoints[6])
 {
-	// add point if plot lenght not reached
+	// add point if plot length not reached
 	if(vDataBuffer[0].length() < plot_len)
 	{
 		//First VECLEN points: append
@@ -578,7 +577,7 @@ void W_2DPlot::saveNewPoints(int myDataPoints[6])
 			vDataBuffer[i].append(QPointF(vDataBuffer[i].length(), myDataPoints[i]));
 		}
 	}
-	// replace point if max lenght reached
+	// replace point if max length reached
 	else
 	{
 		//For each variable:
@@ -643,21 +642,27 @@ void W_2DPlot::saveNewPointsLog(int index)
 					{
 						case FORMAT_32S:
 							point = (*(int32_t*)varHandle.rawGenPtr);
+							scale(item, &point);
 							break;
 						case FORMAT_32U:
 							point = (int)(*(uint32_t*)varHandle.rawGenPtr);
+							scale(item, &point);
 							break;
 						case FORMAT_16S:
 							point = (int)(*(int16_t*)varHandle.rawGenPtr);
+							scale(item, &point);
 							break;
 						case FORMAT_16U:
 							point = (int)(*(uint16_t*)varHandle.rawGenPtr);
+							scale(item, &point);
 							break;
 						case FORMAT_8S:
 							point = (int)(*(int8_t*)varHandle.rawGenPtr);
+							scale(item, &point);
 							break;
 						case FORMAT_8U:
 							point = (int)(*(uint8_t*)varHandle.rawGenPtr);
+							scale(item, &point);
 							break;
 						default:
 							point = 0;
