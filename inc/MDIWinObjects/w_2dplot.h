@@ -249,6 +249,7 @@ private:
 	void refreshStatBar(float fDisp, float fData);
 	void useOpenGL(bool yesNo);
 	void updateScalingFactors(uint8_t var, uint8_t param, QString txt);
+	void scale(uint8_t item, int *value);
 
 	void updateVarList(uint8_t var);
 	void assignVariable(uint8_t var);

@@ -117,21 +117,27 @@ void W_2DPlot::receiveNewData(void)
 				{
 					case FORMAT_32S:
 						val[item] = (*(int32_t*)vtp[item].rawGenPtr);
+						scale(item, &val[item]);
 						break;
 					case FORMAT_32U:
 						val[item] = (int)(*(uint32_t*)vtp[item].rawGenPtr);
+						scale(item, &val[item]);
 						break;
 					case FORMAT_16S:
 						val[item] = (int)(*(int16_t*)vtp[item].rawGenPtr);
+						scale(item, &val[item]);
 						break;
 					case FORMAT_16U:
 						val[item] = (int)(*(uint16_t*)vtp[item].rawGenPtr);
+						scale(item, &val[item]);
 						break;
 					case FORMAT_8S:
 						val[item] = (int)(*(int8_t*)vtp[item].rawGenPtr);
+						scale(item, &val[item]);
 						break;
 					case FORMAT_8U:
 						val[item] = (int)(*(uint8_t*)vtp[item].rawGenPtr);
+						scale(item, &val[item]);
 						break;
 					default:
 						val[item] = 0;
@@ -1575,6 +1581,7 @@ void W_2DPlot::useOpenGL(bool yesNo)
 	}
 }
 
+//All the scaling lineEdit slots redirect here
 void W_2DPlot::updateScalingFactors(uint8_t var, uint8_t param, QString txt)
 {
 	int32_t num = txt.toInt();
@@ -1588,6 +1595,12 @@ void W_2DPlot::updateScalingFactors(uint8_t var, uint8_t param, QString txt)
 	qDebug() << "scaling[" << var << "]" << "[" << param << "] =" << num;
 	//Change array:
 	scaling[var][param] = num;
+}
+
+//Apply the scaling factors to the variable
+void W_2DPlot::scale(uint8_t item, int *value)
+{
+	(*value) = (*value)*scaling[item][0] + scaling[item][1];
 }
 
 void W_2DPlot::on_lineEditM1_textEdited(const QString &arg1)
