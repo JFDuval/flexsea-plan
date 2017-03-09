@@ -65,6 +65,7 @@ signals:
 
 private slots:
 	void timerCtrlEvent(void);
+	void timerDisplayEvent(void);
 	void on_pushButton_SetController_clicked();
 	void on_pushButton_setp_a_go_clicked();
 	void on_pushButton_setp_b_go_clicked();
@@ -87,7 +88,7 @@ private:
 	int trapez_steps = 0;
 	uint8_t toggle_output_state = 0;
 	QStringList var_list_controllers, var_list_enc_disp;
-	QTimer *timerCtrl;
+	QTimer *timerCtrl, *timerDisplay;
 	uint8_t transferBuf[48];
 	static int setp;
 
