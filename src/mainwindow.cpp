@@ -82,6 +82,7 @@ MainWindow::MainWindow(QWidget *parent) :
 	W_UserRW::setMaxWindow(USERRW_WINDOWS_MAX);
 	W_TestBench::setMaxWindow(TESTBENCH_WINDOWS_MAX);
 	W_CommTest::setMaxWindow(COMMTEST_WINDOWS_MAX);
+	W_InControl::setMaxWindow(INCONTROL_WINDOWS_MAX);
 
 	W_Execute::setDescription("Execute");
 	W_Manage::setDescription("Manage - Barebone");
@@ -100,6 +101,7 @@ MainWindow::MainWindow(QWidget *parent) :
 	W_UserRW::setDescription("User R/W");
 	W_TestBench::setDescription("Test Bench");
 	W_CommTest::setDescription("Communication Test");
+    W_InControl::setDescription("Controller Tuning");
 
 	initFlexSeaDeviceObject();
 
@@ -126,7 +128,6 @@ MainWindow::MainWindow(QWidget *parent) :
 	//Disable options that are not implemented:
 	ui->menuFile->actions().at(3)->setEnabled(false);		//Load configuration
 	ui->menuFile->actions().at(4)->setEnabled(false);		//Save configuration
-	ui->menuControl->actions().at(1)->setEnabled(false);	//In Control
 
 	//Log and MainWindow
 	connect(myDataLogger, SIGNAL(setStatusBarMessage(QString)), \
@@ -595,6 +596,34 @@ void MainWindow::createAnyCommand(void)
 	{
 		sendWindowCreatedFailedMsg(W_AnyCommand::getDescription(),
 								   W_AnyCommand::getMaxWindow());
+	}
+}
+
+void MainWindow::createInControl(void)
+{
+	int objectCount = W_InControl::howManyInstance();
+
+	//Limited number of windows:
+	if(objectCount < INCONTROL_WINDOWS_MAX)
+	{
+		myViewInControl[objectCount] = new W_InControl(this);
+		ui->mdiArea->addSubWindow((myViewInControl[objectCount]));
+		myViewInControl[objectCount]->show();
+		QRect currRect = myViewInControl[objectCount]->geometry();
+		currRect.setWidth(619);
+		currRect.setHeight(639);
+		myViewInControl[objectCount]->setGeometry(currRect);
+
+		sendWindowCreatedMsg(W_InControl::getDescription(), objectCount,
+		W_InControl::getMaxWindow() - 1);
+
+		connect(mySerialDriver, SIGNAL(newDataReady()), \
+				myViewInControl[objectCount], SLOT(updateUIData()));
+	}
+	else
+	{
+		sendWindowCreatedFailedMsg(W_InControl::getDescription(),
+		W_InControl::getMaxWindow());
 	}
 }
 
