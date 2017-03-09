@@ -1971,6 +1971,54 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>lineEditXMin</tabstop>
+  <tabstop>lineEditXMax</tabstop>
+  <tabstop>lineEditYMin</tabstop>
+  <tabstop>lineEditYMax</tabstop>
+  <tabstop>cBoxvar1slave</tabstop>
+  <tabstop>cBoxvar1</tabstop>
+  <tabstop>cBoxvar2slave</tabstop>
+  <tabstop>cBoxvar2</tabstop>
+  <tabstop>cBoxvar3slave</tabstop>
+  <tabstop>cBoxvar3</tabstop>
+  <tabstop>cBoxvar4slave</tabstop>
+  <tabstop>cBoxvar4</tabstop>
+  <tabstop>cBoxvar5slave</tabstop>
+  <tabstop>cBoxvar5</tabstop>
+  <tabstop>cBoxvar6slave</tabstop>
+  <tabstop>cBoxvar6</tabstop>
+  <tabstop>lineEditM1</tabstop>
+  <tabstop>lineEditB1</tabstop>
+  <tabstop>lineEditM2</tabstop>
+  <tabstop>lineEditB2</tabstop>
+  <tabstop>lineEditM3</tabstop>
+  <tabstop>lineEditB3</tabstop>
+  <tabstop>lineEditM4</tabstop>
+  <tabstop>lineEditB4</tabstop>
+  <tabstop>lineEditM5</tabstop>
+  <tabstop>lineEditB5</tabstop>
+  <tabstop>lineEditM6</tabstop>
+  <tabstop>lineEditB6</tabstop>
+  <tabstop>pushButtonFreeze</tabstop>
+  <tabstop>pbIMU</tabstop>
+  <tabstop>pbReset</tabstop>
+  <tabstop>pushButtonClear</tabstop>
+  <tabstop>pbPoints</tabstop>
+  <tabstop>checkBoxOpenGL</tabstop>
+  <tabstop>checkBoxD4</tabstop>
+  <tabstop>checkBoxD1</tabstop>
+  <tabstop>radioButtonXA</tabstop>
+  <tabstop>checkBoxD3</tabstop>
+  <tabstop>comboBoxMargin</tabstop>
+  <tabstop>radioButtonYM</tabstop>
+  <tabstop>radioButtonXM</tabstop>
+  <tabstop>checkBoxD6</tabstop>
+  <tabstop>radioButtonYA</tabstop>
+  <tabstop>checkBoxD2</tabstop>
+  <tabstop>checkBoxTrack</tabstop>
+  <tabstop>checkBoxD5</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>
