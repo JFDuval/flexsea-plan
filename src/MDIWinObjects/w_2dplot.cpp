@@ -1596,7 +1596,8 @@ void W_2DPlot::updateScalingFactors(uint8_t var, uint8_t param, QString txt)
 		return;
 	}
 
-	qDebug() << "scaling[" << var << "]" << "[" << param << "] =" << num;
+	//qDebug() << "scaling[" << var << "]" << "[" << param << "] =" << num;
+
 	//Change array:
 	scaling[var][param] = num;
 }
