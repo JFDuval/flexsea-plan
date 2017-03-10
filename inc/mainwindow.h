@@ -61,6 +61,7 @@
 #include "main.h"
 
 #include <QList>
+#include <QThread>
 
 namespace Ui {
 class MainWindow;
@@ -160,6 +161,9 @@ private:
 
 	// Objects
 	SerialDriver *mySerialDriver;
+	QThread* serialThread;
+	QThread* drawThread;
+
 	DataLogger *myDataLogger;
 	StreamManager* streamManager;
 

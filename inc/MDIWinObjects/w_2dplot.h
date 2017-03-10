@@ -38,6 +38,7 @@
 #include <QApplication>
 #include <QWidget>
 #include "counter.h"
+#include <QTimer>
 #include <QtCharts>
 #include <QtCharts/QChartView>
 #include "flexsea_generic.h"
@@ -160,6 +161,7 @@ signals:
 	void windowClosed(void);
 
 private:
+	QTimer* drawingTimer;
 
 	DisplayMode displayMode;
 
@@ -191,7 +193,7 @@ private:
 	QVector<QPointF> vDataBuffer[VAR_NUM];
 	QDateTime *timerRefreshDisplay, *timerRefreshData;
 	int plot_xmin, plot_ymin, plot_xmax, plot_ymax, plot_len;
-	int globalYmin, globalYmax;
+	int globalYmin, globalYmax, globalXmin, globalXmax;
 
 	QStringList var_list_margin;
 	bool plotFreezed, initFlag;

@@ -65,6 +65,7 @@ public slots:
 	void close(void);
 
 	void enqueueReadWrite(uint8_t numb, uint8_t* dataPacket, uint8_t r_w);
+	void handleReadyRead();
 
 private slots:
 	void handleTimeout();
@@ -133,6 +134,6 @@ signals:
 #define INDICATOR_TIMEOUT		110
 
 //USB driver:
-#define USB_READ_TIMEOUT		100		//ms
+#define USB_READ_TIMEOUT		10		//ms
 
 #endif // SERIALDRIVER_H

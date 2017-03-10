@@ -77,8 +77,14 @@ W_2DPlot::W_2DPlot(QWidget *parent,
 	useOpenGL(false);
 
 	//Timers:
-	timerRefreshDisplay = new QDateTime;
-	timerRefreshData = new QDateTime;
+//	timerRefreshDisplay = new QDateTime;
+//	timerRefreshData = new QDateTime;
+
+	drawingTimer = new QTimer(this);
+	drawingTimer->setTimerType(Qt::PreciseTimer);
+	drawingTimer->setInterval(100);
+	drawingTimer->setSingleShot(false);
+	connect(drawingTimer, &QTimer::timeout, this, &W_2DPlot::refresh2DPlot);
 }
 
 W_2DPlot::~W_2DPlot()
@@ -98,14 +104,16 @@ W_2DPlot::~W_2DPlot()
 void W_2DPlot::receiveNewData(void)
 {
 	uint8_t item = 0;
-	int val[6] = {0,0,0,0,0,0};
+	int val[VAR_NUM] = {0,0,0,0,0,0};
 
-	dataRate = getRefreshRateData();
+	//dataRate = getRefreshRateData();
 
 	//For every variable:
 	for(item = 0; item < VAR_NUM; item++)
 	{
-		if(vtp[item].decode == false)
+		if(!vtp[item].used) continue;
+
+		if(!vtp[item].decode)
 		{
 			if((vtp[item].rawGenPtr) == nullptr)
 			{
@@ -158,21 +166,20 @@ void W_2DPlot::receiveNewData(void)
 void W_2DPlot::refresh2DPlot(void)
 {
 	//if displaying live data, sub sample the clock we receive, which is at 1kHz. We want 33Hz
-	static double ticks = 0;
-	const double REFRESH_PERIOD = 1000.0 / 33.0;
-	if(displayMode == DisplayLiveData)
-	{
-		ticks += 1.0;
-		if(ticks > REFRESH_PERIOD)
-		{
-			ticks -= REFRESH_PERIOD;
-		}
-		else
-		{
-			return;
-		}
-	}
-
+//	static float ticks = 0;
+//	const float REFRESH_PERIOD = 1000.0f / 33.0f;
+//	if(displayMode == DisplayLiveData)
+//	{
+//		ticks += 1.0f;
+//		if(ticks + 0.0001f > REFRESH_PERIOD)
+//		{
+//			ticks -= REFRESH_PERIOD;
+//		}
+//		else
+//		{
+//			return;
+//		}
+//	}
 
 	uint8_t index = 0;
 
@@ -194,17 +201,27 @@ void W_2DPlot::refresh2DPlot(void)
 	}
 
 	//And now update the display:
-	if(plotFreezed == false)
+	if(!plotFreezed)
 	{
-		// Apparently, using pointsVector is much faster (see documentation)
-		qlsChart[0]->replace(vDataBuffer[0]);
-		qlsChart[1]->replace(vDataBuffer[1]);
-		qlsChart[2]->replace(vDataBuffer[2]);
-		qlsChart[3]->replace(vDataBuffer[3]);
-		qlsChart[4]->replace(vDataBuffer[4]);
-		qlsChart[5]->replace(vDataBuffer[5]);
+		memset(&stats, 0, sizeof stats);
+		for(int i = 0; i < VAR_NUM; i++)
+		{
+			if(vtp[i].used && !vDataBuffer[i].isEmpty())
+			{
+				int bufLength = vDataBuffer[i].size();
+				for(int j = 0; j < bufLength; j++)
+				{
+					vDataBuffer[i][j].setX(j);
+				}
 
-		refreshStats();
+				qlsChart[i]->replace(vDataBuffer[i]);
+			}
+
+			(*lbMin[i])->setText(QString::number(0));
+			(*lbMax[i])->setText(QString::number(0));
+			(*lbAvg[i])->setText(QString::number(0));
+		}
+		computeStats();
 		computeGlobalMinMax();
 		setChartAxisAutomatic();
 	}
@@ -521,33 +538,39 @@ void W_2DPlot::initData(void)
 //Updates 6 buffers, and compute stats (min/max/avg/...)
 void W_2DPlot::saveNewPoints(int myDataPoints[6])
 {
-	// add point if plot lenght not reached
-	if(vDataBuffer[0].length() < plot_len)
+	//For each variable:
+	for(int i = 0; i < VAR_NUM; i++)
 	{
-		//First VECLEN points: append
-		//For each variable:
-		for(int i = 0; i < VAR_NUM; i++)
+		if(!vtp[i].used) continue;
+
+		// add point if plot lenght not reached
+		if(vDataBuffer[i].length() < plot_len)
 		{
+			//First VECLEN points: append
 			vDataBuffer[i].append(QPointF(vDataBuffer[i].length(), myDataPoints[i]));
 		}
-	}
-	// replace point if max lenght reached
-	else
-	{
-		//For each variable:
-		for(int i = 0; i < VAR_NUM; i++)
+		// replace point if max lenght reached
+		else
 		{
-			for(int j = 1; j < plot_len; j++)
-			{
-				//Shift by one position (all but last point):
-				vDataBuffer[i].replace(j-1, QPointF(j-1, vDataBuffer[i].at(j).y()));
-			}
+			vDataBuffer[i].removeFirst();
+//			float newX = vDataBuffer[i].last().x() + 1;
+			vDataBuffer[i].append(QPointF(plot_len-1, myDataPoints[i]));
 
-			//Last (new):
-			vDataBuffer[i].replace(plot_len-1, QPointF(plot_len-1, myDataPoints[i]));
+//			for(int j = 0; j < plot_len; j++)
+//			{
+//				vDataBuffer[i][j].setX(j);
+//			}
+//			for(int j = 1; j < plot_len; j++)
+//			{
+//				//Shift by one position (all but last point):
+//				vDataBuffer[i].replace(j-1, QPointF(j-1, vDataBuffer[i].at(j).y()));
+//			}
+
+//			//Last (new):
+//			vDataBuffer[i].replace(plot_len-1, QPointF(plot_len-1, myDataPoints[i]));
 		}
 	}
-	computeStats();
+//	computeStats();
 }
 
 void W_2DPlot::saveNewPointsLog(int index)
@@ -637,7 +660,7 @@ void W_2DPlot::saveNewPointsLog(int index)
 			++graphIter;
 		}
 	}
-	computeStats();
+	//computeStats();
 }
 
 void W_2DPlot::computeStats(void)
@@ -648,7 +671,7 @@ void W_2DPlot::computeStats(void)
 	// Compute the Stats
 	for(int i = 0; i < VAR_NUM; i++)
 	{
-		if(vDataBuffer[i].length() > 0)
+		if(vDataBuffer[i].length() > 0 && vtp[i].used)
 		{
 			min = vDataBuffer[i].at(0).y();
 			max = vDataBuffer[i].at(0).y();
@@ -681,6 +704,12 @@ void W_2DPlot::computeStats(void)
 			stats[i][STATS_MAX] = (int64_t) max;
 			stats[i][STATS_AVG] = (int64_t) avg;
 		}
+		else
+		{
+			stats[i][STATS_MIN] = 0;
+			stats[i][STATS_MAX] = 0;
+			stats[i][STATS_AVG] = 0;
+		}
 	}
 }
 
@@ -689,29 +718,32 @@ void W_2DPlot::computeGlobalMinMax(void)
 {
 	//Stats for all channels:
 
-	if(allChannelUnused() == true)
+	if(allChannelUnused())
 	{
 		globalYmin = -10;
 		globalYmax = 10;
 	}
 	else
 	{
+		int i;
 		//First, we use the 1st used channel to initialize the global min/max:
-		for(int i = 0; i < VAR_NUM; i++)
+		for(i = 0; i < VAR_NUM; i++)
 		{
-			if(vtp[i].used == true)
+			if(vtp[i].used)
 			{
 				globalYmin = stats[i][STATS_MIN];
 				globalYmax = stats[i][STATS_MAX];
+				globalXmin = vDataBuffer[i].first().x();
+				globalXmax = vDataBuffer[i].last().x();
 				break;
 			}
 		}
 
-		//Now we can compare:
-		for(int i = 0; i < VAR_NUM; i++)
+		//Now we can compare, starting at the next value of i:
+		for(i = i+1; i < VAR_NUM; i++)
 		{
 			//We only use the 'used' channels for the global min/max:
-			if(vtp[i].used == true)
+			if(vtp[i].used)
 			{
 				//Minimum:
 				if(stats[i][STATS_MIN] < globalYmin)
@@ -724,6 +756,17 @@ void W_2DPlot::computeGlobalMinMax(void)
 				{
 					globalYmax = stats[i][STATS_MAX];
 				}
+//				//Minimum:
+//				if(vDataBuffer[i].first().x() < globalXmin)
+//				{
+//					globalXmin = vDataBuffer[i].first().x();
+//				}
+
+//				//Maximum:
+//				if(vDataBuffer[i].last().x() > globalXmax)
+//				{
+//					globalXmax = vDataBuffer[i].last().x();
+//				}
 			}
 		}
 	}
@@ -738,6 +781,8 @@ float W_2DPlot::getRefreshRateDisplay(void)
 	float t_s = 0.0, f = 0.0, avg = 0.0;
 	static int counter = 0;
 	static float fArray[8] = {0,0,0,0,0,0,0,0};
+
+	return 0;
 
 	//Actual frequency:
 	newTime = timerRefreshDisplay->currentMSecsSinceEpoch();
@@ -765,6 +810,7 @@ float W_2DPlot::getRefreshRateDisplay(void)
 //is fast for a ms timer.
 float W_2DPlot::getRefreshRateData(void)
 {
+
 	static qint64 oldTime = 0;
 	qint64 newTime = 0, diffTime = 0;
 	float t_s = 0.0, avg = 0.0;
@@ -772,6 +818,7 @@ float W_2DPlot::getRefreshRateData(void)
 	static int counter = 0;
 	static float fArray[8] = {0,0,0,0,0,0,0,0};
 	static int callCounter = 0;
+	return 0;
 
 	callCounter++;
 	callCounter %= 10;
@@ -983,10 +1030,13 @@ void W_2DPlot::setChartAxisAutomatic(void)
 	{
 		plot_ymin = globalYmin;
 		plot_ymax = globalYmax;
+//		plot_xmin = globalXmin;
+//		plot_xmax = globalXmax;
+
 
 		// If the range is going to be equal, or overlapping,
 		// We adjust the axis to some minimum height
-		while(plot_ymin >= plot_ymax)
+		while(plot_ymax <= plot_ymin)
 		{
 			plot_ymin -= 5;
 			plot_ymax += 5;
@@ -996,7 +1046,7 @@ void W_2DPlot::setChartAxisAutomatic(void)
 		addMargins(&plot_ymin, &plot_ymax);
 
 		//Update chart:
-		//chart->axisX()->setRange(plot_xmin, plot_xmax);
+		chart->axisX()->setRange(plot_xmin, plot_xmax);
 		chart->axisY()->setRange(plot_ymin, plot_ymax);
 
 		//Display values used:
@@ -1009,7 +1059,7 @@ bool W_2DPlot::allChannelUnused(void)
 {
 	for(int i = 0; i < VAR_NUM; i++)
 	{
-		if(vtp[i].used == true)
+		if(vtp[i].used)
 		{
 			return false;
 		}
@@ -1098,8 +1148,10 @@ void W_2DPlot::assignVariable(uint8_t item)
 		if(displayMode == DisplayLogData)
 		{
 			saveNewPointsLog(logIndex);
-			//refresh2DPlot();
+			refresh2DPlot();
 		}
+		if(allChannelUnused()) drawingTimer->stop();
+		else if(!drawingTimer->isActive()) drawingTimer->start();
 }
 
 //****************************************************************************

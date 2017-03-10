@@ -147,17 +147,16 @@ void StreamManager::tryPackAndSend(int cmd, uint8_t slaveId)
 
 void StreamManager::receiveClock()
 {
-	static double msSinceLast[NUM_TIMER_FREQS] = {0};
-	const double TOLERANCE = 0.0001;
+	static float msSinceLast[NUM_TIMER_FREQS] = {0};
+	const float TOLERANCE = 0.0001;
 	for(int i = 0; i < NUM_TIMER_FREQS; i++)
 	{
 		//received clocks comes in at 1ms/clock
 		msSinceLast[i]++;
-		double timerInterval = (1000.0 / timerFrequencies[i]);
+		float timerInterval = (1000.0f / timerFrequencies[i]);
 		if((msSinceLast[i] + TOLERANCE) > timerInterval)
 		{
 			sendCommands(streamLists[i]);
-
 			while((msSinceLast[i] + TOLERANCE) > timerInterval)
 				msSinceLast[i] -= timerInterval;
 		}
@@ -205,8 +204,8 @@ void StreamManager::sendCommandTestBench(uint8_t slaveId)
 	static int index = 0;
 
 	//1) Stream
-	//motor_dto dto;
-	//tx_cmd_motortb_r(TX_N_DEFAULT, index, &dto);
+	motor_dto dto;
+	tx_cmd_motortb_r(TX_N_DEFAULT, index, &dto);
 	index++;
 	index %= 3;
 	tryPackAndSend(CMD_MOTORTB, slaveId);

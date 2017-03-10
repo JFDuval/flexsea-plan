@@ -40,7 +40,7 @@
 #include <QTime>
 #include <flexsea_comm.h>
 #include <flexsea_payload.h>
-
+#include <ctime>
 //****************************************************************************
 // Constructor & Destructor:
 //****************************************************************************
@@ -106,6 +106,8 @@ void SerialDriver::open(QString name, int tries, int delay, bool *success)
 	USBSerialPort.setParity(QSerialPort::NoParity);
 	USBSerialPort.setStopBits(QSerialPort::OneStop);
 	USBSerialPort.setFlowControl(QSerialPort::NoFlowControl);
+
+	connect(&USBSerialPort, &QSerialPort::readyRead, this, &SerialDriver::handleReadyRead);
 
 	do
 	{
@@ -178,11 +180,11 @@ int SerialDriver::read(unsigned char *buf)
 
 	QByteArray baData;
 	baData.resize(256);
-	bool dataReady = false;
+//	bool dataReady = false;
 
-	dataReady = USBSerialPort.waitForReadyRead(USB_READ_TIMEOUT);
-	if(dataReady == true)
-	{
+//	dataReady = USBSerialPort.waitForReadyRead(USB_READ_TIMEOUT);
+//	if(dataReady == true)
+//	{
 		baData = USBSerialPort.readAll();
 
 		//We check to see if we are getting good packets, or a bunch of crap:
@@ -201,13 +203,13 @@ int SerialDriver::read(unsigned char *buf)
 		//Fill the rx buf with our new bytes:
 		update_rx_buf_array_usb((uint8_t *)baData.data(), len);
 		commPeriph[PORT_USB].rx.bytesReadyFlag = 1;
-	}
-	else
-	{
-		//qDebug("No USB bytes available.");
-		emit dataStatus(0, DATAIN_STATUS_RED);
-		return 0;
-	}
+//	}
+//	else
+//	{
+//		//qDebug("No USB bytes available.");
+//		emit dataStatus(0, DATAIN_STATUS_RED);
+//		return 0;
+//	}
 
 	//Notify user in GUI:
 	emit dataStatus(0, DATAIN_STATUS_GREEN);   //***ToDo: support 4 channels
@@ -264,14 +266,72 @@ void SerialDriver::readWrite(uint8_t numb, uint8_t *dataPacket, uint8_t r_w)
 	{
 		//Status to Yellow before we get the reply:
 		emit dataStatus(0, DATAIN_STATUS_YELLOW);
-
+/*
 		//Did we receive data? Can we decode it?
 		if(read(usb_rx))
 		{
 			decode_usb_rx(usb_rx);
 			emit newDataReady();
 		}
+*/
 	}
+}
+
+void SerialDriver::handleReadyRead()
+{
+	/*	Below code benchmarks the read stream proess
+	 *  Measures the time between reads, low passes, periodically qDebug()'s it
+	 * (use ctime lib instead of QTime because somehow QTime is so inefficient it changes the speed
+	 *
+	static float streamPeriod = 0;
+	static clock_t tLast = clock();
+	clock_t tCurr = clock();
+	float periodInSecs = (float)(tCurr - tLast) / CLOCKS_PER_SEC;
+	tLast = tCurr;
+
+	streamPeriod = 0.9 * streamPeriod + 0.1 * periodInSecs;
+	float  frequency = 1 / streamPeriod;
+
+	static int count = 0;
+	count++;
+	if(frequency < 70)
+		count%=100;
+	else
+		count%=200;
+
+	if(!count)
+		qDebug() << "Estimated period of reads: " << streamPeriod << ", frequency: " << frequency;
+	*/
+
+	QByteArray baData;
+	baData.resize(256);
+	bool dataReady = false;
+
+	baData = USBSerialPort.readAll();
+
+	//We check to see if we are getting good packets, or a bunch of crap:
+	int len = baData.length();
+	if(len > 256)
+	{
+		qDebug() << "Data length over 256 bytes (" << len << "bytes)";
+		len = 256;
+		USBSerialPort.clear((QSerialPort::AllDirections));
+		emit dataStatus(0, DATAIN_STATUS_RED);
+		return;
+	}
+
+	//qDebug() << "Read" << len << "bytes.";
+
+	//Fill the rx buf with our new bytes:
+	update_rx_buf_array_usb((uint8_t *)baData.data(), len);
+	commPeriph[PORT_USB].rx.bytesReadyFlag = 1;
+
+	//Notify user in GUI:
+	emit dataStatus(0, DATAIN_STATUS_GREEN);   //***ToDo: support 4 channels
+	emit newDataTimeout(true); //Reset counter
+	decode_usb_rx(usb_rx);
+	emit newDataReady();
+	return;
 }
 //****************************************************************************
 // Private function(s):
