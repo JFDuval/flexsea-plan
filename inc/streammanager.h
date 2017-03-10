@@ -10,6 +10,19 @@
 #include <FlexSEADevice/flexseaDevice.h>
 #include <vector>
 
+class UTimer : public QTimer
+{
+	Q_OBJECT
+public:
+	explicit UTimer() : id(0) { connect(this, &UTimer::timeout, this, &UTimer::sendIdTimeout); }
+	virtual ~UTimer(){}
+	int id;
+public slots:
+	void sendIdTimeout() { emit idTimeout(id); }
+signals:
+	void idTimeout(int);
+};
+
 class StreamManager : public QObject
 {
 	Q_OBJECT
@@ -39,6 +52,8 @@ public slots:
 	void sendCommandTestBench(uint8_t slaveId);
 	void sendCommandInControl(uint8_t slaveId);
 
+	void sendCommandsByIndex(int streamListIndex);
+
 private:
 	class CmdSlaveRecord
 	{
@@ -61,6 +76,8 @@ private:
 	SerialDriver* serialDriver;
 	int timerFrequencies[NUM_TIMER_FREQS];
 	float timerIntervals[NUM_TIMER_FREQS];
+
+	UTimer* timers[NUM_TIMER_FREQS];
 
 	QList<QString> experimentLabels;
 	QList<int> experimentCodes;
