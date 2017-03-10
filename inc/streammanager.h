@@ -52,7 +52,7 @@ public slots:
 	void sendCommandTestBench(uint8_t slaveId);
 	void sendCommandInControl(uint8_t slaveId);
 
-	void sendCommandsByIndex(int streamListIndex);
+	//void sendCommandsByIndex(int streamListIndex);
 
 private:
 	class CmdSlaveRecord
