@@ -82,7 +82,7 @@ W_2DPlot::W_2DPlot(QWidget *parent,
 
 	drawingTimer = new QTimer(this);
 	drawingTimer->setTimerType(Qt::PreciseTimer);
-	drawingTimer->setInterval(100);
+	drawingTimer->setInterval(33);
 	drawingTimer->setSingleShot(false);
 	connect(drawingTimer, &QTimer::timeout, this, &W_2DPlot::refresh2DPlot);
 }
@@ -733,8 +733,8 @@ void W_2DPlot::computeGlobalMinMax(void)
 			{
 				globalYmin = stats[i][STATS_MIN];
 				globalYmax = stats[i][STATS_MAX];
-				globalXmin = vDataBuffer[i].first().x();
-				globalXmax = vDataBuffer[i].last().x();
+//				globalXmin = vDataBuffer[i].first().x();
+//				globalXmax = vDataBuffer[i].last().x();
 				break;
 			}
 		}

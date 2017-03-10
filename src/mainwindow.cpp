@@ -108,7 +108,7 @@ MainWindow::MainWindow(QWidget *parent) :
 	//SerialDriver:
 	mySerialDriver = new SerialDriver();
 	serialThread = new QThread(this);
-	mySerialDriver->moveToThread(serialThread);
+	//mySerialDriver->moveToThread(serialThread);
 	streamManager = new StreamManager(nullptr, mySerialDriver);
 	streamManager->moveToThread(serialThread);
 	serialThread->start(QThread::HighestPriority);

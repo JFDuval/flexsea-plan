@@ -14,6 +14,7 @@ StreamManager::StreamManager(QObject *parent, SerialDriver* driver) :
 	for(int i = 0; i < NUM_TIMER_FREQS; i++)
 	{
 		timerFrequencies[i] = timerFreqsInHz[i];
+		timerIntervals[i] = 1000.0f / timerFreqsInHz[i];
 		streamLists[i] = std::vector<CmdSlaveRecord>();
 	}
 
@@ -43,8 +44,9 @@ void StreamManager::startStreaming(int cmd, int slave, int freq, bool shouldLog,
 	if(indexOfFreq >= 0 && indexOfFreq < NUM_TIMER_FREQS)
 	{
         CmdSlaveRecord record(cmd, slave, shouldLog, device);
-        record.initialTime = new QDateTime(QDateTime::currentDateTime());
-
+		record.initialTime = clock();
+		record.date = QDateTime::currentDateTime().date().toString();
+		//record.initialTime = new QDateTime(QDateTime::currentDateTime());
 		streamLists[indexOfFreq].push_back(record);
 		qDebug() << "Started streaming cmd: " << cmd << ", for slave id: " << slave << "at frequency: " << freq;
 	}
@@ -68,13 +70,14 @@ void StreamManager::stopStreaming(int cmd, int slave, int freq)
 		CmdSlaveRecord record = streamLists[indexOfFreq].at(i);
 		if(record.cmdType == cmd && record.slaveIndex == slave)
 		{
-			delete record.initialTime;
-			record.initialTime = nullptr;
 			streamLists[indexOfFreq].erase(streamLists[indexOfFreq].begin() + i);
 			qDebug() << "Stopped streaming cmd: " << cmd << ", for slave id: " << slave << "at frequency: " << freq;
 		}
 		if(record.shouldLog)
 			emit closeRecordingFile(record.device);
+
+//		if(streamLists[indexOfFreq].size() == 0)
+//			timers[indexOfFreq]->stop();
 	}
 }
 
@@ -123,8 +126,8 @@ void StreamManager::sendCommands(const std::vector<CmdSlaveRecord> &streamList)
 			record.device->decodeLastLine();
 			if(record.shouldLog && record.initialTime)
 			{
-				record.device->timeStamp.last().date = record.initialTime->date().toString();
-				record.device->timeStamp.last().ms = record.initialTime->msecsTo(QDateTime::currentDateTime());
+				record.device->timeStamp.last().date = record.date;
+				record.device->timeStamp.last().ms = (clock() - record.initialTime) * 1000 / CLOCKS_PER_SEC;
 				emit writeToLogFile(record.device);
 			}
 		}
@@ -151,9 +154,11 @@ void StreamManager::receiveClock()
 	const float TOLERANCE = 0.0001;
 	for(int i = 0; i < NUM_TIMER_FREQS; i++)
 	{
+		if(!streamLists[i].size()) continue;
+
 		//received clocks comes in at 1ms/clock
 		msSinceLast[i]++;
-		float timerInterval = (1000.0f / timerFrequencies[i]);
+		float timerInterval = timerIntervals[i];
 		if((msSinceLast[i] + TOLERANCE) > timerInterval)
 		{
 			sendCommands(streamLists[i]);

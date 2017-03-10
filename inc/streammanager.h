@@ -48,16 +48,19 @@ private:
 		int cmdType;
 		int slaveIndex;
 		bool shouldLog;
-		QDateTime* initialTime;
+		clock_t initialTime;
+		QString date;
 		FlexseaDevice* device;
 	};
 
 	void sendCommands(const std::vector<CmdSlaveRecord> &streamList);
+
 	void tryPackAndSend(int cmd, uint8_t slaveId);
 	int getIndexOfFrequency(int freq);
 	QString getNameOfExperiment(int cmd);
 	SerialDriver* serialDriver;
 	int timerFrequencies[NUM_TIMER_FREQS];
+	float timerIntervals[NUM_TIMER_FREQS];
 
 	QList<QString> experimentLabels;
 	QList<int> experimentCodes;

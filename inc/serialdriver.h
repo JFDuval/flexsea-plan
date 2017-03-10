@@ -49,12 +49,12 @@ namespace Ui {
 class SerialDriver;
 }
 
-class SerialDriver : public QWidget
+class SerialDriver : public QObject
 {
 	Q_OBJECT
 
 public:
-	explicit SerialDriver(QWidget *parent = 0);
+	explicit SerialDriver(QObject *parent = 0);
 	virtual ~SerialDriver();
 
 	void init(void);

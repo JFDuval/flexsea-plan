@@ -45,7 +45,7 @@
 // Constructor & Destructor:
 //****************************************************************************
 
-SerialDriver::SerialDriver(QWidget *parent) : QWidget(parent)
+SerialDriver::SerialDriver(QObject *parent) : QObject(parent)
 {
 	comPortOpen = false;
 
