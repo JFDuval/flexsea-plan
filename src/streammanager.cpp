@@ -38,13 +38,13 @@ void StreamManager::startStreaming(int cmd, int slave, int freq, bool shouldLog,
 {
 	if(!device) return;
 
-	CmdSlaveRecord record(cmd, slave, shouldLog, device);
-	record.initialTime = new QDateTime(QDateTime::currentDateTime());
-
 	int indexOfFreq = getIndexOfFrequency(freq);
 
 	if(indexOfFreq >= 0 && indexOfFreq < NUM_TIMER_FREQS)
 	{
+        CmdSlaveRecord record(cmd, slave, shouldLog, device);
+        record.initialTime = new QDateTime(QDateTime::currentDateTime());
+
 		streamLists[indexOfFreq].push_back(record);
 		qDebug() << "Started streaming cmd: " << cmd << ", for slave id: " << slave << "at frequency: " << freq;
 	}

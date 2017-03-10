@@ -192,8 +192,7 @@ int SerialDriver::read(unsigned char *buf)
 		if(len > 256)
 		{
 			qDebug() << "Data length over 256 bytes (" << len << "bytes)";
-			len = 256;
-			USBSerialPort.clear((QSerialPort::AllDirections));
+            USBSerialPort.clear((QSerialPort::AllDirections));
 			emit dataStatus(0, DATAIN_STATUS_RED);
 			return 0;
 		}
@@ -314,8 +313,7 @@ void SerialDriver::handleReadyRead()
 	if(len > 256)
 	{
 		qDebug() << "Data length over 256 bytes (" << len << "bytes)";
-		len = 256;
-		USBSerialPort.clear((QSerialPort::AllDirections));
+        USBSerialPort.clear((QSerialPort::AllDirections));
 		emit dataStatus(0, DATAIN_STATUS_RED);
 		return;
 	}

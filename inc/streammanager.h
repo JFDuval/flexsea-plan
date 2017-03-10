@@ -5,6 +5,7 @@
 #include <QTimer>
 #include <serialdriver.h>
 #include <QString>
+#include <ctime>
 #include <QDateTime>
 #include <FlexSEADevice/flexseaDevice.h>
 #include <vector>
