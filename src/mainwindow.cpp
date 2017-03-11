@@ -106,12 +106,12 @@ MainWindow::MainWindow(QWidget *parent) :
 	initFlexSeaDeviceObject();
 
 	//SerialDriver:
-	mySerialDriver = new SerialDriver();
-	serialThread = new QThread(this);
+	mySerialDriver = new SerialDriver(this);
+	//serialThread = new QThread(this);
 	//mySerialDriver->moveToThread(serialThread);
-	streamManager = new StreamManager(nullptr, mySerialDriver);
-	streamManager->moveToThread(serialThread);
-	serialThread->start(QThread::HighestPriority);
+	streamManager = new StreamManager(this, mySerialDriver);
+	//streamManager->moveToThread(serialThread);
+	//serialThread->start(QThread::HighestPriority);
 
 	drawThread = new QThread(this);
 
