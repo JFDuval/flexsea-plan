@@ -77,13 +77,15 @@ SerialDriver::~SerialDriver()
 
 void SerialDriver::enqueueReadWrite(uint8_t numb, uint8_t* dataPacket, uint8_t r_w)
 {
-	outgoingBuffer.push(Message(numb, dataPacket, r_w));
+    write(numb, dataPacket);
+    //outgoingBuffer.push(Message(numb, dataPacket, r_w));
 }
 
 void SerialDriver::handleTimeout()
 {
 	emit timerClocked();
-	if(outgoingBuffer.size() > 0)
+    return;
+    if(outgoingBuffer.size() > 0)
 	{
 		Message m = outgoingBuffer.front();
 		readWrite(m.numBytes, m.dataPacket.data(), m.r_w);
@@ -220,13 +222,12 @@ int SerialDriver::read(unsigned char *buf)
 int SerialDriver::write(char bytes_to_send, unsigned char *serial_tx_data)
 {
 	qint64 write_ret = 0;
-	QByteArray myQBArray;
-	myQBArray = QByteArray::fromRawData((const char*)serial_tx_data, bytes_to_send);
 
 	//Check if COM was successfully opened:
 
 	if(comPortOpen == true)
 	{
+        QByteArray myQBArray = QByteArray::fromRawData((const char*)serial_tx_data, bytes_to_send);
 		write_ret = USBSerialPort.write(myQBArray);
 	}
 	else
