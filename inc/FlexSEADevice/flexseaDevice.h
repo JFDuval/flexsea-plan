@@ -122,6 +122,7 @@ public:
 	int		frequency;
 
 	QList<struct TimeStamp> timeStamp;
+	QList<int> eventFlags;
 	int serializedLength;
 };
 

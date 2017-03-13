@@ -35,7 +35,7 @@
 #include "executeDevice.h"
 #include <QDebug>
 #include <QTextStream>
-#include "w_event.h"
+#include <w_event.h>
 
 //****************************************************************************
 // Constructor & Destructor:
@@ -65,7 +65,7 @@ ExecuteDevice::ExecuteDevice(execute_s *devicePtr): FlexseaDevice()
 
 	exList.append(devicePtr);
 	ownershipList.append(false); //we assume we don't own this device ptr, and whoever passed it to us is responsible for clean up
-	eventFlags.append(W_Event::getEventCode());
+	eventFlags.append(0);
 
 	serializedLength = header.length();
 	slaveTypeName = "execute";
@@ -167,9 +167,6 @@ QStringList ExecuteDevice::headerDecoded = QStringList()
 
 QString ExecuteDevice::getLastSerializedStr(void)
 {
-	//Quick hack: add event flags
-	eventFlags.append(W_Event::getEventCode());
-
 	QString str;
 	QTextStream(&str) <<	timeStamp.last().date			<< ',' << \
 							timeStamp.last().ms				<< ',' << \
@@ -274,7 +271,7 @@ struct std_variable ExecuteDevice::getSerializedVar(int parameter, int index)
 			var.decodedPtr = nullptr;
 			break;
 		case 2: //"Event Flag"
-			var.format = FORMAT_8U;
+			var.format = FORMAT_32S;
 			var.rawGenPtr = &eventFlags[index];
 			var.decodedPtr = nullptr;
 			break;
@@ -427,7 +424,7 @@ void ExecuteDevice::appendEmptyLine(void)
 	emptyStruct->enc_ang_vel = new int32_t();
 	exList.append(emptyStruct);
 	ownershipList.append(true); // we own this struct, so we must delete it in destructor
-	eventFlags.append(W_Event::getEventCode());
+	eventFlags.append(0);
 }
 
 void ExecuteDevice::decodeLastLine(void)
