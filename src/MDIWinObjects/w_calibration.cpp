@@ -71,18 +71,19 @@ W_Calibration::~W_Calibration()
 //****************************************************************************
 // Public slot(s):
 //****************************************************************************
+
 void W_Calibration::on_pbFindPoles_clicked()
 {
-    active_slave_index = ui->comboBox_slave->currentIndex();
-    active_slave = FlexSEA_Generic::getSlaveID(SL_BASE_ALL, active_slave_index);
+	active_slave_index = ui->comboBox_slave->currentIndex();
+	active_slave = FlexSEA_Generic::getSlaveID(SL_BASE_ALL, active_slave_index);
 
-    uint16_t numBytes = 0;
-    uint8_t info[2] = {PORT_USB, PORT_USB};
+	uint16_t numBytes = 0;
+	uint8_t info[2] = {PORT_USB, PORT_USB};
 
-    //we should check first that active slave is an execute
-    tx_cmd_calibration_mode_rw(TX_N_DEFAULT, CALIBRATION_FIND_POLES);
-    pack(P_AND_S_DEFAULT, active_slave, info, &numBytes, comm_str_usb);
-    emit writeCommand(numBytes, comm_str_usb, WRITE);
+	//we should check first that active slave is an execute
+	tx_cmd_calibration_mode_rw(TX_N_DEFAULT, CALIBRATION_FIND_POLES);
+	pack(P_AND_S_DEFAULT, active_slave, info, &numBytes, comm_str_usb);
+	emit writeCommand(numBytes, comm_str_usb, WRITE);
 }
 //****************************************************************************
 // Private function(s):
@@ -97,6 +98,15 @@ void W_Calibration::init(void)
 	//Variables:
 	active_slave_index = ui->comboBox_slave->currentIndex();
 	active_slave = FlexSEA_Generic::getSlaveID(SL_BASE_ALL, active_slave_index);
+
+	//Disable current zero (not yet implemented):
+	ui->dispCurrentZero->setText("0");
+	ui->lineEditCurrentFind->setText("0");
+	ui->dispCurrentZero->setEnabled(0);
+	ui->pbCurrentFind->setEnabled(0);
+	ui->pbCurrentSave->setEnabled(0);
+	ui->pbCurrentRead->setEnabled(0);
+	ui->lineEditCurrentFind->setEnabled(0);
 }
 
 //****************************************************************************

@@ -95,12 +95,13 @@ SOURCES += src/main.cpp \
 	src/MDIWinObjects/w_commtest.cpp \
 	flexsea-system/src/flexsea_cmd_tools.c \
 	flexsea-system/test/test-flexsea_cmd_tools.c \
-        src/FlexSEADevice/ricnuProject.cpp \
+	src/FlexSEADevice/ricnuProject.cpp \
 	src/FlexSEADevice/ankle2DofProject.cpp \
-        src/FlexSEADevice/testBenchProject.cpp \
-        src/streammanager.cpp \
-    src/MDIWinObjects/w_incontrol.cpp \
-    flexsea-system/src/flexsea_cmd_in_control.c
+	src/FlexSEADevice/testBenchProject.cpp \
+	src/streammanager.cpp \
+	src/MDIWinObjects/w_incontrol.cpp \
+	flexsea-system/src/flexsea_cmd_in_control.c \
+	src/MDIWinObjects/w_event.cpp
 
 HEADERS  += inc/main.h \
 	inc/mainwindow.h \
@@ -168,9 +169,10 @@ HEADERS  += inc/main.h \
 	inc/FlexSEADevice/ricnuProject.h \
 	inc/FlexSEADevice/ankle2DofProject.h \
 	inc/FlexSEADevice/testBenchProject.h \
-    inc/streammanager.h \
-    inc/MDIWinObjects/w_incontrol.h \
-    flexsea-system/inc/flexsea_cmd_in_control.h
+	inc/streammanager.h \
+	inc/MDIWinObjects/w_incontrol.h \
+	flexsea-system/inc/flexsea_cmd_in_control.h \
+	inc/MDIWinObjects/w_event.h
 
 FORMS    += ui/mainwindow.ui \
 	ui/w_execute.ui \
@@ -189,8 +191,9 @@ FORMS    += ui/mainwindow.ui \
 	ui/w_logkeypad.ui \
 	ui/w_userrw.ui \
 	ui/w_commtest.ui \
-        ui/w_testbench.ui \
-        ui/w_incontrol.ui
+	ui/w_testbench.ui \
+	ui/w_incontrol.ui \
+	ui/w_event.ui
 
 RESOURCES += \
 	misc/icons.qrc

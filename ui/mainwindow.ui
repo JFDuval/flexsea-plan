@@ -118,6 +118,7 @@
     <addaction name="actionConverter"/>
     <addaction name="actionTest_Bench"/>
     <addaction name="actionCommunication_Test"/>
+    <addaction name="actionEvent_Flag"/>
    </widget>
    <widget class="QMenu" name="menuUser">
     <property name="title">
@@ -258,6 +259,11 @@
   <action name="actionCommunication_Test">
    <property name="text">
     <string>Communication Test</string>
+   </property>
+  </action>
+  <action name="actionEvent_Flag">
+   <property name="text">
+    <string>Event Flag</string>
    </property>
   </action>
  </widget>
@@ -584,6 +590,22 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>actionEvent_Flag</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>createToolEvent()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>594</x>
+     <y>433</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>createViewExecute()</slot>
@@ -607,5 +629,6 @@
   <slot>createViewTestBench()</slot>
   <slot>createViewCommTest()</slot>
   <slot>createInControl()</slot>
+  <slot>createToolEvent()</slot>
  </slots>
 </ui>

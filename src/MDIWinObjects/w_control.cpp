@@ -136,6 +136,10 @@ void W_Control::initTimers(void)
 {
 	timerCtrl = new QTimer(this);
 	connect(timerCtrl, SIGNAL(timeout()), this, SLOT(timerCtrlEvent()));
+
+	timerDisplay = new QTimer(this);
+	connect(timerDisplay, SIGNAL(timeout()), this, SLOT(timerDisplayEvent()));
+	timerDisplay->start(75);
 }
 
 void W_Control::init_ctrl_gains(void)
@@ -222,15 +226,15 @@ void W_Control::stream_ctrl(void)
 
 	if(ui->comboBoxDispSel->currentIndex() == 0)    //Execute's
 	{
-        ui->labelDispEncoder->setText(QString::number(*ex_ptr->enc_ang));
+		ui->labelDispEncoder->setText(QString::number(*ex_ptr->enc_ang));
 	}
 	else if(ui->comboBoxDispSel->currentIndex() == 1)   //RIC/NU - Motor
 	{
-        ui->labelDispEncoder->setText(QString::number(ricnu_1.enc_motor));
+		ui->labelDispEncoder->setText(QString::number(ricnu_1.enc_motor));
 	}
 	else if(ui->comboBoxDispSel->currentIndex() == 2)   //RIC/NU - Joint
 	{
-        ui->labelDispEncoder->setText(QString::number(ricnu_1.enc_joint));
+		ui->labelDispEncoder->setText(QString::number(ricnu_1.enc_joint));
 	}
 	else
 	{
@@ -277,6 +281,11 @@ void W_Control::timerCtrlEvent(void)
 	trap_acc = ui->control_trapeze_acc->text().toInt();
 
 	controller_setpoint(ctrl_setpoint);
+}
+
+void W_Control::timerDisplayEvent(void)
+{
+	stream_ctrl();
 }
 
 //****************************************************************************

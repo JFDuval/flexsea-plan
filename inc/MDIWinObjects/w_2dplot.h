@@ -70,6 +70,10 @@
 #define STATS_AVG					2
 #define STATS_RMS					3
 
+//Scaling:
+#define SCALE_DEFAULT_M				1
+#define SCALE_DEFAULT_B				0
+
 //Test code:
 //#define VECLEN	200
 
@@ -156,6 +160,20 @@ private slots:
 	void myHoverHandlerAll(uint8_t ch, QPointF pt, QPoint cursor, bool state);
 	void on_checkBoxOpenGL_clicked(bool checked);
 
+	void on_lineEditM1_textEdited(const QString &arg1);
+	void on_lineEditM2_textEdited(const QString &arg1);
+	void on_lineEditM3_textEdited(const QString &arg1);
+	void on_lineEditM4_textEdited(const QString &arg1);
+	void on_lineEditM5_textEdited(const QString &arg1);
+	void on_lineEditM6_textEdited(const QString &arg1);
+
+	void on_lineEditB1_textEdited(const QString &arg1);
+	void on_lineEditB2_textEdited(const QString &arg1);
+	void on_lineEditB3_textEdited(const QString &arg1);
+	void on_lineEditB4_textEdited(const QString &arg1);
+	void on_lineEditB5_textEdited(const QString &arg1);
+	void on_lineEditB6_textEdited(const QString &arg1);
+
 signals:
 
 	void windowClosed(void);
@@ -207,6 +225,9 @@ private:
 	int32_t myFakeData;
 	float dataRate;
 
+	//Scaling:
+	int32_t scaling[VAR_NUM][2];
+
 	//Function(s):
 
 	void initChart(void);
@@ -218,6 +239,7 @@ private:
 	float getRefreshRateDisplay(void);
 	float getRefreshRateData(void);
 	void initData(void);
+	void initScaling(void);
 	void saveCurrentSettings(int item);
 	void addMargins(int *ymin, int *ymax);
 	void setChartAxis(void);
@@ -228,6 +250,8 @@ private:
 	void refreshStats(void);
 	void refreshStatBar(float fDisp, float fData);
 	void useOpenGL(bool yesNo);
+	void updateScalingFactors(uint8_t var, uint8_t param, QString txt);
+	void scale(uint8_t item, int *value);
 
 	void updateVarList(uint8_t var);
 	void assignVariable(uint8_t var);

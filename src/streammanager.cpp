@@ -4,6 +4,7 @@
 #include <flexsea_system.h>
 #include <flexsea_cmd_data.h>
 #include <flexsea_cmd_in_control.h>
+#include <w_event.h>
 #include <QDebug>
 
 StreamManager::StreamManager(QObject *parent, SerialDriver* driver) :
@@ -142,6 +143,7 @@ void StreamManager::sendCommands(const std::vector<CmdSlaveRecord> &streamList)
 			{
 				record.device->timeStamp.last().date = record.date;
 				record.device->timeStamp.last().ms = (clock() - record.initialTime) * 1000 / CLOCKS_PER_SEC;
+				record.device->eventFlags.last() = W_Event::getEventCode();
 				emit writeToLogFile(record.device);
 			}
 		}
