@@ -37,11 +37,14 @@
 
 #include <QWidget>
 #include <QTimer>
+#include <QPushButton>
 #include "counter.h"
 
 //****************************************************************************
 // Namespace & Class Definition:
 //****************************************************************************
+
+#define NUM_OF_BUTTONS		4
 
 namespace Ui {
 class W_Event;
@@ -84,13 +87,14 @@ private:
 	//Variables & Objects:
 	Ui::W_Event *ui;
 	int delayValue;
-	QTimer *timerPb[4];
-	int flag[4];
+	QTimer *timerPb[NUM_OF_BUTTONS];
+	int flag[NUM_OF_BUTTONS];
 
 	//Function(s):
 	void init(void);
 	QString buildList(void);
 	int buildCode(void);
+	QPushButton *buttons[NUM_OF_BUTTONS];
 };
 
 //****************************************************************************
