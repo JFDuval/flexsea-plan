@@ -109,6 +109,18 @@ void W_Event::init(void)
 	flag[1] = 0;
 	flag[2] = 0;
 	flag[3] = 0;
+
+	//Pushbuttons:
+	buttons[0] = ui->pushButtonA;
+	buttons[1] = ui->pushButtonB;
+	buttons[2] = ui->pushButtonC;
+	buttons[3] = ui->pushButtonD;
+
+	for(int i = 0; i < NUM_OF_BUTTONS; i++)
+	{
+		buttons[i]->setStyleSheet("background-color: \
+						rgb(127, 127, 127); color: rgb(0, 0, 0)");
+	}
 }
 
 QString W_Event::buildList(void)
@@ -171,6 +183,9 @@ void W_Event::pushButtonEvent(int pb)
 	timerPb[pb]->start(delayValue);
 	flag[pb] = 1;
 
+	buttons[pb]->setStyleSheet("background-color: \
+					rgb(0, 255, 0); color: rgb(0, 0, 0)");
+
 	flagText = buildList();
 	flagCode = buildCode();
 	qDebug() << "pbEvent:" << flagText << "'" << flagCode;
@@ -180,6 +195,9 @@ void W_Event::timeoutEvent(int pb)
 {
 	timerPb[pb]->stop();
 	flag[pb] = 0;
+
+	buttons[pb]->setStyleSheet("background-color: \
+					rgb(127, 127, 127); color: rgb(0, 0, 0)");
 
 	flagText = buildList();
 	flagCode = buildCode();
