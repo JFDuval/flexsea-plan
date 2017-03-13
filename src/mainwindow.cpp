@@ -83,6 +83,7 @@ MainWindow::MainWindow(QWidget *parent) :
 	W_TestBench::setMaxWindow(TESTBENCH_WINDOWS_MAX);
 	W_CommTest::setMaxWindow(COMMTEST_WINDOWS_MAX);
 	W_InControl::setMaxWindow(INCONTROL_WINDOWS_MAX);
+	W_Event::setMaxWindow(EVENT_WINDOWS_MAX);
 
 	W_Execute::setDescription("Execute");
 	W_Manage::setDescription("Manage - Barebone");
@@ -101,7 +102,8 @@ MainWindow::MainWindow(QWidget *parent) :
 	W_UserRW::setDescription("User R/W");
 	W_TestBench::setDescription("Test Bench");
 	W_CommTest::setDescription("Communication Test");
-    W_InControl::setDescription("Controller Tuning");
+	W_InControl::setDescription("Controller Tuning");
+	W_Event::setDescription("Event Flag");
 
 	initFlexSeaDeviceObject();
 
@@ -1056,6 +1058,38 @@ void MainWindow::createViewCommTest(void)
 void MainWindow::closeViewCommTest(void)
 {
 	sendCloseWindowMsg(W_CommTest::getDescription());
+}
+
+//Creates a new Event window
+void MainWindow::createToolEvent(void)
+{
+	int objectCount = W_Event::howManyInstance();
+
+	//Limited number of windows:
+	if(objectCount < (EVENT_WINDOWS_MAX))
+	{
+		myEvent[objectCount] = new W_Event(this);
+		ui->mdiArea->addSubWindow(myEvent[objectCount]);
+		myEvent[objectCount]->show();
+
+		sendWindowCreatedMsg(W_Event::getDescription(), objectCount,
+							 W_Event::getMaxWindow() - 1);
+
+		//Link to MainWindow for the close signal:
+		connect(myEvent[objectCount], SIGNAL(windowClosed()), \
+				this, SLOT(closeToolEvent()));
+	}
+
+	else
+	{
+		sendWindowCreatedFailedMsg(W_Event::getDescription(),
+								   W_Event::getMaxWindow());
+	}
+}
+
+void MainWindow::closeToolEvent(void)
+{
+	sendCloseWindowMsg(W_Event::getDescription());
 }
 
 void MainWindow::sendWindowCreatedMsg(QString windowName, int index, int maxIndex)

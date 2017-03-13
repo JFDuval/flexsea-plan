@@ -52,6 +52,7 @@
 #include "w_gossip.h"
 #include "w_converter.h"
 #include "w_incontrol.h"
+#include "w_event.h"
 
 #include "flexseaDevice.h"
 #include "w_testbench.h"
@@ -85,6 +86,7 @@ class MainWindow;
 #define TESTBENCH_WINDOWS_MAX		1
 #define COMMTEST_WINDOWS_MAX		1
 #define INCONTROL_WINDOWS_MAX		1
+#define EVENT_WINDOWS_MAX			1
 
 class MainWindow : public QMainWindow
 {
@@ -157,6 +159,7 @@ private:
 	W_TestBench *myViewTestBench[TESTBENCH_WINDOWS_MAX];
 	W_CommTest *myViewCommTest[COMMTEST_WINDOWS_MAX];
 	W_InControl *myViewInControl[INCONTROL_WINDOWS_MAX];
+	W_Event *myEvent[EVENT_WINDOWS_MAX];
 
 	// Objects
 	SerialDriver *mySerialDriver;
@@ -194,6 +197,7 @@ public slots:
 	void createViewTestBench(void);
 	void createViewCommTest(void);
 	void createInControl(void);
+	void createToolEvent(void);
 
 	//MDI Windows (closed):
 	void closeViewExecute(void);
@@ -213,8 +217,9 @@ public slots:
 	void closeUserRW(void);
 	void closeViewTestBench(void);
 	void closeViewCommTest(void);
+	void closeToolEvent(void);
 
-	//Miscelaneous
+	//Miscellaneous
 
 	DisplayMode getDisplayMode(void);
 
