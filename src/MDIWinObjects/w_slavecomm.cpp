@@ -405,6 +405,9 @@ void W_SlaveComm::updateStatusBar(QString txt)
 //"Data Received" Arrows:
 void W_SlaveComm::displayDataReceived(int item, int status)
 {
+	if(!on_off_pb_ptr[item]->isChecked())
+		status = DATAIN_STATUS_GREY;
+
 	switch(status)
 	{
 		case DATAIN_STATUS_GREY:

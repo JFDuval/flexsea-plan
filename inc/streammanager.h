@@ -10,24 +10,16 @@
 #include <FlexSEADevice/flexseaDevice.h>
 #include <vector>
 
-class UTimer : public QTimer
-{
-	Q_OBJECT
-public:
-	explicit UTimer() : id(0) { connect(this, &UTimer::timeout, this, &UTimer::sendIdTimeout); }
-	virtual ~UTimer(){}
-	int id;
-public slots:
-	void sendIdTimeout() { emit idTimeout(id); }
-signals:
-	void idTimeout(int);
-};
-
 class StreamManager : public QObject
 {
 	Q_OBJECT
 public:
 	explicit StreamManager(QObject *parent = 0, SerialDriver* driver = nullptr);
+	virtual ~StreamManager() {
+		if(clockTimer) delete clockTimer;
+		clockTimer = nullptr;
+	}
+
 	void startStreaming(int cmd, int slave, int freq, bool shouldLog, FlexseaDevice* logToDevice);
 	void stopStreaming(int cmd, int slave, int freq);
 
@@ -52,9 +44,28 @@ public slots:
 	void sendCommandTestBench(uint8_t slaveId);
 	void sendCommandInControl(uint8_t slaveId);
 
-	//void sendCommandsByIndex(int streamListIndex);
+	void enqueueCommand(uint8_t numb, uint8_t* dataPacket);
 
 private:
+
+	//Variables & Objects:
+	class Message {
+	public:
+		static void do_delete(uint8_t buf[]) { delete[] buf; }
+		Message(uint8_t nb, uint8_t* data) {
+			numBytes = nb;
+			dataPacket = QSharedPointer<uint8_t>(new uint8_t[nb], do_delete);
+			uint8_t* temp = dataPacket.data();
+			for(int i = 0; i < numBytes; i++)
+				temp[i] = data[i];
+		}
+
+		uint8_t numBytes;
+		QSharedPointer<uint8_t> dataPacket;
+		uint8_t r_w;
+	};
+	std::queue<Message> outgoingBuffer;
+
 	class CmdSlaveRecord
 	{
 	public:
@@ -67,9 +78,9 @@ private:
 		QString date;
 		FlexseaDevice* device;
 	};
+	std::vector<CmdSlaveRecord> streamLists[NUM_TIMER_FREQS];
 
 	void sendCommands(const std::vector<CmdSlaveRecord> &streamList);
-
 	void tryPackAndSend(int cmd, uint8_t slaveId);
 	int getIndexOfFrequency(int freq);
 	QString getNameOfExperiment(int cmd);
@@ -77,11 +88,10 @@ private:
 	int timerFrequencies[NUM_TIMER_FREQS];
 	float timerIntervals[NUM_TIMER_FREQS];
 
-	UTimer* timers[NUM_TIMER_FREQS];
-
 	QList<QString> experimentLabels;
 	QList<int> experimentCodes;
-	std::vector<CmdSlaveRecord> streamLists[NUM_TIMER_FREQS];
+	QTimer* clockTimer;
+	float clockPeriod;
 
 };
 #endif // STREAMMANAGER_H

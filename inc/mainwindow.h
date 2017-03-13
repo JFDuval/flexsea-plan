@@ -162,7 +162,6 @@ private:
 	// Objects
 	SerialDriver *mySerialDriver;
 	QThread* serialThread;
-	QThread* drawThread;
 
 	DataLogger *myDataLogger;
 	StreamManager* streamManager;

@@ -107,13 +107,11 @@ MainWindow::MainWindow(QWidget *parent) :
 
 	//SerialDriver:
 	mySerialDriver = new SerialDriver(this);
-	//serialThread = new QThread(this);
-	//mySerialDriver->moveToThread(serialThread);
+	serialThread = new QThread(this);
+	mySerialDriver->moveToThread(serialThread);
 	streamManager = new StreamManager(this, mySerialDriver);
-	//streamManager->moveToThread(serialThread);
-	//serialThread->start(QThread::HighestPriority);
-
-	drawThread = new QThread(this);
+	streamManager->moveToThread(serialThread);
+	serialThread->start(QThread::HighestPriority);
 
 	//Datalogger:
 	myDataLogger = new DataLogger(this,
@@ -157,15 +155,15 @@ MainWindow::~MainWindow()
 
 	serialThread->quit();
 	delete mySerialDriver;
+	delete streamManager;
 	delete serialThread;
 
-	drawThread->quit();
+
 	int num2d = W_2DPlot::howManyInstance();
 	for(int i = 0; i < num2d; i++)
 	{
 		delete myView2DPlot[i];
 	}
-	delete drawThread;
 }
 
 void MainWindow::initFlexSeaDeviceObject(void)
@@ -493,9 +491,6 @@ void MainWindow::createView2DPlot(void)
 												 getDisplayMode(),
 												 &flexseaPtrlist);
 
-		myView2DPlot[objectCount]->moveToThread(drawThread);
-		if(!drawThread->isRunning()) { drawThread->start(QThread::LowestPriority); }
-
 		ui->mdiArea->addSubWindow(myView2DPlot[objectCount]);
 		myView2DPlot[objectCount]->show();
 
@@ -575,7 +570,7 @@ void MainWindow::createSlaveComm(void)
 				myDataLogger, SLOT(closeRecordingFile(FlexseaDevice*)));
 
 		connect(this, SIGNAL(connectorWriteCommand(uint8_t,uint8_t*,uint8_t)), \
-				mySerialDriver, SLOT(enqueueReadWrite(uint8_t,uint8_t*,uint8_t)), Qt::DirectConnection);
+				mySerialDriver, SLOT(write(uint8_t,uint8_t*)));
 	}
 
 	else

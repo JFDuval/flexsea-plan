@@ -193,7 +193,7 @@ private:
 	QVector<QPointF> vDataBuffer[VAR_NUM];
 	QDateTime *timerRefreshDisplay, *timerRefreshData;
 	int plot_xmin, plot_ymin, plot_xmax, plot_ymax, plot_len;
-	int globalYmin, globalYmax, globalXmin, globalXmax;
+	int globalYmin, globalYmax;
 
 	QStringList var_list_margin;
 	bool plotFreezed, initFlag;
@@ -211,7 +211,7 @@ private:
 
 	void initChart(void);
 	void initUserInput(void);
-	void saveNewPoints(int myDataPoints[6]);
+	void saveNewPoint(int row, int data);
 	void saveNewPointsLog(int index);
 	void computeStats(void);
 	void computeGlobalMinMax(void);
