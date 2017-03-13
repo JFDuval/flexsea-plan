@@ -12,7 +12,7 @@ StreamManager::StreamManager(QObject *parent, SerialDriver* driver) :
 {
 
 	//this needs to be in order from smallest to largest
-	int timerFreqsInHz[NUM_TIMER_FREQS] = {1, 5, 10, 20, 33, 50, 100, 1000};
+	int timerFreqsInHz[NUM_TIMER_FREQS] = {1, 5, 10, 20, 33, 50, 100, 200};
 	for(int i = 0; i < NUM_TIMER_FREQS; i++)
 	{
 		timerFrequencies[i] = timerFreqsInHz[i];
@@ -73,7 +73,9 @@ void StreamManager::startStreaming(int cmd, int slave, int freq, bool shouldLog,
 			maxFrequencyIndex = i;
 	}
 	// integer division on purpose. QTimer only takes integer periods
-	clockPeriod = 1000 / timerFrequencies[maxFrequencyIndex];
+	// ensure our period allows us to stream at this rate with this many streams and also clear our buffer
+	clockPeriod = floor(1000.0 / (streamLists[maxFrequencyIndex].size()+1) / timerFrequencies[maxFrequencyIndex]);
+	if(clockPeriod < 1) clockPeriod = 1;
 	clockTimer->start(clockPeriod);
 }
 
@@ -164,13 +166,14 @@ void StreamManager::receiveClock()
 {
 	static float msSinceLast[NUM_TIMER_FREQS] = {0};
 	const float TOLERANCE = 0.0001;
-	bool hz33TimedOut = false;
+
 	for(int i = 0; i < NUM_TIMER_FREQS; i++)
 	{
 		if(!streamLists[i].size()) continue;
 
 		//received clocks comes in at 5ms/clock
 		msSinceLast[i]+=clockPeriod;
+
 		float timerInterval = timerIntervals[i];
 		if((msSinceLast[i] + TOLERANCE) > timerInterval)
 		{
