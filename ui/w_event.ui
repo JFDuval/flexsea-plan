@@ -47,7 +47,7 @@
         </size>
        </property>
        <property name="text">
-        <string>A</string>
+        <string>A (1)</string>
        </property>
       </widget>
      </item>
@@ -66,7 +66,7 @@
         </size>
        </property>
        <property name="text">
-        <string>B</string>
+        <string>B (2)</string>
        </property>
       </widget>
      </item>
@@ -85,7 +85,7 @@
         </size>
        </property>
        <property name="text">
-        <string>C</string>
+        <string>C (4)</string>
        </property>
       </widget>
      </item>
@@ -104,7 +104,7 @@
         </size>
        </property>
        <property name="text">
-        <string>D</string>
+        <string>D (8)</string>
        </property>
       </widget>
      </item>

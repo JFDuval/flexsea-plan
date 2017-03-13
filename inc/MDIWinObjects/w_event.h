@@ -55,9 +55,11 @@ public:
 	//Constructor & Destructor:
 	explicit W_Event(QWidget *parent = 0);
 	~W_Event();
-	
+
 	static QString flagText;
-	QString getEventFlags(void);
+	static int flagCode;
+	static QString getEventFlags(void);
+	static int getEventCode(void);
 
 signals:
 	void windowClosed(void);
@@ -69,9 +71,9 @@ private slots:
 	void on_pushButtonB_clicked();
 	void on_pushButtonC_clicked();
 	void on_pushButtonD_clicked();
-	
+
 	void pushButtonEvent(int pb);
-	
+
 	void timeoutEvent(int pb);
 	void timerPb0(void);
 	void timerPb1(void);
@@ -88,6 +90,7 @@ private:
 	//Function(s):
 	void init(void);
 	QString buildList(void);
+	int buildCode(void);
 };
 
 //****************************************************************************

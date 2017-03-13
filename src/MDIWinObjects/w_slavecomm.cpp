@@ -341,11 +341,9 @@ FlexseaDevice* W_SlaveComm::getTargetDevice(int cmd, int experimentIndex, int sl
 	default:
 		target = (targetListMap[experimentIndex])->at(slaveIndex);
 		break;
-
 	}
 
 	return target;
-
 }
 
 //The 4 PB slots call this function:
@@ -356,9 +354,9 @@ void W_SlaveComm::managePushButton(int row, bool forceOff)
 	int slaveIndex = comboBoxSlavePtr[row]->currentIndex();
 	int refreshRateIndex = comboBoxRefreshPtr[row]->currentIndex();
 	int cmdCode = cmdMap[experimentIndex];
-	
+
 	if(cmdCode < 0) return;
-	
+
 	int refreshRate = streamManager->getRefreshRates()[refreshRateIndex];
 	FlexseaDevice* target = getTargetDevice(cmdCode, experimentIndex, slaveIndex);
 	int slaveId = (targetListMap[experimentIndex])->at(slaveIndex)->slaveID;

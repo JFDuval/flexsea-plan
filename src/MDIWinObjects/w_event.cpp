@@ -39,7 +39,9 @@
 #include <QTimer>
 #include <QDebug>
 
+//Static variables:
 QString W_Event::flagText = "";
+int W_Event::flagCode = 0;
 
 //****************************************************************************
 // Constructor & Destructor:
@@ -66,6 +68,16 @@ W_Event::~W_Event()
 //****************************************************************************
 // Public function(s):
 //****************************************************************************
+
+QString W_Event::getEventFlags(void)
+{
+	return flagText;
+}
+
+int W_Event::getEventCode(void)
+{
+	return flagCode;
+}
 
 //****************************************************************************
 // Public slot(s):
@@ -111,6 +123,18 @@ QString W_Event::buildList(void)
 	return tmp;
 }
 
+int W_Event::buildCode(void)
+{
+	int tmp = 0;
+
+	if(flag[0]) {tmp += 1;};
+	if(flag[1]) {tmp += 2;};
+	if(flag[2]) {tmp += 4;};
+	if(flag[3]) {tmp += 8;};
+
+	return tmp;
+}
+
 //****************************************************************************
 // Private slot(s):
 //****************************************************************************
@@ -148,7 +172,8 @@ void W_Event::pushButtonEvent(int pb)
 	flag[pb] = 1;
 
 	flagText = buildList();
-	qDebug() << "pbEvent:" << flagText;
+	flagCode = buildCode();
+	qDebug() << "pbEvent:" << flagText << "'" << flagCode;
 }
 
 void W_Event::timeoutEvent(int pb)
@@ -157,6 +182,7 @@ void W_Event::timeoutEvent(int pb)
 	flag[pb] = 0;
 
 	flagText = buildList();
+	flagCode = buildCode();
 	//qDebug() << "timeoutEvent:" << flagText;
 }
 
@@ -178,9 +204,4 @@ void W_Event::timerPb2(void)
 void W_Event::timerPb3(void)
 {
 	timeoutEvent(3);
-}
-
-QString W_Event::getEventFlags(void)
-{
-	return flagText;
 }

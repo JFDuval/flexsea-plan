@@ -1477,7 +1477,7 @@ void W_2DPlot::on_pbIMU_clicked()
 
 	for(int item = 0; item < VAR_NUM; item++)
 	{
-		(*cbVar[item])->setCurrentIndex(item + 1);
+		(*cbVar[item])->setCurrentIndex(item + 2);
 	}
 }
 

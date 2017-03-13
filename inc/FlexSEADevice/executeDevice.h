@@ -109,6 +109,7 @@ public:
 
 	QList<struct execute_s*> exList;
 	QList<bool> ownershipList;
+	QList<int> eventFlags;
 
 	static void decode(struct execute_s *exPtr);
 
