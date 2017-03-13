@@ -36,6 +36,7 @@
 //****************************************************************************
 
 #include <QWidget>
+#include <QTimer>
 #include "counter.h"
 
 //****************************************************************************
@@ -54,6 +55,9 @@ public:
 	//Constructor & Destructor:
 	explicit W_Event(QWidget *parent = 0);
 	~W_Event();
+	
+	static QString flagText;
+	QString getEventFlags(void);
 
 signals:
 	void windowClosed(void);
@@ -61,14 +65,29 @@ signals:
 private slots:
 
 	void on_horizontalSlider_valueChanged(int value);
+	void on_pushButtonA_clicked();
+	void on_pushButtonB_clicked();
+	void on_pushButtonC_clicked();
+	void on_pushButtonD_clicked();
+	
+	void pushButtonEvent(int pb);
+	
+	void timeoutEvent(int pb);
+	void timerPb0(void);
+	void timerPb1(void);
+	void timerPb2(void);
+	void timerPb3(void);
 
 private:
 	//Variables & Objects:
 	Ui::W_Event *ui;
 	int delayValue;
+	QTimer *timerPb[4];
+	int flag[4];
 
 	//Function(s):
 	void init(void);
+	QString buildList(void);
 };
 
 //****************************************************************************

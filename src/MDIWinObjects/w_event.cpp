@@ -35,6 +35,11 @@
 #include "w_event.h"
 #include "ui_w_event.h"
 #include "main.h"
+#include <QString>
+#include <QTimer>
+#include <QDebug>
+
+QString W_Event::flagText = "";
 
 //****************************************************************************
 // Constructor & Destructor:
@@ -72,11 +77,39 @@ W_Event::~W_Event()
 
 void W_Event::init(void)
 {
+	//Slider & display label:
 	ui->horizontalSlider->setMinimum(10);
 	ui->horizontalSlider->setMaximum(1000);
 	ui->horizontalSlider->setValue(250);	//Default
+
+	//Timers:
+	timerPb[0] = new QTimer(this);
+	connect(timerPb[0], SIGNAL(timeout()), this, SLOT(timerPb0()));
+	timerPb[1] = new QTimer(this);
+	connect(timerPb[1], SIGNAL(timeout()), this, SLOT(timerPb1()));
+	timerPb[2] = new QTimer(this);
+	connect(timerPb[2], SIGNAL(timeout()), this, SLOT(timerPb2()));
+	timerPb[3] = new QTimer(this);
+	connect(timerPb[3], SIGNAL(timeout()), this, SLOT(timerPb3()));
+
+	//Flags:
+	flag[0] = 0;
+	flag[1] = 0;
+	flag[2] = 0;
+	flag[3] = 0;
 }
 
+QString W_Event::buildList(void)
+{
+	QString tmp = "";
+
+	if(flag[0]) {tmp += 'A';};
+	if(flag[1]) {tmp += 'B';};
+	if(flag[2]) {tmp += 'C';};
+	if(flag[3]) {tmp += 'D';};
+
+	return tmp;
+}
 
 //****************************************************************************
 // Private slot(s):
@@ -87,4 +120,67 @@ void W_Event::on_horizontalSlider_valueChanged(int value)
 {
 	ui->labelDelay->setText(QString::number(value));
 	delayValue = value;
+}
+
+void W_Event::on_pushButtonA_clicked()
+{
+	pushButtonEvent(0);
+}
+
+void W_Event::on_pushButtonB_clicked()
+{
+	pushButtonEvent(1);
+}
+
+void W_Event::on_pushButtonC_clicked()
+{
+	pushButtonEvent(2);
+}
+
+void W_Event::on_pushButtonD_clicked()
+{
+	pushButtonEvent(3);
+}
+
+void W_Event::pushButtonEvent(int pb)
+{
+	timerPb[pb]->start(delayValue);
+	flag[pb] = 1;
+
+	flagText = buildList();
+	qDebug() << "pbEvent:" << flagText;
+}
+
+void W_Event::timeoutEvent(int pb)
+{
+	timerPb[pb]->stop();
+	flag[pb] = 0;
+
+	flagText = buildList();
+	//qDebug() << "timeoutEvent:" << flagText;
+}
+
+void W_Event::timerPb0(void)
+{
+	timeoutEvent(0);
+}
+
+void W_Event::timerPb1(void)
+{
+	timeoutEvent(1);
+}
+
+void W_Event::timerPb2(void)
+{
+	timeoutEvent(2);
+}
+
+void W_Event::timerPb3(void)
+{
+	timeoutEvent(3);
+}
+
+QString W_Event::getEventFlags(void)
+{
+	return flagText;
 }
