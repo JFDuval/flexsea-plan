@@ -34,12 +34,9 @@
 //****************************************************************************
 // Include(s)
 //****************************************************************************
-
-#include <QWidget>
+#include <QObject>
 #include <QString>
 #include <QSerialPort>
-#include <QTimer>
-#include <QSharedPointer>
 #include <vector>
 #include <flexseaDevice.h>
 
@@ -75,6 +72,8 @@ private:
 	QSerialPort USBSerialPort;
 	bool comPortOpen;
 	unsigned char usb_rx[256];
+	uint8_t largeRxBuffer[512];
+	int16_t largeRxBufferLatestTransfer;
 
 	std::vector<FlexseaDevice*> devices;
 	FlexseaDevice* getDeviceById(uint8_t slaveId);
@@ -103,6 +102,7 @@ signals:
 #define INDICATOR_TIMEOUT		110
 
 //USB driver:
-#define USB_READ_TIMEOUT		10		//ms
+#define MAX_SERIAL_RX_LEN		500
+#define CHUNK_SIZE				48
 
 #endif // SERIALDRIVER_H

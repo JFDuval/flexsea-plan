@@ -71,11 +71,11 @@ void SerialDriver::open(QString name, int tries, int delay, bool *success)
 	emit openProgress(comProgress);
 
 	USBSerialPort.setPortName(name);
-	USBSerialPort.setBaudRate(USBSerialPort.Baud115200);
+	USBSerialPort.setBaudRate(400000);
 	USBSerialPort.setDataBits(QSerialPort::Data8);
 	USBSerialPort.setParity(QSerialPort::NoParity);
 	USBSerialPort.setStopBits(QSerialPort::OneStop);
-	USBSerialPort.setFlowControl(QSerialPort::NoFlowControl);
+	USBSerialPort.setFlowControl(QSerialPort::HardwareControl);
 
 	connect(&USBSerialPort, &QSerialPort::readyRead, this, &SerialDriver::handleReadyRead);
 
@@ -195,46 +195,78 @@ void SerialDriver::handleReadyRead()
 		qDebug() << "Estimated period of reads: " << streamPeriod << ", frequency: " << frequency;
 	*/
 
-	QByteArray baData;
-	baData.resize(256);
+		QByteArray baData;
+		baData.resize(MAX_SERIAL_RX_LEN);
+		largeRxBufferLatestTransfer = 0;
+		baData = USBSerialPort.readAll();
 
-	baData = USBSerialPort.readAll();
-
-	//We check to see if we are getting good packets, or a bunch of crap:
-	int len = baData.length();
-	if(len > 256)
-	{
-		qDebug() << "Data length over 256 bytes (" << len << "bytes)";
-        USBSerialPort.clear((QSerialPort::AllDirections));
-		emit dataStatus(0, DATAIN_STATUS_RED);
-		return;
-	}
-
-	//qDebug() << "Read" << len << "bytes.";
-
-	//Fill the rx buf with our new bytes:
-	update_rx_buf_array_usb((uint8_t *)baData.data(), len);
-	commPeriph[PORT_USB].rx.bytesReadyFlag = 1;
-
-	//Notify user in GUI:
-	emit dataStatus(0, DATAIN_STATUS_GREEN);   //***ToDo: support 4 channels
-	emit newDataTimeout(true); //Reset counter
-	decode_usb_rx(usb_rx);
-
-	uint8_t slaveId = packet[PORT_USB][INBOUND].unpaked[P_XID];
-	FlexseaDevice* device = getDeviceById(slaveId);
-	if(device)
-	{
-		device->decodeLastLine();
-		if(device->isCurrentlyLogging)
+		//We check to see if we are getting good packets, or a bunch of crap:
+		int len = baData.length();
+		if(len < 1) return;
+		if(len > MAX_SERIAL_RX_LEN)
 		{
-			device->applyTimestamp();
-			device->eventFlags.last() = W_Event::getEventCode();
-			emit writeToLogFile(device);
+			//qDebug() << "Data length over " << MAX_SERIAL_RX_LEN << " bytes (" << len << "bytes)";
+			len = MAX_SERIAL_RX_LEN;
+			USBSerialPort.clear((QSerialPort::AllDirections));
+			emit dataStatus(0, DATAIN_STATUS_RED);
+			return;
 		}
-	}
 
-	emit newDataReady();
+		uint8_t numBuffers = (len / 48) + (len % 48 != 0);
+
+		//qDebug() << "Read" << len << "bytes (" << fullBuffers << "full buffer(s)).";
+
+		//Fill the rx buf with our new bytes:
+		memcpy(largeRxBuffer, (uint8_t *)baData.data(), len);
+		largeRxBufferLatestTransfer = len;
+
+		int16_t remainingBytes = len;
+//		int sumOfBytes = 0;
+		for(int i = 0; i < numBuffers; i++)
+		{
+			if(remainingBytes >= CHUNK_SIZE)
+			{
+				remainingBytes -= CHUNK_SIZE;
+				update_rx_buf_array_usb(&largeRxBuffer[i*CHUNK_SIZE], CHUNK_SIZE);
+//				sumOfBytes += CHUNK_SIZE;
+
+
+				//Try decoding:
+				commPeriph[PORT_USB].rx.bytesReadyFlag = 1;
+				decode_usb_rx(usb_rx);
+
+				//Update appropriate FlexseaDevice
+				uint8_t slaveId = packet[PORT_USB][INBOUND].unpaked[P_XID];
+				FlexseaDevice* device = getDeviceById(slaveId);
+				if(device)
+				{
+					device->decodeLastLine();
+					if(device->isCurrentlyLogging)
+					{
+						device->applyTimestamp();
+						device->eventFlags.last() = W_Event::getEventCode();
+						emit writeToLogFile(device);
+					}
+				}
+
+				emit newDataReady();
+			}
+			else
+			{
+				update_rx_buf_array_usb(&largeRxBuffer[i*CHUNK_SIZE], remainingBytes);
+//				sumOfBytes += remainingBytes;
+				//Try decoding:
+				decode_usb_rx(usb_rx);
+				emit newDataReady();
+			}
+		}
+
+//		qDebug() << "Copied" << sumOfBytes << "bytes";
+
+		//Notify user in GUI:
+		emit dataStatus(0, DATAIN_STATUS_GREEN);   //***ToDo: support 4 channels
+		emit newDataTimeout(true); //Reset counter
+
 	return;
 }
 

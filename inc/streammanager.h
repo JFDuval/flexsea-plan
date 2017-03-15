@@ -7,6 +7,7 @@
 #include <QString>
 #include <ctime>
 #include <QDateTime>
+#include <QSharedPointer>
 #include <FlexSEADevice/flexseaDevice.h>
 #include <queue>
 
