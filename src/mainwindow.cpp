@@ -771,7 +771,8 @@ void MainWindow::createUserRW(void)
 	//Limited number of windows:
 	if(objectCount < W_UserRW::getMaxWindow())
 	{
-		myUserRW[objectCount] = new W_UserRW(this);
+		W_UserRW* userRW = new W_UserRW(this);
+		myUserRW[objectCount] = userRW;
 		ui->mdiArea->addSubWindow(myUserRW[objectCount]);
 		myUserRW[objectCount]->show();
 
@@ -786,6 +787,9 @@ void MainWindow::createUserRW(void)
 		connect(myUserRW[objectCount], SIGNAL(writeCommand(uint8_t,\
 				uint8_t*,uint8_t)), this, SIGNAL(connectorWriteCommand(uint8_t,\
 				uint8_t*, uint8_t)));
+
+		connect(mySerialDriver, &SerialDriver::newDataReady, userRW, &W_UserRW::receiveNewData);
+		connect(mySerialDriver, &SerialDriver::openStatus, userRW, &W_UserRW::comStatusChanged);
 	}
 
 	else

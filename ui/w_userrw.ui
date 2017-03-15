@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>424</width>
-    <height>226</height>
+    <height>308</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -624,6 +624,27 @@
       </size>
      </property>
     </spacer>
+   </item>
+   <item>
+    <layout class="QVBoxLayout" name="verticalLayout_2">
+     <item>
+      <widget class="QLabel" name="userCustomStructTitle">
+       <property name="text">
+        <string>User Custom Struct</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <layout class="QHBoxLayout" name="horizontalLayout_2">
+       <item>
+        <widget class="QListWidget" name="userCustomStructLabelList"/>
+       </item>
+       <item>
+        <widget class="QListWidget" name="userCustomStructValueList"/>
+       </item>
+      </layout>
+     </item>
+    </layout>
    </item>
   </layout>
  </widget>

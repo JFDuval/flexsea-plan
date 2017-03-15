@@ -42,6 +42,7 @@
 #include <QTextStream>
 #include <QTimer>
 #include <QDebug>
+#include <flexsea-user/inc/dynamic_user_structs.h>
 
 //****************************************************************************
 // Constructor & Destructor:
@@ -104,6 +105,8 @@ void W_UserRW::init(void)
 	//Timer used to refresh the received data:
 	refreshDelayTimer = new QTimer(this);
 	connect(refreshDelayTimer, SIGNAL(timeout()), this, SLOT(refreshDisplay()));
+
+	requestMetaData();
 }
 
 //Send a Write command:
@@ -139,6 +142,74 @@ void W_UserRW::readUserData(void)
 
 	//Display will be refreshed in 75ms:
 	refreshDelayTimer->start(75);
+}
+
+void W_UserRW::requestMetaData()
+{
+	uint8_t info[2] = {PORT_USB, PORT_USB};
+	uint16_t numb = 0;
+
+	//Prepare and send command:
+	tx_cmd_user_dyn_r(TX_N_DEFAULT, SEND_METADATA);
+	pack(P_AND_S_DEFAULT, active_slave, info, &numb, comm_str_usb);
+	emit writeCommand(numb, comm_str_usb, READ);
+}
+
+void W_UserRW::parseDynamicUserMetadata()
+{
+	QListWidget* labelList = ui->userCustomStructLabelList;
+	QListWidget* valueList = ui->userCustomStructLabelList;
+	labelList->clear();
+	valueList->clear();
+	for(int i = 0; i < dynamicUser_numFields; i++)
+	{
+		QString label = "Unknown";
+		if(dynamicUser_labels && dynamicUser_fieldLengths)
+		{
+			char* str = dynamicUser_labels[i];
+			uint8_t length = dynamicUser_labelLengths[i];
+			QChar qcompat[length];
+			for(int j = 0; j < length; j++)
+				qcompat[j] = str[j];
+
+			label = QString(qcompat, length);
+		}
+
+		labelList->addItem(label);
+		valueList->addItem(QStringLiteral("-"));
+	}
+}
+
+void W_UserRW::parseDynamicUserData()
+{
+	QListWidget* valueList = ui->userCustomStructLabelList;
+	for(int i = 0; i < dynamicUser_numFields; i++)
+	{
+		int value = 0;
+		if(dynamicUser_data)
+		{
+			value = dynamicUser_data[i];
+		}
+		QListWidgetItem* item = valueList->item(i);
+		if(item)
+		{
+			item->setText(QString::number(value));
+		}
+	}
+}
+
+void W_UserRW::receiveNewData()
+{
+	if(newMetaDataAvailable)
+		parseDynamicUserMetadata();
+	if(newDataAvailable)
+		parseDynamicUserData();
+}
+
+void W_UserRW::comStatusChanged(bool isOpen)
+{
+	if(isOpen)
+		requestMetaData();
 }
 
 //****************************************************************************
@@ -179,6 +250,8 @@ void W_UserRW::refreshDisplay(void)
 	ui->r1->setText(QString::number(user_data_1.r[1]));
 	ui->r2->setText(QString::number(user_data_1.r[2]));
 	ui->r3->setText(QString::number(user_data_1.r[3]));
+
+	parseDynamicUserMetadata();
 }
 
 void W_UserRW::on_comboBox_slave_currentIndexChanged(int index)

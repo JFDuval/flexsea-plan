@@ -57,8 +57,9 @@ public:
 	~W_UserRW();
 
 	//Function(s):
-
 public slots:
+	void receiveNewData();
+	void comStatusChanged(bool isOpen);
 
 signals:
 	void windowClosed(void);
@@ -86,6 +87,9 @@ private:
 	void init(void);
 	void writeUserData(uint8_t index);
 	void readUserData(void);
+	void requestMetaData();
+	void parseDynamicUserMetadata();
+	void parseDynamicUserData();
 };
 
 //****************************************************************************
