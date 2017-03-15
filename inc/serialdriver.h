@@ -39,8 +39,10 @@
 #include <QString>
 #include <QSerialPort>
 #include <QTimer>
-#include <queue>
 #include <QSharedPointer>
+#include <vector>
+#include <flexseaDevice.h>
+
 //****************************************************************************
 // Namespace & Class
 //****************************************************************************
@@ -60,6 +62,8 @@ public:
 	void init(void);
 	bool isOpen() { return USBSerialPort.isOpen(); }
 
+	void addDevice(FlexseaDevice* device);
+
 public slots:
 	void open(QString name, int tries, int delay, bool* success);
 	void close(void);
@@ -72,6 +76,9 @@ private:
 	bool comPortOpen;
 	unsigned char usb_rx[256];
 
+	std::vector<FlexseaDevice*> devices;
+	FlexseaDevice* getDeviceById(uint8_t slaveId);
+
 signals:
 	void timerClocked(void);
 	void openProgress(int val);
@@ -80,6 +87,8 @@ signals:
 	void dataStatus(int idx, int status);
 	void newDataTimeout(bool rst);
 	void setStatusBarMessage(QString msg);
+	void writeToLogFile(FlexseaDevice*);
+	void aboutToClose(void);
 };
 
 //****************************************************************************

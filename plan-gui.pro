@@ -101,7 +101,8 @@ SOURCES += src/main.cpp \
 	src/streammanager.cpp \
 	src/MDIWinObjects/w_incontrol.cpp \
 	flexsea-system/src/flexsea_cmd_in_control.c \
-	src/MDIWinObjects/w_event.cpp
+	src/MDIWinObjects/w_event.cpp \
+    flexsea-system/src/flexsea_cmd_stream.c
 
 HEADERS  += inc/main.h \
 	inc/mainwindow.h \
@@ -172,7 +173,8 @@ HEADERS  += inc/main.h \
 	inc/streammanager.h \
 	inc/MDIWinObjects/w_incontrol.h \
 	flexsea-system/inc/flexsea_cmd_in_control.h \
-	inc/MDIWinObjects/w_event.h
+	inc/MDIWinObjects/w_event.h \
+    flexsea-system/inc/flexsea_cmd_stream.h
 
 FORMS    += ui/mainwindow.ui \
 	ui/w_execute.ui \

@@ -8,7 +8,7 @@
 #include <ctime>
 #include <QDateTime>
 #include <FlexSEADevice/flexseaDevice.h>
-#include <vector>
+#include <queue>
 
 class StreamManager : public QObject
 {
@@ -31,20 +31,12 @@ public:
 signals:
 	void sentRead(int cmd, int slave);
 	void openRecordingFile(FlexseaDevice* device);
-	void writeToLogFile(FlexseaDevice* device);
 	void closeRecordingFile(FlexseaDevice* device);
 
 public slots:
 	void receiveClock();
-
-	void sendCommandReadAll(uint8_t slaveId);
-	void sendCommandReadAllRicnu(uint8_t slaveId);
-	void sendCommandAnkle2DOF(uint8_t slaveId);
-	void sendCommandBattery(uint8_t slaveId);
-	void sendCommandTestBench(uint8_t slaveId);
-	void sendCommandInControl(uint8_t slaveId);
-
 	void enqueueCommand(uint8_t numb, uint8_t* dataPacket);
+	void onComPortClosing();
 
 private:
 
@@ -80,8 +72,8 @@ private:
 	};
 	std::vector<CmdSlaveRecord> streamLists[NUM_TIMER_FREQS];
 
-	void sendCommands(const std::vector<CmdSlaveRecord> &streamList);
 	void tryPackAndSend(int cmd, uint8_t slaveId);
+	void packAndSendStopStreaming(uint8_t slaveId);
 	int getIndexOfFrequency(int freq);
 	QString getNameOfExperiment(int cmd);
 	SerialDriver* serialDriver;

@@ -100,6 +100,7 @@ public:
 private:
 	void initFlexSeaDeviceObject(void);
 	void initFlexSeaDeviceLog(void);
+	void initSerialComm(SerialDriver*, StreamManager*);
 
 	Ui::MainWindow *ui;
 

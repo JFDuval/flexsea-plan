@@ -35,6 +35,7 @@
 #include "flexseaDevice.h"
 #include <QString>
 #include <QStringList>
+#include <QDate>
 
 //****************************************************************************
 // Constructor & Destructor:
@@ -61,6 +62,7 @@ void FlexseaDevice::clear(void)
 	experimentName.clear();
 	targetSlaveName.clear();
 	frequency = 0;
+	isCurrentlyLogging = false;
 	timeStamp.clear();
 }
 
@@ -110,7 +112,11 @@ void FlexseaDevice::saveIdentifierStr(QStringList *splitLine)
 	}
 }
 
-
+void FlexseaDevice::applyTimestamp()
+{
+	this->timeStamp.last().date = QDate::currentDate().toString();
+	this->timeStamp.last().ms = (clock() - this->initialClock) * 1000 / CLOCKS_PER_SEC;
+}
 //****************************************************************************
 // Public slot(s):
 //****************************************************************************

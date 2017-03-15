@@ -41,6 +41,8 @@
 #include <flexsea_comm.h>
 #include <flexsea_payload.h>
 #include <ctime>
+#include <w_event.h>
+
 //****************************************************************************
 // Constructor & Destructor:
 //****************************************************************************
@@ -122,10 +124,13 @@ void SerialDriver::open(QString name, int tries, int delay, bool *success)
 //Close port
 void SerialDriver::close(void)
 {
+	emit aboutToClose();
+
 	//Turn comm. off
 	comPortOpen = false;
 	emit openStatus(comPortOpen);
 
+	USBSerialPort.flush();
 	//Delay (for ongoing transmissions)
 	usleep(100000);
 
@@ -133,14 +138,13 @@ void SerialDriver::close(void)
 	USBSerialPort.close();
 }
 
-//Write
 int SerialDriver::write(uint8_t bytes_to_send, uint8_t *serial_tx_data)
 {
 	qint64 write_ret = 0;
 
 	//Check if COM was successfully opened:
 
-	if(comPortOpen == true)
+	if(comPortOpen)
 	{
         QByteArray myQBArray = QByteArray::fromRawData((const char*)serial_tx_data, bytes_to_send);
 		write_ret = USBSerialPort.write(myQBArray);
@@ -153,6 +157,16 @@ int SerialDriver::write(uint8_t bytes_to_send, uint8_t *serial_tx_data)
 	}
 
 	return (int) write_ret;
+}
+
+FlexseaDevice* SerialDriver::getDeviceById(uint8_t slaveId)
+{
+	for(unsigned int i = 0; i < devices.size(); i++)
+	{
+		if(devices.at(i)->slaveID == slaveId)
+			return devices.at(i);
+	}
+	return nullptr;
 }
 
 void SerialDriver::handleReadyRead()
@@ -206,9 +220,43 @@ void SerialDriver::handleReadyRead()
 	emit dataStatus(0, DATAIN_STATUS_GREEN);   //***ToDo: support 4 channels
 	emit newDataTimeout(true); //Reset counter
 	decode_usb_rx(usb_rx);
+
+	uint8_t slaveId = packet[PORT_USB][INBOUND].unpaked[P_XID];
+	FlexseaDevice* device = getDeviceById(slaveId);
+	if(device)
+	{
+		device->decodeLastLine();
+		if(device->isCurrentlyLogging)
+		{
+			device->applyTimestamp();
+			device->eventFlags.last() = W_Event::getEventCode();
+			emit writeToLogFile(device);
+		}
+	}
+
 	emit newDataReady();
 	return;
 }
+
+void SerialDriver::addDevice(FlexseaDevice* device)
+{
+	if(!device) return;
+
+	bool alreadyContainDevice = false;
+	for(unsigned int i = 0; i < devices.size(); i++)
+	{
+		if(devices.at(i) == device)
+		{
+			alreadyContainDevice = true;
+			i = devices.size();
+		}
+	}
+	if(!alreadyContainDevice)
+	{
+		devices.push_back(device);
+	}
+}
+
 //****************************************************************************
 // Private function(s):
 //****************************************************************************

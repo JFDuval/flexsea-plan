@@ -37,6 +37,7 @@
 
 #include <QString>
 #include <QList>
+#include <time.h>
 
 //****************************************************************************
 // Definition(s)
@@ -120,6 +121,10 @@ public:
 	QString experimentName;
 
 	int		frequency;
+	bool isCurrentlyLogging;
+
+	void applyTimestamp();
+	clock_t initialClock;
 
 	QList<struct TimeStamp> timeStamp;
 	QList<int> eventFlags;

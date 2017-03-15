@@ -106,14 +106,9 @@ MainWindow::MainWindow(QWidget *parent) :
 	W_Event::setDescription("Event Flag");
 
 	initFlexSeaDeviceObject();
-
 	//SerialDriver:
-	mySerialDriver = new SerialDriver(this);
-	serialThread = new QThread(this);
-	mySerialDriver->moveToThread(serialThread);
-	streamManager = new StreamManager(this, mySerialDriver);
-	streamManager->moveToThread(serialThread);
-	serialThread->start(QThread::HighestPriority);
+	mySerialDriver = new SerialDriver();
+	streamManager = new StreamManager(nullptr, mySerialDriver);
 
 	//Datalogger:
 	myDataLogger = new DataLogger(this,
@@ -126,6 +121,7 @@ MainWindow::MainWindow(QWidget *parent) :
 								  &ankle2DofLog,
 								  &testBenchLog);
 
+	initSerialComm(mySerialDriver, streamManager);
 
 
 	//Create default objects:
@@ -139,14 +135,6 @@ MainWindow::MainWindow(QWidget *parent) :
 	//Log and MainWindow
 	connect(myDataLogger, SIGNAL(setStatusBarMessage(QString)), \
 			this, SLOT(setStatusBar(QString)));
-
-	//SerialDriver and MainWindow
-	connect(mySerialDriver, SIGNAL(setStatusBarMessage(QString)), \
-			this, SLOT(setStatusBar(QString)));
-
-	//Link SlaveComm and SerialDriver:
-	connect(mySerialDriver, SIGNAL(openStatus(bool)), \
-			this, SLOT(saveComPortStatus(bool)));
 
 	comPortStatus = false;
 }
@@ -252,6 +240,32 @@ void MainWindow::initFlexSeaDeviceObject(void)
 	flexseaPtrlist.append(&testBenchDevList.last());
 	testBenchFlexList.append(&testBenchDevList.last());
 	return;
+}
+
+void MainWindow::initSerialComm(SerialDriver *driver, StreamManager *manager)
+{
+//	serialThread = new QThread(this);
+//	driver->moveToThread(serialThread);
+//	manager->moveToThread(serialThread);
+//	serialThread->start(QThread::HighestPriority);
+
+	connect(driver, &SerialDriver::aboutToClose, manager, &StreamManager::onComPortClosing, Qt::DirectConnection);
+
+	//Link StreamManager/SerialDriver and DataLogger
+	connect(manager, SIGNAL(openRecordingFile(FlexseaDevice *)), \
+			myDataLogger, SLOT(openRecordingFile(FlexseaDevice *)));
+	connect(driver, SIGNAL(writeToLogFile(FlexseaDevice *)), \
+			myDataLogger, SLOT(writeToFile(FlexseaDevice *)));
+	connect(manager, SIGNAL(closeRecordingFile(FlexseaDevice*)), \
+			myDataLogger, SLOT(closeRecordingFile(FlexseaDevice*)));
+
+	//SerialDriver and MainWindow
+	connect(this, SIGNAL(connectorWriteCommand(uint8_t,uint8_t*,uint8_t)), \
+			driver, SLOT(write(uint8_t,uint8_t*)));
+	connect(driver, SIGNAL(setStatusBarMessage(QString)), \
+			this, SLOT(setStatusBar(QString)));
+	connect(driver, SIGNAL(openStatus(bool)), \
+			this, SLOT(saveComPortStatus(bool)));
 }
 
 //****************************************************************************
@@ -563,16 +577,7 @@ void MainWindow::createSlaveComm(void)
 		connect(mySerialDriver, SIGNAL(newDataTimeout(bool)), \
 				myViewSlaveComm[0], SLOT(updateIndicatorTimeout(bool)));
 
-		//Link StreamManager and DataLogger
-		connect(streamManager, SIGNAL(openRecordingFile(FlexseaDevice *)), \
-				myDataLogger, SLOT(openRecordingFile(FlexseaDevice *)));
-		connect(streamManager, SIGNAL(writeToLogFile(FlexseaDevice *)), \
-				myDataLogger, SLOT(writeToFile(FlexseaDevice *)));
-		connect(streamManager, SIGNAL(closeRecordingFile(FlexseaDevice*)), \
-				myDataLogger, SLOT(closeRecordingFile(FlexseaDevice*)));
 
-		connect(this, SIGNAL(connectorWriteCommand(uint8_t,uint8_t*,uint8_t)), \
-				mySerialDriver, SLOT(write(uint8_t,uint8_t*)));
 	}
 
 	else
