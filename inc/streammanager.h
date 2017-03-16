@@ -88,7 +88,7 @@ private:
 	QTimer* clockTimer;
 	float clockPeriod;
 
-	void sendCommands(const std::vector<CmdSlaveRecord> &streamList);
+	void sendCommands(int index);
 	void sendCommandReadAll(uint8_t slaveId);
 	void sendCommandReadAllRicnu(uint8_t slaveId);
 	void sendCommandAnkle2DOF(uint8_t slaveId);

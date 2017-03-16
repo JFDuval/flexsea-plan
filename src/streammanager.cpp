@@ -212,7 +212,7 @@ void StreamManager::receiveClock()
 			float timerInterval = timerIntervals[i];
 			if((msSinceLast[i] + TOLERANCE) > timerInterval)
 			{
-				sendCommands(streamLists[i]);
+				sendCommands(i);
 
 				while((msSinceLast[i] + TOLERANCE) > timerInterval)
 					msSinceLast[i] -= timerInterval;
@@ -255,11 +255,13 @@ void StreamManager::packAndSendStopStreaming(uint8_t slaveId)
 	tryPackAndSend(CMD_STREAM, slaveId);
 }
 
-void StreamManager::sendCommands(const std::vector<CmdSlaveRecord> &streamList)
+void StreamManager::sendCommands(int index)
 {
-	for(unsigned int i = 0; i < streamList.size(); i++)
+	if(index < 0 || index >= NUM_TIMER_FREQS) return;
+
+	for(unsigned int i = 0; i < streamLists[index].size(); i++)
 	{
-		CmdSlaveRecord record = streamList.at(i);
+		CmdSlaveRecord record = streamLists[index].at(i);
 		switch(record.cmdType)
 		{
 		case CMD_READ_ALL:
@@ -282,6 +284,7 @@ void StreamManager::sendCommands(const std::vector<CmdSlaveRecord> &streamList)
 			break;
 		default:
 			qDebug() << "Unsupported command was given: " << record.cmdType;
+			stopStreaming(record.cmdType, record.slaveIndex, timerFrequencies[index]);
 			break;
 		}
 	}
