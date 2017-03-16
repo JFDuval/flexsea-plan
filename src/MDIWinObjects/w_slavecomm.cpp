@@ -192,6 +192,12 @@ void W_SlaveComm::mapSerializedPointers(void)
 
 void W_SlaveComm::initializeMaps()
 {
+	for(int i = 0; i < MAX_EXPERIMENTS; i++)
+	{
+		targetListMap[i] = nullptr;
+		cmdMap[i] = -1;
+	}
+
 	targetListMap[0] = &readAllTargetList;
 	targetListMap[1] = &inControlTargetList;
 	targetListMap[2] = &ricnuTargetList;
