@@ -624,7 +624,7 @@ void W_2DPlot::saveNewPointsLog(int index)
 			graphIter = 0;
 		}
 
-		while(dataIter < selectedDevList[item]->lenght() &&
+		while(dataIter < selectedDevList[item]->length() &&
 			  graphIter < plot_len &&
 			  varIndex[item] > 0)
 		{
