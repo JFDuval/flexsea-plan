@@ -13,8 +13,6 @@ void DynamicUserDataManager::requestMetaData(int slaveId)
 	uint8_t info[2] = {PORT_USB, PORT_USB};
 	uint16_t numb = 0;
 
-	getDevice()->slaveID = slaveId;
-
 	//Prepare and send command:
 	tx_cmd_user_dyn_r(TX_N_DEFAULT, SEND_METADATA);
 	pack(P_AND_S_DEFAULT, slaveId, info, &numb, comm_str_usb);
@@ -49,6 +47,8 @@ bool DynamicUserDataManager::parseDynamicUserMetadata(QList<QString> *labels)
 	if(!newMetaDataAvailable) return false;
 
 	newMetaDataAvailable = 0;
+
+	getDevice()->slaveID = dynamicUser_slaveId;
 
 	labels->clear();
 	for(int i = 0; i < dynamicUser_numFields; i++)
