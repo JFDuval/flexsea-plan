@@ -90,6 +90,8 @@ public:
 
 	StreamManager* streamManager;
 
+	void addExperiment(QList<FlexseaDevice*> *deviceList, int cmdCode);
+
 	~W_SlaveComm();
 
 public slots:
@@ -165,6 +167,8 @@ private:
 	void initSlaveCom(void);
 	void managePushButton(int idx, bool forceOff);
 	void updateStatusBar(QString txt);
+
+	uint8_t numExperiments;
 };
 
 #endif // W_SLAVECOMM_H

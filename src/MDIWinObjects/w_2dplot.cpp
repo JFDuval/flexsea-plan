@@ -454,9 +454,9 @@ void W_2DPlot::initUserInput(void)
 		(*cbVarSlave[i])->clear();
 
 
-		for(int ii = 0; ii < currentDevList->length(); ++ii)
+		for(int j = 0; j < currentDevList->length(); ++j)
 		{
-			(*cbVarSlave[i])->addItem((*currentDevList)[ii]->slaveName);
+			(*cbVarSlave[i])->addItem((*currentDevList)[j]->slaveName);
 		}
 		(*cbVarSlave[i])->blockSignals(false);
 

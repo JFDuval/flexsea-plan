@@ -93,6 +93,15 @@ W_SlaveComm::~W_SlaveComm()
 //****************************************************************************
 // Public function(s):
 //****************************************************************************
+void W_SlaveComm::addExperiment(QList<FlexseaDevice *> *deviceList, int cmdCode)
+{
+	if(numExperiments >= MAX_EXPERIMENTS) return;
+
+	targetListMap[numExperiments] = deviceList;
+	cmdMap[numExperiments] = cmdCode;
+
+	numExperiments++;
+}
 
 //****************************************************************************
 // Public slot(s):
@@ -196,6 +205,8 @@ void W_SlaveComm::initializeMaps()
 	cmdMap[4] = CMD_A2DOF;
 	cmdMap[5] = CMD_BATT;
 	cmdMap[6] = CMD_MOTORTB;
+
+	numExperiments = 7;
 }
 
 void W_SlaveComm::populateSlaveComboBox(QComboBox* box, int indexOfExperimentSelected)

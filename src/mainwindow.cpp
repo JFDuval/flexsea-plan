@@ -109,7 +109,6 @@ MainWindow::MainWindow(QWidget *parent) :
 	//SerialDriver:
 	mySerialDriver = new SerialDriver();
 	streamManager = new StreamManager(nullptr, mySerialDriver);
-
 	//Datalogger:
 	myDataLogger = new DataLogger(this,
 								  &executeLog,
@@ -122,7 +121,7 @@ MainWindow::MainWindow(QWidget *parent) :
 								  &testBenchLog);
 
 	initSerialComm(mySerialDriver, streamManager);
-
+	userDataManager = new DynamicUserDataManager(this);
 
 	//Create default objects:
 	createConfig();
@@ -143,10 +142,10 @@ MainWindow::~MainWindow()
 {
 	delete ui;
 
-	serialThread->quit();
+//	serialThread->quit();
 	delete mySerialDriver;
 	delete streamManager;
-	delete serialThread;
+//	delete serialThread;
 
 
 	int num2d = W_2DPlot::howManyInstance();
@@ -239,6 +238,10 @@ void MainWindow::initFlexSeaDeviceObject(void)
 	//				b) projects / experiments
 	flexseaPtrlist.append(&testBenchDevList.last());
 	testBenchFlexList.append(&testBenchDevList.last());
+
+	dynamicDeviceList.append(userDataManager->getDevice());
+	flexseaPtrlist.append(userDataManager->getDevice());
+
 	return;
 }
 
@@ -540,7 +543,6 @@ void MainWindow::closeView2DPlot(void)
 	sendCloseWindowMsg(W_2DPlot::getDescription());
 }
 
-//Creates a new Slave Comm window
 void MainWindow::createSlaveComm(void)
 {
 	int objectCount = W_SlaveComm::howManyInstance();
@@ -565,11 +567,9 @@ void MainWindow::createSlaveComm(void)
 		sendWindowCreatedMsg(W_SlaveComm::getDescription(), objectCount,
 							 W_SlaveComm::getMaxWindow() - 1);
 
-		//Link to MainWindow for the close signal:
 		connect(myViewSlaveComm[objectCount], SIGNAL(windowClosed()), \
 				this, SLOT(closeSlaveComm()));
 
-		//Link SlaveComm and SerialDriver:
 		connect(mySerialDriver, SIGNAL(openStatus(bool)), \
 				myViewSlaveComm[0], SLOT(receiveComPortStatus(bool)));
 		connect(mySerialDriver, SIGNAL(dataStatus(int, int)), \
@@ -577,7 +577,7 @@ void MainWindow::createSlaveComm(void)
 		connect(mySerialDriver, SIGNAL(newDataTimeout(bool)), \
 				myViewSlaveComm[0], SLOT(updateIndicatorTimeout(bool)));
 
-
+		myViewSlaveComm[objectCount]->addExperiment(&dynamicDeviceList, userDataManager->getCommandCode());
 	}
 
 	else
@@ -771,7 +771,7 @@ void MainWindow::createUserRW(void)
 	//Limited number of windows:
 	if(objectCount < W_UserRW::getMaxWindow())
 	{
-		W_UserRW* userRW = new W_UserRW(this);
+		W_UserRW* userRW = new W_UserRW(this, userDataManager);
 		myUserRW[objectCount] = userRW;
 		ui->mdiArea->addSubWindow(myUserRW[objectCount]);
 		myUserRW[objectCount]->show();
@@ -788,6 +788,7 @@ void MainWindow::createUserRW(void)
 				uint8_t*,uint8_t)), this, SIGNAL(connectorWriteCommand(uint8_t,\
 				uint8_t*, uint8_t)));
 
+		connect(userDataManager, &DynamicUserDataManager::writeCommand, this, &MainWindow::connectorWriteCommand);
 		connect(mySerialDriver, &SerialDriver::newDataReady, userRW, &W_UserRW::receiveNewData);
 		connect(mySerialDriver, &SerialDriver::openStatus, userRW, &W_UserRW::comStatusChanged);
 	}

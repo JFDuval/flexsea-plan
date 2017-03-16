@@ -48,9 +48,10 @@
 // Constructor & Destructor:
 //****************************************************************************
 
-W_UserRW::W_UserRW(QWidget *parent) :
+W_UserRW::W_UserRW(QWidget *parent, DynamicUserDataManager* userDataManager) :
 	QWidget(parent),
-	ui(new Ui::W_UserRW)
+	ui(new Ui::W_UserRW),
+	userDataMan(userDataManager)
 {
 	ui->setupUi(this);
 
@@ -106,7 +107,7 @@ void W_UserRW::init(void)
 	refreshDelayTimer = new QTimer(this);
 	connect(refreshDelayTimer, SIGNAL(timeout()), this, SLOT(refreshDisplay()));
 
-	requestMetaData();
+	userDataMan->requestMetaData(active_slave);
 }
 
 //Send a Write command:
@@ -144,72 +145,43 @@ void W_UserRW::readUserData(void)
 	refreshDelayTimer->start(75);
 }
 
-void W_UserRW::requestMetaData()
-{
-	uint8_t info[2] = {PORT_USB, PORT_USB};
-	uint16_t numb = 0;
-
-	//Prepare and send command:
-	tx_cmd_user_dyn_r(TX_N_DEFAULT, SEND_METADATA);
-	pack(P_AND_S_DEFAULT, active_slave, info, &numb, comm_str_usb);
-	emit writeCommand(numb, comm_str_usb, READ);
-}
-
-void W_UserRW::parseDynamicUserMetadata()
-{
-	QListWidget* labelList = ui->userCustomStructLabelList;
-	QListWidget* valueList = ui->userCustomStructLabelList;
-	labelList->clear();
-	valueList->clear();
-	for(int i = 0; i < dynamicUser_numFields; i++)
-	{
-		QString label = "Unknown";
-		if(dynamicUser_labels && dynamicUser_fieldLengths)
-		{
-			char* str = dynamicUser_labels[i];
-			uint8_t length = dynamicUser_labelLengths[i];
-			QChar qcompat[length];
-			for(int j = 0; j < length; j++)
-				qcompat[j] = str[j];
-
-			label = QString(qcompat, length);
-		}
-
-		labelList->addItem(label);
-		valueList->addItem(QStringLiteral("-"));
-	}
-}
-
-void W_UserRW::parseDynamicUserData()
-{
-	QListWidget* valueList = ui->userCustomStructLabelList;
-	for(int i = 0; i < dynamicUser_numFields; i++)
-	{
-		int value = 0;
-		if(dynamicUser_data)
-		{
-			value = dynamicUser_data[i];
-		}
-		QListWidgetItem* item = valueList->item(i);
-		if(item)
-		{
-			item->setText(QString::number(value));
-		}
-	}
-}
 
 void W_UserRW::receiveNewData()
 {
-	if(newMetaDataAvailable)
-		parseDynamicUserMetadata();
-	if(newDataAvailable)
-		parseDynamicUserData();
+	QList<QString> newData;
+	if(userDataMan->parseDynamicUserMetadata(&newData))
+	{
+		ui->userCustomStructLabelList->clear();
+		ui->userCustomStructValueList->clear();
+		for(int i = 0; i < newData.size(); i++)
+		{
+			ui->userCustomStructLabelList->addItem(newData.at(i));
+			ui->userCustomStructValueList->addItem("-");
+		}
+	}
+	if(userDataMan->parseDynamicUserData(&newData))
+	{
+		int uiListLength = ui->userCustomStructValueList->count();
+		static int x = 0;
+		if(uiListLength != newData.size())
+		{
+			if(!x)
+				qDebug() << "Metadata out of sync with incoming data";
+			x++;
+			x %= 33;
+		}
+		else
+			for(int i = 0; i < newData.size(); i++)
+			{
+				ui->userCustomStructValueList->item(i)->setText(newData.at(i));
+			}
+	}
 }
 
 void W_UserRW::comStatusChanged(bool isOpen)
 {
 	if(isOpen)
-		requestMetaData();
+		userDataMan->requestMetaData(active_slave);
 }
 
 //****************************************************************************
@@ -251,7 +223,7 @@ void W_UserRW::refreshDisplay(void)
 	ui->r2->setText(QString::number(user_data_1.r[2]));
 	ui->r3->setText(QString::number(user_data_1.r[3]));
 
-	parseDynamicUserMetadata();
+	userDataMan->requestMetaData(active_slave);
 }
 
 void W_UserRW::on_comboBox_slave_currentIndexChanged(int index)

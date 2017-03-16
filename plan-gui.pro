@@ -103,7 +103,8 @@ SOURCES += src/main.cpp \
 	flexsea-system/src/flexsea_cmd_in_control.c \
 	src/MDIWinObjects/w_event.cpp \
     flexsea-system/src/flexsea_cmd_stream.c \
-    flexsea-user/src/dynamic_user_structs_plan.c
+    flexsea-user/src/dynamic_user_structs_plan.c \
+    src/dynamicuserdatamanager.cpp
 
 HEADERS  += inc/main.h \
 	inc/mainwindow.h \
@@ -176,7 +177,9 @@ HEADERS  += inc/main.h \
 	flexsea-system/inc/flexsea_cmd_in_control.h \
 	inc/MDIWinObjects/w_event.h \
     flexsea-system/inc/flexsea_cmd_stream.h \
-    flexsea-user/inc/dynamic_user_structs.h
+    flexsea-user/inc/dynamic_user_structs.h \
+    inc/dynamicuserdatamanager.h \
+    flexsea-system/inc/flexsea_dataformats.h
 
 FORMS    += ui/mainwindow.ui \
 	ui/w_execute.ui \

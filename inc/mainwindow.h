@@ -58,6 +58,7 @@
 #include "w_testbench.h"
 #include "w_commtest.h"
 #include <streammanager.h>
+#include <dynamicuserdatamanager.h>
 
 #include "main.h"
 
@@ -123,6 +124,7 @@ private:
 	QList<FlexseaDevice*>	ricnuFlexList;
 	QList<FlexseaDevice*>	ankle2DofFlexList;
 	QList<FlexseaDevice*>	testBenchFlexList;
+	QList<FlexseaDevice*>	dynamicDeviceList;
 
 	// Global Flexsea List
 	QList<FlexseaDevice*> flexseaPtrlist;
@@ -169,6 +171,7 @@ private:
 
 	DataLogger *myDataLogger;
 	StreamManager* streamManager;
+	DynamicUserDataManager* userDataManager;
 
 signals:
 	//Allow window to be independly opened in any order by providing a backbone connector
