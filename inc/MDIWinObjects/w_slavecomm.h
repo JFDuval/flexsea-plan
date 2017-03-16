@@ -129,6 +129,7 @@ private:
 
 	QPushButton *on_off_pb_ptr[MAX_SC_ITEMS];
 	QCheckBox *log_cb_ptr[MAX_SC_ITEMS];
+	QCheckBox *auto_checkbox[MAX_SC_ITEMS];
 	QComboBox *comboBoxSlavePtr[MAX_SC_ITEMS];
 	QComboBox *comboBoxExpPtr[MAX_SC_ITEMS];
 	QComboBox *comboBoxRefreshPtr[MAX_SC_ITEMS];

@@ -22,6 +22,7 @@ public:
 	}
 
 	void startStreaming(int cmd, int slave, int freq, bool shouldLog, FlexseaDevice* logToDevice);
+	void startAutoStreaming(int cmd, int slave, int freq, bool shouldLog, FlexseaDevice* logToDevice);
 	void stopStreaming(int cmd, int slave, int freq);
 
 	QList<int> getRefreshRates();
@@ -71,6 +72,7 @@ private:
 		QString date;
 		FlexseaDevice* device;
 	};
+	std::vector<CmdSlaveRecord> autoStreamLists[NUM_TIMER_FREQS];
 	std::vector<CmdSlaveRecord> streamLists[NUM_TIMER_FREQS];
 
 	void tryPackAndSend(int cmd, uint8_t slaveId);
@@ -85,6 +87,14 @@ private:
 	QList<int> experimentCodes;
 	QTimer* clockTimer;
 	float clockPeriod;
+
+	void sendCommands(const std::vector<CmdSlaveRecord> &streamList);
+	void sendCommandReadAll(uint8_t slaveId);
+	void sendCommandReadAllRicnu(uint8_t slaveId);
+	void sendCommandAnkle2DOF(uint8_t slaveId);
+	void sendCommandBattery(uint8_t slaveId);
+	void sendCommandTestBench(uint8_t slaveId);
+	void sendCommandInControl(uint8_t slaveId);
 
 };
 #endif // STREAMMANAGER_H

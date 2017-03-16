@@ -105,23 +105,21 @@ void W_SlaveComm::receiveComPortStatus(bool status)
 	{
 		qDebug() << "COM port was closed";
 
-		//PushButton:
-		ui->pushButton1->setDisabled(true);
+		on_off_pb_ptr[0]->setDisabled(true);
 		managePushButton(0,true);
-		//Data Received indicator:
 		displayDataReceived(0, DATAIN_STATUS_GREY);
-		//Log check box:
-		ui->checkBoxLog1->setDisabled(true);
+		log_cb_ptr[0]->setDisabled(true);
+		auto_checkbox[0]->setDisabled(true);
+
 	}
 	else
 	{
 		qDebug() << "COM port was opened";
 
-		//PushButton:
-		ui->pushButton1->setDisabled(false);
+		on_off_pb_ptr[0]->setDisabled(false);
+		log_cb_ptr[0]->setDisabled(false);
+		auto_checkbox[0]->setDisabled(false);
 
-		//Log check box:
-		ui->checkBoxLog1->setDisabled(false);
 	}
 }
 
@@ -169,6 +167,10 @@ void W_SlaveComm::mapSerializedPointers(void)
 	log_cb_ptr[1] = ui->checkBoxLog2;
 	log_cb_ptr[2] = ui->checkBoxLog3;
 	log_cb_ptr[3] = ui->checkBoxLog4;
+	auto_checkbox[0] = ui->autoCheckBox1;
+	auto_checkbox[1] = ui->autoCheckBox2;
+	auto_checkbox[2] = ui->autoCheckBox3;
+	auto_checkbox[3] = ui->autoCheckBox4;
 	on_off_pb_ptr[0] = ui->pushButton1;
 	on_off_pb_ptr[1] = ui->pushButton2;
 	on_off_pb_ptr[2] = ui->pushButton3;
@@ -269,6 +271,9 @@ void W_SlaveComm::initSlaveCom(void)
 		(log_cb_ptr[row])->setEnabled(false);
 		(log_cb_ptr[row])->setToolTip(log_cb_ptr_ttip);
 
+		(auto_checkbox[row])->setChecked(false);
+		(auto_checkbox[row])->setEnabled(false);
+
 		//On/Off Button init:
 		(on_off_pb_ptr[row])->setText(QChar(0x2718));
 		(on_off_pb_ptr[row])->setAutoFillBackground(true);
@@ -319,6 +324,7 @@ void W_SlaveComm::setRowDisabled(int row, bool disabled)
 	(comboBoxRefreshPtr[row])->setDisabled(disabled);
 	(log_cb_ptr[row])->setDisabled(disabled);
 	(labelStatusPtr[row])->setDisabled(disabled);
+	(auto_checkbox[row])->setDisabled(disabled);
 }
 
 // This is a hack, basically just doing what we did before, which is hard coding it
@@ -374,7 +380,16 @@ void W_SlaveComm::managePushButton(int row, bool forceOff)
 		target->frequency = refreshRate;
 		target->experimentIndex = cmdCode;
 		target->experimentName = comboBoxExpPtr[row]->currentText();
-		streamManager->startStreaming(cmdCode, slaveId, refreshRate, log_cb_ptr[row]->isChecked(), target);
+
+		if(auto_checkbox[row]->isChecked())
+		{
+			streamManager->startAutoStreaming(cmdCode, slaveId, refreshRate, log_cb_ptr[row]->isChecked(), target);
+		}
+		else
+		{
+			streamManager->startStreaming(cmdCode, slaveId, refreshRate, log_cb_ptr[row]->isChecked(), target);
+		}
+
 		setRowDisabled(row, true);
 	}
 	else
