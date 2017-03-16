@@ -19,13 +19,15 @@ StreamManager::StreamManager(QObject *parent, SerialDriver* driver) :
 	{
 		timerFrequencies[i] = timerFreqsInHz[i];
 		timerIntervals[i] = 1000.0f / timerFreqsInHz[i];
+		autoStreamLists[i] = std::vector<CmdSlaveRecord>();
 		streamLists[i] = std::vector<CmdSlaveRecord>();
 	}
 
+	clockPeriod = 5;
 	clockTimer = new QTimer();
 	clockTimer->setTimerType(Qt::PreciseTimer);
 	clockTimer->setSingleShot(false);
-	clockTimer->setInterval(10);
+	clockTimer->setInterval(clockPeriod);
 	connect(clockTimer, &QTimer::timeout, this, &StreamManager::receiveClock);
 }
 
@@ -51,6 +53,34 @@ void StreamManager::startStreaming(int cmd, int slave, int freq, bool shouldLog,
 
 	if(indexOfFreq >= 0 && indexOfFreq < NUM_TIMER_FREQS && device)
 	{
+		device->isCurrentlyLogging = shouldLog;
+		if(shouldLog)
+		{
+			emit openRecordingFile(device);
+			device->initialClock = clock();
+		}
+
+		serialDriver->addDevice(device);
+
+        CmdSlaveRecord record(cmd, slave, shouldLog, device);
+		streamLists[indexOfFreq].push_back(record);
+		qDebug() << "Started streaming cmd: " << cmd << ", for slave id: " << slave << "at frequency: " << freq;
+		clockTimer->start();
+	}
+	else
+	{
+		qDebug("Invalid frequency");
+	}
+}
+
+void StreamManager::startAutoStreaming(int cmd, int slave, int freq, bool shouldLog, FlexseaDevice* device)
+{
+	if(!device) return;
+
+	int indexOfFreq = getIndexOfFrequency(freq);
+
+	if(indexOfFreq >= 0 && indexOfFreq < NUM_TIMER_FREQS && device)
+	{
 		uint8_t shouldStart = 1;
 
 		device->isCurrentlyLogging = shouldLog;
@@ -65,8 +95,8 @@ void StreamManager::startStreaming(int cmd, int slave, int freq, bool shouldLog,
 		tx_cmd_stream_w(TX_N_DEFAULT, cmd, 1000/freq, shouldStart);
 		tryPackAndSend(CMD_STREAM, device->slaveID);
 
-        CmdSlaveRecord record(cmd, slave, shouldLog, device);
-		streamLists[indexOfFreq].push_back(record);
+		CmdSlaveRecord record(cmd, slave, shouldLog, device);
+		autoStreamLists[indexOfFreq].push_back(record);
 		qDebug() << "Started streaming cmd: " << cmd << ", for slave id: " << slave << "at frequency: " << freq;
 	}
 	else
@@ -78,20 +108,28 @@ void StreamManager::startStreaming(int cmd, int slave, int freq, bool shouldLog,
 void StreamManager::stopStreaming(int cmd, int slave, int freq)
 {
 	int indexOfFreq = getIndexOfFrequency(freq);
-	for(unsigned int i = 0; i < streamLists[indexOfFreq].size(); i++)
+
+	std::vector<CmdSlaveRecord>* listArray[2] = {autoStreamLists, streamLists};
+
+	for(int listIndex = 0; listIndex < 2; listIndex++)
 	{
-		CmdSlaveRecord record = streamLists[indexOfFreq].at(i);
-		if(record.cmdType == cmd && record.slaveIndex == slave)
+		std::vector<CmdSlaveRecord> *l = listArray[listIndex];
+
+		for(unsigned int i = 0; i < (l)[indexOfFreq].size(); i++)
 		{
-			streamLists[indexOfFreq].erase(streamLists[indexOfFreq].begin() + i);
+			CmdSlaveRecord record = (l)[indexOfFreq].at(i);
+			if(record.cmdType == cmd && record.slaveIndex == slave)
+			{
+				(l)[indexOfFreq].erase((l)[indexOfFreq].begin() + i);
 
-			packAndSendStopStreaming(record.device->slaveID);
-			record.device->isCurrentlyLogging = false;
+				packAndSendStopStreaming(record.device->slaveID);
+				record.device->isCurrentlyLogging = false;
 
-			qDebug() << "Stopped streaming cmd: " << cmd << ", for slave id: " << slave << "at frequency: " << freq;
+				qDebug() << "Stopped streaming cmd: " << cmd << ", for slave id: " << slave << "at frequency: " << freq;
 
-			if(record.shouldLog)
-				emit closeRecordingFile(record.device);
+				if(record.shouldLog)
+					emit closeRecordingFile(record.device);
+			}
 		}
 	}
 }
@@ -100,10 +138,24 @@ void StreamManager::onComPortClosing()
 {
 	for(int i = 0; i < NUM_TIMER_FREQS; i++)
 	{
+		for(unsigned int j = 0; j < autoStreamLists[i].size(); j++)
+		{
+			CmdSlaveRecord record = autoStreamLists[i].at(j);
+			packAndSendStopStreaming(record.device->slaveID);
+			record.device->isCurrentlyLogging = false;
+			qDebug() << "Stopped streaming cmd: " << record.cmdType << ", for slave id: " << record.device->slaveID << "at frequency: " << timerFrequencies[i];
+			if(record.shouldLog)
+				emit closeRecordingFile(record.device);
+		}
+
+		autoStreamLists[i].clear();
+	}
+
+	for(int i = 0; i < NUM_TIMER_FREQS; i++)
+	{
 		for(unsigned int j = 0; j < streamLists[i].size(); j++)
 		{
 			CmdSlaveRecord record = streamLists[i].at(j);
-			packAndSendStopStreaming(record.device->slaveID);
 			record.device->isCurrentlyLogging = false;
 			qDebug() << "Stopped streaming cmd: " << record.cmdType << ", for slave id: " << record.device->slaveID << "at frequency: " << timerFrequencies[i];
 			if(record.shouldLog)
@@ -139,16 +191,43 @@ void StreamManager::tryPackAndSend(int cmd, uint8_t slaveId)
 
 void StreamManager::receiveClock()
 {
-	if(!outgoingBuffer.size()) return;
+	static float msSinceLast[NUM_TIMER_FREQS] = {0};
+	const float TOLERANCE = 0.0001;
 
-	Message m = outgoingBuffer.front();
-	outgoingBuffer.pop();
-	serialDriver->write(m.numBytes, m.dataPacket.data());
+	if(outgoingBuffer.size())
+	{
+		Message m = outgoingBuffer.front();
+		outgoingBuffer.pop();
+		serialDriver->write(m.numBytes, m.dataPacket.data());
+	}
+	else
+	{
+		for(int i = 0; i < NUM_TIMER_FREQS; i++)
+		{
+			if(!streamLists[i].size()) continue;
 
-	if(!outgoingBuffer.size())
+			//received clocks comes in at 5ms/clock
+			msSinceLast[i]+=clockPeriod;
+
+			float timerInterval = timerIntervals[i];
+			if((msSinceLast[i] + TOLERANCE) > timerInterval)
+			{
+				sendCommands(streamLists[i]);
+
+				while((msSinceLast[i] + TOLERANCE) > timerInterval)
+					msSinceLast[i] -= timerInterval;
+			}
+		}
+	}
+
+	bool noStreamAndNoBuffer = outgoingBuffer.size() == 0;
+	int i = 0;
+	while(i < NUM_TIMER_FREQS && noStreamAndNoBuffer)
+		noStreamAndNoBuffer = streamLists[i++].size() == 0;
+
+	if(noStreamAndNoBuffer)
 		clockTimer->stop();
 
-	return;
 }
 
 void StreamManager::enqueueCommand(uint8_t numb, uint8_t* dataPacket)
@@ -164,7 +243,7 @@ void StreamManager::enqueueCommand(uint8_t numb, uint8_t* dataPacket)
 	}
 
 	outgoingBuffer.push(Message(numb, dataPacket));
-	if(outgoingBuffer.size() == 1)
+	if(!clockTimer->isActive())
 		clockTimer->start();
 }
 
@@ -174,4 +253,90 @@ void StreamManager::packAndSendStopStreaming(uint8_t slaveId)
 	uint8_t shouldStart = 0; //ie should stop
 	tx_cmd_stream_w(TX_N_DEFAULT, -1, 0, shouldStart);
 	tryPackAndSend(CMD_STREAM, slaveId);
+}
+
+void StreamManager::sendCommands(const std::vector<CmdSlaveRecord> &streamList)
+{
+	for(unsigned int i = 0; i < streamList.size(); i++)
+	{
+		CmdSlaveRecord record = streamList.at(i);
+		switch(record.cmdType)
+		{
+		case CMD_READ_ALL:
+			sendCommandReadAll(record.slaveIndex);
+			break;
+		case CMD_READ_ALL_RICNU:
+			sendCommandReadAllRicnu(record.slaveIndex);
+			break;
+		case CMD_A2DOF:
+			sendCommandAnkle2DOF(record.slaveIndex);
+			break;
+		case CMD_MOTORTB:
+			sendCommandTestBench(record.slaveIndex);
+			break;
+		case CMD_BATT:
+			sendCommandBattery(record.slaveIndex);
+			break;
+		case CMD_IN_CONTROL:
+			sendCommandInControl(record.slaveIndex);
+			break;
+		default:
+			qDebug() << "Unsupported command was given: " << record.cmdType;
+			break;
+		}
+	}
+}
+
+
+void StreamManager::sendCommandReadAll(uint8_t slaveId)
+{
+	//1) Stream
+	tx_cmd_data_read_all_r(TX_N_DEFAULT);
+	tryPackAndSend(CMD_READ_ALL, slaveId);
+}
+
+void StreamManager::sendCommandReadAllRicnu(uint8_t slaveId)
+{
+	(void) slaveId;
+	if(ricnuOffsets.size() < 1) return;
+	static int index = 0;
+	tx_cmd_ricnu_r(TX_N_DEFAULT, ricnuOffsets.at(index));
+	index++;
+	index %= ricnuOffsets.size();
+	tryPackAndSend(CMD_READ_ALL_RICNU, slaveId);
+}
+
+void StreamManager::sendCommandAnkle2DOF(uint8_t slaveId)
+{
+	static int index = 0;
+
+	//1) Stream
+	tx_cmd_ankle2dof_r(TX_N_DEFAULT, index, 0, 0, 0);
+	index++;
+	index %= 2;
+	tryPackAndSend(CMD_A2DOF, slaveId);
+}
+
+void StreamManager::sendCommandBattery(uint8_t slaveId)
+{
+	//1) Stream
+	tx_cmd_exp_batt_r(TX_N_DEFAULT);
+	tryPackAndSend(CMD_BATT, slaveId);
+}
+
+void StreamManager::sendCommandTestBench(uint8_t slaveId)
+{
+	static int index = 0;
+
+	//1) Stream
+	motor_dto dto;
+	tx_cmd_motortb_r(TX_N_DEFAULT, index, &dto);
+	index++;
+	index %= 3;
+	tryPackAndSend(CMD_MOTORTB, slaveId);
+}
+void StreamManager::sendCommandInControl(uint8_t slaveId)
+{
+	tx_cmd_in_control_r(TX_N_DEFAULT);
+	tryPackAndSend(CMD_IN_CONTROL, slaveId);
 }

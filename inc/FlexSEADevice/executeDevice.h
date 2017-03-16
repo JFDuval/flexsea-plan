@@ -102,7 +102,7 @@ public:
 	void appendSerializedStr(QStringList *splitLine);
 	void decodeLastLine(void);
 	void decodeAllLine(void);
-	int lenght(void) {return exList.length();}
+	int length(void) {return exList.length();}
 	void clear(void);
 	void appendEmptyLine(void);
 	static QString getStatusStr(struct execute_s *ex);
