@@ -258,10 +258,10 @@ void MainWindow::initSerialComm(SerialDriver *driver, StreamManager *manager)
 			myDataLogger, SLOT(writeToFile(FlexseaDevice *)));
 	connect(manager, SIGNAL(closeRecordingFile(FlexseaDevice*)), \
 			myDataLogger, SLOT(closeRecordingFile(FlexseaDevice*)));
+	connect(this, SIGNAL(connectorWriteCommand(uint8_t,uint8_t*,uint8_t)), \
+		manager, SLOT(enqueueCommand(uint8_t,uint8_t*)));
 
 	//SerialDriver and MainWindow
-	connect(this, SIGNAL(connectorWriteCommand(uint8_t,uint8_t*,uint8_t)), \
-			driver, SLOT(write(uint8_t,uint8_t*)));
 	connect(driver, SIGNAL(setStatusBarMessage(QString)), \
 			this, SLOT(setStatusBar(QString)));
 	connect(driver, SIGNAL(openStatus(bool)), \
