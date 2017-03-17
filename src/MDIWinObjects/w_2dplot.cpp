@@ -41,7 +41,7 @@
 #include <QtCharts/QChartView>
 #include <QtCharts/QSplineSeries>
 #include <QDebug>
-#include <ctime>
+#include <QElapsedTimer>
 #include "flexsea_generic.h"
 #include "main.h"
 
@@ -773,18 +773,23 @@ void W_2DPlot::computeGlobalMinMax(void)
 float W_2DPlot::getRefreshRateDisplay(void)
 {
 	const int SIZE_AVG = 8;
-	static clock_t oldTime = clock();
-	clock_t newTime = clock(), diffTime = 0;
-	diffTime = newTime - oldTime;
-	oldTime = newTime;
+
+    static QElapsedTimer timer;
+    if(!timer.isValid())
+    {
+        timer.start();
+        return -1;
+    }
+    int64_t msec = timer.elapsed();
+    timer.restart();
 
 	float t_s = 0.0, f = 0.0, avg = 0.0;
 	static int counter = 0;
 	static float fArray[SIZE_AVG] = {0};
 
 	//Actual frequency:
-	t_s = diffTime / (float)CLOCKS_PER_SEC;
-	f = 1/t_s;
+    t_s = msec;
+    f = 1000.0f/t_s;
 
 	//Average:
 	fArray[counter] = f;
@@ -805,19 +810,24 @@ float W_2DPlot::getRefreshRateDisplay(void)
 //is fast for a ms timer.
 float W_2DPlot::getRefreshRateData(void)
 {
-	const int SIZE_AVG = 8;
-	static clock_t oldTime = clock();
+    const int SIZE_AVG = 8;
 	static int counter = 0;
 	static float fArray[SIZE_AVG] = {0};
 	static int callCounter = 0;
 
+    static QElapsedTimer timer;
+    if(!timer.isValid())
+    {
+        timer.start();
+        return -1;
+    }
+
 	if(!callCounter)
 	{
-		//compute frequency
-		clock_t newTime = clock(), diffTime = 0;
-		diffTime = newTime - oldTime;
-		oldTime = newTime;
-		float t_s = diffTime / (float)CLOCKS_PER_SEC / 10.0f;
+        int64_t msec = timer.elapsed();
+        timer.restart();
+
+        float t_s = 100.0f * msec;
 		float f = 1.0f/t_s;
 
 		//place into frequency array
