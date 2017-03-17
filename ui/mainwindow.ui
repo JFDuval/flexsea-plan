@@ -115,15 +115,15 @@
      <string>Tools</string>
     </property>
     <addaction name="actionCalibration"/>
+    <addaction name="actionCommunication_Test"/>
     <addaction name="actionConverter"/>
     <addaction name="actionTest_Bench"/>
-    <addaction name="actionCommunication_Test"/>
-    <addaction name="actionEvent_Flag"/>
    </widget>
    <widget class="QMenu" name="menuUser">
     <property name="title">
      <string>User</string>
     </property>
+    <addaction name="actionEvent_Flag"/>
     <addaction name="actionUser_R_W"/>
     <addaction name="separator"/>
     <addaction name="actionRIC_NU_Knee"/>

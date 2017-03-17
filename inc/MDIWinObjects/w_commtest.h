@@ -91,6 +91,7 @@ private:
 
 	//Function(s):
 	void init(void);
+	void initCommon(void);
 	void initTab1(void);
 	void initTab2(void);
 	void initTimers(void);

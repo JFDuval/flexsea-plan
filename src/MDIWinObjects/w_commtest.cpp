@@ -88,8 +88,6 @@ void W_CommTest::receiveComPortStatus(bool status)
 		//PushButton:
 		ui->pushButtonReset->setDisabled(true);
 		ui->pushButtonStartStop->setDisabled(true);
-		ui->pushButtonReset_2->setDisabled(true);
-		ui->pushButtonStartStop_2->setDisabled(true);
 		startStopComTest(true);
 	}
 	else
@@ -98,8 +96,6 @@ void W_CommTest::receiveComPortStatus(bool status)
 		//PushButton:
 		ui->pushButtonReset->setDisabled(false);
 		ui->pushButtonStartStop->setDisabled(false);
-		ui->pushButtonReset_2->setDisabled(false);
-		ui->pushButtonStartStop_2->setDisabled(false);
 	}
 }
 
@@ -125,6 +121,9 @@ void W_CommTest::init(void)
 	active_slave_index = ui->comboBox_slave->currentIndex();
 	active_slave = FlexSEA_Generic::getSlaveID(SL_BASE_ALL, active_slave_index);
 
+	//Initialize common displays and controls:
+	initCommon();
+
 	//Tab by tab initialization:
 	initTab1();
 	initTab2();
@@ -133,8 +132,8 @@ void W_CommTest::init(void)
 	ui->tabWidget->setCurrentIndex(0);
 }
 
-//First tab: Plan <> Device test
-void W_CommTest::initTab1(void)
+//Common displays and controls:
+void W_CommTest::initCommon(void)
 {
 	//Displays:
 	ui->labelSentPackets->setText("0");
@@ -154,16 +153,16 @@ void W_CommTest::initTab1(void)
 	initRandomGenerator(myTime.msecsSinceStartOfDay());
 }
 
+//First tab: Plan <> Device test
+void W_CommTest::initTab1(void)
+{
+
+}
+
 //Second tab: Manage <> Execute test
 void W_CommTest::initTab2(void)
 {
-	//Displays:
-	ui->labelSentPackets_2->setText("0");
-	ui->labelReceivedPackets_2->setText("0");
-	ui->labelGoodPackets_2->setText("0");
-	ui->labelSuccess_2->setText("0");
-	ui->labelLossRate_2->setText("0");
-	ui->lineEdit_2->setText(QString::number(DEFAULT_EXPERIMENT_TIMER_FREQ));
+
 }
 
 void W_CommTest::initTimers(void)
