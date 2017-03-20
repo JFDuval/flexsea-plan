@@ -45,9 +45,6 @@ public:
 	bool parseDynamicUserMetadata(QList<QString> *labels);
 	bool parseDynamicUserData(QList<QString> *values);
 
-public slots:
-	void testSlot();
-
 signals:
 	void writeCommand(uint8_t numb, uint8_t *tx_data, uint8_t r_w);
 

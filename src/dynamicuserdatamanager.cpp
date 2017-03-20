@@ -18,26 +18,6 @@ void DynamicUserDataManager::requestMetaData(int slaveId)
 	pack(P_AND_S_DEFAULT, slaveId, info, &numb, comm_str_usb);
 	qDebug() << "Requesting Metadata";
 	emit writeCommand(numb, comm_str_usb, READ);
-
-//	static QTimer* timer = nullptr;
-//	if(!timer)
-//	{
-//		timer = new QTimer();
-//		timer->setSingleShot(false);
-//		connect(timer, &QTimer::timeout, this, &DynamicUserDataManager::testSlot);
-//		timer->start(100);
-//	}
-}
-
-void DynamicUserDataManager::testSlot()
-{
-//	uint8_t info[2] = {PORT_USB, PORT_USB};
-//	uint16_t numb = 0;
-
-//	tx_cmd_user_dyn_r(TX_N_DEFAULT, SEND_DATA);
-//	pack(P_AND_S_DEFAULT, slave, info, &numb, comm_str_usb);
-//	qDebug() << "Requesting Data";
-//	emit writeCommand(numb, comm_str_usb, READ);
 }
 
 bool DynamicUserDataManager::parseDynamicUserMetadata(QList<QString> *labels)
