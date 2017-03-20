@@ -40,6 +40,10 @@
 #include <vector>
 #include <flexseaDevice.h>
 
+//USB driver:
+#define CHUNK_SIZE				48
+#define MAX_SERIAL_RX_LEN		(CHUNK_SIZE*10 + 10)
+
 //****************************************************************************
 // Namespace & Class
 //****************************************************************************
@@ -72,7 +76,7 @@ private:
 	QSerialPort USBSerialPort;
 	bool comPortOpen;
 	unsigned char usb_rx[256];
-	uint8_t largeRxBuffer[512];
+    uint8_t largeRxBuffer[MAX_SERIAL_RX_LEN];
 	int16_t largeRxBufferLatestTransfer;
 
 	std::vector<FlexseaDevice*> devices;
@@ -101,8 +105,6 @@ signals:
 #define DATAIN_STATUS_RED		3
 #define INDICATOR_TIMEOUT		110
 
-//USB driver:
-#define MAX_SERIAL_RX_LEN		500
-#define CHUNK_SIZE				48
+
 
 #endif // SERIALDRIVER_H
