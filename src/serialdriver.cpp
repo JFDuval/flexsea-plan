@@ -64,6 +64,7 @@ SerialDriver::~SerialDriver() {}
 //Open port
 void SerialDriver::open(QString name, int tries, int delay, bool *success)
 {
+//    name = "/dev/ttyACM8";
 	int cnt = 0;
 	bool isPortOpen = false;
 	int comProgress = 0;
@@ -195,77 +196,87 @@ void SerialDriver::handleReadyRead()
 		qDebug() << "Estimated period of reads: " << streamPeriod << ", frequency: " << frequency;
 	*/
 
-		QByteArray baData;
-		baData.resize(MAX_SERIAL_RX_LEN);
-		largeRxBufferLatestTransfer = 0;
-		baData = USBSerialPort.readAll();
+    QByteArray baData;
+    baData.resize(MAX_SERIAL_RX_LEN);
+    largeRxBufferLatestTransfer = 0;
+    baData = USBSerialPort.readAll();
 
-		//We check to see if we are getting good packets, or a bunch of crap:
-		int len = baData.length();
-		if(len < 1) return;
-		if(len > MAX_SERIAL_RX_LEN)
-		{
-			//qDebug() << "Data length over " << MAX_SERIAL_RX_LEN << " bytes (" << len << "bytes)";
-			len = MAX_SERIAL_RX_LEN;
-			USBSerialPort.clear((QSerialPort::AllDirections));
-			emit dataStatus(0, DATAIN_STATUS_RED);
-			return;
-		}
+    //We check to see if we are getting good packets, or a bunch of crap:
+    int len = baData.length();
+    if(len < 1) return;
+    if(len > MAX_SERIAL_RX_LEN)
+    {
+        //qDebug() << "Data length over " << MAX_SERIAL_RX_LEN << " bytes (" << len << "bytes)";
+        len = MAX_SERIAL_RX_LEN;
+        USBSerialPort.clear((QSerialPort::AllDirections));
+        emit dataStatus(0, DATAIN_STATUS_RED);
+        return;
+    }
 
-		uint8_t numBuffers = (len / 48) + (len % 48 != 0);
+    uint8_t numBuffers = (len / 48) + (len % 48 != 0);
 
-		//qDebug() << "Read" << len << "bytes (" << fullBuffers << "full buffer(s)).";
+    //qDebug() << "Read" << len << "bytes (" << fullBuffers << "full buffer(s)).";
 
-		//Fill the rx buf with our new bytes:
-		memcpy(largeRxBuffer, (uint8_t *)baData.data(), len);
-		largeRxBufferLatestTransfer = len;
+    //Fill the rx buf with our new bytes:
+    memcpy(largeRxBuffer, (uint8_t *)baData.data(), len);
+    largeRxBufferLatestTransfer = len;
 
-		int16_t remainingBytes = len;
-//		int sumOfBytes = 0;
-		for(int i = 0; i < numBuffers; i++)
-		{
-			if(remainingBytes >= CHUNK_SIZE)
-			{
-				remainingBytes -= CHUNK_SIZE;
-				update_rx_buf_array_usb(&largeRxBuffer[i*CHUNK_SIZE], CHUNK_SIZE);
-//				sumOfBytes += CHUNK_SIZE;
+    int16_t remainingBytes = len;
 
+    int successes = 0, failures = 0;
+    for(int i = 0; i < numBuffers; i++)
+    {
+        if(remainingBytes >= CHUNK_SIZE)
+        {
+            remainingBytes -= CHUNK_SIZE;
+            update_rx_buf_array_usb(&largeRxBuffer[i*CHUNK_SIZE], CHUNK_SIZE);
 
-				//Try decoding:
-				commPeriph[PORT_USB].rx.bytesReadyFlag = 1;
-				decode_usb_rx(usb_rx);
+            //Try decoding:
+            commPeriph[PORT_USB].rx.bytesReadyFlag = 1;
+            bool wasError = (decode_usb_rx(usb_rx) == 4);
+            if(wasError) { failures++; }
+            else
+            {
+                successes++;
+                //Update appropriate FlexseaDevice
+                uint8_t slaveId = packet[PORT_USB][INBOUND].unpaked[P_XID];
+                FlexseaDevice* device = getDeviceById(slaveId);
+                if(device)
+                {
+                    device->decodeLastLine();
+                    if(device->isCurrentlyLogging)
+                    {
+                        device->applyTimestamp();
+                        device->eventFlags.last() = W_Event::getEventCode();
+                        emit writeToLogFile(device);
+                    }
+                }
+            }
 
-				//Update appropriate FlexseaDevice
-				uint8_t slaveId = packet[PORT_USB][INBOUND].unpaked[P_XID];
-				FlexseaDevice* device = getDeviceById(slaveId);
-				if(device)
-				{
-					device->decodeLastLine();
-					if(device->isCurrentlyLogging)
-					{
-						device->applyTimestamp();
-						device->eventFlags.last() = W_Event::getEventCode();
-						emit writeToLogFile(device);
-					}
-				}
-
-				emit newDataReady();
-			}
-			else
-			{
-				update_rx_buf_array_usb(&largeRxBuffer[i*CHUNK_SIZE], remainingBytes);
+            emit newDataReady();
+        }
+        else
+        {
+            update_rx_buf_array_usb(&largeRxBuffer[i*CHUNK_SIZE], remainingBytes);
 //				sumOfBytes += remainingBytes;
-				//Try decoding:
-				decode_usb_rx(usb_rx);
-				emit newDataReady();
-			}
-		}
+            //Try decoding:
+            decode_usb_rx(usb_rx);
+            emit newDataReady();
+        }
+    }
 
 //		qDebug() << "Copied" << sumOfBytes << "bytes";
 
 		//Notify user in GUI:
-		emit dataStatus(0, DATAIN_STATUS_GREEN);   //***ToDo: support 4 channels
-		emit newDataTimeout(true); //Reset counter
+    if(!successes && failures)
+        emit dataStatus(0, DATAIN_STATUS_RED);   //***ToDo: support 4 channels
+    else if(!failures && successes)
+        emit dataStatus(0, DATAIN_STATUS_GREEN);
+    else
+        emit dataStatus(0, DATAIN_STATUS_YELLOW);
+
+    if(successes)
+        emit newDataTimeout(true); //Reset counter
 
 	return;
 }

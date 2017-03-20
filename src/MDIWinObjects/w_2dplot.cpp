@@ -827,8 +827,8 @@ float W_2DPlot::getRefreshRateData(void)
         int64_t msec = timer.elapsed();
         timer.restart();
 
-        float t_s = 100.0f * msec;
-		float f = 1.0f/t_s;
+        float t_s = msec / 10.0f;
+        float f = 1000.0f/t_s;
 
 		//place into frequency array
 		fArray[counter] = f;
