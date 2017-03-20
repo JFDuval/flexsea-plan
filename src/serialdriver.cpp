@@ -251,9 +251,9 @@ void SerialDriver::handleReadyRead()
                         emit writeToLogFile(device);
                     }
                 }
+                emit newDataReady();
             }
 
-            emit newDataReady();
         }
         else
         {
