@@ -143,10 +143,10 @@ MainWindow::~MainWindow()
 {
 	delete ui;
 
-	serialThread->quit();
-	delete mySerialDriver;
-	delete streamManager;
-	delete serialThread;
+//	serialThread->quit();
+//	delete mySerialDriver;
+//	delete streamManager;
+//	delete serialThread;
 
 
 	int num2d = W_2DPlot::howManyInstance();
