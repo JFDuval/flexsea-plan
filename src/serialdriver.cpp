@@ -228,12 +228,13 @@ void SerialDriver::handleReadyRead()
     {
         if(remainingBytes >= CHUNK_SIZE)
         {
-            remainingBytes -= CHUNK_SIZE;
-            update_rx_buf_array_usb(&largeRxBuffer[i*CHUNK_SIZE], CHUNK_SIZE);
+			remainingBytes -= CHUNK_SIZE;
+			//update_rx_buf_array_usb(&largeRxBuffer[i*CHUNK_SIZE], CHUNK_SIZE);
+			update_rx_buf_usb(&largeRxBuffer[i*CHUNK_SIZE], CHUNK_SIZE);
 
             //Try decoding:
             commPeriph[PORT_USB].rx.bytesReadyFlag = 1;
-            bool wasError = (decode_usb_rx(usb_rx) == 4);
+			bool wasError = (decode_usb_rx(nullptr) == 4);
             if(wasError) { failures++; }
             else
             {

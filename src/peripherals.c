@@ -75,7 +75,7 @@ uint8_t decode_usb_rx(unsigned char *newdata)
 	(void)newdata;
 
 	//Try to decode
-	tryUnpacking(&commPeriph[PORT_USB], &packet[PORT_USB][INBOUND]);
+	tryUnpacking1(&commPeriph[PORT_USB], &packet[PORT_USB][INBOUND]);
 
 	//Valid communication from USB?
 	if(commPeriph[PORT_USB].rx.unpackedPacketsAvailable > 0)
@@ -96,9 +96,9 @@ uint8_t decode_usb_rx(unsigned char *newdata)
 		#endif
 	}
 
-    const int SUCCESS = 3;
-    const int FAILURE = 4;
-    ret = (result > 0) ? SUCCESS : FAILURE;
+	const int SUCCESS = 3;
+	const int FAILURE = 4;
+	ret = (result == 2) ? SUCCESS : FAILURE;
 
 	return ret;
 }
