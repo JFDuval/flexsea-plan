@@ -37,6 +37,7 @@
 
 #include <QString>
 #include <QList>
+#include <time.h>
 
 //****************************************************************************
 // Definition(s)
@@ -90,13 +91,13 @@ public:
 	virtual QStringList getHeaderList(void) = 0;
 	virtual QStringList getHeaderDecList(void) = 0;
 	virtual QString getLastSerializedStr(void) = 0;
-	virtual struct std_variable getSerializedVar(int parameter) = 0;
 	virtual struct std_variable getSerializedVar(int parameter, int index) = 0;
+	virtual struct std_variable getSerializedVar(int parameter) { return getSerializedVar(parameter, 0); }
 	virtual void appendSerializedStr(QStringList *splitLine) = 0;
 	virtual void decodeLastLine(void) = 0;
 	virtual void decodeAllLine(void) = 0;
 	virtual void appendEmptyLine(void) = 0;
-	virtual int lenght() = 0;
+	virtual int length() = 0;
 	virtual void clear(void);
 
 	static QString getSlaveType(QStringList *splitLine);
@@ -120,6 +121,10 @@ public:
 	QString experimentName;
 
 	int		frequency;
+	bool isCurrentlyLogging;
+
+	void applyTimestamp();
+	clock_t initialClock;
 
 	QList<struct TimeStamp> timeStamp;
 	QList<int> eventFlags;

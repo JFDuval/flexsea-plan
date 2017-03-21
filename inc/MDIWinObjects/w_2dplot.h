@@ -38,6 +38,7 @@
 #include <QApplication>
 #include <QWidget>
 #include "counter.h"
+#include <QTimer>
 #include <QtCharts>
 #include <QtCharts/QChartView>
 #include "flexsea_generic.h"
@@ -178,6 +179,7 @@ signals:
 	void windowClosed(void);
 
 private:
+	QTimer* drawingTimer;
 
 	DisplayMode displayMode;
 
@@ -230,7 +232,7 @@ private:
 
 	void initChart(void);
 	void initUserInput(void);
-	void saveNewPoints(int myDataPoints[6]);
+	void saveNewPoint(int row, int data);
 	void saveNewPointsLog(int index);
 	void computeStats(void);
 	void computeGlobalMinMax(void);

@@ -62,6 +62,7 @@
 #include "main.h"
 
 #include <QList>
+#include <QThread>
 
 namespace Ui {
 class MainWindow;
@@ -99,6 +100,7 @@ public:
 private:
 	void initFlexSeaDeviceObject(void);
 	void initFlexSeaDeviceLog(void);
+	void initSerialComm(SerialDriver*, StreamManager*);
 
 	Ui::MainWindow *ui;
 
@@ -163,6 +165,8 @@ private:
 
 	// Objects
 	SerialDriver *mySerialDriver;
+	QThread* serialThread;
+
 	DataLogger *myDataLogger;
 	StreamManager* streamManager;
 

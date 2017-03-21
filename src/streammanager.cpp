@@ -4,6 +4,7 @@
 #include <flexsea_system.h>
 #include <flexsea_cmd_data.h>
 #include <flexsea_cmd_in_control.h>
+#include <flexsea_cmd_stream.h>
 #include <w_event.h>
 #include <QDebug>
 
@@ -11,14 +12,23 @@ StreamManager::StreamManager(QObject *parent, SerialDriver* driver) :
 	QObject(parent),
 	serialDriver(driver)
 {
+
+	//this needs to be in order from smallest to largest
 	int timerFreqsInHz[NUM_TIMER_FREQS] = {1, 5, 10, 20, 33, 50, 100, 200};
 	for(int i = 0; i < NUM_TIMER_FREQS; i++)
 	{
 		timerFrequencies[i] = timerFreqsInHz[i];
+		timerIntervals[i] = 1000.0f / timerFreqsInHz[i];
+		autoStreamLists[i] = std::vector<CmdSlaveRecord>();
 		streamLists[i] = std::vector<CmdSlaveRecord>();
 	}
 
-	connect(driver, &SerialDriver::timerClocked, this, &StreamManager::receiveClock);
+	clockPeriod = 5;
+	clockTimer = new QTimer();
+	clockTimer->setTimerType(Qt::PreciseTimer);
+	clockTimer->setSingleShot(false);
+	clockTimer->setInterval(clockPeriod);
+	connect(clockTimer, &QTimer::timeout, this, &StreamManager::receiveClock);
 }
 
 int StreamManager::getIndexOfFrequency(int freq)
@@ -39,43 +49,120 @@ void StreamManager::startStreaming(int cmd, int slave, int freq, bool shouldLog,
 {
 	if(!device) return;
 
-	CmdSlaveRecord record(cmd, slave, shouldLog, device);
-	record.initialTime = new QDateTime(QDateTime::currentDateTime());
+	int indexOfFreq = getIndexOfFrequency(freq);
+
+	if(indexOfFreq >= 0 && indexOfFreq < NUM_TIMER_FREQS && device)
+	{
+		device->isCurrentlyLogging = shouldLog;
+		if(shouldLog)
+		{
+			emit openRecordingFile(device);
+			device->initialClock = clock();
+		}
+
+		serialDriver->addDevice(device);
+
+        CmdSlaveRecord record(cmd, slave, shouldLog, device);
+		streamLists[indexOfFreq].push_back(record);
+		qDebug() << "Started streaming cmd: " << cmd << ", for slave id: " << slave << "at frequency: " << freq;
+		clockTimer->start();
+	}
+	else
+	{
+		qDebug("Invalid frequency");
+	}
+}
+
+void StreamManager::startAutoStreaming(int cmd, int slave, int freq, bool shouldLog, FlexseaDevice* device)
+{
+	if(!device) return;
 
 	int indexOfFreq = getIndexOfFrequency(freq);
 
-	if(indexOfFreq >= 0 && indexOfFreq < NUM_TIMER_FREQS)
+	if(indexOfFreq >= 0 && indexOfFreq < NUM_TIMER_FREQS && device)
 	{
-		streamLists[indexOfFreq].push_back(record);
+		uint8_t shouldStart = 1;
+
+		device->isCurrentlyLogging = shouldLog;
+		if(shouldLog)
+		{
+			emit openRecordingFile(device);
+			device->initialClock = clock();
+		}
+
+		serialDriver->addDevice(device);
+
+		tx_cmd_stream_w(TX_N_DEFAULT, cmd, 1000/freq, shouldStart);
+		tryPackAndSend(CMD_STREAM, device->slaveID);
+
+		CmdSlaveRecord record(cmd, slave, shouldLog, device);
+		autoStreamLists[indexOfFreq].push_back(record);
 		qDebug() << "Started streaming cmd: " << cmd << ", for slave id: " << slave << "at frequency: " << freq;
 	}
 	else
 	{
 		qDebug("Invalid frequency");
 	}
-
-	if(device)
-	{
-		if(shouldLog)
-			emit openRecordingFile(device);
-	}
 }
 
 void StreamManager::stopStreaming(int cmd, int slave, int freq)
 {
 	int indexOfFreq = getIndexOfFrequency(freq);
-	for(unsigned int i = 0; i < streamLists[indexOfFreq].size(); i++)
+
+	std::vector<CmdSlaveRecord>* listArray[2] = {autoStreamLists, streamLists};
+
+	for(int listIndex = 0; listIndex < 2; listIndex++)
 	{
-		CmdSlaveRecord record = streamLists[indexOfFreq].at(i);
-		if(record.cmdType == cmd && record.slaveIndex == slave)
+		std::vector<CmdSlaveRecord> *l = listArray[listIndex];
+
+		for(unsigned int i = 0; i < (l)[indexOfFreq].size(); i++)
 		{
-			delete record.initialTime;
-			record.initialTime = nullptr;
-			streamLists[indexOfFreq].erase(streamLists[indexOfFreq].begin() + i);
-			qDebug() << "Stopped streaming cmd: " << cmd << ", for slave id: " << slave << "at frequency: " << freq;
+			CmdSlaveRecord record = (l)[indexOfFreq].at(i);
+			if(record.cmdType == cmd && record.slaveIndex == slave)
+			{
+				(l)[indexOfFreq].erase((l)[indexOfFreq].begin() + i);
+
+				packAndSendStopStreaming(record.device->slaveID);
+				record.device->isCurrentlyLogging = false;
+
+				qDebug() << "Stopped streaming cmd: " << cmd << ", for slave id: " << slave << "at frequency: " << freq;
+
+				if(record.shouldLog)
+					emit closeRecordingFile(record.device);
+			}
 		}
-		if(record.shouldLog)
-			emit closeRecordingFile(record.device);
+	}
+}
+
+void StreamManager::onComPortClosing()
+{
+	for(int i = 0; i < NUM_TIMER_FREQS; i++)
+	{
+		for(unsigned int j = 0; j < autoStreamLists[i].size(); j++)
+		{
+			CmdSlaveRecord record = autoStreamLists[i].at(j);
+			packAndSendStopStreaming(record.device->slaveID);
+			record.device->isCurrentlyLogging = false;
+			qDebug() << "Stopped streaming cmd: " << record.cmdType << ", for slave id: " << record.device->slaveID << "at frequency: " << timerFrequencies[i];
+			if(record.shouldLog)
+				emit closeRecordingFile(record.device);
+		}
+
+		autoStreamLists[i].clear();
+	}
+
+	for(int i = 0; i < NUM_TIMER_FREQS; i++)
+	{
+		for(unsigned int j = 0; j < streamLists[i].size(); j++)
+		{
+			CmdSlaveRecord record = streamLists[i].at(j);
+			record.device->isCurrentlyLogging = false;
+			qDebug() << "Stopped streaming cmd: " << record.cmdType << ", for slave id: " << record.device->slaveID << "at frequency: " << timerFrequencies[i];
+			if(record.shouldLog)
+				emit closeRecordingFile(record.device);
+		}
+
+		streamLists[i].clear();
 	}
 }
 
@@ -88,11 +175,93 @@ QList<int> StreamManager::getRefreshRates()
 	return result;
 }
 
-void StreamManager::sendCommands(const std::vector<CmdSlaveRecord> &streamList)
+void StreamManager::tryPackAndSend(int cmd, uint8_t slaveId)
 {
-	for(unsigned int i = 0; i < streamList.size(); i++)
+	uint16_t numb = 0;
+	uint8_t info[2] = {PORT_USB, PORT_USB};
+	pack(P_AND_S_DEFAULT, slaveId
+		 , info, &numb, comm_str_usb);
+
+	if(serialDriver && serialDriver->isOpen())
 	{
-		CmdSlaveRecord record = streamList.at(i);
+		serialDriver->write(numb, comm_str_usb);
+		emit sentRead(cmd, slaveId);
+	}
+}
+
+void StreamManager::receiveClock()
+{
+	static float msSinceLast[NUM_TIMER_FREQS] = {0};
+	const float TOLERANCE = 0.0001;
+
+	if(outgoingBuffer.size())
+	{
+		Message m = outgoingBuffer.front();
+		outgoingBuffer.pop();
+		serialDriver->write(m.numBytes, m.dataPacket.data());
+	}
+	else
+	{
+		for(int i = 0; i < NUM_TIMER_FREQS; i++)
+		{
+			if(!streamLists[i].size()) continue;
+
+			//received clocks comes in at 5ms/clock
+			msSinceLast[i]+=clockPeriod;
+
+			float timerInterval = timerIntervals[i];
+			if((msSinceLast[i] + TOLERANCE) > timerInterval)
+			{
+				sendCommands(i);
+
+				while((msSinceLast[i] + TOLERANCE) > timerInterval)
+					msSinceLast[i] -= timerInterval;
+			}
+		}
+	}
+
+	bool noStreamAndNoBuffer = outgoingBuffer.size() == 0;
+	int i = 0;
+	while(i < NUM_TIMER_FREQS && noStreamAndNoBuffer)
+		noStreamAndNoBuffer = streamLists[i++].size() == 0;
+
+	if(noStreamAndNoBuffer)
+		clockTimer->stop();
+
+}
+
+void StreamManager::enqueueCommand(uint8_t numb, uint8_t* dataPacket)
+{
+	//If we are over a max size, clear the queue
+	const unsigned int MAX_Q_SIZE = 200;
+
+	if(outgoingBuffer.size() > MAX_Q_SIZE)
+	{
+		qDebug() << "StreamManager::enqueueCommand, queue is above max size (" << MAX_Q_SIZE  << "), clearing queue...";
+		while(outgoingBuffer.size())
+			outgoingBuffer.pop();
+	}
+
+	outgoingBuffer.push(Message(numb, dataPacket));
+	if(!clockTimer->isActive())
+		clockTimer->start();
+}
+
+
+void StreamManager::packAndSendStopStreaming(uint8_t slaveId)
+{
+	uint8_t shouldStart = 0; //ie should stop
+	tx_cmd_stream_w(TX_N_DEFAULT, -1, 0, shouldStart);
+	tryPackAndSend(CMD_STREAM, slaveId);
+}
+
+void StreamManager::sendCommands(int index)
+{
+	if(index < 0 || index >= NUM_TIMER_FREQS) return;
+
+	for(unsigned int i = 0; i < streamLists[index].size(); i++)
+	{
+		CmdSlaveRecord record = streamLists[index].at(i);
 		switch(record.cmdType)
 		{
 		case CMD_READ_ALL:
@@ -115,56 +284,12 @@ void StreamManager::sendCommands(const std::vector<CmdSlaveRecord> &streamList)
 			break;
 		default:
 			qDebug() << "Unsupported command was given: " << record.cmdType;
+			stopStreaming(record.cmdType, record.slaveIndex, timerFrequencies[index]);
 			break;
 		}
-
-		//This only works because our message sending is synchronous and blocking
-		if(record.device)
-		{
-			record.device->decodeLastLine();
-			if(record.shouldLog && record.initialTime)
-			{
-				record.device->timeStamp.last().date = record.initialTime->date().toString();
-				record.device->timeStamp.last().ms = record.initialTime->msecsTo(QDateTime::currentDateTime());
-				record.device->eventFlags.last() = W_Event::getEventCode();
-				emit writeToLogFile(record.device);
-			}
-		}
 	}
 }
 
-void StreamManager::tryPackAndSend(int cmd, uint8_t slaveId)
-{
-	uint16_t numb = 0;
-	uint8_t info[2] = {PORT_USB, PORT_USB};
-	pack(P_AND_S_DEFAULT, slaveId
-		 , info, &numb, comm_str_usb);
-
-	if(serialDriver && serialDriver->isOpen())
-	{
-		serialDriver->enqueueReadWrite(numb, comm_str_usb, READ);
-		emit sentRead(cmd, slaveId);
-	}
-}
-
-void StreamManager::receiveClock()
-{
-	static double msSinceLast[NUM_TIMER_FREQS] = {0};
-	const double TOLERANCE = 0.0001;
-	for(int i = 0; i < NUM_TIMER_FREQS; i++)
-	{
-		//received clocks comes in at 1ms/clock
-		msSinceLast[i]++;
-		double timerInterval = (1000.0 / timerFrequencies[i]);
-		if((msSinceLast[i] + TOLERANCE) > timerInterval)
-		{
-			sendCommands(streamLists[i]);
-
-			while((msSinceLast[i] + TOLERANCE) > timerInterval)
-				msSinceLast[i] -= timerInterval;
-		}
-	}
-}
 
 void StreamManager::sendCommandReadAll(uint8_t slaveId)
 {
@@ -206,12 +331,12 @@ void StreamManager::sendCommandTestBench(uint8_t slaveId)
 {
 	static int index = 0;
 
-	//1) Stream
-	//motor_dto dto;
-	//tx_cmd_motortb_r(TX_N_DEFAULT, index, &dto);
-	index++;
-	index %= 3;
-	tryPackAndSend(CMD_MOTORTB, slaveId);
+//	//1) Stream
+//	motor_dto dto;
+//	tx_cmd_motortb_r(TX_N_DEFAULT, index, &dto);
+//	index++;
+//	index %= 3;
+//	tryPackAndSend(CMD_MOTORTB, slaveId);
 }
 void StreamManager::sendCommandInControl(uint8_t slaveId)
 {

@@ -34,13 +34,16 @@
 //****************************************************************************
 // Include(s)
 //****************************************************************************
-
-#include <QWidget>
+#include <QObject>
 #include <QString>
 #include <QSerialPort>
-#include <QTimer>
-#include <queue>
-#include <QSharedPointer>
+#include <vector>
+#include <flexseaDevice.h>
+
+//USB driver:
+#define CHUNK_SIZE				48
+#define MAX_SERIAL_RX_LEN		(CHUNK_SIZE*10 + 10)
+
 //****************************************************************************
 // Namespace & Class
 //****************************************************************************
@@ -49,67 +52,35 @@ namespace Ui {
 class SerialDriver;
 }
 
-class SerialDriver : public QWidget
+class SerialDriver : public QObject
 {
 	Q_OBJECT
 
 public:
-	explicit SerialDriver(QWidget *parent = 0);
+	explicit SerialDriver(QObject *parent = 0);
 	virtual ~SerialDriver();
 
 	void init(void);
 	bool isOpen() { return USBSerialPort.isOpen(); }
 
+	void addDevice(FlexseaDevice* device);
+
 public slots:
 	void open(QString name, int tries, int delay, bool* success);
 	void close(void);
-
-	void enqueueReadWrite(uint8_t numb, uint8_t* dataPacket, uint8_t r_w);
-
-private slots:
-	void handleTimeout();
+	int write(uint8_t bytes_to_send, uint8_t *serial_tx_data);
+	void handleReadyRead();
 
 private:
-	int read(unsigned char *buf);
-	int write(char bytes_to_send, unsigned char *serial_tx_data);
-	void readWrite(uint8_t numb, uint8_t *dataPacket, uint8_t r_w);
 
-	//Variables & Objects:
-	class Message {
-	public:
-		static void do_delete(uint8_t buf[]) { delete[] buf; }
-		Message(uint8_t nb, uint8_t* data, uint8_t rw) {
-			numBytes = nb;
-			r_w = rw;
-			dataPacket = QSharedPointer<uint8_t>(new uint8_t[nb], do_delete);
-			uint8_t* temp = dataPacket.data();
-			for(int i = 0; i < numBytes; i++)
-				temp[i] = data[i];
-		}
-		~Message()
-		{
-#ifdef QT_DEBUG
-			//for(int i = 0; i < numBytes; i++)
-			//	dataPacket[i] = 0;
-#endif
-			//delete [] dataPacket;
-			//dataPacket = nullptr;
-		}
-
-		uint8_t numBytes;
-		QSharedPointer<uint8_t> dataPacket;
-		//uint8_t* dataPacket;
-		uint8_t r_w;
-	};
-
-	std::queue<Message> outgoingBuffer;
 	QSerialPort USBSerialPort;
 	bool comPortOpen;
 	unsigned char usb_rx[256];
+    uint8_t largeRxBuffer[MAX_SERIAL_RX_LEN];
+	int16_t largeRxBufferLatestTransfer;
 
-	QTimer* clockTimer;
-
-	//Function(s):
+	std::vector<FlexseaDevice*> devices;
+	FlexseaDevice* getDeviceById(uint8_t slaveId);
 
 signals:
 	void timerClocked(void);
@@ -119,6 +90,8 @@ signals:
 	void dataStatus(int idx, int status);
 	void newDataTimeout(bool rst);
 	void setStatusBarMessage(QString msg);
+	void writeToLogFile(FlexseaDevice*);
+	void aboutToClose(void);
 };
 
 //****************************************************************************
@@ -132,7 +105,6 @@ signals:
 #define DATAIN_STATUS_RED		3
 #define INDICATOR_TIMEOUT		110
 
-//USB driver:
-#define USB_READ_TIMEOUT		100		//ms
+
 
 #endif // SERIALDRIVER_H

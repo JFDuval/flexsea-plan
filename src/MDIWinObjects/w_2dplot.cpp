@@ -41,7 +41,7 @@
 #include <QtCharts/QChartView>
 #include <QtCharts/QSplineSeries>
 #include <QDebug>
-#include <QDateTime>
+#include <QElapsedTimer>
 #include "flexsea_generic.h"
 #include "main.h"
 
@@ -75,15 +75,18 @@ W_2DPlot::W_2DPlot(QWidget *parent,
 	updateDisplayMode(mode, devLogInit);
 
 	useOpenGL(false);
-
-	//Timers:
-	timerRefreshDisplay = new QDateTime;
-	timerRefreshData = new QDateTime;
+	drawingTimer = new QTimer(this);
+	drawingTimer->setTimerType(Qt::CoarseTimer);
+	drawingTimer->setInterval(40);
+	drawingTimer->setSingleShot(false);
+	connect(drawingTimer, &QTimer::timeout, this, &W_2DPlot::refresh2DPlot);
 }
 
 W_2DPlot::~W_2DPlot()
 {
 	emit windowClosed();
+	delete drawingTimer;
+	drawingTimer = nullptr;
 	delete ui;
 }
 
@@ -97,88 +100,71 @@ W_2DPlot::~W_2DPlot()
 
 void W_2DPlot::receiveNewData(void)
 {
-	uint8_t item = 0;
-	int val[6] = {0,0,0,0,0,0};
-
-	dataRate = getRefreshRateData();
-
+	int val;
 	//For every variable:
-	for(item = 0; item < VAR_NUM; item++)
+	for(int row = 0; row < VAR_NUM; row++)
 	{
-		if(vtp[item].decode == false)
+		if(!vtp[row].used) continue;
+
+		if(!vtp[row].decode)
 		{
-			if((vtp[item].rawGenPtr) == nullptr)
+			if((vtp[row].rawGenPtr) == nullptr)
 			{
-				val[item] = 0;
+				val = 0;
 			}
 			else
 			{
-				switch(vtp[item].format)
+				switch(vtp[row].format)
 				{
 					case FORMAT_32S:
-						val[item] = (*(int32_t*)vtp[item].rawGenPtr);
-						scale(item, &val[item]);
+						val = (*(int32_t*)vtp[row].rawGenPtr);
+						scale(row, &val);
 						break;
 					case FORMAT_32U:
-						val[item] = (int)(*(uint32_t*)vtp[item].rawGenPtr);
-						scale(item, &val[item]);
+						val = (int)(*(uint32_t*)vtp[row].rawGenPtr);
+						scale(row, &val);
 						break;
 					case FORMAT_16S:
-						val[item] = (int)(*(int16_t*)vtp[item].rawGenPtr);
-						scale(item, &val[item]);
+						val = (int)(*(int16_t*)vtp[row].rawGenPtr);
+						scale(row, &val);
 						break;
 					case FORMAT_16U:
-						val[item] = (int)(*(uint16_t*)vtp[item].rawGenPtr);
-						scale(item, &val[item]);
+						val = (int)(*(uint16_t*)vtp[row].rawGenPtr);
+						scale(row, &val);
 						break;
 					case FORMAT_8S:
-						val[item] = (int)(*(int8_t*)vtp[item].rawGenPtr);
-						scale(item, &val[item]);
+						val = (int)(*(int8_t*)vtp[row].rawGenPtr);
+						scale(row, &val);
 						break;
 					case FORMAT_8U:
-						val[item] = (int)(*(uint8_t*)vtp[item].rawGenPtr);
-						scale(item, &val[item]);
+						val = (int)(*(uint8_t*)vtp[row].rawGenPtr);
+						scale(row, &val);
 						break;
 					default:
-						val[item] = 0;
+						val = 0;
 						break;
 				}
 			}
 		}
 		else
 		{
-			if((vtp[item].decodedPtr) == nullptr)
+			if((vtp[row].decodedPtr) == nullptr)
 			{
-				val[item] = 0;
+				val = 0;
 			}
 			else
 			{
-				val[item] = (*vtp[item].decodedPtr);
+				val = (*vtp[row].decodedPtr);
 			}
 		}
-	}
 
-	saveNewPoints(val);
+		saveNewPoint(row, val);
+	}
+	dataRate = getRefreshRateData();
 }
 
 void W_2DPlot::refresh2DPlot(void)
 {
-	//if displaying live data, sub sample the clock we receive, which is at 1kHz. We want 33Hz
-	static double ticks = 0;
-	const double REFRESH_PERIOD = 1000.0 / 33.0;
-	if(displayMode == DisplayLiveData)
-	{
-		ticks += 1.0;
-		if(ticks > REFRESH_PERIOD)
-		{
-			ticks -= REFRESH_PERIOD;
-		}
-		else
-		{
-			return;
-		}
-	}
-
 	uint8_t index = 0;
 
 	//Refresh Stat Bar:
@@ -187,31 +173,33 @@ void W_2DPlot::refresh2DPlot(void)
 	//For every variable:
 	for(index = 0; index < VAR_NUM; index++)
 	{
-		if(vtp[index].used == false)
-		{
-			//This channel isn't used, we make it invisible
-			qlsChart[index]->setVisible(false);
-		}
-		else
-		{
-			qlsChart[index]->setVisible(true);
-		}
+		qlsChart[index]->setVisible(vtp[index].used);
 	}
 
 	//And now update the display:
-	if(plotFreezed == false)
+	if(!plotFreezed)
 	{
-		// Apparently, using pointsVector is much faster (see documentation)
-		qlsChart[0]->replace(vDataBuffer[0]);
-		qlsChart[1]->replace(vDataBuffer[1]);
-		qlsChart[2]->replace(vDataBuffer[2]);
-		qlsChart[3]->replace(vDataBuffer[3]);
-		qlsChart[4]->replace(vDataBuffer[4]);
-		qlsChart[5]->replace(vDataBuffer[5]);
-
-		refreshStats();
+		computeStats();
 		computeGlobalMinMax();
 		setChartAxisAutomatic();
+
+		for(int i = 0; i < VAR_NUM; i++)
+		{
+			if(vtp[i].used && !vDataBuffer[i].isEmpty())
+			{
+				int bufLength = vDataBuffer[i].size();
+				for(int j = 0; j < bufLength; j++)
+				{
+					vDataBuffer[i][j].setX(j);
+				}
+
+				qlsChart[i]->replace(vDataBuffer[i]);
+			}
+
+			(*lbMin[i])->setText(QString::number(stats[i][STATS_MIN]));
+			(*lbMax[i])->setText(QString::number(stats[i][STATS_MAX]));
+			(*lbAvg[i])->setText(QString::number(stats[i][STATS_AVG]));
+		}
 	}
 }
 
@@ -226,6 +214,12 @@ void W_2DPlot::refreshDisplayLog(int index, FlexseaDevice * devPtr)
 
 void W_2DPlot::updateDisplayMode(DisplayMode mode, FlexseaDevice* devPtr)
 {
+	static bool firstTime = true;
+	static DisplayMode prevMode = DisplayLogData;
+	if(mode == prevMode && !firstTime) return;
+	prevMode = mode;
+	firstTime = false;
+
 	displayMode = mode;
 	if(displayMode == DisplayLogData)
 	{
@@ -565,35 +559,22 @@ void W_2DPlot::initScaling(void)
 }
 
 //Updates 6 buffers, and compute stats (min/max/avg/...)
-void W_2DPlot::saveNewPoints(int myDataPoints[6])
+void W_2DPlot::saveNewPoint(int row, int data)
 {
-	// add point if plot length not reached
-	if(vDataBuffer[0].length() < plot_len)
+	if(row < 0 || row >= VAR_NUM || !vtp[row].used) return;
+
+	// add point if plot lenght not reached
+	if(vDataBuffer[row].length() < plot_len)
 	{
 		//First VECLEN points: append
-		//For each variable:
-		for(int i = 0; i < VAR_NUM; i++)
-		{
-			vDataBuffer[i].append(QPointF(vDataBuffer[i].length(), myDataPoints[i]));
-		}
+		vDataBuffer[row].append(QPointF(vDataBuffer[row].length(), data));
 	}
 	// replace point if max length reached
 	else
 	{
-		//For each variable:
-		for(int i = 0; i < VAR_NUM; i++)
-		{
-			for(int j = 1; j < plot_len; j++)
-			{
-				//Shift by one position (all but last point):
-				vDataBuffer[i].replace(j-1, QPointF(j-1, vDataBuffer[i].at(j).y()));
-			}
-
-			//Last (new):
-			vDataBuffer[i].replace(plot_len-1, QPointF(plot_len-1, myDataPoints[i]));
-		}
+		vDataBuffer[row].removeFirst();
+		vDataBuffer[row].append(QPointF(plot_len-1, data));
 	}
-	computeStats();
 }
 
 void W_2DPlot::saveNewPointsLog(int index)
@@ -624,7 +605,7 @@ void W_2DPlot::saveNewPointsLog(int index)
 			graphIter = 0;
 		}
 
-		while(dataIter < selectedDevList[item]->lenght() &&
+		while(dataIter < selectedDevList[item]->length() &&
 			  graphIter < plot_len &&
 			  varIndex[item] > 0)
 		{
@@ -689,7 +670,6 @@ void W_2DPlot::saveNewPointsLog(int index)
 			++graphIter;
 		}
 	}
-	computeStats();
 }
 
 void W_2DPlot::computeStats(void)
@@ -700,7 +680,7 @@ void W_2DPlot::computeStats(void)
 	// Compute the Stats
 	for(int i = 0; i < VAR_NUM; i++)
 	{
-		if(vDataBuffer[i].length() > 0)
+		if(vDataBuffer[i].length() > 0 && vtp[i].used)
 		{
 			min = vDataBuffer[i].at(0).y();
 			max = vDataBuffer[i].at(0).y();
@@ -733,6 +713,12 @@ void W_2DPlot::computeStats(void)
 			stats[i][STATS_MAX] = (int64_t) max;
 			stats[i][STATS_AVG] = (int64_t) avg;
 		}
+		else
+		{
+			stats[i][STATS_MIN] = 0;
+			stats[i][STATS_MAX] = 0;
+			stats[i][STATS_AVG] = 0;
+		}
 	}
 }
 
@@ -741,17 +727,18 @@ void W_2DPlot::computeGlobalMinMax(void)
 {
 	//Stats for all channels:
 
-	if(allChannelUnused() == true)
+	if(allChannelUnused())
 	{
 		globalYmin = -10;
 		globalYmax = 10;
 	}
 	else
 	{
+		int i;
 		//First, we use the 1st used channel to initialize the global min/max:
-		for(int i = 0; i < VAR_NUM; i++)
+		for(i = 0; i < VAR_NUM; i++)
 		{
-			if(vtp[i].used == true)
+			if(vtp[i].used)
 			{
 				globalYmin = stats[i][STATS_MIN];
 				globalYmax = stats[i][STATS_MAX];
@@ -759,11 +746,11 @@ void W_2DPlot::computeGlobalMinMax(void)
 			}
 		}
 
-		//Now we can compare:
-		for(int i = 0; i < VAR_NUM; i++)
+		//Now we can compare, starting at the next value of i:
+		for(i = i+1; i < VAR_NUM; i++)
 		{
 			//We only use the 'used' channels for the global min/max:
-			if(vtp[i].used == true)
+			if(vtp[i].used)
 			{
 				//Minimum:
 				if(stats[i][STATS_MIN] < globalYmin)
@@ -785,29 +772,35 @@ void W_2DPlot::computeGlobalMinMax(void)
 //Average of 8 values
 float W_2DPlot::getRefreshRateDisplay(void)
 {
-	static qint64 oldTime = 0;
-	qint64 newTime = 0, diffTime = 0;
+	const int SIZE_AVG = 8;
+
+    static QElapsedTimer timer;
+    if(!timer.isValid())
+    {
+        timer.start();
+        return -1;
+    }
+    int64_t msec = timer.elapsed();
+    timer.restart();
+
 	float t_s = 0.0, f = 0.0, avg = 0.0;
 	static int counter = 0;
-	static float fArray[8] = {0,0,0,0,0,0,0,0};
+	static float fArray[SIZE_AVG] = {0};
 
 	//Actual frequency:
-	newTime = timerRefreshDisplay->currentMSecsSinceEpoch();
-	diffTime = newTime - oldTime;
-	oldTime = newTime;
-	t_s = diffTime/1000.0;
-	f = 1/t_s;
+    t_s = msec;
+    f = 1000.0f/t_s;
 
 	//Average:
-	counter++;
-	counter %=8;
 	fArray[counter] = f;
+	counter++;
+	counter %=SIZE_AVG;
 	avg = 0;
-	for(int i = 0; i < 8; i++)
+	for(int i = 0; i < SIZE_AVG; i++)
 	{
 		avg += fArray[i];
 	}
-	avg = avg / 8;
+	avg = avg / SIZE_AVG;
 
 	return avg;
 }
@@ -817,36 +810,41 @@ float W_2DPlot::getRefreshRateDisplay(void)
 //is fast for a ms timer.
 float W_2DPlot::getRefreshRateData(void)
 {
-	static qint64 oldTime = 0;
-	qint64 newTime = 0, diffTime = 0;
-	float t_s = 0.0, avg = 0.0;
-	static float f = 0.0;
+    const int SIZE_AVG = 8;
 	static int counter = 0;
-	static float fArray[8] = {0,0,0,0,0,0,0,0};
+	static float fArray[SIZE_AVG] = {0};
 	static int callCounter = 0;
 
-	callCounter++;
-	callCounter %= 10;
+    static QElapsedTimer timer;
+    if(!timer.isValid())
+    {
+        timer.start();
+        return -1;
+    }
+
 	if(!callCounter)
 	{
-		newTime = timerRefreshData->currentMSecsSinceEpoch();
-		diffTime = newTime - oldTime;
-		oldTime = newTime;
+        int64_t msec = timer.elapsed();
+        timer.restart();
 
-		t_s = diffTime/10/1000.0;
-		f = 1/t_s;
+        float t_s = msec / 10.0f;
+        float f = 1000.0f/t_s;
+
+		//place into frequency array
+		fArray[counter] = f;
+		counter++;
+		counter%=SIZE_AVG;
 	}
+	callCounter++;
+	callCounter%= 10;
 
-	//Average:
-	counter++;
-	counter %=4;
-	fArray[counter] = f;
-	avg = 0;
-	for(int i = 0; i < 4; i++)
+	//compute average
+	float avg = 0;
+	for(int i = 0; i < SIZE_AVG; i++)
 	{
 		avg += fArray[i];
 	}
-	avg = avg / 4;
+	avg = avg / SIZE_AVG;
 
 	return avg;
 }
@@ -1038,7 +1036,7 @@ void W_2DPlot::setChartAxisAutomatic(void)
 
 		// If the range is going to be equal, or overlapping,
 		// We adjust the axis to some minimum height
-		while(plot_ymin >= plot_ymax)
+		while(plot_ymax <= plot_ymin)
 		{
 			plot_ymin -= 5;
 			plot_ymax += 5;
@@ -1048,7 +1046,7 @@ void W_2DPlot::setChartAxisAutomatic(void)
 		addMargins(&plot_ymin, &plot_ymax);
 
 		//Update chart:
-		//chart->axisX()->setRange(plot_xmin, plot_xmax);
+		chart->axisX()->setRange(plot_xmin, plot_xmax);
 		chart->axisY()->setRange(plot_ymin, plot_ymax);
 
 		//Display values used:
@@ -1061,7 +1059,7 @@ bool W_2DPlot::allChannelUnused(void)
 {
 	for(int i = 0; i < VAR_NUM; i++)
 	{
-		if(vtp[i].used == true)
+		if(vtp[i].used)
 		{
 			return false;
 		}
@@ -1097,11 +1095,12 @@ void W_2DPlot::refreshStatBar(float fDisp, float fData)
 {
 	QString txt, num;
 
-	num = QString::number(fDisp, 'f', 0);
+	num = displayMode == DisplayLogData ? "--" : QString::number(fDisp, 'f', 0);
 	txt = "<font color=#808080>Display: " + num + " Hz </font>";
 	ui->label_refreshRateDisplay->setText(txt);
 
-	num = QString::number(fData, 'f', 0);
+
+	num = displayMode == DisplayLogData ? "--" : QString::number(fData, 'f', 0);
 	txt = "<font color=#808080>Data: " + num + " Hz </font>";
 	ui->label_refreshRateData->setText(txt);
 }
@@ -1150,8 +1149,11 @@ void W_2DPlot::assignVariable(uint8_t item)
 		if(displayMode == DisplayLogData)
 		{
 			saveNewPointsLog(logIndex);
-			//refresh2DPlot();
+			refresh2DPlot();
 		}
+
+		if(allChannelUnused()) drawingTimer->stop();
+		else if(!drawingTimer->isActive()) drawingTimer->start();
 }
 
 //****************************************************************************

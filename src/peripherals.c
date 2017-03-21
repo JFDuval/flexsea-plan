@@ -96,7 +96,9 @@ uint8_t decode_usb_rx(unsigned char *newdata)
 		#endif
 	}
 
-	ret = (result > 0) ? 3 : 4;
+    const int SUCCESS = 3;
+    const int FAILURE = 4;
+    ret = (result > 0) ? SUCCESS : FAILURE;
 
 	return ret;
 }

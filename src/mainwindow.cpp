@@ -106,9 +106,9 @@ MainWindow::MainWindow(QWidget *parent) :
 	W_Event::setDescription("Event Flag");
 
 	initFlexSeaDeviceObject();
-
 	//SerialDriver:
-	mySerialDriver = new SerialDriver(this);
+	mySerialDriver = new SerialDriver();
+	streamManager = new StreamManager(nullptr, mySerialDriver);
 
 	//Datalogger:
 	myDataLogger = new DataLogger(this,
@@ -121,7 +121,8 @@ MainWindow::MainWindow(QWidget *parent) :
 								  &ankle2DofLog,
 								  &testBenchLog);
 
-	streamManager = new StreamManager(this, mySerialDriver);
+	initSerialComm(mySerialDriver, streamManager);
+
 
 	//Create default objects:
 	createConfig();
@@ -135,20 +136,24 @@ MainWindow::MainWindow(QWidget *parent) :
 	connect(myDataLogger, SIGNAL(setStatusBarMessage(QString)), \
 			this, SLOT(setStatusBar(QString)));
 
-	//SerialDriver and MainWindow
-	connect(mySerialDriver, SIGNAL(setStatusBarMessage(QString)), \
-			this, SLOT(setStatusBar(QString)));
-
-	//Link SlaveComm and SerialDriver:
-	connect(mySerialDriver, SIGNAL(openStatus(bool)), \
-			this, SLOT(saveComPortStatus(bool)));
-
 	comPortStatus = false;
 }
 
 MainWindow::~MainWindow()
 {
 	delete ui;
+
+	serialThread->quit();
+	delete mySerialDriver;
+	delete streamManager;
+	delete serialThread;
+
+
+	int num2d = W_2DPlot::howManyInstance();
+	for(int i = 0; i < num2d; i++)
+	{
+		delete myView2DPlot[i];
+	}
 }
 
 void MainWindow::initFlexSeaDeviceObject(void)
@@ -235,6 +240,32 @@ void MainWindow::initFlexSeaDeviceObject(void)
 	flexseaPtrlist.append(&testBenchDevList.last());
 	testBenchFlexList.append(&testBenchDevList.last());
 	return;
+}
+
+void MainWindow::initSerialComm(SerialDriver *driver, StreamManager *manager)
+{
+//	serialThread = new QThread(this);
+//	driver->moveToThread(serialThread);
+//	manager->moveToThread(serialThread);
+//	serialThread->start(QThread::HighestPriority);
+
+	connect(driver, &SerialDriver::aboutToClose, manager, &StreamManager::onComPortClosing, Qt::DirectConnection);
+
+	//Link StreamManager/SerialDriver and DataLogger
+	connect(manager, SIGNAL(openRecordingFile(FlexseaDevice *)), \
+			myDataLogger, SLOT(openRecordingFile(FlexseaDevice *)));
+	connect(driver, SIGNAL(writeToLogFile(FlexseaDevice *)), \
+			myDataLogger, SLOT(writeToFile(FlexseaDevice *)));
+	connect(manager, SIGNAL(closeRecordingFile(FlexseaDevice*)), \
+			myDataLogger, SLOT(closeRecordingFile(FlexseaDevice*)));
+	connect(this, SIGNAL(connectorWriteCommand(uint8_t,uint8_t*,uint8_t)), \
+		manager, SLOT(enqueueCommand(uint8_t,uint8_t*)));
+
+	//SerialDriver and MainWindow
+	connect(driver, SIGNAL(setStatusBarMessage(QString)), \
+			this, SLOT(setStatusBar(QString)));
+	connect(driver, SIGNAL(openStatus(bool)), \
+			this, SLOT(saveComPortStatus(bool)));
 }
 
 //****************************************************************************
@@ -471,19 +502,16 @@ void MainWindow::createView2DPlot(void)
 	//Limited number of windows:
 	if(objectCount < (PLOT2D_WINDOWS_MAX))
 	{
-		myView2DPlot[objectCount] = new W_2DPlot(this,
+		myView2DPlot[objectCount] = new W_2DPlot(nullptr,
 												 currentFlexLog,
 												 getDisplayMode(),
 												 &flexseaPtrlist);
+
 		ui->mdiArea->addSubWindow(myView2DPlot[objectCount]);
 		myView2DPlot[objectCount]->show();
 
 		sendWindowCreatedMsg(W_2DPlot::getDescription(), objectCount,
 							 W_2DPlot::getMaxWindow() - 1);
-
-		//Fixed rate for the display, and variable rate for the data:
-		connect(mySerialDriver, SIGNAL(timerClocked()), \
-				myView2DPlot[objectCount], SLOT(refresh2DPlot()));
 
 		connect(mySerialDriver, SIGNAL(newDataReady()), \
 				myView2DPlot[objectCount], SLOT(receiveNewData()));
@@ -549,17 +577,7 @@ void MainWindow::createSlaveComm(void)
 		connect(mySerialDriver, SIGNAL(newDataTimeout(bool)), \
 				myViewSlaveComm[0], SLOT(updateIndicatorTimeout(bool)));
 
-		//Link StreamManager and DataLogger
-		connect(streamManager, SIGNAL(openRecordingFile(FlexseaDevice *)), \
-				myDataLogger, SLOT(openRecordingFile(FlexseaDevice *)));
-		connect(streamManager, SIGNAL(writeToLogFile(FlexseaDevice *)), \
-				myDataLogger, SLOT(writeToFile(FlexseaDevice *)));
-		connect(streamManager, SIGNAL(closeRecordingFile(FlexseaDevice*)), \
-				myDataLogger, SLOT(closeRecordingFile(FlexseaDevice*)));
 
-
-		connect(this, SIGNAL(connectorWriteCommand(uint8_t,uint8_t*,uint8_t)), \
-				mySerialDriver, SLOT(enqueueReadWrite(uint8_t,uint8_t*,uint8_t)));
 	}
 
 	else

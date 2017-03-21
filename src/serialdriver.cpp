@@ -40,32 +40,19 @@
 #include <QTime>
 #include <flexsea_comm.h>
 #include <flexsea_payload.h>
+#include <ctime>
+#include <w_event.h>
 
 //****************************************************************************
 // Constructor & Destructor:
 //****************************************************************************
 
-SerialDriver::SerialDriver(QWidget *parent) : QWidget(parent)
+SerialDriver::SerialDriver(QObject *parent) : QObject(parent)
 {
 	comPortOpen = false;
-
-	clockTimer = new QTimer();
-	clockTimer->setSingleShot(false);
-	clockTimer->setInterval(1);
-	clockTimer->setTimerType(Qt::PreciseTimer);
-	connect(clockTimer, &QTimer::timeout, this, &SerialDriver::handleTimeout);
 }
 
-SerialDriver::~SerialDriver()
-{
-	   if(clockTimer) delete clockTimer;
-	   clockTimer = nullptr;
-
-	   while(outgoingBuffer.size() > 0)
-	   {
-		   outgoingBuffer.pop();
-	   }
-}
+SerialDriver::~SerialDriver() {}
 //****************************************************************************
 // Public function(s):
 //****************************************************************************
@@ -74,48 +61,34 @@ SerialDriver::~SerialDriver()
 // Public slot(s):
 //****************************************************************************
 
-
-void SerialDriver::enqueueReadWrite(uint8_t numb, uint8_t* dataPacket, uint8_t r_w)
-{
-	outgoingBuffer.push(Message(numb, dataPacket, r_w));
-}
-
-void SerialDriver::handleTimeout()
-{
-	emit timerClocked();
-	if(outgoingBuffer.size() > 0)
-	{
-		Message m = outgoingBuffer.front();
-		readWrite(m.numBytes, m.dataPacket.data(), m.r_w);
-		outgoingBuffer.pop();
-	}
-}
-
 //Open port
 void SerialDriver::open(QString name, int tries, int delay, bool *success)
 {
+//    name = "/dev/ttyACM8";
 	int cnt = 0;
-	bool fd = false;
+	bool isPortOpen = false;
 	int comProgress = 0;
 
 	emit openProgress(comProgress);
 
 	USBSerialPort.setPortName(name);
-	USBSerialPort.setBaudRate(USBSerialPort.Baud115200);
+	USBSerialPort.setBaudRate(400000);
 	USBSerialPort.setDataBits(QSerialPort::Data8);
 	USBSerialPort.setParity(QSerialPort::NoParity);
 	USBSerialPort.setStopBits(QSerialPort::OneStop);
-	USBSerialPort.setFlowControl(QSerialPort::NoFlowControl);
+	USBSerialPort.setFlowControl(QSerialPort::HardwareControl);
+
+	connect(&USBSerialPort, &QSerialPort::readyRead, this, &SerialDriver::handleReadyRead);
 
 	do
 	{
-		fd = USBSerialPort.open(QIODevice::ReadWrite);  //returns true if successful
+		isPortOpen = USBSerialPort.open(QIODevice::ReadWrite);  //returns true if successful
 		cnt++;
 		if(cnt >= tries)
 			break;
 
 		//When false, print error code:
-		if(fd == false)
+		if(!isPortOpen)
 		{
 			qDebug() << "Try #" << cnt << " failed. Error: " << \
 						USBSerialPort.errorString() << ".\n";
@@ -123,10 +96,9 @@ void SerialDriver::open(QString name, int tries, int delay, bool *success)
 		}
 
 		usleep(delay);
-	}while(fd != true);
+	} while(!isPortOpen);
 
-
-	if (fd == false)
+	if (!isPortOpen)
 	{
 		qDebug() << "Tried " << cnt << " times, couldn't open " << name << ".\n";
 		emit openProgress(0);
@@ -139,93 +111,43 @@ void SerialDriver::open(QString name, int tries, int delay, bool *success)
 	{
 		qDebug() << "Successfully opened " << name << ".\n";
 		emit openProgress(100);
+
+		//Clear any data that was already in the buffers:	
+		USBSerialPort.clear((QSerialPort::AllDirections));
+
 		comPortOpen = true;
 		emit openStatus(comPortOpen);
 
-		//Clear any data that was already in the buffers:
-		//while(USBSerialPort.waitForReadyRead(100))
-		{
-			USBSerialPort.clear((QSerialPort::AllDirections));
-		}
-
 		*success = true;
-		clockTimer->start();
 	}
 }
 
 //Close port
 void SerialDriver::close(void)
 {
+	emit aboutToClose();
+
 	//Turn comm. off
 	comPortOpen = false;
 	emit openStatus(comPortOpen);
 
+	USBSerialPort.flush();
 	//Delay (for ongoing transmissions)
 	usleep(100000);
 
 	USBSerialPort.clear((QSerialPort::AllDirections));
 	USBSerialPort.close();
-
-	while(outgoingBuffer.size()) { outgoingBuffer.pop(); }
-
-	clockTimer->stop();
 }
 
-//Read
-int SerialDriver::read(unsigned char *buf)
-{
-	(void)buf;
-
-	QByteArray baData;
-	baData.resize(256);
-	bool dataReady = false;
-
-	dataReady = USBSerialPort.waitForReadyRead(USB_READ_TIMEOUT);
-	if(dataReady == true)
-	{
-		baData = USBSerialPort.readAll();
-
-		//We check to see if we are getting good packets, or a bunch of crap:
-		int len = baData.length();
-		if(len > 256)
-		{
-			qDebug() << "Data length over 256 bytes (" << len << "bytes)";
-			len = 256;
-			USBSerialPort.clear((QSerialPort::AllDirections));
-			emit dataStatus(0, DATAIN_STATUS_RED);
-			return 0;
-		}
-
-		//qDebug() << "Read" << len << "bytes.";
-
-		//Fill the rx buf with our new bytes:
-		update_rx_buf_array_usb((uint8_t *)baData.data(), len);
-		commPeriph[PORT_USB].rx.bytesReadyFlag = 1;
-	}
-	else
-	{
-		//qDebug("No USB bytes available.");
-		emit dataStatus(0, DATAIN_STATUS_RED);
-		return 0;
-	}
-
-	//Notify user in GUI:
-	emit dataStatus(0, DATAIN_STATUS_GREEN);   //***ToDo: support 4 channels
-	emit newDataTimeout(true); //Reset counter
-	return 1;
-}
-
-//Write
-int SerialDriver::write(char bytes_to_send, unsigned char *serial_tx_data)
+int SerialDriver::write(uint8_t bytes_to_send, uint8_t *serial_tx_data)
 {
 	qint64 write_ret = 0;
-	QByteArray myQBArray;
-	myQBArray = QByteArray::fromRawData((const char*)serial_tx_data, bytes_to_send);
 
 	//Check if COM was successfully opened:
 
-	if(comPortOpen == true)
+	if(comPortOpen)
 	{
+        QByteArray myQBArray = QByteArray::fromRawData((const char*)serial_tx_data, bytes_to_send);
 		write_ret = USBSerialPort.write(myQBArray);
 	}
 	else
@@ -238,41 +160,146 @@ int SerialDriver::write(char bytes_to_send, unsigned char *serial_tx_data)
 	return (int) write_ret;
 }
 
-void SerialDriver::readWrite(uint8_t numb, uint8_t *dataPacket, uint8_t r_w)
+FlexseaDevice* SerialDriver::getDeviceById(uint8_t slaveId)
 {
-	/*	For Bench marking
-	static QTime lastTime = QTime::currentTime();
-	static double lp_msecs = 0;
-	QTime currTime = QTime::currentTime();
-	int msecs = lastTime.msecsTo(currTime);
-	lastTime = currTime;
-	lp_msecs = 0.1*msecs + 0.9*lp_msecs;
-	//lp_msecs = msecs;
-	static int debugCount = 0;
-	debugCount++;
-	debugCount%=100;
-	if(debugCount == 0)
+	for(unsigned int i = 0; i < devices.size(); i++)
 	{
-		qDebug() << "Period in msecs: " << lp_msecs << ", frequency: " << 1000.0 / lp_msecs;
+		if(devices.at(i)->slaveID == slaveId)
+			return devices.at(i);
 	}
+	return nullptr;
+}
+
+void SerialDriver::handleReadyRead()
+{
+	/*	Below code benchmarks the read stream proess
+	 *  Measures the time between reads, low passes, periodically qDebug()'s it
+	 * (use ctime lib instead of QTime because somehow QTime is so inefficient it changes the speed
+	 *
+	static float streamPeriod = 0;
+	static clock_t tLast = clock();
+	clock_t tCurr = clock();
+	float periodInSecs = (float)(tCurr - tLast) / CLOCKS_PER_SEC;
+	tLast = tCurr;
+
+	streamPeriod = 0.9 * streamPeriod + 0.1 * periodInSecs;
+	float  frequency = 1 / streamPeriod;
+
+	static int count = 0;
+	count++;
+	if(frequency < 70)
+		count%=100;
+	else
+		count%=200;
+
+	if(!count)
+		qDebug() << "Estimated period of reads: " << streamPeriod << ", frequency: " << frequency;
 	*/
-	write(numb, dataPacket);
-	//qDebug() << dataPacket;
 
-	//Should we look for a reply?
-	if(r_w == READ)
+    QByteArray baData;
+    baData.resize(MAX_SERIAL_RX_LEN);
+    largeRxBufferLatestTransfer = 0;
+    baData = USBSerialPort.readAll();
+
+    //We check to see if we are getting good packets, or a bunch of crap:
+    int len = baData.length();
+    if(len < 1) return;
+    if(len > MAX_SERIAL_RX_LEN)
+    {
+        //qDebug() << "Data length over " << MAX_SERIAL_RX_LEN << " bytes (" << len << "bytes)";
+        len = MAX_SERIAL_RX_LEN;
+        USBSerialPort.clear((QSerialPort::AllDirections));
+        emit dataStatus(0, DATAIN_STATUS_RED);
+        return;
+    }
+
+    uint8_t numBuffers = (len / 48) + (len % 48 != 0);
+
+    //qDebug() << "Read" << len << "bytes (" << fullBuffers << "full buffer(s)).";
+
+    //Fill the rx buf with our new bytes:
+    memcpy(largeRxBuffer, (uint8_t *)baData.data(), len);
+    largeRxBufferLatestTransfer = len;
+
+    int16_t remainingBytes = len;
+
+    int successes = 0, failures = 0;
+    for(int i = 0; i < numBuffers; i++)
+    {
+        if(remainingBytes >= CHUNK_SIZE)
+        {
+            remainingBytes -= CHUNK_SIZE;
+            update_rx_buf_array_usb(&largeRxBuffer[i*CHUNK_SIZE], CHUNK_SIZE);
+
+            //Try decoding:
+            commPeriph[PORT_USB].rx.bytesReadyFlag = 1;
+            bool wasError = (decode_usb_rx(usb_rx) == 4);
+            if(wasError) { failures++; }
+            else
+            {
+                successes++;
+                //Update appropriate FlexseaDevice
+                uint8_t slaveId = packet[PORT_USB][INBOUND].unpaked[P_XID];
+                FlexseaDevice* device = getDeviceById(slaveId);
+                if(device)
+                {
+                    device->decodeLastLine();
+                    if(device->isCurrentlyLogging)
+                    {
+                        device->applyTimestamp();
+                        device->eventFlags.last() = W_Event::getEventCode();
+                        emit writeToLogFile(device);
+                    }
+                }
+                emit newDataReady();
+            }
+
+        }
+        else
+        {
+            update_rx_buf_array_usb(&largeRxBuffer[i*CHUNK_SIZE], remainingBytes);
+//				sumOfBytes += remainingBytes;
+            //Try decoding:
+            decode_usb_rx(usb_rx);
+            emit newDataReady();
+        }
+    }
+
+//		qDebug() << "Copied" << sumOfBytes << "bytes";
+
+		//Notify user in GUI:
+    if(!successes && failures)
+        emit dataStatus(0, DATAIN_STATUS_RED);   //***ToDo: support 4 channels
+    else if(!failures && successes)
+        emit dataStatus(0, DATAIN_STATUS_GREEN);
+    else
+        emit dataStatus(0, DATAIN_STATUS_YELLOW);
+
+    if(successes)
+        emit newDataTimeout(true); //Reset counter
+
+	return;
+}
+
+void SerialDriver::addDevice(FlexseaDevice* device)
+{
+	if(!device) return;
+
+	bool alreadyContainDevice = false;
+	for(unsigned int i = 0; i < devices.size(); i++)
 	{
-		//Status to Yellow before we get the reply:
-		emit dataStatus(0, DATAIN_STATUS_YELLOW);
-
-		//Did we receive data? Can we decode it?
-		if(read(usb_rx))
+		if(devices.at(i) == device)
 		{
-			decode_usb_rx(usb_rx);
-			emit newDataReady();
+			alreadyContainDevice = true;
+			i = devices.size();
 		}
 	}
+	if(!alreadyContainDevice)
+	{
+		devices.push_back(device);
+	}
 }
+
 //****************************************************************************
 // Private function(s):
 //****************************************************************************
