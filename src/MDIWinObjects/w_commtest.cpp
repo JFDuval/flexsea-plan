@@ -156,13 +156,13 @@ void W_CommTest::initCommon(void)
 //First tab: Plan <> Device test
 void W_CommTest::initTab1(void)
 {
-
+	ui->label_info_tab1->setText("Test the communication between \nPlan and a device connected \nvia USB, Bluetooth, SPI, ...");
 }
 
 //Second tab: Manage <> Execute test
 void W_CommTest::initTab2(void)
 {
-
+	ui->label_info_tab2->setText("Test the communication between \nPlan and a slave connected \nto Manage (RS-485).");
 }
 
 void W_CommTest::initTimers(void)
