@@ -62,6 +62,8 @@ void initLocalComm(void)
 			comm_str_1, rx_command_1, &packet[PORT_USB][INBOUND], \
 			&packet[PORT_USB][OUTBOUND]);
 
+    circ_buff_init(&rx_buf_circ_1);
+
 	//Personalize specific fields:
 	//...
 }
@@ -82,7 +84,10 @@ uint8_t decode_usb_rx(unsigned char *newdata)
 	{
 		commPeriph[PORT_USB].rx.unpackedPacketsAvailable = 0;
 		result = payload_parse_str(&packet[PORT_USB][INBOUND]);
-
+        if(result != 2)
+        {
+            printf("GoofyGoof\n");
+        }
 		#ifdef USE_PRINTF
 		//printf("[Received a valid comm_str!]\n");
 		ret = 0;
