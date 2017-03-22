@@ -320,6 +320,15 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>comboBox_slave</tabstop>
+  <tabstop>pbFindPoles</tabstop>
+  <tabstop>pbSavePoles</tabstop>
+  <tabstop>pbCurrentRead</tabstop>
+  <tabstop>pbCurrentFind</tabstop>
+  <tabstop>lineEditCurrentFind</tabstop>
+  <tabstop>pbCurrentSave</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>
