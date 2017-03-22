@@ -6,11 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-<<<<<<< Updated upstream
     <width>799</width>
-=======
-    <width>841</width>
->>>>>>> Stashed changes
     <height>311</height>
    </rect>
   </property>
@@ -1383,15 +1379,12 @@
       <layout class="QGridLayout" name="gridLayout_8">
        <item row="0" column="1">
         <widget class="QLabel" name="label_8">
-<<<<<<< Updated upstream
          <property name="sizePolicy">
           <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
          </property>
-=======
->>>>>>> Stashed changes
          <property name="minimumSize">
           <size>
            <width>25</width>
@@ -1430,15 +1423,12 @@
        </item>
        <item row="0" column="0">
         <widget class="QLabel" name="label_7">
-<<<<<<< Updated upstream
          <property name="sizePolicy">
           <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
          </property>
-=======
->>>>>>> Stashed changes
          <property name="minimumSize">
           <size>
            <width>25</width>

@@ -97,7 +97,7 @@ SOURCES += src/main.cpp \
 	flexsea-system/src/flexsea_cmd_tools.c \
 	flexsea-system/src/flexsea_cmd_in_control.c \
 	flexsea-system/src/flexsea_cmd_stream.c \
-	flexsea-system/test/test-flexsea_system.c  \
+	flexsea-system/test/test-flexsea_system.c \
 	flexsea-system/test/flexsea-system_test-all.c \
 	flexsea-system/test/test-flexsea_cmd_data.c \
 	flexsea-system/test/test-flexsea_cmd_external.c \
@@ -164,7 +164,6 @@ HEADERS  += inc/main.h \
 	flexsea-user/inc/dynamic_user_structs.h \
 	flexsea-comm/inc/flexsea.h \
 	flexsea-comm/inc/flexsea_comm_def.h \
-	flexsea-comm/inc/default_config.h \
 	flexsea-comm/inc/flexsea_buffers.h \
 	flexsea-comm/inc/flexsea_circular_buffer.h \
 	flexsea-comm/inc/flexsea_comm.h \
@@ -232,7 +231,7 @@ DISTFILES += \
 	flexsea-shared/unity/readme.txt \
 	flexsea-shared/flexsea.gitignore \
 	flexsea-shared/GPL-3.0.txt \
-	flexsea-system/flexsea.gitignore \
+	flexsea-system/.gitignore \
 	flexsea-system/GPL-3.0.txt \
 	.gitignore \
 	.gitmodules \
