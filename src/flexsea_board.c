@@ -82,6 +82,32 @@ void flexsea_send_serial_master(PacketWrapper *p)
 
 }
 
+uint8_t getBoardID(void)
+{
+	return board_id;
+}
+
+uint8_t getBoardUpID(void)
+{
+	return board_up_id;
+}
+
+uint8_t getBoardSubID(uint8_t sub, uint8_t idx)
+{
+	if(sub == 0){return board_sub1_id[idx];}
+	else if(sub == 1){return board_sub2_id[idx];}
+
+	return 0;
+}
+
+uint8_t getSlaveCnt(uint8_t sub)
+{
+	if(sub == 0){return SLAVE_BUS_1_CNT;}
+	else if(sub == 1){return SLAVE_BUS_2_CNT;}
+
+	return 0;
+}
+
 #ifdef __cplusplus
 }
 #endif

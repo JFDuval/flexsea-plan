@@ -37,9 +37,8 @@ extern "C" {
 //****************************************************************************
 
 #include <flexsea_buffers.h>
-#include "flexsea_payload.h"
+#include "../flexsea-comm/inc/flexsea_payload.h"
 #include <flexsea_comm.h>
-#include "main.h"
 #include "peripherals.h"
 
 //****************************************************************************
@@ -96,9 +95,9 @@ uint8_t decode_usb_rx(unsigned char *newdata)
 		#endif
 	}
 
-    const int SUCCESS = 3;
-    const int FAILURE = 4;
-    ret = (result > 0) ? SUCCESS : FAILURE;
+	const int SUCCESS = 3;
+	const int FAILURE = 4;
+	ret = (result > 0) ? SUCCESS : FAILURE;
 
 	return ret;
 }

@@ -5,6 +5,8 @@
 #include <flexsea_cmd_data.h>
 #include <flexsea_cmd_in_control.h>
 #include <flexsea_cmd_stream.h>
+#include "../flexsea-user/inc/flexsea_cmd_user.h"
+#include <flexsea_board.h>
 #include <w_event.h>
 #include <QDebug>
 
@@ -62,7 +64,7 @@ void StreamManager::startStreaming(int cmd, int slave, int freq, bool shouldLog,
 
 		serialDriver->addDevice(device);
 
-        CmdSlaveRecord record(cmd, slave, shouldLog, device);
+		CmdSlaveRecord record(cmd, slave, shouldLog, device);
 		streamLists[indexOfFreq].push_back(record);
 		qDebug() << "Started streaming cmd: " << cmd << ", for slave id: " << slave << "at frequency: " << freq;
 		clockTimer->start();

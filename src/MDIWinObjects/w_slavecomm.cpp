@@ -43,6 +43,8 @@
 #include <QDateTime>
 #include <QString>
 #include <flexsea_comm.h>
+#include "../flexsea-user/inc/flexsea_cmd_user.h"
+
 //****************************************************************************
 // Constructor & Destructor:
 //****************************************************************************

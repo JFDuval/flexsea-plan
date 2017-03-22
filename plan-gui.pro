@@ -24,27 +24,7 @@ INCLUDEPATH += inc \
 
 SOURCES += src/main.cpp \
 	src/mainwindow.cpp \
-	flexsea-comm/src/flexsea.c \
-	flexsea-comm/src/flexsea_buffers.c \
-	flexsea-comm/src/flexsea_comm.c \
-	flexsea-comm/src/flexsea_payload.c \
-	flexsea-comm/test/flexsea-comm_test-all.c \
-	flexsea-comm/test/test-flexsea.c \
-	flexsea-comm/test/test-flexsea_buffers.c \
-	flexsea-comm/test/test-flexsea_comm.c \
-	flexsea-comm/test/test-flexsea_payload.c \
-	flexsea-system/src/flexsea_cmd_data.c \
-	flexsea-system/src/flexsea_cmd_external.c \
-	flexsea-system/src/flexsea_cmd_sensors.c \
-	flexsea-system/src/flexsea_cmd_calibration.c \
-	flexsea-system/src/flexsea_system.c \
-	flexsea-system/src/flexsea_global_structs.c \
-	flexsea-system/test/test-flexsea_system.c  \
 	flexsea-shared/unity/unity.c \
-	flexsea-system/test/flexsea-system_test-all.c \
-	flexsea-system/test/test-flexsea_cmd_data.c \
-	flexsea-system/test/test-flexsea_cmd_external.c \
-	flexsea-system/test/test-flexsea_cmd_sensors.c \
 	src/MDIWinObjects/w_2dplot.cpp \
 	src/MDIWinObjects/w_anycommand.cpp \
 	src/MDIWinObjects/w_battery.cpp \
@@ -66,10 +46,6 @@ SOURCES += src/main.cpp \
 	flexsea-user/src/flexsea_cmd_user.c \
 	flexsea-user/MIT_2DoF_Ankle_v1/src/cmd-MIT_2DoF_Ankle_v1.c \
 	flexsea-user/RICNU_Knee_v1/src/cmd-RICNU_Knee_v1.c \
-	flexsea-system/src/flexsea_cmd_control_1.c \
-	flexsea-system/src/flexsea_cmd_control_2.c \
-	flexsea-system/test/test-flexsea_cmd_control_1.c \
-	flexsea-system/test/test-flexsea_cmd_control_2.c \
 	flexsea-user/test/flexsea-user_test-all.c \
 	flexsea-user/test/test-cmd_user.c \
 	src/MDIWinObjects/w_config.cpp \
@@ -93,35 +69,47 @@ SOURCES += src/main.cpp \
 	flexsea-user/src/user-mn.c \
 	src/MDIWinObjects/w_testbench.cpp \
 	src/MDIWinObjects/w_commtest.cpp \
-	flexsea-system/src/flexsea_cmd_tools.c \
-	flexsea-system/test/test-flexsea_cmd_tools.c \
 	src/FlexSEADevice/ricnuProject.cpp \
 	src/FlexSEADevice/ankle2DofProject.cpp \
 	src/FlexSEADevice/testBenchProject.cpp \
 	src/streammanager.cpp \
 	src/MDIWinObjects/w_incontrol.cpp \
-	flexsea-system/src/flexsea_cmd_in_control.c \
 	src/MDIWinObjects/w_event.cpp \
+	flexsea-user/src/dynamic_user_structs_plan.c \
+	flexsea-comm/src/flexsea.c \
+	flexsea-comm/src/flexsea_buffers.c \
+	flexsea-comm/src/flexsea_circular_buffer.c \
+	flexsea-comm/src/flexsea_comm.c \
+	flexsea-comm/src/flexsea_payload.c \
+	flexsea-comm/test/flexsea-comm_test-all.c \
+	flexsea-comm/test/test-flexsea.c \
+	flexsea-comm/test/test-flexsea_buffers.c \
+	flexsea-comm/test/test-flexsea_comm.c \
+	flexsea-comm/test/test-flexsea_payload.c \
+	flexsea-system/src/flexsea_system.c \
+	flexsea-system/src/flexsea_global_structs.c \
+	flexsea-system/src/flexsea_cmd_data.c \
+	flexsea-system/src/flexsea_cmd_external.c \
+	flexsea-system/src/flexsea_cmd_sensors.c \
+	flexsea-system/src/flexsea_cmd_calibration.c \
+	flexsea-system/src/flexsea_cmd_control_1.c \
+	flexsea-system/src/flexsea_cmd_control_2.c \
+	flexsea-system/src/flexsea_cmd_tools.c \
+	flexsea-system/src/flexsea_cmd_in_control.c \
 	flexsea-system/src/flexsea_cmd_stream.c \
-	flexsea-user/src/dynamic_user_structs_plan.c
+	flexsea-system/test/test-flexsea_system.c  \
+	flexsea-system/test/flexsea-system_test-all.c \
+	flexsea-system/test/test-flexsea_cmd_data.c \
+	flexsea-system/test/test-flexsea_cmd_external.c \
+	flexsea-system/test/test-flexsea_cmd_sensors.c \
+	flexsea-system/test/test-flexsea_cmd_control_1.c \
+	flexsea-system/test/test-flexsea_cmd_control_2.c \
+	flexsea-system/test/test-flexsea_cmd_tools.c
 
 HEADERS  += inc/main.h \
 	inc/mainwindow.h \
-	flexsea-comm/inc/flexsea.h \
-	flexsea-comm/inc/flexsea_buffers.h \
-	flexsea-comm/inc/flexsea_comm.h \
-	flexsea-comm/inc/flexsea_payload.h \
-	flexsea-comm/test/flexsea-comm_test-all.h \
-	flexsea-system/inc/flexsea_cmd_control.h \
-	flexsea-system/inc/flexsea_cmd_data.h \
-	flexsea-system/inc/flexsea_cmd_external.h \
-	flexsea-system/inc/flexsea_cmd_sensors.h \
-	flexsea-system/inc/flexsea_cmd_calibration.h \
-	flexsea-system/inc/flexsea_system.h \
-	flexsea-system/inc/flexsea_global_structs.h \
 	flexsea-shared/unity/unity.h \
 	flexsea-shared/unity/unity_internals.h \
-	flexsea-system/test/flexsea-system_test-all.h \
 	inc/datalogger.h \
 	inc/trapez.h \
 	inc/serialdriver.h \
@@ -167,17 +155,34 @@ HEADERS  += inc/main.h \
 	flexsea-user/RICNU_Knee_v1/inc/user-mn-RICNU_Knee_v1.h \
 	inc/MDIWinObjects/w_commtest.h \
 	inc/MDIWinObjects/w_testbench.h \
-	flexsea-system/inc/flexsea_cmd_tools.h \
 	inc/FlexSEADevice/ricnuProject.h \
 	inc/FlexSEADevice/ankle2DofProject.h \
 	inc/FlexSEADevice/testBenchProject.h \
 	inc/streammanager.h \
 	inc/MDIWinObjects/w_incontrol.h \
-	flexsea-system/inc/flexsea_cmd_in_control.h \
 	inc/MDIWinObjects/w_event.h \
-	flexsea-system/inc/flexsea_cmd_stream.h \
+	flexsea-user/inc/dynamic_user_structs.h \
+	flexsea-comm/inc/flexsea.h \
+	flexsea-comm/inc/flexsea_comm_def.h \
+	flexsea-comm/inc/default_config.h \
+	flexsea-comm/inc/flexsea_buffers.h \
+	flexsea-comm/inc/flexsea_circular_buffer.h \
+	flexsea-comm/inc/flexsea_comm.h \
+	flexsea-comm/inc/flexsea_payload.h \
+	flexsea-comm/test/flexsea-comm_test-all.h \
+	flexsea-system/inc/flexsea_system.h \
+	flexsea-system/inc/flexsea_sys_def.h \
+	flexsea-system/inc/flexsea_global_structs.h \
 	flexsea-system/inc/flexsea_dataformats.h \
-	flexsea-user/inc/dynamic_user_structs.h
+	flexsea-system/inc/flexsea_cmd_data.h \
+	flexsea-system/inc/flexsea_cmd_external.h \
+	flexsea-system/inc/flexsea_cmd_sensors.h \
+	flexsea-system/inc/flexsea_cmd_calibration.h \
+	flexsea-system/inc/flexsea_cmd_control.h \
+	flexsea-system/inc/flexsea_cmd_tools.h \
+	flexsea-system/inc/flexsea_cmd_in_control.h \
+	flexsea-system/inc/flexsea_cmd_stream.h \
+	flexsea-system/test/flexsea-system_test-all.h
 
 FORMS    += ui/mainwindow.ui \
 	ui/w_execute.ui \
