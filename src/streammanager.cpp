@@ -23,7 +23,7 @@ StreamManager::StreamManager(QObject *parent, SerialDriver* driver) :
 		streamLists[i] = std::vector<CmdSlaveRecord>();
 	}
 
-	clockPeriod = 5;
+    clockPeriod = 2;
 	clockTimer = new QTimer();
 	clockTimer->setTimerType(Qt::PreciseTimer);
 	clockTimer->setSingleShot(false);

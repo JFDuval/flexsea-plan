@@ -64,7 +64,7 @@ SerialDriver::~SerialDriver() {}
 //Open port
 void SerialDriver::open(QString name, int tries, int delay, bool *success)
 {
-//    name = "/dev/ttyACM8";
+//    name = "/dev/ttyACM9";
 	int cnt = 0;
 	bool isPortOpen = false;
 	int comProgress = 0;
@@ -243,16 +243,24 @@ void SerialDriver::handleReadyRead()
 	int numMessagesExpected = numBuffers - 1 - (len % 48 != 0);
     for(int i = 0; i < numBuffers; i++)
     {
+        int circBufWriteResult = 0;
 		if(remainingBytes > CHUNK_SIZE)
         {
 			remainingBytes -= CHUNK_SIZE;
-			update_rx_buf_usb(&largeRxBuffer[i*CHUNK_SIZE], CHUNK_SIZE);
+            circBufWriteResult = update_rx_buf_usb(&largeRxBuffer[i*CHUNK_SIZE], CHUNK_SIZE);
 		}
 		else
-		{
-			update_rx_buf_usb(&largeRxBuffer[i*CHUNK_SIZE], remainingBytes);
+        {
+            circBufWriteResult = update_rx_buf_usb(&largeRxBuffer[i*CHUNK_SIZE], remainingBytes);
 			remainingBytes = 0;
 		}
+
+        bool msgToBig = circBufWriteResult == 1;
+        QString bigString = "Message Bigger Than Buffer";
+        QString owString = "Overwrote";
+
+        if(circBufWriteResult)
+            qDebug() << "Circular Buff Error: " << (msgToBig ? bigString : owString);
 
 		CommPeriph* cp = &commPeriph[PORT_USB];
 		PacketWrapper* pw = &packet[PORT_USB][INBOUND];
@@ -282,13 +290,15 @@ void SerialDriver::handleReadyRead()
 		} while(successfulParse);
     }
 
-	// Notify user in GUI: ... TODO: support 4 channels
-	if(numMessagesReceived >= numMessagesExpected)
-		emit dataStatus(0, DATAIN_STATUS_GREEN);
-	else if(numMessagesReceived == 0)
-		emit dataStatus(0, DATAIN_STATUS_RED);
-	else
-		emit dataStatus(0, DATAIN_STATUS_YELLOW);
+//    qDebug() << "NumBytes: " << len << ", Msgs Rcvd: " << numMessagesReceived << ", Expctd: " << numMessagesExpected;
+
+    // Notify user in GUI: ... TODO: support 4 channels
+    if(numMessagesReceived >= numMessagesExpected)
+        emit dataStatus(0, DATAIN_STATUS_GREEN);
+    else if(numMessagesReceived == 0)
+        emit dataStatus(0, DATAIN_STATUS_RED);
+    else
+        emit dataStatus(0, DATAIN_STATUS_YELLOW);
 
 	if(numMessagesReceived)
         emit newDataTimeout(true); //Reset counter
