@@ -170,6 +170,24 @@ FlexseaDevice* SerialDriver::getDeviceById(uint8_t slaveId)
 	return nullptr;
 }
 
+void SerialDriver::signalSuccessfulParse()
+{
+	//Update appropriate FlexseaDevice
+	uint8_t slaveId = packet[PORT_USB][INBOUND].unpaked[P_XID];
+	FlexseaDevice* device = getDeviceById(slaveId);
+	if(device)
+	{
+		device->decodeLastLine();
+		if(device->isCurrentlyLogging)
+		{
+			device->applyTimestamp();
+			device->eventFlags.last() = W_Event::getEventCode();
+			emit writeToLogFile(device);
+		}
+	}
+	emit newDataReady();
+}
+
 void SerialDriver::handleReadyRead()
 {
 	/*	Below code benchmarks the read stream proess
@@ -223,60 +241,60 @@ void SerialDriver::handleReadyRead()
 
     int16_t remainingBytes = len;
 
-    int successes = 0, failures = 0;
+	int numMessagesReceived = 0;
+	int numMessagesExpected = numBuffers - 1 - (len % 48 != 0);
     for(int i = 0; i < numBuffers; i++)
     {
-        if(remainingBytes >= CHUNK_SIZE)
+		if(remainingBytes > CHUNK_SIZE)
         {
 			remainingBytes -= CHUNK_SIZE;
-			//update_rx_buf_array_usb(&largeRxBuffer[i*CHUNK_SIZE], CHUNK_SIZE);
 			update_rx_buf_usb(&largeRxBuffer[i*CHUNK_SIZE], CHUNK_SIZE);
+		}
+		else
+		{
+			update_rx_buf_array_usb(&largeRxBuffer[i*CHUNK_SIZE], remainingBytes);
+			remainingBytes = 0;
+		}
 
-            //Try decoding:
-            commPeriph[PORT_USB].rx.bytesReadyFlag = 1;
-			bool wasError = (decode_usb_rx(nullptr) == 4);
-            if(wasError) { failures++; }
-            else
-            {
-                successes++;
-                //Update appropriate FlexseaDevice
-                uint8_t slaveId = packet[PORT_USB][INBOUND].unpaked[P_XID];
-                FlexseaDevice* device = getDeviceById(slaveId);
-                if(device)
-                {
-                    device->decodeLastLine();
-                    if(device->isCurrentlyLogging)
-                    {
-                        device->applyTimestamp();
-                        device->eventFlags.last() = W_Event::getEventCode();
-                        emit writeToLogFile(device);
-                    }
-                }
-                emit newDataReady();
-            }
+		CommPeriph* cp = &commPeriph[PORT_USB];
+		PacketWrapper* pw = &packet[PORT_USB][INBOUND];
 
-        }
-        else
-        {
-            update_rx_buf_array_usb(&largeRxBuffer[i*CHUNK_SIZE], remainingBytes);
-//				sumOfBytes += remainingBytes;
-            //Try decoding:
-            decode_usb_rx(usb_rx);
-            emit newDataReady();
-        }
+		bool successfulParse = false;
+		int numBytesConverted;
+		do {
+			successfulParse = false;
+
+			numBytesConverted = unpack_payload_cb(\
+					&rx_buf_circ_1, \
+					cp->rx.packedPtr, \
+					cp->rx.unpackedPtr);
+
+			if(numBytesConverted > 0)
+			{
+				circ_buff_move_head(&rx_buf_circ_1, numBytesConverted);
+				fillPacketFromCommPeriph(cp, pw);
+				successfulParse = 2 == payload_parse_str(&packet[PORT_USB][INBOUND]);
+			}
+
+			if(successfulParse)
+			{
+				signalSuccessfulParse();
+				numMessagesReceived++;
+			}
+		} while(successfulParse);
     }
 
 //		qDebug() << "Copied" << sumOfBytes << "bytes";
 
 		//Notify user in GUI:
-    if(!successes && failures)
+	if(numMessagesReceived == 0)
         emit dataStatus(0, DATAIN_STATUS_RED);   //***ToDo: support 4 channels
-    else if(!failures && successes)
-        emit dataStatus(0, DATAIN_STATUS_GREEN);
+	else if(numMessagesExpected > numMessagesReceived)
+		emit dataStatus(0, DATAIN_STATUS_YELLOW);
     else
-        emit dataStatus(0, DATAIN_STATUS_YELLOW);
+		emit dataStatus(0, DATAIN_STATUS_GREEN);
 
-    if(successes)
+	if(numMessagesReceived)
         emit newDataTimeout(true); //Reset counter
 
 	return;

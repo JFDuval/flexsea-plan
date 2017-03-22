@@ -82,6 +82,8 @@ private:
 	std::vector<FlexseaDevice*> devices;
 	FlexseaDevice* getDeviceById(uint8_t slaveId);
 
+	void signalSuccessfulParse();
+
 signals:
 	void timerClocked(void);
 	void openProgress(int val);
