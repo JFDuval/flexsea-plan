@@ -132,7 +132,6 @@ void W_SlaveComm::initExperimentList(void)
 	readAllTargetList.append(*executeDevList);
 	readAllTargetList.append(*manageDevList);
 	readAllTargetList.append(*gossipDevList);
-	readAllTargetList.append(*batteryDevList);
 	readAllTargetList.append(*strainDevList);
 
 	inControlTargetList.append(*executeDevList);
