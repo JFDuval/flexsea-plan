@@ -233,8 +233,6 @@ void SerialDriver::handleReadyRead()
 
     uint8_t numBuffers = (len / 48) + (len % 48 != 0);
 
-    //qDebug() << "Read" << len << "bytes (" << fullBuffers << "full buffer(s)).";
-
     //Fill the rx buf with our new bytes:
     memcpy(largeRxBuffer, (uint8_t *)baData.data(), len);
     largeRxBufferLatestTransfer = len;
@@ -252,7 +250,7 @@ void SerialDriver::handleReadyRead()
 		}
 		else
 		{
-			update_rx_buf_array_usb(&largeRxBuffer[i*CHUNK_SIZE], remainingBytes);
+			update_rx_buf_usb(&largeRxBuffer[i*CHUNK_SIZE], remainingBytes);
 			remainingBytes = 0;
 		}
 
@@ -284,15 +282,13 @@ void SerialDriver::handleReadyRead()
 		} while(successfulParse);
     }
 
-//		qDebug() << "Copied" << sumOfBytes << "bytes";
-
-		//Notify user in GUI:
-	if(numMessagesReceived == 0)
-        emit dataStatus(0, DATAIN_STATUS_RED);   //***ToDo: support 4 channels
-	else if(numMessagesExpected > numMessagesReceived)
-		emit dataStatus(0, DATAIN_STATUS_YELLOW);
-    else
+	// Notify user in GUI: ... TODO: support 4 channels
+	if(numMessagesReceived >= numMessagesExpected)
 		emit dataStatus(0, DATAIN_STATUS_GREEN);
+	else if(numMessagesReceived == 0)
+		emit dataStatus(0, DATAIN_STATUS_RED);
+	else
+		emit dataStatus(0, DATAIN_STATUS_YELLOW);
 
 	if(numMessagesReceived)
         emit newDataTimeout(true); //Reset counter
