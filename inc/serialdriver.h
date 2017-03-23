@@ -76,8 +76,7 @@ private:
 	QSerialPort USBSerialPort;
 	bool comPortOpen;
 	unsigned char usb_rx[256];
-    uint8_t largeRxBuffer[MAX_SERIAL_RX_LEN];
-	int16_t largeRxBufferLatestTransfer;
+	uint8_t *largeRxBuffer;
 
 	std::vector<FlexseaDevice*> devices;
 	FlexseaDevice* getDeviceById(uint8_t slaveId);

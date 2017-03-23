@@ -329,7 +329,8 @@ void StreamManager::sendCommandBattery(uint8_t slaveId)
 
 void StreamManager::sendCommandTestBench(uint8_t slaveId)
 {
-	static int index = 0;
+	(void)slaveId;
+	//	static int index = 0;
 
 //	//1) Stream
 //	motor_dto dto;

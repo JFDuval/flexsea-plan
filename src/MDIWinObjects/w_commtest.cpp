@@ -51,7 +51,8 @@
 W_CommTest::W_CommTest(QWidget *parent,
 					   bool comStatusInit) :
 	QWidget(parent),
-	ui(new Ui::W_CommTest)
+	ui(new Ui::W_CommTest),
+	serialDriver(nullptr)
 {
 	ui->setupUi(this);
 
@@ -81,9 +82,7 @@ W_CommTest::~W_CommTest()
 //This slot gets called when the port status changes (turned On or Off)
 void W_CommTest::receiveComPortStatus(bool status)
 {
-	sc_comPortOpen = status;
-
-	if(sc_comPortOpen == false)
+	if(!status)
 	{
 		//PushButton:
 		ui->pushButtonReset->setDisabled(true);
@@ -191,7 +190,9 @@ void W_CommTest::readCommTest(void)
 	//Prepare and send command:
 	tx_cmd_tools_comm_test_r(TX_N_DEFAULT, 1, 20, packetIndex);
 	pack(P_AND_S_DEFAULT, active_slave, info, &numb, comm_str_usb);
-	emit writeCommand(numb, comm_str_usb, READ);
+
+	if(serialDriver && serialDriver->isOpen())
+	{ 	serialDriver->write(numb, comm_str_usb);	}
 
 	//FlexSEA_Generic::packetVisualizer(numb, comm_str_usb);
 	measuredRefreshSend = getRefreshRateSend();
@@ -332,7 +333,7 @@ void W_CommTest::startStopComTest(bool forceStop)
 		status = true;
 	}
 
-	if(status == false)
+	if(status == false && serialDriver && serialDriver->isOpen())
 	{
 		//We were showing Start.
 		ui->pushButtonStartStop->setText("Stop test");

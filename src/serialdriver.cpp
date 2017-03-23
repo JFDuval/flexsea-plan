@@ -215,9 +215,7 @@ void SerialDriver::handleReadyRead()
 	*/
 
     QByteArray baData;
-    baData.resize(MAX_SERIAL_RX_LEN);
-    largeRxBufferLatestTransfer = 0;
-    baData = USBSerialPort.readAll();
+	baData = USBSerialPort.readAll();
 
     //We check to see if we are getting good packets, or a bunch of crap:
     int len = baData.length();
@@ -231,42 +229,30 @@ void SerialDriver::handleReadyRead()
         return;
     }
 
-    uint8_t numBuffers = (len / 48) + (len % 48 != 0);
-
-    //Fill the rx buf with our new bytes:
-    memcpy(largeRxBuffer, (uint8_t *)baData.data(), len);
-    largeRxBufferLatestTransfer = len;
+	uint8_t numBuffers = (len / CHUNK_SIZE) + (len % CHUNK_SIZE != 0);
+	largeRxBuffer = (uint8_t*)baData.data();
 
     int16_t remainingBytes = len;
 
 	int numMessagesReceived = 0;
-	int numMessagesExpected = numBuffers - 1 - (len % 48 != 0);
+	int numMessagesExpected = (len / COMM_STR_BUF_LEN);
+	uint16_t bytesToWrite;
+	int error;
     for(int i = 0; i < numBuffers; i++)
     {
-        int circBufWriteResult = 0;
-		if(remainingBytes > CHUNK_SIZE)
-        {
-			remainingBytes -= CHUNK_SIZE;
-            circBufWriteResult = update_rx_buf_usb(&largeRxBuffer[i*CHUNK_SIZE], CHUNK_SIZE);
-		}
-		else
-        {
-            circBufWriteResult = update_rx_buf_usb(&largeRxBuffer[i*CHUNK_SIZE], remainingBytes);
-			remainingBytes = 0;
-		}
+		bytesToWrite = remainingBytes > CHUNK_SIZE ? CHUNK_SIZE : remainingBytes;
+		error = update_rx_buf_usb(&largeRxBuffer[i*CHUNK_SIZE], bytesToWrite);
+		if(error)
+			qDebug() << "circ_buff_write error:" << error;
 
-        bool msgToBig = circBufWriteResult == 1;
-        QString bigString = "Message Bigger Than Buffer";
-        QString owString = "Overwrote";
-
-        if(circBufWriteResult)
-            qDebug() << "Circular Buff Error: " << (msgToBig ? bigString : owString);
+		remainingBytes -= bytesToWrite;
 
 		CommPeriph* cp = &commPeriph[PORT_USB];
 		PacketWrapper* pw = &packet[PORT_USB][INBOUND];
 
-		bool successfulParse = false;
+		int successfulParse = 0;
 		int numBytesConverted;
+
 		do {
 			successfulParse = false;
 
@@ -277,20 +263,23 @@ void SerialDriver::handleReadyRead()
 
 			if(numBytesConverted > 0)
 			{
-				circ_buff_move_head(&rx_buf_circ_1, numBytesConverted);
+				error = circ_buff_move_head(&rx_buf_circ_1, numBytesConverted);
+				if(error)
+					qDebug() << "circ_buff_move_head error:" << error;
+
 				fillPacketFromCommPeriph(cp, pw);
-				successfulParse = 2 == payload_parse_str(&packet[PORT_USB][INBOUND]);
+				successfulParse = payload_parse_str(pw);
 			}
 
-			if(successfulParse)
+			if(successfulParse == 2)
 			{
 				signalSuccessfulParse();
 				numMessagesReceived++;
 			}
-		} while(successfulParse);
-    }
 
-//    qDebug() << "NumBytes: " << len << ", Msgs Rcvd: " << numMessagesReceived << ", Expctd: " << numMessagesExpected;
+		} while(successfulParse);
+	}
+
 
     // Notify user in GUI: ... TODO: support 4 channels
     if(numMessagesReceived >= numMessagesExpected)

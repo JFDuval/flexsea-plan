@@ -1043,6 +1043,9 @@ void MainWindow::createViewCommTest(void)
 	{
 		myViewCommTest[objectCount] = new W_CommTest(this,
 													 comPortStatus);
+
+		myViewCommTest[objectCount]->serialDriver = mySerialDriver;
+
 		ui->mdiArea->addSubWindow(myViewCommTest[objectCount]);
 		myViewCommTest[objectCount]->show();
 

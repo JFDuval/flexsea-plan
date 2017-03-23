@@ -38,7 +38,7 @@
 #include <QWidget>
 #include "counter.h"
 #include "flexsea_generic.h"
-
+#include <serialdriver.h>
 //****************************************************************************
 // Namespace & Class Definition:
 //****************************************************************************
@@ -57,7 +57,7 @@ public:
 						bool comStatusInit = false);
 	~W_CommTest();
 
-	//Function(s):
+	SerialDriver* serialDriver;
 
 public slots:
 	void receiveComPortStatus(bool status);
@@ -86,7 +86,6 @@ private:
 	int32_t receivedPackets;
 	int32_t experimentTimerFreq;
 	float measuredRefreshSend, measuredRefreshReceive;
-
 	bool sc_comPortOpen;
 
 	//Function(s):
