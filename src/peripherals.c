@@ -37,9 +37,8 @@ extern "C" {
 //****************************************************************************
 
 #include <flexsea_buffers.h>
-#include "flexsea_payload.h"
+#include "../flexsea-comm/inc/flexsea_payload.h"
 #include <flexsea_comm.h>
-#include "main.h"
 #include "peripherals.h"
 
 //****************************************************************************
@@ -77,17 +76,13 @@ uint8_t decode_usb_rx(unsigned char *newdata)
 	(void)newdata;
 
 	//Try to decode
-	tryUnpacking1(&commPeriph[PORT_USB], &packet[PORT_USB][INBOUND]);
+	tryUnpacking(&commPeriph[PORT_USB], &packet[PORT_USB][INBOUND]);
 
 	//Valid communication from USB?
 	if(commPeriph[PORT_USB].rx.unpackedPacketsAvailable > 0)
 	{
 		commPeriph[PORT_USB].rx.unpackedPacketsAvailable = 0;
 		result = payload_parse_str(&packet[PORT_USB][INBOUND]);
-        if(result != 2)
-        {
-            printf("GoofyGoof\n");
-        }
 		#ifdef USE_PRINTF
 		//printf("[Received a valid comm_str!]\n");
 		ret = 0;

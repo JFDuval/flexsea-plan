@@ -32,16 +32,18 @@
 // Include(s)
 //****************************************************************************
 
+#include <flexsea_system.h>
 #include <flexsea_buffers.h>
 #include <flexsea_comm.h>
 #include "w_userrw.h"
 #include "flexsea_generic.h"
 #include "ui_w_userrw.h"
-#include "main.h"
+//#include "main.h"
 #include <QString>
 #include <QTextStream>
 #include <QTimer>
 #include <QDebug>
+#include <flexsea_board.h>
 
 //****************************************************************************
 // Constructor & Destructor:

@@ -34,7 +34,7 @@
 
 #include "w_anycommand.h"
 #include "ui_w_anycommand.h"
-#include "main.h"
+#include <flexsea_system.h>
 
 //****************************************************************************
 // Constructor & Destructor:

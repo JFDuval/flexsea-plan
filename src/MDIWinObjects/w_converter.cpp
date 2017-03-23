@@ -34,7 +34,8 @@
 
 #include "w_converter.h"
 #include "ui_w_converter.h"
-#include "main.h"
+//#include "main.h"
+#include <flexsea.h>
 
 //****************************************************************************
 // Constructor & Destructor:

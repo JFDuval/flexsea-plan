@@ -39,7 +39,8 @@
 #include <QDebug>
 #include <QString>
 #include <QFileDialog>
-#include "main.h"
+//#include "main.h"
+#include <flexsea_system.h>
 
 //****************************************************************************
 // Constructor & Destructor:

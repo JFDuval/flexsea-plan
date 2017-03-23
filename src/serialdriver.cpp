@@ -35,8 +35,10 @@
 #include "serialdriver.h"
 #include <flexsea_buffers.h>
 #include <flexsea_comm.h>
-#include "main.h"
+#include <flexsea_board.h>
+#include <peripherals.h>
 #include <QDebug>
+#include <unistd.h>
 #include <QTime>
 #include <flexsea_comm.h>
 #include <flexsea_payload.h>
@@ -112,7 +114,7 @@ void SerialDriver::open(QString name, int tries, int delay, bool *success)
 		qDebug() << "Successfully opened " << name << ".\n";
 		emit openProgress(100);
 
-		//Clear any data that was already in the buffers:	
+		//Clear any data that was already in the buffers:
 		USBSerialPort.clear((QSerialPort::AllDirections));
 
 		comPortOpen = true;
@@ -147,7 +149,7 @@ int SerialDriver::write(uint8_t bytes_to_send, uint8_t *serial_tx_data)
 
 	if(comPortOpen)
 	{
-        QByteArray myQBArray = QByteArray::fromRawData((const char*)serial_tx_data, bytes_to_send);
+		QByteArray myQBArray = QByteArray::fromRawData((const char*)serial_tx_data, bytes_to_send);
 		write_ret = USBSerialPort.write(myQBArray);
 	}
 	else
@@ -217,22 +219,22 @@ void SerialDriver::handleReadyRead()
     QByteArray baData;
 	baData = USBSerialPort.readAll();
 
-    //We check to see if we are getting good packets, or a bunch of crap:
-    int len = baData.length();
-    if(len < 1) return;
-    if(len > MAX_SERIAL_RX_LEN)
-    {
-        //qDebug() << "Data length over " << MAX_SERIAL_RX_LEN << " bytes (" << len << "bytes)";
-        len = MAX_SERIAL_RX_LEN;
-        USBSerialPort.clear((QSerialPort::AllDirections));
-        emit dataStatus(0, DATAIN_STATUS_RED);
-        return;
-    }
+	//We check to see if we are getting good packets, or a bunch of crap:
+	int len = baData.length();
+	if(len < 1) return;
+	if(len > MAX_SERIAL_RX_LEN)
+	{
+		//qDebug() << "Data length over " << MAX_SERIAL_RX_LEN << " bytes (" << len << "bytes)";
+		len = MAX_SERIAL_RX_LEN;
+		USBSerialPort.clear((QSerialPort::AllDirections));
+		emit dataStatus(0, DATAIN_STATUS_RED);
+		return;
+	}
 
 	uint8_t numBuffers = (len / CHUNK_SIZE) + (len % CHUNK_SIZE != 0);
 	largeRxBuffer = (uint8_t*)baData.data();
 
-    int16_t remainingBytes = len;
+	int16_t remainingBytes = len;
 
 	int numMessagesReceived = 0;
 	int numMessagesExpected = (len / COMM_STR_BUF_LEN);
