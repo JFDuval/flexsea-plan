@@ -331,9 +331,16 @@ void W_2DPlot::initChart(void)
 		chart->addSeries(qlsChart[i]);
 	}
 
+	const QValidator *validator = new QIntValidator(-10000000, 10000000, this);
+	ui->lineEditXMin->setValidator(validator);
+	ui->lineEditXMax->setValidator(validator);
+	ui->lineEditYMin->setValidator(validator);
+	ui->lineEditYMax->setValidator(validator);
+
 	chart->createDefaultAxes();
 	chart->axisX()->setRange(INIT_PLOT_XMIN, INIT_PLOT_XMAX);
 	chart->axisY()->setRange(INIT_PLOT_YMIN, INIT_PLOT_YMAX);
+
 
 	//Colors:
 	chart->setTheme(QChart::ChartThemeDark);
@@ -774,22 +781,22 @@ float W_2DPlot::getRefreshRateDisplay(void)
 {
 	const int SIZE_AVG = 8;
 
-    static QElapsedTimer timer;
-    if(!timer.isValid())
-    {
-        timer.start();
-        return -1;
-    }
-    int64_t msec = timer.elapsed();
-    timer.restart();
+	static QElapsedTimer timer;
+	if(!timer.isValid())
+	{
+		timer.start();
+		return -1;
+	}
+	int64_t msec = timer.elapsed();
+	timer.restart();
 
 	float t_s = 0.0, f = 0.0, avg = 0.0;
 	static int counter = 0;
 	static float fArray[SIZE_AVG] = {0};
 
 	//Actual frequency:
-    t_s = msec;
-    f = 1000.0f/t_s;
+	t_s = msec;
+	f = 1000.0f/t_s;
 
 	//Average:
 	fArray[counter] = f;
@@ -810,25 +817,25 @@ float W_2DPlot::getRefreshRateDisplay(void)
 //is fast for a ms timer.
 float W_2DPlot::getRefreshRateData(void)
 {
-    const int SIZE_AVG = 8;
+	const int SIZE_AVG = 8;
 	static int counter = 0;
 	static float fArray[SIZE_AVG] = {0};
 	static int callCounter = 0;
 
-    static QElapsedTimer timer;
-    if(!timer.isValid())
-    {
-        timer.start();
-        return -1;
-    }
+	static QElapsedTimer timer;
+	if(!timer.isValid())
+	{
+		timer.start();
+		return -1;
+	}
 
 	if(!callCounter)
 	{
-        int64_t msec = timer.elapsed();
-        timer.restart();
+		int64_t msec = timer.elapsed();
+		timer.restart();
 
-        float t_s = msec / 10.0f;
-        float f = 1000.0f/t_s;
+		float t_s = msec / 10.0f;
+		float f = 1000.0f/t_s;
 
 		//place into frequency array
 		fArray[counter] = f;
