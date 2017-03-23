@@ -113,13 +113,6 @@ uint8_t getSlaveCnt(uint8_t sub);
 // Shared variable(s)
 //****************************************************************************
 
-/*
-extern uint8_t board_id;
-extern uint8_t board_up_id;
-extern uint8_t board_sub1_id[SLAVE_BUS_1_CNT ? SLAVE_BUS_1_CNT : 1];
-extern uint8_t board_sub2_id[SLAVE_BUS_2_CNT ? SLAVE_BUS_2_CNT : 1];
-*/
-
 #ifdef __cplusplus
 }
 #endif
