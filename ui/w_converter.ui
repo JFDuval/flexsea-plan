@@ -355,6 +355,10 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>lineEdituint32</tabstop>
+  <tabstop>lineEdituint16</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>
