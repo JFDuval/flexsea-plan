@@ -145,8 +145,8 @@ MainWindow::~MainWindow()
 	delete ui;
 
 //	serialThread->quit();
-//	delete mySerialDriver;
-//	delete streamManager;
+	delete mySerialDriver;
+	delete streamManager;
 //	delete serialThread;
 
 

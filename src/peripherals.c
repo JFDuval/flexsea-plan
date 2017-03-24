@@ -58,10 +58,8 @@ void initLocalComm(void)
 {
 	//Default state:
 	initCommPeriph(&commPeriph[PORT_USB], PORT_USB, MASTER, rx_buf_1, \
-			comm_str_1, rx_command_1, &packet[PORT_USB][INBOUND], \
-			&packet[PORT_USB][OUTBOUND]);
-
-    circ_buff_init(&rx_buf_circ_1);
+			comm_str_1, rx_command_1, &rx_buf_circ_1, \
+			&packet[PORT_USB][INBOUND], &packet[PORT_USB][OUTBOUND]);
 
 	//Personalize specific fields:
 	//...
