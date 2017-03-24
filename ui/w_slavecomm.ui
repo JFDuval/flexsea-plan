@@ -1072,6 +1072,33 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>comboBoxExp1</tabstop>
+  <tabstop>comboBoxSlave1</tabstop>
+  <tabstop>comboBoxRefresh1</tabstop>
+  <tabstop>checkBoxLog1</tabstop>
+  <tabstop>autoCheckBox1</tabstop>
+  <tabstop>pushButton1</tabstop>
+  <tabstop>comboBoxExp2</tabstop>
+  <tabstop>comboBoxSlave2</tabstop>
+  <tabstop>comboBoxRefresh2</tabstop>
+  <tabstop>checkBoxLog2</tabstop>
+  <tabstop>autoCheckBox2</tabstop>
+  <tabstop>pushButton2</tabstop>
+  <tabstop>comboBoxExp3</tabstop>
+  <tabstop>comboBoxSlave3</tabstop>
+  <tabstop>comboBoxRefresh3</tabstop>
+  <tabstop>checkBoxLog3</tabstop>
+  <tabstop>autoCheckBox3</tabstop>
+  <tabstop>pushButton3</tabstop>
+  <tabstop>comboBoxExp4</tabstop>
+  <tabstop>comboBoxSlave4</tabstop>
+  <tabstop>comboBoxRefresh4</tabstop>
+  <tabstop>checkBoxLog4</tabstop>
+  <tabstop>autoCheckBox4</tabstop>
+  <tabstop>pushButton4</tabstop>
+  <tabstop>lineEdit</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

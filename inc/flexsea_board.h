@@ -102,6 +102,7 @@ uint8_t getSlaveCnt(uint8_t sub);
 #define rx_command_usb				rx_command_1
 #define update_rx_buf_byte_usb		update_rx_buf_byte_1
 #define update_rx_buf_array_usb		update_rx_buf_array_1
+#define update_rx_buf_usb(x, y)		circ_buff_write(&rx_buf_circ_1, (x), (y))
 
 #define comm_str_spi				comm_str_2
 #define unpack_payload_spi			unpack_payload_2

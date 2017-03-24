@@ -5,5 +5,7 @@ build/
 *.bak
 *.o
 *.a
+doxygen_output/*
+Doxyfile
 *.orig
 *.gif

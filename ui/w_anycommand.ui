@@ -440,6 +440,26 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>comboBoxSlaveX</tabstop>
+  <tabstop>comboBoxSlaveR</tabstop>
+  <tabstop>spinBoxCMDS</tabstop>
+  <tabstop>comboBoxCmd</tabstop>
+  <tabstop>lineEditCode</tabstop>
+  <tabstop>comboBoxRW</tabstop>
+  <tabstop>lineEditPData1</tabstop>
+  <tabstop>lineEditPData2</tabstop>
+  <tabstop>lineEditPData3</tabstop>
+  <tabstop>lineEditPData4</tabstop>
+  <tabstop>lineEditPData5</tabstop>
+  <tabstop>lineEditPData6</tabstop>
+  <tabstop>lineEditPData7</tabstop>
+  <tabstop>lineEditPData8</tabstop>
+  <tabstop>pushButtonGenerate</tabstop>
+  <tabstop>lineEditResult1</tabstop>
+  <tabstop>lineEditResult2</tabstop>
+  <tabstop>pushButtonSend</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

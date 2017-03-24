@@ -322,6 +322,14 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>comPortComboBox</tabstop>
+  <tabstop>openComButton</tabstop>
+  <tabstop>closeComButton</tabstop>
+  <tabstop>pushButtonBTCon</tabstop>
+  <tabstop>pbLoadLogFile</tabstop>
+  <tabstop>pbCloseLogFile</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

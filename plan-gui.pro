@@ -102,7 +102,7 @@ SOURCES += src/main.cpp \
 	flexsea-system/test/test-flexsea_cmd_sensors.c \
 	flexsea-system/test/test-flexsea_cmd_control_1.c \
 	flexsea-system/test/test-flexsea_cmd_control_2.c \
-	flexsea-system/test/test-flexsea_cmd_tools.c
+        flexsea-system/test/test-flexsea_cmd_tools.c
 
 HEADERS  += inc/main.h \
 	inc/mainwindow.h \
@@ -171,6 +171,7 @@ HEADERS  += inc/main.h \
 	flexsea-system/inc/flexsea_cmd_tools.h \
 	flexsea-system/inc/flexsea_cmd_in_control.h \
 	flexsea-system/inc/flexsea_cmd_stream.h \
+        flexsea-system/inc/flexsea_dataformats.h \
 	flexsea-system/test/flexsea-system_test-all.h
 
 FORMS    += ui/mainwindow.ui \

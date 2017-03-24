@@ -23,7 +23,7 @@ StreamManager::StreamManager(QObject *parent, SerialDriver* driver) :
 		streamLists[i] = std::vector<CmdSlaveRecord>();
 	}
 
-	clockPeriod = 5;
+    clockPeriod = 2;
 	clockTimer = new QTimer();
 	clockTimer->setTimerType(Qt::PreciseTimer);
 	clockTimer->setSingleShot(false);
@@ -328,7 +328,8 @@ void StreamManager::sendCommandBattery(uint8_t slaveId)
 
 void StreamManager::sendCommandTestBench(uint8_t slaveId)
 {
-	static int index = 0;
+	(void)slaveId;
+	//	static int index = 0;
 
 //	//1) Stream
 //	motor_dto dto;
