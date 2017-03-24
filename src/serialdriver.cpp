@@ -35,8 +35,10 @@
 #include "serialdriver.h"
 #include <flexsea_buffers.h>
 #include <flexsea_comm.h>
-#include "main.h"
+#include <flexsea_board.h>
+#include <peripherals.h>
 #include <QDebug>
+#include <unistd.h>
 #include <QTime>
 #include <flexsea_comm.h>
 #include <flexsea_payload.h>
@@ -64,7 +66,7 @@ SerialDriver::~SerialDriver() {}
 //Open port
 void SerialDriver::open(QString name, int tries, int delay, bool *success)
 {
-//    name = "/dev/ttyACM8";
+//    name = "/dev/ttyACM9";
 	int cnt = 0;
 	bool isPortOpen = false;
 	int comProgress = 0;
@@ -112,7 +114,7 @@ void SerialDriver::open(QString name, int tries, int delay, bool *success)
 		qDebug() << "Successfully opened " << name << ".\n";
 		emit openProgress(100);
 
-		//Clear any data that was already in the buffers:	
+		//Clear any data that was already in the buffers:
 		USBSerialPort.clear((QSerialPort::AllDirections));
 
 		comPortOpen = true;
@@ -147,7 +149,7 @@ int SerialDriver::write(uint8_t bytes_to_send, uint8_t *serial_tx_data)
 
 	if(comPortOpen)
 	{
-        QByteArray myQBArray = QByteArray::fromRawData((const char*)serial_tx_data, bytes_to_send);
+		QByteArray myQBArray = QByteArray::fromRawData((const char*)serial_tx_data, bytes_to_send);
 		write_ret = USBSerialPort.write(myQBArray);
 	}
 	else
@@ -168,6 +170,24 @@ FlexseaDevice* SerialDriver::getDeviceById(uint8_t slaveId)
 			return devices.at(i);
 	}
 	return nullptr;
+}
+
+void SerialDriver::signalSuccessfulParse()
+{
+	//Update appropriate FlexseaDevice
+	uint8_t slaveId = packet[PORT_USB][INBOUND].unpaked[P_XID];
+	FlexseaDevice* device = getDeviceById(slaveId);
+	if(device)
+	{
+		device->decodeLastLine();
+		if(device->isCurrentlyLogging)
+		{
+			device->applyTimestamp();
+			device->eventFlags.last() = W_Event::getEventCode();
+			emit writeToLogFile(device);
+		}
+	}
+	emit newDataReady();
 }
 
 void SerialDriver::handleReadyRead()
@@ -197,85 +217,81 @@ void SerialDriver::handleReadyRead()
 	*/
 
     QByteArray baData;
-    baData.resize(MAX_SERIAL_RX_LEN);
-    largeRxBufferLatestTransfer = 0;
-    baData = USBSerialPort.readAll();
+	baData = USBSerialPort.readAll();
 
-    //We check to see if we are getting good packets, or a bunch of crap:
-    int len = baData.length();
-    if(len < 1) return;
-    if(len > MAX_SERIAL_RX_LEN)
-    {
-        //qDebug() << "Data length over " << MAX_SERIAL_RX_LEN << " bytes (" << len << "bytes)";
-        len = MAX_SERIAL_RX_LEN;
-        USBSerialPort.clear((QSerialPort::AllDirections));
-        emit dataStatus(0, DATAIN_STATUS_RED);
-        return;
-    }
+	//We check to see if we are getting good packets, or a bunch of crap:
+	int len = baData.length();
+	if(len < 1) return;
+	if(len > MAX_SERIAL_RX_LEN)
+	{
+		//qDebug() << "Data length over " << MAX_SERIAL_RX_LEN << " bytes (" << len << "bytes)";
+		len = MAX_SERIAL_RX_LEN;
+		USBSerialPort.clear((QSerialPort::AllDirections));
+		emit dataStatus(0, DATAIN_STATUS_RED);
+		return;
+	}
 
-    uint8_t numBuffers = (len / 48) + (len % 48 != 0);
+	uint8_t numBuffers = (len / CHUNK_SIZE) + (len % CHUNK_SIZE != 0);
+	largeRxBuffer = (uint8_t*)baData.data();
 
-    //qDebug() << "Read" << len << "bytes (" << fullBuffers << "full buffer(s)).";
+	int16_t remainingBytes = len;
 
-    //Fill the rx buf with our new bytes:
-    memcpy(largeRxBuffer, (uint8_t *)baData.data(), len);
-    largeRxBufferLatestTransfer = len;
-
-    int16_t remainingBytes = len;
-
-    int successes = 0, failures = 0;
+	int numMessagesReceived = 0;
+	int numMessagesExpected = (len / COMM_STR_BUF_LEN);
+	uint16_t bytesToWrite;
+	int error;
     for(int i = 0; i < numBuffers; i++)
     {
-        if(remainingBytes >= CHUNK_SIZE)
-        {
-            remainingBytes -= CHUNK_SIZE;
-            update_rx_buf_array_usb(&largeRxBuffer[i*CHUNK_SIZE], CHUNK_SIZE);
+		bytesToWrite = remainingBytes > CHUNK_SIZE ? CHUNK_SIZE : remainingBytes;
+		error = update_rx_buf_usb(&largeRxBuffer[i*CHUNK_SIZE], bytesToWrite);
+		if(error)
+			qDebug() << "circ_buff_write error:" << error;
 
-            //Try decoding:
-            commPeriph[PORT_USB].rx.bytesReadyFlag = 1;
-            bool wasError = (decode_usb_rx(usb_rx) == 4);
-            if(wasError) { failures++; }
-            else
-            {
-                successes++;
-                //Update appropriate FlexseaDevice
-                uint8_t slaveId = packet[PORT_USB][INBOUND].unpaked[P_XID];
-                FlexseaDevice* device = getDeviceById(slaveId);
-                if(device)
-                {
-                    device->decodeLastLine();
-                    if(device->isCurrentlyLogging)
-                    {
-                        device->applyTimestamp();
-                        device->eventFlags.last() = W_Event::getEventCode();
-                        emit writeToLogFile(device);
-                    }
-                }
-                emit newDataReady();
-            }
+		remainingBytes -= bytesToWrite;
 
-        }
-        else
-        {
-            update_rx_buf_array_usb(&largeRxBuffer[i*CHUNK_SIZE], remainingBytes);
-//				sumOfBytes += remainingBytes;
-            //Try decoding:
-            decode_usb_rx(usb_rx);
-            emit newDataReady();
-        }
-    }
+		CommPeriph* cp = &commPeriph[PORT_USB];
+		PacketWrapper* pw = &packet[PORT_USB][INBOUND];
 
-//		qDebug() << "Copied" << sumOfBytes << "bytes";
+		int successfulParse = 0;
+		int numBytesConverted;
 
-		//Notify user in GUI:
-    if(!successes && failures)
-        emit dataStatus(0, DATAIN_STATUS_RED);   //***ToDo: support 4 channels
-    else if(!failures && successes)
+		do {
+			successfulParse = false;
+
+			numBytesConverted = unpack_payload_cb(\
+					&rx_buf_circ_1, \
+					cp->rx.packedPtr, \
+					cp->rx.unpackedPtr);
+
+			if(numBytesConverted > 0)
+			{
+				error = circ_buff_move_head(&rx_buf_circ_1, numBytesConverted);
+				if(error)
+					qDebug() << "circ_buff_move_head error:" << error;
+
+				fillPacketFromCommPeriph(cp, pw);
+				successfulParse = payload_parse_str(pw);
+			}
+
+			if(successfulParse == 2)
+			{
+				signalSuccessfulParse();
+				numMessagesReceived++;
+			}
+
+		} while(successfulParse);
+	}
+
+
+    // Notify user in GUI: ... TODO: support 4 channels
+    if(numMessagesReceived >= numMessagesExpected)
         emit dataStatus(0, DATAIN_STATUS_GREEN);
+    else if(numMessagesReceived == 0)
+        emit dataStatus(0, DATAIN_STATUS_RED);
     else
         emit dataStatus(0, DATAIN_STATUS_YELLOW);
 
-    if(successes)
+	if(numMessagesReceived)
         emit newDataTimeout(true); //Reset counter
 
 	return;

@@ -41,6 +41,8 @@
 #include <QString>
 #include <QTextStream>
 #include <flexsea_comm.h>
+#include <flexsea_board.h>
+
 //****************************************************************************
 // Constructor & Destructor:
 //****************************************************************************

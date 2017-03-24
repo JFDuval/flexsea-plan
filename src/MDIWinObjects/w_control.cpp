@@ -32,7 +32,10 @@
 // Include(s)
 //****************************************************************************
 
-#include "main.h"
+//#include "main.h"
+#include <unistd.h>
+#include <flexsea_system.h>
+#include <flexsea_board.h>
 #include "w_control.h"
 #include "flexsea_generic.h"
 #include "trapez.h"

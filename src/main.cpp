@@ -32,10 +32,12 @@
 // Include(s)
 //****************************************************************************
 
+#include <flexsea_global_structs.h>
+#include <stdio.h>
 #include "main.h"
+#include <peripherals.h>
 #include "mainwindow.h"
 #include <QApplication>
-//#include "peripherals.h"
 
 //****************************************************************************
 // Main
@@ -43,17 +45,42 @@
 
 int main(int argc, char *argv[])
 {
-	//Unit tests, FlexSEA stack:
-	flexsea_comm_test();
-	flexsea_system_test();
-	flexsea_user_test();
+	#ifdef UNIT_TEST
 
-	initLocalComm();
-	initializeGlobalStructs();
+		(void)argc;
+		(void)argv;
 
-	QApplication a(argc, argv);
-	MainWindow w;
-	w.show();
+		printf("\nPlan-GUI compiled under 'Test' mode. Program will execute unit tests and exit. Use 'Release' or 'Debug' for normal operation.\n");
+		printf("\nStart of tests...\n");
+		printf("===================\n\n");
+		fflush(stdout);
 
-	return a.exec();
+		//Unit tests, FlexSEA stack:
+		printf(">>> flexsea_comm:\n\n");
+		fflush(stdout);
+		flexsea_comm_test();
+		printf("\n>>> flexsea_system:\n\n");
+		fflush(stdout);
+		flexsea_system_test();
+		printf("\n>>> flexsea_user:\n\n");
+		fflush(stdout);
+		flexsea_user_test();
+
+		printf("\n===========================\n");
+		printf("Tests completed. Exiting...\n");
+		fflush(stdout);
+
+		return 0;
+
+	#else
+
+		initLocalComm();
+		initializeGlobalStructs();
+
+		QApplication a(argc, argv);
+		MainWindow w;
+		w.show();
+		return a.exec();
+
+	#endif
 }

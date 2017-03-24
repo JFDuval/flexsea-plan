@@ -31,8 +31,8 @@
      <widget class="QMdiArea" name="mdiArea">
       <property name="minimumSize">
        <size>
-        <width>800</width>
-        <height>800</height>
+        <width>200</width>
+        <height>200</height>
        </size>
       </property>
       <property name="maximumSize">
@@ -49,6 +49,15 @@
       </property>
       <property name="frameShape">
        <enum>QFrame::StyledPanel</enum>
+      </property>
+      <property name="verticalScrollBarPolicy">
+       <enum>Qt::ScrollBarAsNeeded</enum>
+      </property>
+      <property name="horizontalScrollBarPolicy">
+       <enum>Qt::ScrollBarAsNeeded</enum>
+      </property>
+      <property name="sizeAdjustPolicy">
+       <enum>QAbstractScrollArea::AdjustToContents</enum>
       </property>
       <property name="background">
        <brush brushstyle="NoBrush">
@@ -115,15 +124,15 @@
      <string>Tools</string>
     </property>
     <addaction name="actionCalibration"/>
+    <addaction name="actionCommunication_Test"/>
     <addaction name="actionConverter"/>
     <addaction name="actionTest_Bench"/>
-    <addaction name="actionCommunication_Test"/>
-    <addaction name="actionEvent_Flag"/>
    </widget>
    <widget class="QMenu" name="menuUser">
     <property name="title">
      <string>User</string>
     </property>
+    <addaction name="actionEvent_Flag"/>
     <addaction name="actionUser_R_W"/>
     <addaction name="separator"/>
     <addaction name="actionRIC_NU_Knee"/>

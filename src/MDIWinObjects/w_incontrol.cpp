@@ -143,6 +143,7 @@ void W_InControl::on_pushButton_inctrl_w3_clicked()
 
 void W_InControl::write_in_control_w(uint8_t var)
 {
+	(void)var;
 //    int numb = 0;
 
 //    numb = tx_cmd_in_control(active_slave_1, CMD_WRITE, payload_str, PAYLOAD_BUF_LEN, var);

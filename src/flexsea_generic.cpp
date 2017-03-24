@@ -34,10 +34,11 @@
 //****************************************************************************
 
 #include "flexsea_generic.h"
-#include "main.h"
+//#include "main.h"
+#include <flexsea_system.h>
 #include <QComboBox>
 #include <QDebug>
-
+#include <flexsea.h>
 #include "batteryDevice.h"
 #include "executeDevice.h"
 #include "gossipDevice.h"

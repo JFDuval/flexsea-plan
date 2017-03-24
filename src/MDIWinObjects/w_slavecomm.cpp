@@ -43,6 +43,9 @@
 #include <QDateTime>
 #include <QString>
 #include <flexsea_comm.h>
+#include <flexsea_sys_def.h>
+#include "../flexsea-user/inc/flexsea_cmd_user.h"
+
 //****************************************************************************
 // Constructor & Destructor:
 //****************************************************************************
@@ -141,7 +144,6 @@ void W_SlaveComm::initExperimentList(void)
 	readAllTargetList.append(*executeDevList);
 	readAllTargetList.append(*manageDevList);
 	readAllTargetList.append(*gossipDevList);
-	readAllTargetList.append(*batteryDevList);
 	readAllTargetList.append(*strainDevList);
 
 	inControlTargetList.append(*executeDevList);

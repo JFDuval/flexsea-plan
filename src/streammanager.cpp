@@ -1,12 +1,12 @@
 #include "streammanager.h"
 #include <flexsea.h>
-#include <flexsea_comm.h>
 #include <flexsea_system.h>
-#include <flexsea_cmd_data.h>
-#include <flexsea_cmd_in_control.h>
-#include <flexsea_cmd_stream.h>
+#include <flexsea_board.h>
 #include <w_event.h>
 #include <QDebug>
+#include <cmd-MIT_2DoF_Ankle_v1.h>
+#include <cmd-RICNU_Knee_v1.h>
+#include <cmd-MotorTestBench.h>
 
 StreamManager::StreamManager(QObject *parent, SerialDriver* driver) :
 	QObject(parent),
@@ -23,7 +23,7 @@ StreamManager::StreamManager(QObject *parent, SerialDriver* driver) :
 		streamLists[i] = std::vector<CmdSlaveRecord>();
 	}
 
-	clockPeriod = 5;
+    clockPeriod = 2;
 	clockTimer = new QTimer();
 	clockTimer->setTimerType(Qt::PreciseTimer);
 	clockTimer->setSingleShot(false);
@@ -62,7 +62,7 @@ void StreamManager::startStreaming(int cmd, int slave, int freq, bool shouldLog,
 
 		serialDriver->addDevice(device);
 
-        CmdSlaveRecord record(cmd, slave, shouldLog, device);
+		CmdSlaveRecord record(cmd, slave, shouldLog, device);
 		streamLists[indexOfFreq].push_back(record);
 		qDebug() << "Started streaming cmd: " << cmd << ", for slave id: " << slave << "at frequency: " << freq;
 		clockTimer->start();
@@ -290,7 +290,6 @@ void StreamManager::sendCommands(int index)
 	}
 }
 
-
 void StreamManager::sendCommandReadAll(uint8_t slaveId)
 {
 	//1) Stream
@@ -303,7 +302,7 @@ void StreamManager::sendCommandReadAllRicnu(uint8_t slaveId)
 	(void) slaveId;
 	if(ricnuOffsets.size() < 1) return;
 	static int index = 0;
-	tx_cmd_ricnu_r(TX_N_DEFAULT, ricnuOffsets.at(index));
+	tx_cmd_ricnu_r(TX_N_DEFAULT, (uint8_t)(ricnuOffsets.at(index)));
 	index++;
 	index %= ricnuOffsets.size();
 	tryPackAndSend(CMD_READ_ALL_RICNU, slaveId);
@@ -329,7 +328,8 @@ void StreamManager::sendCommandBattery(uint8_t slaveId)
 
 void StreamManager::sendCommandTestBench(uint8_t slaveId)
 {
-	static int index = 0;
+	(void)slaveId;
+	//	static int index = 0;
 
 	//1) Stream
 //	motor_dto dto;

@@ -648,6 +648,22 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>comboBox_slave</tabstop>
+  <tabstop>w0</tabstop>
+  <tabstop>pushButton_w0</tabstop>
+  <tabstop>r0</tabstop>
+  <tabstop>w1</tabstop>
+  <tabstop>pushButton_w1</tabstop>
+  <tabstop>r1</tabstop>
+  <tabstop>w2</tabstop>
+  <tabstop>pushButton_w2</tabstop>
+  <tabstop>r2</tabstop>
+  <tabstop>w3</tabstop>
+  <tabstop>pushButton_w3</tabstop>
+  <tabstop>r3</tabstop>
+  <tabstop>pushButton_refresh</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

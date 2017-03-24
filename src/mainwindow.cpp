@@ -39,7 +39,8 @@
 #include <QDebug>
 #include <QString>
 #include <QFileDialog>
-#include "main.h"
+//#include "main.h"
+#include <flexsea_system.h>
 
 //****************************************************************************
 // Constructor & Destructor:
@@ -143,8 +144,8 @@ MainWindow::~MainWindow()
 	delete ui;
 
 //	serialThread->quit();
-	delete mySerialDriver;
-	delete streamManager;
+//	delete mySerialDriver;
+//	delete streamManager;
 //	delete serialThread;
 
 
@@ -1048,6 +1049,9 @@ void MainWindow::createViewCommTest(void)
 	{
 		myViewCommTest[objectCount] = new W_CommTest(this,
 													 comPortStatus);
+
+		myViewCommTest[objectCount]->serialDriver = mySerialDriver;
+
 		ui->mdiArea->addSubWindow(myViewCommTest[objectCount]);
 		myViewCommTest[objectCount]->show();
 

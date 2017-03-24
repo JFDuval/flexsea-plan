@@ -1,5 +1,6 @@
 #include "dynamicuserdatamanager.h"
 #include <dynamic_user_structs.h>
+#include <flexsea_system.h>
 #include <QTimer>
 #include <QDebug>
 #include <flexsea_comm.h>
@@ -16,7 +17,7 @@ void DynamicUserDataManager::requestMetaData(int slaveId)
 	//Prepare and send command:
 	tx_cmd_user_dyn_r(TX_N_DEFAULT, SEND_METADATA);
 	pack(P_AND_S_DEFAULT, slaveId, info, &numb, comm_str_usb);
-	qDebug() << "Requesting Metadata";
+//	qDebug() << "Requesting Metadata";
 	emit writeCommand(numb, comm_str_usb, READ);
 }
 

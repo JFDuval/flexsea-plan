@@ -1075,6 +1075,17 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>comboBox_slave</tabstop>
+  <tabstop>inctrl_w0</tabstop>
+  <tabstop>pushButton_inctrl_w0</tabstop>
+  <tabstop>inctrl_w1</tabstop>
+  <tabstop>pushButton_inctrl_w1</tabstop>
+  <tabstop>inctrl_w2</tabstop>
+  <tabstop>pushButton_inctrl_w2</tabstop>
+  <tabstop>inctrl_w3</tabstop>
+  <tabstop>pushButton_inctrl_w3</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

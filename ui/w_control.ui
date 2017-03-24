@@ -998,6 +998,32 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>comboBox_slave</tabstop>
+  <tabstop>comboBox_ctrl_list</tabstop>
+  <tabstop>pushButton_SetController</tabstop>
+  <tabstop>control_g0</tabstop>
+  <tabstop>control_g3</tabstop>
+  <tabstop>control_g1</tabstop>
+  <tabstop>control_g4</tabstop>
+  <tabstop>control_g2</tabstop>
+  <tabstop>control_g5</tabstop>
+  <tabstop>pushButton_SetGains</tabstop>
+  <tabstop>control_setp_a</tabstop>
+  <tabstop>pushButton_setp_a_go</tabstop>
+  <tabstop>control_setp_b</tabstop>
+  <tabstop>pushButton_setp_b_go</tabstop>
+  <tabstop>control_toggle_delayA</tabstop>
+  <tabstop>control_toggle_delayB</tabstop>
+  <tabstop>control_trapeze_spd</tabstop>
+  <tabstop>control_trapeze_acc</tabstop>
+  <tabstop>pushButton_toggle</tabstop>
+  <tabstop>control_slider_min</tabstop>
+  <tabstop>control_slider_max</tabstop>
+  <tabstop>pushButton_CtrlMinMax</tabstop>
+  <tabstop>hSlider_Ctrl</tabstop>
+  <tabstop>comboBoxDispSel</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>
