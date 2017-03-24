@@ -54,7 +54,10 @@ SerialDriver::SerialDriver(QObject *parent) : QObject(parent)
 	comPortOpen = false;
 }
 
-SerialDriver::~SerialDriver() {}
+SerialDriver::~SerialDriver() {
+	if(isOpen())
+		close();
+}
 //****************************************************************************
 // Public function(s):
 //****************************************************************************
