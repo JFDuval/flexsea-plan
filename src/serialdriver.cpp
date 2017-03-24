@@ -54,7 +54,10 @@ SerialDriver::SerialDriver(QObject *parent) : QObject(parent)
 	comPortOpen = false;
 }
 
-SerialDriver::~SerialDriver() {}
+SerialDriver::~SerialDriver() {
+	if(isOpen())
+		close();
+}
 //****************************************************************************
 // Public function(s):
 //****************************************************************************
@@ -216,6 +219,9 @@ void SerialDriver::handleReadyRead()
 		qDebug() << "Estimated period of reads: " << streamPeriod << ", frequency: " << frequency;
 	*/
 
+	if(USBSerialPort.bytesAvailable() < (CHUNK_SIZE))
+		return;
+
     QByteArray baData;
 	baData = USBSerialPort.readAll();
 
@@ -238,6 +244,7 @@ void SerialDriver::handleReadyRead()
 
 	int numMessagesReceived = 0;
 	int numMessagesExpected = (len / COMM_STR_BUF_LEN);
+	int maxMessagesExpected = (len / COMM_STR_BUF_LEN + (len % COMM_STR_BUF_LEN != 0));
 	uint16_t bytesToWrite;
 	int error;
     for(int i = 0; i < numBuffers; i++)
@@ -249,39 +256,16 @@ void SerialDriver::handleReadyRead()
 
 		remainingBytes -= bytesToWrite;
 
-		CommPeriph* cp = &commPeriph[PORT_USB];
-		PacketWrapper* pw = &packet[PORT_USB][INBOUND];
-
 		int successfulParse = 0;
-		int numBytesConverted;
-
 		do {
-			successfulParse = false;
-
-			numBytesConverted = unpack_payload_cb(\
-					&rx_buf_circ_1, \
-					cp->rx.packedPtr, \
-					cp->rx.unpackedPtr);
-
-			if(numBytesConverted > 0)
-			{
-				error = circ_buff_move_head(&rx_buf_circ_1, numBytesConverted);
-				if(error)
-					qDebug() << "circ_buff_move_head error:" << error;
-
-				fillPacketFromCommPeriph(cp, pw);
-				successfulParse = payload_parse_str(pw);
-			}
-
-			if(successfulParse == 2)
+			successfulParse = tryParseRx(&commPeriph[PORT_USB], &packet[PORT_USB][INBOUND]);
+			if(successfulParse)
 			{
 				signalSuccessfulParse();
 				numMessagesReceived++;
 			}
-
-		} while(successfulParse);
+		} while(successfulParse && numMessagesReceived < maxMessagesExpected);
 	}
-
 
     // Notify user in GUI: ... TODO: support 4 channels
     if(numMessagesReceived >= numMessagesExpected)
