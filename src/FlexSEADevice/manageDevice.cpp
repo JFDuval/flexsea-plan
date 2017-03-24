@@ -62,6 +62,7 @@ ManageDevice::ManageDevice(manage_s *devicePtr): FlexseaDevice()
 	this->dataSource = LiveDataFile;
 	timeStamp.append(TimeStamp());
 	mnList.append(devicePtr);
+	eventFlags.append(0);
 	serializedLength = header.length();
 	slaveTypeName = "manage";
 }
@@ -313,12 +314,14 @@ void ManageDevice::clear(void)
 	FlexseaDevice::clear();
 	mnList.clear();
 	timeStamp.clear();
+	eventFlags.clear();
 }
 
 void ManageDevice::appendEmptyLine(void)
 {
 	timeStamp.append(TimeStamp());
 	mnList.append(new manage_s());
+	eventFlags.append(0);
 }
 
 void ManageDevice::decodeLastLine(void)
