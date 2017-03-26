@@ -24,8 +24,8 @@
   </property>
   <property name="maximumSize">
    <size>
-    <width>800</width>
-    <height>500</height>
+    <width>20000</width>
+    <height>20000</height>
    </size>
   </property>
   <property name="baseSize">
@@ -40,6 +40,9 @@
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
     <layout class="QGridLayout" name="gridLayout">
+     <property name="sizeConstraint">
+      <enum>QLayout::SetDefaultConstraint</enum>
+     </property>
      <property name="spacing">
       <number>6</number>
      </property>
@@ -60,7 +63,7 @@
        <property name="maximumSize">
         <size>
          <width>16777215</width>
-         <height>100</height>
+         <height>150</height>
         </size>
        </property>
        <property name="currentText">
@@ -68,7 +71,7 @@
        </property>
       </widget>
      </item>
-     <item row="0" column="10">
+     <item row="0" column="10" alignment="Qt::AlignHCenter">
       <widget class="QLabel" name="label_11">
        <property name="minimumSize">
         <size>
@@ -98,7 +101,7 @@
        <property name="maximumSize">
         <size>
          <width>16777215</width>
-         <height>100</height>
+         <height>150</height>
         </size>
        </property>
        <property name="currentText">
@@ -137,7 +140,7 @@
        </property>
       </widget>
      </item>
-     <item row="4" column="10">
+     <item row="4" column="10" alignment="Qt::AlignHCenter">
       <widget class="QCheckBox" name="autoCheckBox2">
        <property name="text">
         <string/>
@@ -192,7 +195,7 @@
        <property name="maximumSize">
         <size>
          <width>16777215</width>
-         <height>100</height>
+         <height>150</height>
         </size>
        </property>
        <property name="currentText">
@@ -219,7 +222,7 @@
        </property>
       </widget>
      </item>
-     <item row="0" column="12" colspan="2">
+     <item row="0" column="12" colspan="2" alignment="Qt::AlignHCenter">
       <widget class="QLabel" name="label_8">
        <property name="minimumSize">
         <size>
@@ -235,7 +238,7 @@
        </property>
       </widget>
      </item>
-     <item row="2" column="8">
+     <item row="2" column="8" alignment="Qt::AlignHCenter">
       <widget class="QCheckBox" name="checkBoxLog1">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
@@ -411,7 +414,7 @@
        <property name="maximumSize">
         <size>
          <width>16777215</width>
-         <height>100</height>
+         <height>150</height>
         </size>
        </property>
        <property name="currentText">
@@ -451,8 +454,8 @@
        </property>
        <property name="maximumSize">
         <size>
-         <width>100</width>
-         <height>100</height>
+         <width>150</width>
+         <height>150</height>
         </size>
        </property>
        <property name="baseSize">
@@ -508,7 +511,7 @@
        <property name="maximumSize">
         <size>
          <width>16777215</width>
-         <height>100</height>
+         <height>150</height>
         </size>
        </property>
        <property name="currentText">
@@ -533,7 +536,7 @@
        <property name="maximumSize">
         <size>
          <width>16777215</width>
-         <height>100</height>
+         <height>150</height>
         </size>
        </property>
        <property name="currentText">
@@ -541,7 +544,7 @@
        </property>
       </widget>
      </item>
-     <item row="6" column="8">
+     <item row="6" column="8" alignment="Qt::AlignHCenter">
       <widget class="QCheckBox" name="checkBoxLog3">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
@@ -585,7 +588,7 @@
        </property>
       </spacer>
      </item>
-     <item row="4" column="8">
+     <item row="4" column="8" alignment="Qt::AlignHCenter">
       <widget class="QCheckBox" name="checkBoxLog2">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
@@ -630,7 +633,7 @@
        <property name="maximumSize">
         <size>
          <width>16777215</width>
-         <height>100</height>
+         <height>150</height>
         </size>
        </property>
        <property name="currentText">
@@ -655,7 +658,7 @@
        <property name="maximumSize">
         <size>
          <width>16777215</width>
-         <height>100</height>
+         <height>150</height>
         </size>
        </property>
        <property name="currentText">
@@ -679,8 +682,8 @@
        </property>
        <property name="maximumSize">
         <size>
-         <width>100</width>
-         <height>100</height>
+         <width>150</width>
+         <height>150</height>
         </size>
        </property>
        <property name="baseSize">
@@ -717,7 +720,7 @@
        <property name="maximumSize">
         <size>
          <width>16777215</width>
-         <height>100</height>
+         <height>150</height>
         </size>
        </property>
        <property name="currentText">
@@ -725,7 +728,7 @@
        </property>
       </widget>
      </item>
-     <item row="8" column="8">
+     <item row="8" column="8" alignment="Qt::AlignHCenter">
       <widget class="QCheckBox" name="checkBoxLog4">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
@@ -769,8 +772,8 @@
        </property>
        <property name="maximumSize">
         <size>
-         <width>100</width>
-         <height>100</height>
+         <width>150</width>
+         <height>150</height>
         </size>
        </property>
        <property name="baseSize">
@@ -784,6 +787,12 @@
        </property>
        <property name="text">
         <string>Y</string>
+       </property>
+       <property name="scaledContents">
+        <bool>false</bool>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
        </property>
       </widget>
      </item>
@@ -803,8 +812,8 @@
        </property>
        <property name="maximumSize">
         <size>
-         <width>100</width>
-         <height>100</height>
+         <width>150</width>
+         <height>150</height>
         </size>
        </property>
        <property name="baseSize">
@@ -841,7 +850,7 @@
        <property name="maximumSize">
         <size>
          <width>16777215</width>
-         <height>100</height>
+         <height>150</height>
         </size>
        </property>
        <property name="currentText">
@@ -865,8 +874,8 @@
        </property>
        <property name="maximumSize">
         <size>
-         <width>100</width>
-         <height>100</height>
+         <width>150</width>
+         <height>150</height>
         </size>
        </property>
        <property name="baseSize">
@@ -905,8 +914,8 @@
        </property>
        <property name="maximumSize">
         <size>
-         <width>100</width>
-         <height>100</height>
+         <width>150</width>
+         <height>150</height>
         </size>
        </property>
        <property name="baseSize">
@@ -921,16 +930,22 @@
        <property name="text">
         <string>Y</string>
        </property>
+       <property name="scaledContents">
+        <bool>false</bool>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
       </widget>
      </item>
-     <item row="6" column="10">
+     <item row="6" column="10" alignment="Qt::AlignHCenter">
       <widget class="QCheckBox" name="autoCheckBox3">
        <property name="text">
         <string/>
        </property>
       </widget>
      </item>
-     <item row="2" column="10">
+     <item row="2" column="10" alignment="Qt::AlignHCenter">
       <widget class="QCheckBox" name="autoCheckBox1">
        <property name="text">
         <string/>
@@ -985,7 +1000,7 @@
        <property name="maximumSize">
         <size>
          <width>16777215</width>
-         <height>100</height>
+         <height>150</height>
         </size>
        </property>
        <property name="currentText">
@@ -1040,8 +1055,8 @@
        </property>
        <property name="maximumSize">
         <size>
-         <width>100</width>
-         <height>100</height>
+         <width>150</width>
+         <height>150</height>
         </size>
        </property>
        <property name="baseSize">
@@ -1055,6 +1070,12 @@
        </property>
        <property name="text">
         <string>Y</string>
+       </property>
+       <property name="scaledContents">
+        <bool>false</bool>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
        </property>
       </widget>
      </item>
@@ -1089,7 +1110,7 @@
        </property>
       </widget>
      </item>
-     <item row="8" column="10">
+     <item row="8" column="10" alignment="Qt::AlignHCenter">
       <widget class="QCheckBox" name="autoCheckBox4">
        <property name="text">
         <string/>
@@ -1112,8 +1133,8 @@
        </property>
        <property name="maximumSize">
         <size>
-         <width>100</width>
-         <height>100</height>
+         <width>150</width>
+         <height>150</height>
         </size>
        </property>
        <property name="baseSize">
@@ -1128,9 +1149,15 @@
        <property name="text">
         <string>Y</string>
        </property>
+       <property name="scaledContents">
+        <bool>false</bool>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
       </widget>
      </item>
-     <item row="0" column="8">
+     <item row="0" column="8" alignment="Qt::AlignHCenter">
       <widget class="QLabel" name="label_9">
        <property name="minimumSize">
         <size>

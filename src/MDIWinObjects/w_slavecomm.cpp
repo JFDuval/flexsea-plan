@@ -290,7 +290,9 @@ void W_SlaveComm::initSlaveCom(void)
 		(on_off_pb_ptr[row])->setToolTip(on_off_pb_ttip);
 		(on_off_pb_ptr[row])->setDisabled(true);
 
-		(labelStatusPtr[row])->setText(QChar(0x2B07));
+		// Label int:
+		// Whites space are to allow balanced scale-up between on-off and label.
+		(labelStatusPtr[row])->setText("      " + QString(QChar(0x2B07)) + "      ");
 		(labelStatusPtr[row])->setAlignment(Qt::AlignCenter);
 		(labelStatusPtr[row])->setFont(font);
 		(labelStatusPtr[row])->setToolTip(labelStatusttip);
