@@ -44,6 +44,9 @@ public:
 	void requestMetaData(int slaveId);
 	bool parseDynamicUserMetadata(QList<QString> *labels);
 	bool parseDynamicUserData(QList<QString> *values);
+	bool getPlanFieldFlags(QList<bool> *flags);
+	bool getExecFieldFlags(QList<bool> *flags);
+	bool setPlanFieldFlag(int index, bool setTrue);
 
 signals:
 	void writeCommand(uint8_t numb, uint8_t *tx_data, uint8_t r_w);

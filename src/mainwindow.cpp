@@ -1140,7 +1140,8 @@ void MainWindow::sendCloseWindowMsg(QString windowName)
 {
 	QString msg = "View '" + windowName + "' window closed.";
 	qDebug() << msg;
-	ui->statusBar->showMessage(msg);
+	if(ui && ui->statusBar)
+		ui->statusBar->showMessage(msg);
 }
 
 void MainWindow::displayAbout()

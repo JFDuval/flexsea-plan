@@ -19,14 +19,20 @@ void DynamicUserDataManager::requestMetaData(int slaveId)
 	pack(P_AND_S_DEFAULT, slaveId, info, &numb, comm_str_usb);
 //	qDebug() << "Requesting Metadata";
 	emit writeCommand(numb, comm_str_usb, READ);
+
+	if(dynamicUser_numFields)
+	{
+		tx_cmd_user_dyn_w(TX_N_DEFAULT);
+		pack(P_AND_S_DEFAULT, slaveId, info, &numb, comm_str_usb);
+		emit writeCommand(numb, comm_str_usb, WRITE);
+	}
 }
 
 bool DynamicUserDataManager::parseDynamicUserMetadata(QList<QString> *labels)
 {	
 	if(dynamicUser_numFields < 1) return false;
 	if(!dynamicUser_labels || !dynamicUser_labelLengths || !labels) return false;
-	if(!newMetaDataAvailable) return false;
-
+	if(!newMetaDataAvailable || waitingOnFieldFlags) return false;
 	newMetaDataAvailable = 0;
 
 	getDevice()->slaveID = dynamicUser_slaveId;
@@ -42,6 +48,9 @@ bool DynamicUserDataManager::parseDynamicUserMetadata(QList<QString> *labels)
 			uint8_t length = dynamicUser_labelLengths[i];
 			for(int j = 0; j < length; j++)
 				s.append(str[j]);
+
+			if(s.trimmed() == "")
+				qDebug()<< "I know you like to fuck you got a fucking problem";
 
 			label = s;
 		}
@@ -75,6 +84,41 @@ bool DynamicUserDataManager::parseDynamicUserData(QList<QString> *data)
 		}
 		else { d = d + dataSize; }
 	}
+	return true;
+}
+
+bool DynamicUserDataManager::getPlanFieldFlags(QList<bool> *flags)
+{
+	flags->clear();
+	if(dynamicUser_numFields < 1) return false;
+	if(!dynamicUser_fieldFlagsPlan || !flags) return false;
+	for(int i = 0; i < dynamicUser_numFields; i++)
+	{
+		flags->append(dynamicUser_fieldFlagsPlan[i]);
+	}
+	return true;
+}
+
+bool DynamicUserDataManager::getExecFieldFlags(QList<bool> *flags)
+{
+	flags->clear();
+	if(dynamicUser_numFields < 1) return false;
+	if(!dynamicUser_fieldFlagsExec || !flags) return false;
+	for(int i = 0; i < dynamicUser_numFields; i++)
+	{
+		flags->append(dynamicUser_fieldFlagsExec[i]);
+	}
+	return true;
+}
+
+bool DynamicUserDataManager::setPlanFieldFlag(int index, bool setTrue)
+{
+	if(index < 0 || index >= dynamicUser_numFields) return false;
+	if(!dynamicUser_fieldFlagsPlan) return false;
+
+	qDebug() << "Setting a field flag";
+
+	dynamicUser_fieldFlagsPlan[index] = setTrue;
 	return true;
 }
 

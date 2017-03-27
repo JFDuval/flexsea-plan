@@ -112,7 +112,8 @@ SOURCES += src/main.cpp \
 	flexsea-user/src/user-ex.c \
 	flexsea-user/src/user-mn.c \
 	flexsea-system/test/test-flexsea_cmd_tools.c \
-    src/dynamicuserdatamanager.cpp
+    src/dynamicuserdatamanager.cpp \
+    flexsea-user/src/dynamic_user_structs_common.c
 
 HEADERS  += inc/main.h \
 	inc/mainwindow.h \

@@ -44,7 +44,6 @@
 #include <QTimer>
 #include <QDebug>
 #include <flexsea_board.h>
-#include <flexsea-user/inc/dynamic_user_structs.h>
 
 //****************************************************************************
 // Constructor & Destructor:
@@ -110,6 +109,15 @@ void W_UserRW::init(void)
 	connect(refreshDelayTimer, SIGNAL(timeout()), this, SLOT(refreshDisplay()));
 
 	userDataMan->requestMetaData(active_slave);
+
+	connect(ui->planFieldFlagList, &QListWidget::itemChanged, this, &W_UserRW::handlePlanFlagListChange);
+}
+
+void W_UserRW::handlePlanFlagListChange(QListWidgetItem* item)
+{
+	QListWidget *l = ui->planFieldFlagList;
+	int index = l->row(item);
+	userDataMan->setPlanFieldFlag(index, item->checkState() == Qt::Checked);
 }
 
 //Send a Write command:
@@ -160,7 +168,37 @@ void W_UserRW::receiveNewData()
 			ui->userCustomStructLabelList->addItem(newData.at(i));
 			ui->userCustomStructValueList->addItem("-");
 		}
+
+		QList<bool> execFieldFlags;
+		QList<bool> planFieldFlags;
+		bool success = userDataMan->getExecFieldFlags(&execFieldFlags);
+		success = success && userDataMan->getPlanFieldFlags(&planFieldFlags);
+
+		QListWidget* execFlagListWidget = ui->execFieldFlagList;
+		QListWidget* planFlagListWidget = ui->planFieldFlagList;
+		execFlagListWidget->clear();
+		planFlagListWidget->clear();
+
+		for(int i = 0; i < newData.size(); i++)
+		{
+			QListWidgetItem* item1 = new QListWidgetItem("", nullptr);
+			QListWidgetItem* item2 = new QListWidgetItem("", nullptr);
+
+			bool checked1 = success && execFieldFlags.at(i);
+			bool checked2 = success && planFieldFlags.at(i);
+
+			item1->setFlags(item1->flags() | Qt::ItemIsUserCheckable); // set checkable flag
+			item1->setCheckState(checked1 ? Qt::Checked : Qt::Unchecked); // AND initialize check state
+			item1->setFlags(item1->flags() & (!Qt::ItemIsEnabled));
+
+			item2->setFlags(item2->flags() | Qt::ItemIsUserCheckable); // set checkable flag
+			item2->setCheckState(checked2 ? Qt::Checked : Qt::Unchecked); // AND initialize check state
+
+			execFlagListWidget->addItem(item1);
+			planFlagListWidget->addItem(item2);
+		}
 	}
+
 	if(userDataMan->parseDynamicUserData(&newData))
 	{
 		int uiListLength = ui->userCustomStructValueList->count();
@@ -213,7 +251,56 @@ void W_UserRW::on_pushButton_w3_clicked()
 void W_UserRW::on_pushButton_refresh_clicked()
 {
 	readUserData();
+	userDataMan->requestMetaData(active_slave);
 }
+
+void W_UserRW::setUserCustomRowHidden(int row, bool shouldHide)
+{
+	QListWidgetItem* i1 = ui->execFieldFlagList->item(row);
+	QListWidgetItem* i2 = ui->planFieldFlagList->item(row);
+	QListWidgetItem* i3 = ui->userCustomStructLabelList->item(row);
+	QListWidgetItem* i4 = ui->userCustomStructValueList->item(row);
+
+	if(i1 && i2 && i3 && i4)
+	{
+		i1->setHidden(shouldHide);
+		i2->setHidden(shouldHide);
+		i3->setHidden(shouldHide);
+		i4->setHidden(shouldHide);
+	}
+	else
+	{
+		qDebug() << "UserRW::setUserCustomRowHidden: Tried to hide a row for which at least one list could not find corresponding item";
+	}
+}
+
+void W_UserRW::on_pushButton_hide_clicked()
+{
+	QListWidget* execFlagList = ui->execFieldFlagList;
+
+	int count = execFlagList->count();
+	if(!count) return;
+	bool foundFirst = 0, shouldHide;
+	for(int i = count-1; i >= 0; i--)
+	{
+		QListWidgetItem *item = execFlagList->item(i);
+		if(item && item->checkState() == Qt::Unchecked)
+		{
+			if(!foundFirst)
+			{
+				shouldHide = !(item->isHidden());
+				foundFirst = true;
+			}
+
+			setUserCustomRowHidden(i, shouldHide);
+		}
+	}
+
+	if(!foundFirst) return;
+
+	ui->pushButton_hide->setText(shouldHide ? "Show Unchecked" : "Hide Unchecked");
+}
+
 
 //Refreshes the User R values (display only):
 void W_UserRW::refreshDisplay(void)
@@ -224,8 +311,6 @@ void W_UserRW::refreshDisplay(void)
 	ui->r1->setText(QString::number(user_data_1.r[1]));
 	ui->r2->setText(QString::number(user_data_1.r[2]));
 	ui->r3->setText(QString::number(user_data_1.r[3]));
-
-	userDataMan->requestMetaData(active_slave);
 }
 
 void W_UserRW::on_comboBox_slave_currentIndexChanged(int index)
