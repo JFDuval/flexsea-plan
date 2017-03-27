@@ -102,7 +102,7 @@ uint8_t getSlaveCnt(uint8_t sub);
 #define rx_command_usb				rx_command_1
 #define update_rx_buf_byte_usb		update_rx_buf_byte_1
 #define update_rx_buf_array_usb		update_rx_buf_array_1
-#define update_rx_buf_usb(x, y)		circ_buff_write(&rx_buf_circ_1, (x), (y))
+#define update_rx_buf_usb(x, y)		circ_buff_write(commPeriph[PORT_USB].rx.circularBuff, (x), (y))
 
 #define comm_str_spi				comm_str_2
 #define unpack_payload_spi			unpack_payload_2
@@ -113,13 +113,6 @@ uint8_t getSlaveCnt(uint8_t sub);
 //****************************************************************************
 // Shared variable(s)
 //****************************************************************************
-
-/*
-extern uint8_t board_id;
-extern uint8_t board_up_id;
-extern uint8_t board_sub1_id[SLAVE_BUS_1_CNT ? SLAVE_BUS_1_CNT : 1];
-extern uint8_t board_sub2_id[SLAVE_BUS_2_CNT ? SLAVE_BUS_2_CNT : 1];
-*/
 
 #ifdef __cplusplus
 }

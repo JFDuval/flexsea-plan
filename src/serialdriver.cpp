@@ -54,7 +54,10 @@ SerialDriver::SerialDriver(QObject *parent) : QObject(parent)
 	comPortOpen = false;
 }
 
-SerialDriver::~SerialDriver() {}
+SerialDriver::~SerialDriver() {
+	if(isOpen())
+		close();
+}
 //****************************************************************************
 // Public function(s):
 //****************************************************************************
@@ -149,8 +152,12 @@ int SerialDriver::write(uint8_t bytes_to_send, uint8_t *serial_tx_data)
 
 	if(comPortOpen)
 	{
-		QByteArray myQBArray = QByteArray::fromRawData((const char*)serial_tx_data, bytes_to_send);
-		write_ret = USBSerialPort.write(myQBArray);
+		write_ret = USBSerialPort.write((const char*)serial_tx_data, bytes_to_send);
+		if(write_ret < 0)
+		{
+			qDebug() << "Write failed";
+			USBSerialPort.clear();
+		}
 	}
 	else
 	{
@@ -190,12 +197,12 @@ void SerialDriver::signalSuccessfulParse()
 	emit newDataReady();
 }
 
-void SerialDriver::handleReadyRead()
+void SerialDriver::debugStats(int readLength, int numMessagesDecoded)
 {
 	/*	Below code benchmarks the read stream proess
 	 *  Measures the time between reads, low passes, periodically qDebug()'s it
 	 * (use ctime lib instead of QTime because somehow QTime is so inefficient it changes the speed
-	 *
+	 * */
 	static float streamPeriod = 0;
 	static clock_t tLast = clock();
 	clock_t tCurr = clock();
@@ -205,6 +212,17 @@ void SerialDriver::handleReadyRead()
 	streamPeriod = 0.9 * streamPeriod + 0.1 * periodInSecs;
 	float  frequency = 1 / streamPeriod;
 
+
+	static float maxPeriod = 0;
+	if(streamPeriod > maxPeriod)
+		maxPeriod = streamPeriod;
+
+	static float avgReadLength = 0;
+	static float avgNumMsgsDecoded = 0;
+
+	avgReadLength = avgReadLength * 0.9f + readLength * 0.1f;
+	avgNumMsgsDecoded = avgNumMsgsDecoded * 0.9f + numMessagesDecoded * 0.1f;
+
 	static int count = 0;
 	count++;
 	if(frequency < 70)
@@ -213,31 +231,41 @@ void SerialDriver::handleReadyRead()
 		count%=200;
 
 	if(!count)
-		qDebug() << "Estimated period of reads: " << streamPeriod << ", frequency: " << frequency;
-	*/
-
-    QByteArray baData;
-	baData = USBSerialPort.readAll();
-
-	//We check to see if we are getting good packets, or a bunch of crap:
-	int len = baData.length();
-	if(len < 1) return;
-	if(len > MAX_SERIAL_RX_LEN)
 	{
+		qDebug() << "Estimated period of reads: " << streamPeriod << ", frequency: " << frequency;
+		qDebug() << "Max period of reads: " << maxPeriod;
+		qDebug() << "Avg Length Read: " << avgReadLength << ", Avg Msgs Decoded: " << avgNumMsgsDecoded;
+	}
+}
+
+void SerialDriver::tryReadWrite(uint8_t bytes_to_send, uint8_t *serial_tx_data, int timeout)
+{
+	bool prev = USBSerialPort.blockSignals(true);
+	write(bytes_to_send, serial_tx_data);
+	if(USBSerialPort.waitForReadyRead(timeout))
+		handleReadyRead();
+	USBSerialPort.blockSignals(prev);
+}
+
+void SerialDriver::handleReadyRead()
+{
+	//We check to see if we are getting good packets, or a bunch of crap:
+	int len = USBSerialPort.read((char*)largeRxBuffer, MAX_SERIAL_RX_LEN);
+	if(len < 1) return;
+
+	if(USBSerialPort.bytesAvailable())
+	{	//this indicates our buffer is filling faster than we can process it
 		//qDebug() << "Data length over " << MAX_SERIAL_RX_LEN << " bytes (" << len << "bytes)";
-		len = MAX_SERIAL_RX_LEN;
 		USBSerialPort.clear((QSerialPort::AllDirections));
 		emit dataStatus(0, DATAIN_STATUS_RED);
-		return;
 	}
 
 	uint8_t numBuffers = (len / CHUNK_SIZE) + (len % CHUNK_SIZE != 0);
-	largeRxBuffer = (uint8_t*)baData.data();
-
 	int16_t remainingBytes = len;
 
 	int numMessagesReceived = 0;
 	int numMessagesExpected = (len / COMM_STR_BUF_LEN);
+	int maxMessagesExpected = (len / COMM_STR_BUF_LEN + (len % COMM_STR_BUF_LEN != 0));
 	uint16_t bytesToWrite;
 	int error;
     for(int i = 0; i < numBuffers; i++)
@@ -249,39 +277,16 @@ void SerialDriver::handleReadyRead()
 
 		remainingBytes -= bytesToWrite;
 
-		CommPeriph* cp = &commPeriph[PORT_USB];
-		PacketWrapper* pw = &packet[PORT_USB][INBOUND];
-
 		int successfulParse = 0;
-		int numBytesConverted;
-
 		do {
-			successfulParse = false;
-
-			numBytesConverted = unpack_payload_cb(\
-					&rx_buf_circ_1, \
-					cp->rx.packedPtr, \
-					cp->rx.unpackedPtr);
-
-			if(numBytesConverted > 0)
-			{
-				error = circ_buff_move_head(&rx_buf_circ_1, numBytesConverted);
-				if(error)
-					qDebug() << "circ_buff_move_head error:" << error;
-
-				fillPacketFromCommPeriph(cp, pw);
-				successfulParse = payload_parse_str(pw);
-			}
-
-			if(successfulParse == 2)
+			successfulParse = tryParseRx(&commPeriph[PORT_USB], &packet[PORT_USB][INBOUND]);
+			if(successfulParse)
 			{
 				signalSuccessfulParse();
 				numMessagesReceived++;
 			}
-
-		} while(successfulParse);
+		} while(successfulParse && numMessagesReceived < maxMessagesExpected);
 	}
-
 
     // Notify user in GUI: ... TODO: support 4 channels
     if(numMessagesReceived >= numMessagesExpected)
@@ -293,6 +298,8 @@ void SerialDriver::handleReadyRead()
 
 	if(numMessagesReceived)
         emit newDataTimeout(true); //Reset counter
+
+//	debugStats(len, numMessagesReceived);
 
 	return;
 }

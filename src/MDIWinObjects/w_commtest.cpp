@@ -193,7 +193,9 @@ void W_CommTest::readCommTest(void)
 	pack(P_AND_S_DEFAULT, active_slave, info, &numb, comm_str_usb);
 
 	if(serialDriver && serialDriver->isOpen())
-	{ 	serialDriver->write(numb, comm_str_usb);	}
+	{
+		serialDriver->tryReadWrite(numb, comm_str_usb, 100);
+	}
 
 	//FlexSEA_Generic::packetVisualizer(numb, comm_str_usb);
 	measuredRefreshSend = getRefreshRateSend();
