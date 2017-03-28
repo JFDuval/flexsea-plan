@@ -196,7 +196,6 @@ void W_Control::controller_setpoint(int val)
 {
 	uint16_t numb = 0, valid = 0;
 	uint8_t info[2] = {PORT_USB, PORT_USB};
-	int16_t setp = val/2;
 
 	qDebug() << "Entered controller_setpoint()";
 
@@ -207,7 +206,7 @@ void W_Control::controller_setpoint(int val)
 			break;
 		case 1: //Open
 			valid = 1;
-			tx_cmd_ctrl_o_w(TX_N_DEFAULT, setp);
+			tx_cmd_ctrl_o_w(TX_N_DEFAULT, val);
 			qDebug() << "Open: " << val << "mV";
 			break;
 		case 2: //Position
@@ -223,7 +222,7 @@ void W_Control::controller_setpoint(int val)
 			 break;
 		case 3: //Current
 			valid = 1;
-			tx_cmd_ctrl_i_w(TX_N_DEFAULT, setp);
+			tx_cmd_ctrl_i_w(TX_N_DEFAULT, val);
 			qDebug() << "Current: " << val << "mA";
 			break;
 		//case 4: //Impedance
