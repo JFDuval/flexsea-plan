@@ -92,7 +92,6 @@ void W_CommTest::receiveComPortStatus(bool status)
 	}
 	else
 	{
-
 		//PushButton:
 		ui->pushButtonReset->setDisabled(false);
 		ui->pushButtonStartStop->setDisabled(false);
@@ -127,9 +126,13 @@ void W_CommTest::init(void)
 	//Tab by tab initialization:
 	initTab1();
 	initTab2();
+	initTab3();
 
 	//Always start on the first tab:
 	ui->tabWidget->setCurrentIndex(0);
+	currentTab = 0;
+
+	slaveListCount = 0;
 }
 
 //Common displays and controls:
@@ -165,6 +168,12 @@ void W_CommTest::initTab2(void)
 	ui->label_info_tab2->setText("Test the communication between \nPlan and a slave connected \nto Manage (RS-485).");
 }
 
+//Third tab: Many Execute
+void W_CommTest::initTab3(void)
+{
+	ui->label_info_tab3->setText("Test the communication between \nPlan and 1-4 Execute connected \nto Manage (RS-485). Plan is the \nMaster, Manage is a pass-through.");
+}
+
 void W_CommTest::initTimers(void)
 {
 	experimentTimerFreq = DEFAULT_EXPERIMENT_TIMER_FREQ;
@@ -186,14 +195,28 @@ void W_CommTest::readCommTest(void)
 	uint8_t info[2] = {PORT_USB, PORT_USB};
 	uint16_t numb = 0;
 	static uint8_t packetIndex = 0;
+	static uint8_t currentSlaveIndex = 0;
 	packetIndex++;
 
 	//Prepare and send command:
 	tx_cmd_tools_comm_test_r(TX_N_DEFAULT, 1, 20, packetIndex);
-	pack(P_AND_S_DEFAULT, active_slave, info, &numb, comm_str_usb);
+	if(currentTab != TAB_MANY_EX)
+	{
+		//We use the Active slave value:
+		pack(P_AND_S_DEFAULT, active_slave, info, &numb, comm_str_usb);
+	}
+	else
+	{
+		//Many Ex test:
+		currentSlaveIndex++;
+		currentSlaveIndex %= slaveListCount;
+		pack(P_AND_S_DEFAULT, slaveList[currentSlaveIndex], info, &numb, comm_str_usb);
+	}
 
 	if(serialDriver && serialDriver->isOpen())
-	{ 	serialDriver->write(numb, comm_str_usb);	}
+	{
+		serialDriver->tryReadWrite(numb, comm_str_usb, 100);
+	}
 
 	//FlexSEA_Generic::packetVisualizer(numb, comm_str_usb);
 	measuredRefreshSend = getRefreshRateSend();
@@ -340,6 +363,8 @@ void W_CommTest::startStopComTest(bool forceStop)
 		ui->pushButtonStartStop->setText("Stop test");
 		ui->lineEdit->setEnabled(false);
 
+		if(currentTab == TAB_MANY_EX) {latchManyExTab();}
+
 		tmpFreq = ui->lineEdit->text().toInt();
 		if(tmpFreq < 1)
 		{
@@ -360,6 +385,9 @@ void W_CommTest::startStopComTest(bool forceStop)
 		//We were showing Stop.
 		ui->pushButtonStartStop->setText("Start test");
 		ui->lineEdit->setEnabled(true);
+
+		if(currentTab == TAB_MANY_EX) {releaseManyExTab();}
+
 		experimentTimer->stop();
 		status = false;
 	}
@@ -377,4 +405,76 @@ void W_CommTest::on_pushButtonReset_clicked()
 	badPackets = 0;
 	receivedPackets = 0;
 	successRate = 0.0;
+}
+
+void W_CommTest::on_tabWidget_currentChanged(int index)
+{
+	currentTab = index;
+
+	if(index == TAB_MANY_EX)
+	{
+		//qDebug() << "Many Ex tab";
+		ui->comboBox_slave->setDisabled(true);
+	}
+	else
+	{
+		ui->comboBox_slave->setEnabled(true);
+	}
+}
+
+void W_CommTest::latchManyExTab(void)
+{
+	uint8_t cnt = 0;
+
+	//How many boxes checked?
+	if(ui->cbSEX1->isChecked())
+	{
+		slaveList[cnt] = FLEXSEA_EXECUTE_1;
+		cnt++;
+	}
+	if(ui->cbSEX2->isChecked())
+	{
+		slaveList[cnt] = FLEXSEA_EXECUTE_2;
+		cnt++;
+	}
+	if(ui->cbSEX3->isChecked())
+	{
+		slaveList[cnt] = FLEXSEA_EXECUTE_3;
+		cnt++;
+	}
+	if(ui->cbSEX4->isChecked())
+	{
+		slaveList[cnt] = FLEXSEA_EXECUTE_4;
+		cnt++;
+	}
+
+	slaveListCount = cnt;
+	//qDebug() << "slaveListCount: " << slaveListCount;
+
+	ui->cbSEX1->setEnabled(false);
+	ui->cbSEX2->setEnabled(false);
+	ui->cbSEX3->setEnabled(false);
+	ui->cbSEX4->setEnabled(false);
+
+	//Can't run test with no slave (empty list), so we force Ex1:
+	if(!cnt)
+	{
+		ui->cbSEX1->setChecked(true);
+		slaveList[0] = FLEXSEA_EXECUTE_1;
+		slaveListCount = 1;
+	}
+}
+
+void W_CommTest::releaseManyExTab(void)
+{
+	slaveList[0] = 0;
+	slaveList[1] = 0;
+	slaveList[2] = 0;
+	slaveList[3] = 0;
+	slaveListCount = 0;
+
+	ui->cbSEX1->setEnabled(true);
+	ui->cbSEX2->setEnabled(true);
+	ui->cbSEX3->setEnabled(true);
+	ui->cbSEX4->setEnabled(true);
 }

@@ -4,6 +4,7 @@
 #include <QTimer>
 #include <QDebug>
 #include <flexsea_comm.h>
+#include <flexsea_board.h>
 
 DynamicDevice* DynamicUserDataManager::device = nullptr;
 

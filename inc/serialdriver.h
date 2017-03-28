@@ -70,18 +70,20 @@ public slots:
 	void close(void);
 	int write(uint8_t bytes_to_send, uint8_t *serial_tx_data);
 	void handleReadyRead();
+	void tryReadWrite(uint8_t bytes_to_send, uint8_t *serial_tx_data, int timeout);
 
 private:
 
 	QSerialPort USBSerialPort;
 	bool comPortOpen;
 	unsigned char usb_rx[256];
-	uint8_t *largeRxBuffer;
+	uint8_t largeRxBuffer[MAX_SERIAL_RX_LEN];
 
 	std::vector<FlexseaDevice*> devices;
 	FlexseaDevice* getDeviceById(uint8_t slaveId);
 
 	void signalSuccessfulParse();
+	void debugStats(int,int);
 
 signals:
 	void timerClocked(void);

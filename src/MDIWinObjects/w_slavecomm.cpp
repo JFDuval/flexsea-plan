@@ -122,7 +122,6 @@ void W_SlaveComm::receiveComPortStatus(bool status)
 		displayDataReceived(0, DATAIN_STATUS_GREY);
 		log_cb_ptr[0]->setDisabled(true);
 		auto_checkbox[0]->setDisabled(true);
-
 	}
 	else
 	{
@@ -131,7 +130,6 @@ void W_SlaveComm::receiveComPortStatus(bool status)
 		on_off_pb_ptr[0]->setDisabled(false);
 		log_cb_ptr[0]->setDisabled(false);
 		auto_checkbox[0]->setDisabled(false);
-
 	}
 }
 
@@ -282,7 +280,7 @@ void W_SlaveComm::initSlaveCom(void)
 			int selectedExperimentIndex = comboBoxExpPtr[row]->currentIndex();
 			this->populateSlaveComboBox(comboBoxSlavePtr[row], selectedExperimentIndex);
 			comboBoxRefreshPtr[row]->addItems(refreshRateStrings);
-			comboBoxRefreshPtr[row]->setCurrentIndex(4);
+			comboBoxRefreshPtr[row]->setCurrentIndex(6);	//100Hz
 		}
 
 		//Log checkboxes:
@@ -301,7 +299,9 @@ void W_SlaveComm::initSlaveCom(void)
 		(on_off_pb_ptr[row])->setToolTip(on_off_pb_ttip);
 		(on_off_pb_ptr[row])->setDisabled(true);
 
-		(labelStatusPtr[row])->setText(QChar(0x2B07));
+		// Label int:
+		// Whites space are to allow balanced scale-up between on-off and label.
+		(labelStatusPtr[row])->setText("      " + QString(QChar(0x2B07)) + "      ");
 		(labelStatusPtr[row])->setAlignment(Qt::AlignCenter);
 		(labelStatusPtr[row])->setFont(font);
 		(labelStatusPtr[row])->setToolTip(labelStatusttip);

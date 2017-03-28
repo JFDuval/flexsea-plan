@@ -56,6 +56,8 @@ W_Execute::W_Execute(QWidget *parent,
 	testbenchLog = testBenchLogPtrInit;
 	deviceList = deviceListPtr;
 
+	ui->disp_current_d->setToolTip("Gain of 1mA/bit ");
+
 	setWindowTitle(this->getDescription());
 	setWindowIcon(QIcon(":icons/d_logo_small.png"));
 
@@ -197,7 +199,7 @@ void W_Execute::display(struct execute_s *ex)
 	ui->disp_gyroy->setText(QString::number(ex->gyro.y));
 	ui->disp_gyroz->setText(QString::number(ex->gyro.z));
 
-    ui->disp_encDisplay->setText(QString::number(*(ex->enc_ang)));
+	ui->disp_encDisplay->setText(QString::number(*(ex->enc_ang)));
 
 	ui->disp_strain->setText(QString::number(ex->strain));
 	ui->disp_ana->setText(QString::number(ex->analog[0]));

@@ -108,14 +108,13 @@ SOURCES += src/main.cpp \
 	flexsea-user/MotorTestBench/src/user-mn-MotorTestBench.c \
 	flexsea-user/RICNU_Knee_v1/src/user-ex-RICNU_Knee_v1.c \
 	flexsea-user/RICNU_Knee_v1/src/user-mn-RICNU_Knee_v1.c \
-	flexsea-user/src/flexsea_user_structs.c \
 	flexsea-user/src/user-ex.c \
 	flexsea-user/src/user-mn.c \
 	flexsea-system/test/test-flexsea_cmd_tools.c \
     src/dynamicuserdatamanager.cpp \
     flexsea-user/src/dynamic_user_structs_common.c
 
-HEADERS  += inc/main.h \
+HEADERS += inc/main.h \
 	inc/mainwindow.h \
 	inc/counter.h \
 	inc/datalogger.h \
@@ -182,13 +181,12 @@ HEADERS  += inc/main.h \
 	flexsea-system/inc/flexsea_cmd_tools.h \
 	flexsea-system/inc/flexsea_cmd_in_control.h \
 	inc/MDIWinObjects/w_event.h \
-    flexsea-system/inc/flexsea_cmd_stream.h \
-        flexsea-system/inc/flexsea_dataformats.h \
-    flexsea-user/inc/dynamic_user_structs.h \
-    inc/dynamicuserdatamanager.h \
+        flexsea-system/inc/flexsea_cmd_stream.h \
+	flexsea-system/inc/flexsea_dataformats.h \
+        inc/dynamicuserdatamanager.h \
 	flexsea-system/test/flexsea-system_test-all.h
 
-FORMS    += ui/mainwindow.ui \
+FORMS += ui/mainwindow.ui \
 	ui/w_execute.ui \
 	ui/w_control.ui \
 	ui/w_2dplot.ui \

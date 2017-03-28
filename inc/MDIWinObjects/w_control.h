@@ -75,6 +75,8 @@ private slots:
 	void on_pushButton_SetGains_clicked();
 	void on_comboBox_ctrl_list_currentIndexChanged(int index);
 	void on_comboBox_slave_currentIndexChanged(int index);
+	void on_control_slider_min_textEdited(const QString &arg1);
+	void on_control_slider_max_textEdited(const QString &arg1);
 
 private:
 	//Variables & Objects:
@@ -94,6 +96,8 @@ private:
 
 	//Function(s):
 	void initControl(void);
+	void initTabSlider(void);
+	void initTabToggle(void);
 	void init_ctrl_gains(void);
 	void save_ctrl_gains(int controller, int16_t *gains);
 	void controller_setpoint(int val);
@@ -101,6 +105,7 @@ private:
 	void stream_ctrl(void);
 	void refreshStatusGain(void);
 	void control_trapeze(void);
+	void minMaxTextChanged(void);
 };
 
 #define CONTROLLERS         6

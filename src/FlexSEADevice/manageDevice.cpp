@@ -44,7 +44,7 @@ ManageDevice::ManageDevice(void): FlexseaDevice()
 {
 	if(header.length() != headerDecoded.length())
 	{
-		qDebug() << "Mismatch between header lenght Manage!";
+		qDebug() << "Mismatch between header length Manage!";
 	}
 
 	this->dataSource = LogDataFile;
@@ -56,12 +56,13 @@ ManageDevice::ManageDevice(manage_s *devicePtr): FlexseaDevice()
 {
 	if(header.length() != headerDecoded.length())
 	{
-		qDebug() << "Mismatch between header lenght Manage!";
+		qDebug() << "Mismatch between header length Manage!";
 	}
 
 	this->dataSource = LiveDataFile;
 	timeStamp.append(TimeStamp());
 	mnList.append(devicePtr);
+	eventFlags.append(0);
 	serializedLength = header.length();
 	slaveTypeName = "manage";
 }
@@ -77,7 +78,7 @@ QString ManageDevice::getHeaderStr(void)
 QStringList ManageDevice::header = QStringList()
 								<< "Timestamp"
 								<< "Timestamp (ms)"
-
+								<< "Event Flags"
 								<< "Accel X"
 								<< "Accel Y"
 								<< "Accel Z"
@@ -99,7 +100,7 @@ QStringList ManageDevice::header = QStringList()
 QStringList ManageDevice::headerDecoded = QStringList()
 								<< "Raw Value Only"
 								<< "Raw Value Only"
-
+								<< "Raw Value Only"
 								<< "Decoded: mg"
 								<< "Decoded: mg"
 								<< "Decoded: mg"
@@ -123,7 +124,7 @@ QString ManageDevice::getLastSerializedStr(void)
 	QString str;
 	QTextStream(&str) <<	timeStamp.last().date		<< ',' << \
 							timeStamp.last().ms			<< ',' << \
-
+							eventFlags.last()				<< ',' << \
 							mnList.last()->accel.x		<< ',' << \
 							mnList.last()->accel.y		<< ',' << \
 							mnList.last()->accel.z		<< ',' << \
@@ -146,30 +147,33 @@ QString ManageDevice::getLastSerializedStr(void)
 
 void ManageDevice::appendSerializedStr(QStringList *splitLine)
 {
+	uint8_t idx = 0;
+	
 	//Check if data line contain the number of data expected
 	if(splitLine->length() >= serializedLength)
 	{
 		appendEmptyLine();
-		timeStamp.last().date		= (*splitLine)[0];
-		timeStamp.last().ms			= (*splitLine)[1].toInt();
+		timeStamp.last().date		= (*splitLine)[idx++];
+		timeStamp.last().ms			= (*splitLine)[idx++].toInt();
+		eventFlags.last()			= (*splitLine)[idx++].toInt();
 
-		mnList.last()->accel.x		= (*splitLine)[2].toInt();
-		mnList.last()->accel.y		= (*splitLine)[3].toInt();
-		mnList.last()->accel.z		= (*splitLine)[4].toInt();
-		mnList.last()->gyro.x		= (*splitLine)[5].toInt();
-		mnList.last()->gyro.y		= (*splitLine)[6].toInt();
-		mnList.last()->gyro.z		= (*splitLine)[7].toInt();
-		mnList.last()->digitalIn	= (*splitLine)[8].toInt();
-		mnList.last()->sw1			= (*splitLine)[9].toInt();
-		mnList.last()->analog[0]	= (*splitLine)[10].toInt();
-		mnList.last()->analog[1]	= (*splitLine)[11].toInt();
-		mnList.last()->analog[2]	= (*splitLine)[12].toInt();
-		mnList.last()->analog[3]	= (*splitLine)[13].toInt();
-		mnList.last()->analog[4]	= (*splitLine)[14].toInt();
-		mnList.last()->analog[5]	= (*splitLine)[15].toInt();
-		mnList.last()->analog[6]	= (*splitLine)[16].toInt();
-		mnList.last()->analog[7]	= (*splitLine)[17].toInt();
-		mnList.last()->status1		= (*splitLine)[18].toInt();
+		mnList.last()->accel.x		= (*splitLine)[idx++].toInt();
+		mnList.last()->accel.y		= (*splitLine)[idx++].toInt();
+		mnList.last()->accel.z		= (*splitLine)[idx++].toInt();
+		mnList.last()->gyro.x		= (*splitLine)[idx++].toInt();
+		mnList.last()->gyro.y		= (*splitLine)[idx++].toInt();
+		mnList.last()->gyro.z		= (*splitLine)[idx++].toInt();
+		mnList.last()->digitalIn	= (*splitLine)[idx++].toInt();
+		mnList.last()->sw1			= (*splitLine)[idx++].toInt();
+		mnList.last()->analog[0]	= (*splitLine)[idx++].toInt();
+		mnList.last()->analog[1]	= (*splitLine)[idx++].toInt();
+		mnList.last()->analog[2]	= (*splitLine)[idx++].toInt();
+		mnList.last()->analog[3]	= (*splitLine)[idx++].toInt();
+		mnList.last()->analog[4]	= (*splitLine)[idx++].toInt();
+		mnList.last()->analog[5]	= (*splitLine)[idx++].toInt();
+		mnList.last()->analog[6]	= (*splitLine)[idx++].toInt();
+		mnList.last()->analog[7]	= (*splitLine)[idx++].toInt();
+		mnList.last()->status1		= (*splitLine)[idx++].toInt();
 	}
 }
 
@@ -205,88 +209,92 @@ struct std_variable ManageDevice::getSerializedVar(int parameter, int index)
 			var.rawGenPtr = &timeStamp[index].ms;
 			var.decodedPtr = nullptr;
 			break;
-
-		case 2: //"Accel X"
+		case 2: //"Event Flag"
+			var.format = FORMAT_32S;
+			var.rawGenPtr = &eventFlags[index];
+			var.decodedPtr = nullptr;
+			break;
+		case 3: //"Accel X"
 			var.format = FORMAT_16S;
 			var.rawGenPtr = &mnList[index]->accel.x;
 			var.decodedPtr = &mnList[index]->decoded.accel.x;
 			break;
-		case 3: //"Accel Y"
+		case 4: //"Accel Y"
 			var.format = FORMAT_16S;
 			var.rawGenPtr = &mnList[index]->accel.y;
 			var.decodedPtr = &mnList[index]->decoded.accel.y;
 			break;
-		case 4: //"Accel Z"
+		case 5: //"Accel Z"
 			var.format = FORMAT_16S;
 			var.rawGenPtr = &mnList[index]->accel.z;
 			var.decodedPtr = &mnList[index]->decoded.accel.z;
 			break;
-		case 5: //"Gyro X"
+		case 6: //"Gyro X"
 			var.format = FORMAT_16S;
 			var.rawGenPtr = &mnList[index]->gyro.x;
 			var.decodedPtr = &mnList[index]->decoded.gyro.x;
 			break;
-		case 6: //"Gyro Y"
+		case 7: //"Gyro Y"
 			var.format = FORMAT_16S;
 			var.rawGenPtr = &mnList[index]->gyro.y;
 			var.decodedPtr = &mnList[index]->decoded.gyro.y;
 			break;
-		case 7: //"Gyro Z"
+		case 8: //"Gyro Z"
 			var.format = FORMAT_16S;
 			var.rawGenPtr = &mnList[index]->gyro.z;
 			var.decodedPtr = &mnList[index]->decoded.gyro.z;
 			break;
-		case 8: //"Digital inputs"
+		case 9: //"Digital inputs"
 			var.format = FORMAT_16U;
 			var.rawGenPtr = &mnList[index]->digitalIn;
 			var.decodedPtr = nullptr;
 			break;
-		case 9: //"Pushbutton"
+		case 10: //"Pushbutton"
 			var.format = FORMAT_8U;
 			var.rawGenPtr = &mnList[index]->sw1;
 			var.decodedPtr = nullptr;
 			break;
-		case 10: //"Analog[0]"
+		case 11: //"Analog[0]"
 			var.format = FORMAT_16U;
 			var.rawGenPtr = &mnList[index]->analog[0];
 			var.decodedPtr = &mnList[index]->decoded.analog[0];
 			break;
-		case 11: //Analog[1]
+		case 12: //Analog[1]
 			var.format = FORMAT_16U;
 			var.rawGenPtr = &mnList[index]->analog[1];
 			var.decodedPtr = &mnList[index]->decoded.analog[1];
 			break;
-		case 12: //"Analog[2]"
+		case 13: //"Analog[2]"
 			var.format = FORMAT_16U;
 			var.rawGenPtr = &mnList[index]->analog[2];
 			var.decodedPtr = &mnList[index]->decoded.analog[2];
 			break;
-		case 13: //Analog[3]
+		case 14: //Analog[3]
 			var.format = FORMAT_16U;
 			var.rawGenPtr = &mnList[index]->analog[3];
 			var.decodedPtr = &mnList[index]->decoded.analog[3];
 			break;
-		case 14: //"Analog[4]"
+		case 15: //"Analog[4]"
 			var.format = FORMAT_16U;
 			var.rawGenPtr = &mnList[index]->analog[4];
 			var.decodedPtr = &mnList[index]->decoded.analog[4];
 			break;
-		case 15: //Analog[5]
+		case 16: //Analog[5]
 			var.format = FORMAT_16U;
 			var.rawGenPtr = &mnList[index]->analog[5];
 			var.decodedPtr = &mnList[index]->decoded.analog[5];
 			break;
-		case 16: //"Analog[6]"
+		case 17: //"Analog[6]"
 			var.format = FORMAT_16U;
 			var.rawGenPtr = &mnList[index]->analog[6];
 			var.decodedPtr = &mnList[index]->decoded.analog[6];
 			break;
-		case 17: //Analog[7]
+		case 18: //Analog[7]
 			var.format = FORMAT_16U;
 			var.rawGenPtr = &mnList[index]->analog[7];
 			var.decodedPtr = &mnList[index]->decoded.analog[7];
 			break;
-		case 18: //"Status"
+		case 19: //"Status"
 			var.format = FORMAT_8U;
 			var.rawGenPtr = &mnList[index]->status1;
 			var.decodedPtr = nullptr;
@@ -306,12 +314,14 @@ void ManageDevice::clear(void)
 	FlexseaDevice::clear();
 	mnList.clear();
 	timeStamp.clear();
+	eventFlags.clear();
 }
 
 void ManageDevice::appendEmptyLine(void)
 {
 	timeStamp.append(TimeStamp());
 	mnList.append(new manage_s());
+	eventFlags.append(0);
 }
 
 void ManageDevice::decodeLastLine(void)
