@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>340</width>
-    <height>451</height>
+    <height>440</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -15,7 +15,7 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <layout class="QGridLayout" name="gridLayout">
+    <layout class="QGridLayout" name="gridLayout" rowstretch="3,3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1">
      <item row="11" column="1" colspan="3">
       <widget class="QLabel" name="labelStatus">
        <property name="text">
@@ -271,9 +271,6 @@
         <string>Connected to:</string>
        </property>
       </widget>
-     </item>
-     <item row="0" column="1">
-      <widget class="QComboBox" name="comboBox_slave"/>
      </item>
      <item row="6" column="3">
       <widget class="QLabel" name="label_10">
@@ -643,9 +640,6 @@
        </property>
       </widget>
      </item>
-     <item row="1" column="1">
-      <widget class="QComboBox" name="comboBox_slaveM"/>
-     </item>
      <item row="14" column="2">
       <widget class="QLabel" name="dispIContD">
        <property name="minimumSize">
@@ -906,20 +900,27 @@
        </property>
       </widget>
      </item>
+     <item row="1" column="1" colspan="2">
+      <widget class="QComboBox" name="comboBox_slaveM">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="1" colspan="2">
+      <widget class="QComboBox" name="comboBox_slave">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+      </widget>
+     </item>
     </layout>
-   </item>
-   <item>
-    <spacer name="verticalSpacer">
-     <property name="orientation">
-      <enum>Qt::Vertical</enum>
-     </property>
-     <property name="sizeHint" stdset="0">
-      <size>
-       <width>5</width>
-       <height>5</height>
-      </size>
-     </property>
-    </spacer>
    </item>
   </layout>
  </widget>
