@@ -80,19 +80,9 @@ W_Control::~W_Control()
 
 void W_Control::initControl(void)
 {
-	//QString str;
-
-	//Setpoints:
-	ui->control_slider_min->setText("0");
-	ui->control_slider_max->setText("0");
-	ui->hSlider_Ctrl->setMinimum(ui->control_slider_min->text().toInt());
-	ui->hSlider_Ctrl->setMaximum(ui->control_slider_max->text().toInt());
-	ui->control_setp_a->setText("0");
-	ui->control_setp_b->setText("0");
-	ui->control_toggle_delayA->setText("1000");
-	ui->control_toggle_delayB->setText("1000");
-	ui->control_trapeze_spd->setText("10000");
-	ui->control_trapeze_acc->setText("10000");
+	initTabToggle();
+	initTabSlider();
+	ui->tabWidget->setCurrentIndex(0);
 
 	//Populates Slave list:
 	FlexSEA_Generic::populateSlaveComboBox(ui->comboBox_slave, SL_BASE_EX, \
@@ -121,9 +111,6 @@ void W_Control::initControl(void)
 	refreshStatusGain();
 	ui->statusGains->setTextFormat(Qt::RichText);
 
-	//Toggle:
-	ctrl_toggle_state = 0;
-
 	ui->statusController->setText("Active controller: none/not selected via GUI.");
 
 	//Display control encoder:
@@ -133,6 +120,44 @@ void W_Control::initControl(void)
 		ui->comboBoxDispSel->addItem(var_list_enc_disp.at(index));
 	}
 	ui->labelDispEncoder->setText("No data");   //Initial
+}
+
+void W_Control::initTabToggle(void)
+{
+	//Limit input fields:
+	const QValidator *validInt = new QIntValidator(-10000000, 10000000, this);
+	const QValidator *validUint = new QIntValidator(0, 10000000, this);
+	ui->control_setp_a->setValidator(validInt);
+	ui->control_setp_b->setValidator(validInt);
+	ui->control_toggle_delayA->setValidator(validUint);
+	ui->control_toggle_delayB->setValidator(validUint);
+	ui->control_trapeze_spd->setValidator(validUint);
+	ui->control_trapeze_acc->setValidator(validUint);
+
+	//Setpoints:
+	ui->control_setp_a->setText("0");
+	ui->control_setp_b->setText("0");
+	ui->control_toggle_delayA->setText("1000");
+	ui->control_toggle_delayB->setText("1000");
+	ui->control_trapeze_spd->setText("10000");
+	ui->control_trapeze_acc->setText("10000");
+	ui->label_actualSetpoint->setText("0");
+
+	//Toggle:
+	ctrl_toggle_state = 0;
+}
+
+void W_Control::initTabSlider(void)
+{
+	//Limit input fields:
+	const QValidator *validator = new QIntValidator(-1000000, 1000000, this);
+	ui->control_slider_min->setValidator(validator);
+	ui->control_slider_max->setValidator(validator);
+
+	ui->control_slider_min->setText("0");
+	ui->control_slider_max->setText("0");
+	ui->hSlider_Ctrl->setMinimum(ui->control_slider_min->text().toInt());
+	ui->hSlider_Ctrl->setMaximum(ui->control_slider_max->text().toInt());
 }
 
 void W_Control::initTimers(void)
@@ -182,7 +207,7 @@ void W_Control::controller_setpoint(int val)
 		case 1: //Open
 			valid = 1;
 			tx_cmd_ctrl_o_w(TX_N_DEFAULT, val);
-			qDebug() << "Open: " << val;
+			qDebug() << "Open: " << val << "mV";
 			break;
 		case 2: //Position
 		case 4: //Impedance
@@ -198,7 +223,7 @@ void W_Control::controller_setpoint(int val)
 		case 3: //Current
 			valid = 1;
 			tx_cmd_ctrl_i_w(TX_N_DEFAULT, val);
-			qDebug() << "Current: " << val;
+			qDebug() << "Current: " << val << "mA";
 			break;
 		//case 4: //Impedance
 			//Done with position (see above)
@@ -243,6 +268,9 @@ void W_Control::stream_ctrl(void)
 	{
 		ui->labelDispEncoder->setText("Invalid.");
 	}
+
+	//Update Toggle's setpoint field:
+	ui->label_actualSetpoint->setText(QString::number(ctrl_setpoint));
 }
 
 void W_Control::control_trapeze(void)
@@ -421,18 +449,34 @@ void W_Control::on_pushButton_toggle_clicked()
 void W_Control::on_pushButton_CtrlMinMax_clicked()
 {
 	//Get min & max, update slider limits:
-	ui->hSlider_Ctrl->setMinimum(ui->control_slider_min->text().toInt());
-	ui->hSlider_Ctrl->setMaximum(ui->control_slider_max->text().toInt());
-	//Set slider to min:
-	ui->hSlider_Ctrl->setValue(ui->control_slider_min->text().toInt());
+	int min = ui->control_slider_min->text().toInt();
+	int max = ui->control_slider_max->text().toInt();
+
+	//Safety:
+	if(min > max)
+	{
+		min = max;
+		ui->control_slider_min->setText(QString::number(min));
+	}
+
+	ui->hSlider_Ctrl->setMinimum(min);
+	ui->hSlider_Ctrl->setMaximum(max);
+
+	//Default position:
+	if(min < 0)	{ui->hSlider_Ctrl->setValue(0);}
+	else {ui->hSlider_Ctrl->setValue(min);}
+
+	//Reset button's color:
+	ui->pushButton_CtrlMinMax->setStyleSheet("");
 }
 
 void W_Control::on_hSlider_Ctrl_valueChanged(int value)
 {
 	(void)value;	//Unused for now
 
-	uint val = 0;
+	int val = 0;
 	val = ui->hSlider_Ctrl->value();
+	ui->disp_slider->setText(QString::number(val));
 	ctrl_setpoint = val;
 
 	//When we move the slider we do not use trapeze, we just "slip" the setpoint
@@ -646,4 +690,22 @@ void W_Control::refreshStatusGain(void)
 
 	ui->statusGains->setText(str);
 	qDebug() << str;
+}
+
+void W_Control::on_control_slider_min_textEdited(const QString &arg1)
+{
+	(void)arg1;
+	minMaxTextChanged();
+}
+
+void W_Control::on_control_slider_max_textEdited(const QString &arg1)
+{
+	(void)arg1;
+	minMaxTextChanged();
+}
+
+void W_Control::minMaxTextChanged(void)
+{
+	ui->pushButton_CtrlMinMax->setStyleSheet("background-color: rgb(255, 255, 0); \
+											   color: rgb(0, 0, 0)");
 }
