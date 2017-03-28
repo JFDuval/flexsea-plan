@@ -29,7 +29,9 @@ void DynamicUserDataManager::requestMetaData(int slaveId)
 	}
 }
 
-bool DynamicUserDataManager::parseDynamicUserMetadata(QList<QString> *labels)
+const char* FORMAT_TYPE_NAME_MAP[] = {"UINT32", "INT32", "UINT16", "INT16", "UINT8", "INT8", "QString", "NullPtr"};
+
+bool DynamicUserDataManager::parseDynamicUserMetadata(QList<QString> *labels, QList<QString> *types)
 {	
 	if(dynamicUser_numFields < 1) return false;
 	if(!dynamicUser_labels || !dynamicUser_labelLengths || !labels) return false;
@@ -39,9 +41,11 @@ bool DynamicUserDataManager::parseDynamicUserMetadata(QList<QString> *labels)
 	getDevice()->slaveID = dynamicUser_slaveId;
 
 	labels->clear();
+	types->clear();
 	for(int i = 0; i < dynamicUser_numFields; i++)
 	{
 		QString label = "Unknown";
+		QString type = "Unknown";
 		if(dynamicUser_labels && dynamicUser_labelLengths)
 		{
 			QString s;
@@ -55,8 +59,18 @@ bool DynamicUserDataManager::parseDynamicUserMetadata(QList<QString> *labels)
 
 			label = s;
 		}
+		if(dynamicUser_fieldTypes && dynamicUser_fieldTypes[i] < NULL_PTR)
+		{
+			int fieldType = dynamicUser_fieldTypes[i];
+			int l = strlen(FORMAT_TYPE_NAME_MAP[fieldType]);
+			QString s = "";
+			for(int j = 0; j < l; j++)
+				s.append(FORMAT_TYPE_NAME_MAP[fieldType][j]);
+			type = s;
+		}
 
 		labels->append(label);
+		types->append(type);
 	}
 	return true;
 }

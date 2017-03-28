@@ -42,7 +42,7 @@ public:
 	DynamicDevice* getDevice();
 	int getCommandCode();
 	void requestMetaData(int slaveId);
-	bool parseDynamicUserMetadata(QList<QString> *labels);
+	bool parseDynamicUserMetadata(QList<QString> *labels, QList<QString> *types);
 	bool parseDynamicUserData(QList<QString> *values);
 	bool getPlanFieldFlags(QList<bool> *flags);
 	bool getExecFieldFlags(QList<bool> *flags);

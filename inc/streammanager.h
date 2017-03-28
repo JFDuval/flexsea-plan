@@ -95,6 +95,6 @@ private:
 	void sendCommandBattery(uint8_t slaveId);
 	void sendCommandTestBench(uint8_t slaveId);
 	void sendCommandInControl(uint8_t slaveId);
-
+	void sendCommandDynamic(uint8_t slaveId);
 };
 #endif // STREAMMANAGER_H

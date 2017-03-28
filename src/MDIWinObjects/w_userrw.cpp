@@ -159,13 +159,17 @@ void W_UserRW::readUserData(void)
 void W_UserRW::receiveNewData()
 {
 	QList<QString> newData;
-	if(userDataMan->parseDynamicUserMetadata(&newData))
+	QList<QString> types;
+	if(userDataMan->parseDynamicUserMetadata(&newData, &types))
 	{
 		ui->userCustomStructLabelList->clear();
+		ui->userCustomTypeList->clear();
 		ui->userCustomStructValueList->clear();
+
 		for(int i = 0; i < newData.size(); i++)
 		{
 			ui->userCustomStructLabelList->addItem(newData.at(i));
+			ui->userCustomTypeList->addItem(types.at(i));
 			ui->userCustomStructValueList->addItem("-");
 		}
 
@@ -197,6 +201,9 @@ void W_UserRW::receiveNewData()
 			execFlagListWidget->addItem(item1);
 			planFlagListWidget->addItem(item2);
 		}
+
+		execFlagListWidget->setFlow(QListView::TopToBottom);
+		planFlagListWidget->setFlow(QListView::TopToBottom);
 	}
 
 	if(userDataMan->parseDynamicUserData(&newData))
@@ -260,13 +267,15 @@ void W_UserRW::setUserCustomRowHidden(int row, bool shouldHide)
 	QListWidgetItem* i2 = ui->planFieldFlagList->item(row);
 	QListWidgetItem* i3 = ui->userCustomStructLabelList->item(row);
 	QListWidgetItem* i4 = ui->userCustomStructValueList->item(row);
+	QListWidgetItem* i5 = ui->userCustomTypeList->item(row);
 
-	if(i1 && i2 && i3 && i4)
+	if(i1 && i2 && i3 && i4 && i5)
 	{
 		i1->setHidden(shouldHide);
 		i2->setHidden(shouldHide);
 		i3->setHidden(shouldHide);
 		i4->setHidden(shouldHide);
+		i5->setHidden(shouldHide);
 	}
 	else
 	{

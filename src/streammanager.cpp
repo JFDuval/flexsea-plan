@@ -7,6 +7,7 @@
 #include <cmd-MIT_2DoF_Ankle_v1.h>
 #include <cmd-RICNU_Knee_v1.h>
 #include <cmd-MotorTestBench.h>
+#include <dynamic_user_structs.h>
 
 StreamManager::StreamManager(QObject *parent, SerialDriver* driver) :
 	QObject(parent),
@@ -282,6 +283,9 @@ void StreamManager::sendCommands(int index)
 		case CMD_IN_CONTROL:
 			sendCommandInControl(record.slaveIndex);
 			break;
+		case CMD_USER_DYNAMIC:
+			sendCommandDynamic(record.slaveIndex);
+			break;
 		default:
 			qDebug() << "Unsupported command was given: " << record.cmdType;
 			stopStreaming(record.cmdType, record.slaveIndex, timerFrequencies[index]);
@@ -342,4 +346,10 @@ void StreamManager::sendCommandInControl(uint8_t slaveId)
 {
 	tx_cmd_in_control_r(TX_N_DEFAULT);
 	tryPackAndSend(CMD_IN_CONTROL, slaveId);
+}
+
+void StreamManager::sendCommandDynamic(uint8_t slaveId)
+{
+	tx_cmd_user_dyn_r(TX_N_DEFAULT, SEND_DATA);
+	tryPackAndSend(CMD_USER_DYNAMIC, slaveId);
 }
