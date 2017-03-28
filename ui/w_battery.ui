@@ -900,8 +900,8 @@
        </property>
       </widget>
      </item>
-     <item row="0" column="1" colspan="3">
-      <widget class="QComboBox" name="comboBox_slave">
+     <item row="1" column="1" colspan="2">
+      <widget class="QComboBox" name="comboBox_slaveM">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
          <horstretch>0</horstretch>
@@ -910,8 +910,8 @@
        </property>
       </widget>
      </item>
-     <item row="1" column="1" colspan="3">
-      <widget class="QComboBox" name="comboBox_slaveM">
+     <item row="0" column="1" colspan="2">
+      <widget class="QComboBox" name="comboBox_slave">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
          <horstretch>0</horstretch>
