@@ -80,13 +80,9 @@ W_Control::~W_Control()
 
 void W_Control::initControl(void)
 {
-	//QString str;
+	initSetpointSlider();
 
 	//Setpoints:
-	ui->control_slider_min->setText("0");
-	ui->control_slider_max->setText("0");
-	ui->hSlider_Ctrl->setMinimum(ui->control_slider_min->text().toInt());
-	ui->hSlider_Ctrl->setMaximum(ui->control_slider_max->text().toInt());
 	ui->control_setp_a->setText("0");
 	ui->control_setp_b->setText("0");
 	ui->control_toggle_delayA->setText("1000");
@@ -135,6 +131,20 @@ void W_Control::initControl(void)
 	ui->labelDispEncoder->setText("No data");   //Initial
 }
 
+//Initialization for the slider and the associated buttons and labels/displays
+void W_Control::initSetpointSlider(void)
+{
+	//Limit input fields:
+	const QValidator *validator = new QIntValidator(-1000000, 1000000, this);
+	ui->control_slider_min->setValidator(validator);
+	ui->control_slider_max->setValidator(validator);
+
+	ui->control_slider_min->setText("0");
+	ui->control_slider_max->setText("0");
+	ui->hSlider_Ctrl->setMinimum(ui->control_slider_min->text().toInt());
+	ui->hSlider_Ctrl->setMaximum(ui->control_slider_max->text().toInt());
+}
+
 void W_Control::initTimers(void)
 {
 	timerCtrl = new QTimer(this);
@@ -171,6 +181,7 @@ void W_Control::controller_setpoint(int val)
 {
 	uint16_t numb = 0, valid = 0;
 	uint8_t info[2] = {PORT_USB, PORT_USB};
+	int16_t setp = val/2;
 
 	qDebug() << "Entered controller_setpoint()";
 
@@ -181,8 +192,8 @@ void W_Control::controller_setpoint(int val)
 			break;
 		case 1: //Open
 			valid = 1;
-			tx_cmd_ctrl_o_w(TX_N_DEFAULT, val);
-			qDebug() << "Open: " << val;
+			tx_cmd_ctrl_o_w(TX_N_DEFAULT, setp);
+			qDebug() << "Open: " << val << "mV";
 			break;
 		case 2: //Position
 		case 4: //Impedance
@@ -197,8 +208,8 @@ void W_Control::controller_setpoint(int val)
 			 break;
 		case 3: //Current
 			valid = 1;
-			tx_cmd_ctrl_i_w(TX_N_DEFAULT, val);
-			qDebug() << "Current: " << val;
+			tx_cmd_ctrl_i_w(TX_N_DEFAULT, setp);
+			qDebug() << "Current: " << val << "mA";
 			break;
 		//case 4: //Impedance
 			//Done with position (see above)
@@ -421,18 +432,31 @@ void W_Control::on_pushButton_toggle_clicked()
 void W_Control::on_pushButton_CtrlMinMax_clicked()
 {
 	//Get min & max, update slider limits:
-	ui->hSlider_Ctrl->setMinimum(ui->control_slider_min->text().toInt());
-	ui->hSlider_Ctrl->setMaximum(ui->control_slider_max->text().toInt());
-	//Set slider to min:
-	ui->hSlider_Ctrl->setValue(ui->control_slider_min->text().toInt());
+	int min = ui->control_slider_min->text().toInt();
+	int max = ui->control_slider_max->text().toInt();
+
+	//Safety:
+	if(min > max)
+	{
+		min = max;
+		ui->control_slider_min->setText(QString::number(min));
+	}
+
+	ui->hSlider_Ctrl->setMinimum(min);
+	ui->hSlider_Ctrl->setMaximum(max);
+
+	//Default position:
+	if(min < 0)	{ui->hSlider_Ctrl->setValue(0);}
+	else {ui->hSlider_Ctrl->setValue(min);}
 }
 
 void W_Control::on_hSlider_Ctrl_valueChanged(int value)
 {
 	(void)value;	//Unused for now
 
-	uint val = 0;
+	int val = 0;
 	val = ui->hSlider_Ctrl->value();
+	ui->disp_slider->setText(QString::number(val));
 	ctrl_setpoint = val;
 
 	//When we move the slider we do not use trapeze, we just "slip" the setpoint

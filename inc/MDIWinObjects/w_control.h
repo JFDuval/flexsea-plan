@@ -94,6 +94,7 @@ private:
 
 	//Function(s):
 	void initControl(void);
+	void initSetpointSlider(void);
 	void init_ctrl_gains(void);
 	void save_ctrl_gains(int controller, int16_t *gains);
 	void controller_setpoint(int val);
