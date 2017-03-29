@@ -219,13 +219,13 @@ void MainWindow::initFlexSeaDeviceObject(void)
 	strainFlexList.append(&strainDevList.last());
 
 	ricnuDevList.append(RicnuProject(&exec1, &strain1));
-	ricnuDevList.last().slaveName = "";
+	ricnuDevList.last().slaveName = "RIC/NU";
 	ricnuDevList.last().slaveID = FLEXSEA_VIRTUAL_PROJECT;
 	flexseaPtrlist.append(&ricnuDevList.last());
 	ricnuFlexList.append(&ricnuDevList.last());
 
 	ankle2DofDevList.append(Ankle2DofProject(&exec1, &exec2));
-	ankle2DofDevList.last().slaveName = "";
+	ankle2DofDevList.last().slaveName = "Ankle 2 DoF";
 	ankle2DofDevList.last().slaveID = FLEXSEA_VIRTUAL_PROJECT;
 	flexseaPtrlist.append(&ankle2DofDevList.last());
 	ankle2DofFlexList.append(&ankle2DofDevList.last());
