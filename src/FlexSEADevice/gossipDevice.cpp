@@ -44,7 +44,7 @@ GossipDevice::GossipDevice(void): FlexseaDevice()
 {
 	if(header.length() != headerDecoded.length())
 	{
-		qDebug() << "Mismatch between header lenght Gossip!";
+		qDebug() << "Mismatch between header length Gossip!";
 	}
 
 	this->dataSource = LogDataFile;
@@ -56,12 +56,13 @@ GossipDevice::GossipDevice(gossip_s *devicePtr): FlexseaDevice()
 {
 	if(header.length() != headerDecoded.length())
 	{
-		qDebug() << "Mismatch between header lenght Gossip!";
+		qDebug() << "Mismatch between header length Gossip!";
 	}
 
 	this->dataSource = LiveDataFile;
 	timeStamp.append(TimeStamp());
 	goList.append(devicePtr);
+	eventFlags.append(0);
 	serializedLength = header.length();
 	slaveTypeName = "gossip";
 }
@@ -78,7 +79,7 @@ QString GossipDevice::getHeaderStr(void)
 QStringList GossipDevice::header = QStringList()
 								<< "Timestamp"
 								<< "Timestamp (ms)"
-
+								<< "Event Flags"
 								<< "Accel X"
 								<< "Accel Y"
 								<< "Accel Z"
@@ -99,7 +100,7 @@ QStringList GossipDevice::header = QStringList()
 QStringList GossipDevice::headerDecoded = QStringList()
 								<< "Raw Value Only"
 								<< "Raw Value Only"
-
+								<< "Raw Value Only"
 								<< "Decoded: mg"
 								<< "Decoded: mg"
 								<< "Decoded: mg"
@@ -122,7 +123,7 @@ QString GossipDevice::getLastSerializedStr(void)
 	QString str;
 	QTextStream(&str) <<	timeStamp.last().date		<< ',' << \
 							timeStamp.last().ms			<< ',' << \
-
+							eventFlags.last()			<< ',' << \
 							goList.last()->accel.x		<< ',' << \
 							goList.last()->accel.y		<< ',' << \
 							goList.last()->accel.z		<< ',' << \
@@ -144,29 +145,32 @@ QString GossipDevice::getLastSerializedStr(void)
 
 void GossipDevice::appendSerializedStr(QStringList *splitLine)
 {
+	uint8_t idx = 0;
+
 	//Check if data line contain the number of data expected
 	if(splitLine->length() >= serializedLength)
 	{
 		appendEmptyLine();
-		timeStamp.last().date		= (*splitLine)[0];
-		timeStamp.last().ms			= (*splitLine)[1].toInt();
+		timeStamp.last().date		= (*splitLine)[idx++];
+		timeStamp.last().ms			= (*splitLine)[idx++].toInt();
+		eventFlags.last()			= (*splitLine)[idx++].toInt();
 
-		goList.last()->accel.x		= (*splitLine)[2].toInt();
-		goList.last()->accel.y		= (*splitLine)[3].toInt();
-		goList.last()->accel.z		= (*splitLine)[4].toInt();
-		goList.last()->gyro.x		= (*splitLine)[5].toInt();
-		goList.last()->gyro.y		= (*splitLine)[6].toInt();
-		goList.last()->gyro.z		= (*splitLine)[7].toInt();
-		goList.last()->magneto.x	= (*splitLine)[8].toInt();
-		goList.last()->magneto.y	= (*splitLine)[9].toInt();
-		goList.last()->magneto.z	= (*splitLine)[10].toInt();
-		goList.last()->io[0]		= (*splitLine)[11].toInt();
-		goList.last()->io[1]		= (*splitLine)[12].toInt();
-		goList.last()->capsense[0]	= (*splitLine)[13].toInt();
-		goList.last()->capsense[1]	= (*splitLine)[14].toInt();
-		goList.last()->capsense[2]	= (*splitLine)[15].toInt();
-		goList.last()->capsense[3]	= (*splitLine)[16].toInt();
-		goList.last()->status		= (*splitLine)[17].toInt();
+		goList.last()->accel.x		= (*splitLine)[idx++].toInt();
+		goList.last()->accel.y		= (*splitLine)[idx++].toInt();
+		goList.last()->accel.z		= (*splitLine)[idx++].toInt();
+		goList.last()->gyro.x		= (*splitLine)[idx++].toInt();
+		goList.last()->gyro.y		= (*splitLine)[idx++].toInt();
+		goList.last()->gyro.z		= (*splitLine)[idx++].toInt();
+		goList.last()->magneto.x	= (*splitLine)[idx++].toInt();
+		goList.last()->magneto.y	= (*splitLine)[idx++].toInt();
+		goList.last()->magneto.z	= (*splitLine)[idx++].toInt();
+		goList.last()->io[0]		= (*splitLine)[idx++].toInt();
+		goList.last()->io[1]		= (*splitLine)[idx++].toInt();
+		goList.last()->capsense[0]	= (*splitLine)[idx++].toInt();
+		goList.last()->capsense[1]	= (*splitLine)[idx++].toInt();
+		goList.last()->capsense[2]	= (*splitLine)[idx++].toInt();
+		goList.last()->capsense[3]	= (*splitLine)[idx++].toInt();
+		goList.last()->status		= (*splitLine)[idx++].toInt();
 	}
 }
 
@@ -202,80 +206,84 @@ struct std_variable GossipDevice::getSerializedVar(int parameter, int index)
 			var.rawGenPtr = &timeStamp[index].ms;
 			var.decodedPtr = nullptr;
 			break;
-
-		case 2: //"Accel X"
+		case 2: //"Event Flag"
+			var.format = FORMAT_32S;
+			var.rawGenPtr = &eventFlags[index];
+			var.decodedPtr = nullptr;
+			break;
+		case 3: //"Accel X"
 			var.format = FORMAT_16S;
 			var.rawGenPtr = &goList[index]->accel.x;
 			var.decodedPtr = &goList[index]->decoded.accel.x;
 			break;
-		case 3: //"Accel Y"
+		case 4: //"Accel Y"
 			var.format = FORMAT_16S;
 			var.rawGenPtr = &goList[index]->accel.y;
 			var.decodedPtr = &goList[index]->decoded.accel.y;
 			break;
-		case 4: //"Accel Z"
+		case 5: //"Accel Z"
 			var.format = FORMAT_16S;
 			var.rawGenPtr = &goList[index]->accel.z;
 			var.decodedPtr = &goList[index]->decoded.accel.z;
 			break;
-		case 5: //"Gyro X"
+		case 6: //"Gyro X"
 			var.format = FORMAT_16S;
 			var.rawGenPtr = &goList[index]->gyro.x;
 			var.decodedPtr = &goList[index]->decoded.gyro.x;
 			break;
-		case 6: //"Gyro Y"
+		case 7: //"Gyro Y"
 			var.format = FORMAT_16S;
 			var.rawGenPtr = &goList[index]->gyro.y;
 			var.decodedPtr = &goList[index]->decoded.gyro.y;
 			break;
-		case 7: //"Gyro Z"
+		case 8: //"Gyro Z"
 			var.format = FORMAT_16S;
 			var.rawGenPtr = &goList[index]->gyro.z;
 			var.decodedPtr = &goList[index]->decoded.gyro.z;
 			break;
-		case 8: //"Magneto X"
+		case 9: //"Magneto X"
 			var.format = FORMAT_16S;
 			var.rawGenPtr = &goList[index]->magneto.x;
 			var.decodedPtr = &goList[index]->decoded.magneto.x;
 			break;
-		case 9: //"Magneto Y"
+		case 10: //"Magneto Y"
 			var.format = FORMAT_16S;
 			var.rawGenPtr = &goList[index]->magneto.y;
 			var.decodedPtr = &goList[index]->decoded.magneto.y;
 			break;
-		case 10: //"Magneto Z"
+		case 11: //"Magneto Z"
 			var.format = FORMAT_16S;
 			var.rawGenPtr = &goList[index]->magneto.z;
 			var.decodedPtr = &goList[index]->decoded.magneto.z;
 			break;
-		case 11: //"IO 1"
+		case 12: //"IO 1"
 			var.format = FORMAT_16U;
 			var.rawGenPtr = &goList[index]->io[0];
 			var.decodedPtr = nullptr;
 			break;
-		case 12: //"IO 2"
+		case 13: //"IO 2"
 			var.format = FORMAT_16U;
 			var.rawGenPtr = &goList[index]->io[1];
 			var.decodedPtr = nullptr;
 			break;
-		case 13: //"Capsense 1"
+		case 14: //"Capsense 1"
 			var.format = FORMAT_16U;
 			var.rawGenPtr = &goList[index]->capsense[0];
 			var.decodedPtr = nullptr;
 			break;
-		case 14: //"Capsense 2"
+		case 15: //"Capsense 2"
 			var.format = FORMAT_16U;
 			var.rawGenPtr = &goList[index]->capsense[1];
 			var.decodedPtr = nullptr;
-		case 15: //"Capsense 3"
+		case 16: //"Capsense 3"
 			var.format = FORMAT_16U;
 			var.rawGenPtr = &goList[index]->capsense[2];
 			var.decodedPtr = nullptr;
-		case 16: //"Capsense 4"
+		case 17: //"Capsense 4"
 			var.format = FORMAT_16U;
 			var.rawGenPtr = &goList[index]->capsense[3];
 			var.decodedPtr = nullptr;
-		case 17: //"Status"
+		case 18: //"Status"
 			var.format = FORMAT_8U;
 			var.rawGenPtr = &goList[index]->status;
 			var.decodedPtr = nullptr;
@@ -295,12 +303,14 @@ void GossipDevice::clear(void)
 	FlexseaDevice::clear();
 	goList.clear();
 	timeStamp.clear();
+	eventFlags.clear();
 }
 
 void GossipDevice::appendEmptyLine(void)
 {
 	timeStamp.append(TimeStamp());
 	goList.append(new gossip_s());
+	eventFlags.append(0);
 }
 
 void GossipDevice::decodeLastLine(void)
