@@ -352,7 +352,7 @@ struct std_variable ExecuteDevice::getSerializedVar(int parameter, int index)
 			var.decodedPtr = &exList[index]->decoded.analog[7];
 			break;
 		case 18: //"Motor current"
-			var.format = FORMAT_16S;
+			var.format = FORMAT_32S;
 			var.rawGenPtr = &exList[index]->current;
 			var.decodedPtr = &exList[index]->decoded.current;
 			break;
@@ -392,7 +392,7 @@ struct std_variable ExecuteDevice::getSerializedVar(int parameter, int index)
 			var.decodedPtr = nullptr;
 			break;
 		case 26: //"Sine Commut PWM"
-			var.format = FORMAT_16S;
+			var.format = FORMAT_32S;
 			var.rawGenPtr = &exList[index]->sine_commut_pwm;
 			var.decodedPtr = nullptr;
 			break;
