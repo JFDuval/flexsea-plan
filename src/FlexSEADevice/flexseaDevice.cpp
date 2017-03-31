@@ -36,6 +36,7 @@
 #include <QString>
 #include <QStringList>
 #include <QDate>
+#include <QDebug>
 
 //****************************************************************************
 // Constructor & Destructor:
@@ -114,6 +115,16 @@ void FlexseaDevice::saveIdentifierStr(QStringList *splitLine)
 
 void FlexseaDevice::applyTimestamp()
 {
+	if(this->timeStamp.size() < 1)
+	{
+		this->appendEmptyLine();
+	}
+
+	if(this->timeStamp.isEmpty())
+	{
+		qDebug() << "Can't append timestamp, list is empty";
+		return;
+	}
 	this->timeStamp.last().date = QDate::currentDate().toString();
 	this->timeStamp.last().ms = (clock() - this->initialClock) * 1000 / CLOCKS_PER_SEC;
 }

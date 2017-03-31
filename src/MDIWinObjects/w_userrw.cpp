@@ -38,7 +38,6 @@
 #include "w_userrw.h"
 #include "flexsea_generic.h"
 #include "ui_w_userrw.h"
-//#include "main.h"
 #include <QString>
 #include <QTextStream>
 #include <QTimer>
@@ -109,7 +108,7 @@ void W_UserRW::init(void)
 	connect(refreshDelayTimer, SIGNAL(timeout()), this, SLOT(refreshDisplay()));
 
 	userDataMan->requestMetaData(active_slave);
-
+	connect(userDataMan, &DynamicUserDataManager::newData, this, &W_UserRW::receiveNewData);
 	connect(ui->planFieldFlagList, &QListWidget::itemChanged, this, &W_UserRW::handlePlanFlagListChange);
 }
 

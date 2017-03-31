@@ -190,7 +190,12 @@ void SerialDriver::signalSuccessfulParse()
 		if(device->isCurrentlyLogging)
 		{
 			device->applyTimestamp();
-			device->eventFlags.last() = W_Event::getEventCode();
+			if(!device->eventFlags.isEmpty())
+			{
+				device->eventFlags.last() = W_Event::getEventCode();
+			}
+			else
+				qDebug() << "Can't add event code to empty list";
 			emit writeToLogFile(device);
 		}
 	}
