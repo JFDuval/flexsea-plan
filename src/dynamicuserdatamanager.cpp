@@ -67,9 +67,6 @@ bool DynamicUserDataManager::parseDynamicUserMetadata(QList<QString> *labels, QL
 			for(int j = 0; j < length; j++)
 				s.append(str[j]);
 
-			if(s.trimmed() == "")
-				qDebug()<< "I know you like to fuck you got a fucking problem";
-
 			label = s;
 		}
 		if(dynamicUser_fieldTypes && dynamicUser_fieldTypes[i] < NULL_PTR)
@@ -177,19 +174,13 @@ DynamicDevice::DynamicDevice()
 QString DynamicDevice::getHeaderStr(void)
 {
 	QString result = QStringLiteral("");
-	if(dynamicUser_numFields < 1 || !dynamicUser_labels || !dynamicUser_labelLengths) return result;
-
-	for(int i = 0; i < dynamicUser_numFields; i++)
+	QStringList sl = getHeaderList();
+	for(int i=0;i<sl.size();i++)
 	{
-		int labelLength = dynamicUser_labelLengths[i];
-		QString label = QStringLiteral("");
-		for(int j = 0; j < labelLength; j++)
-			label.append(dynamicUser_labels[i][j]);
-
-		result.append(label);
-		if(i != dynamicUser_numFields-1)
-			result.append(", ");
+		result.append(sl.at(i));
+		result.append(i == sl.size()-1 ? "" : ",");
 	}
+
 	return result;
 }
 
@@ -240,6 +231,10 @@ QString DynamicDevice::getLastSerializedStr(void)
 
 	if(dynamicUser_numFields < 1 || !dynamicUser_data || !dynamicUser_fieldTypes)
 		return result;
+
+
+	stream	<<	timeStamp.last().date		<< ',' << \
+				timeStamp.last().ms			<< ',';
 
 	uchar* data = dynamicUser_data;
 	for(int i = 0; i < dynamicUser_numFields; i++)
