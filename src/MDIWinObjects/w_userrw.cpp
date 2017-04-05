@@ -110,6 +110,12 @@ void W_UserRW::init(void)
 	userDataMan->requestMetaData(active_slave);
 	connect(userDataMan, &DynamicUserDataManager::newData, this, &W_UserRW::receiveNewData);
 	connect(ui->planFieldFlagList, &QListWidget::itemChanged, this, &W_UserRW::handlePlanFlagListChange);
+
+	QScrollBar* scrollBar = ui->execFieldFlagList->verticalScrollBar();
+	ui->planFieldFlagList->setVerticalScrollBar(scrollBar);
+	ui->userCustomStructLabelList->setVerticalScrollBar(scrollBar);
+	ui->userCustomTypeList->setVerticalScrollBar(scrollBar);
+	ui->userCustomStructValueList->setVerticalScrollBar(scrollBar);
 }
 
 void W_UserRW::handlePlanFlagListChange(QListWidgetItem* item)
