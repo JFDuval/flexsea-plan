@@ -77,6 +77,7 @@ private slots:
 	void on_pushButton_hide_clicked();
 	void refreshDisplay(void);
 
+
 	void on_comboBox_slave_currentIndexChanged(int index);
 
 private:
