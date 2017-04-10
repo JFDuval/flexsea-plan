@@ -18,24 +18,37 @@ void DynamicUserDataManager::requestMetaData(int slaveId)
 	//Prepare and send command:
 	tx_cmd_user_dyn_r(TX_N_DEFAULT, SEND_METADATA);
 	pack(P_AND_S_DEFAULT, slaveId, info, &numb, comm_str_usb);
-//	qDebug() << "Requesting Metadata";
 	emit writeCommand(numb, comm_str_usb, READ);
-
-	if(dynamicUser_numFields)
-	{
-		tx_cmd_user_dyn_w(TX_N_DEFAULT);
-		pack(P_AND_S_DEFAULT, slaveId, info, &numb, comm_str_usb);
-		emit writeCommand(numb, comm_str_usb, WRITE);
-	}
 }
 
 const char* FORMAT_TYPE_NAME_MAP[] = {"UINT32", "INT32", "UINT16", "INT16", "UINT8", "INT8", "QString", "NullPtr"};
+
+void DynamicUserDataManager::handleNewMessage()
+{
+	uint8_t info[2] = {PORT_USB, PORT_USB};
+	uint16_t numb = 0;
+	if(packAndSendOffsetRequest)
+	{
+		packAndSendOffsetRequest=0;
+		pack(P_AND_S_DEFAULT, dynamicUser_slaveId, info, &numb, comm_str_usb);
+		writeCommand(numb, comm_str_usb, WRITE);
+	}
+	else if(waitingOnFieldFlags && dynamicUser_numFields)
+	{
+		tx_cmd_user_dyn_w(TX_N_DEFAULT);
+		pack(P_AND_S_DEFAULT, dynamicUser_slaveId, info, &numb, comm_str_usb);
+		emit writeCommand(numb, comm_str_usb, WRITE);
+	}
+	else if(newMetaDataAvailable || newDataAvailable)
+		emit newData();
+}
 
 bool DynamicUserDataManager::parseDynamicUserMetadata(QList<QString> *labels, QList<QString> *types)
 {	
 	if(dynamicUser_numFields < 1) return false;
 	if(!dynamicUser_labels || !dynamicUser_labelLengths || !labels) return false;
-	if(!newMetaDataAvailable || waitingOnFieldFlags) return false;
+	if(!newMetaDataAvailable) return false;
+
 	newMetaDataAvailable = 0;
 
 	getDevice()->slaveID = dynamicUser_slaveId;
@@ -53,9 +66,6 @@ bool DynamicUserDataManager::parseDynamicUserMetadata(QList<QString> *labels, QL
 			uint8_t length = dynamicUser_labelLengths[i];
 			for(int j = 0; j < length; j++)
 				s.append(str[j]);
-
-			if(s.trimmed() == "")
-				qDebug()<< "I know you like to fuck you got a fucking problem";
 
 			label = s;
 		}
@@ -164,19 +174,13 @@ DynamicDevice::DynamicDevice()
 QString DynamicDevice::getHeaderStr(void)
 {
 	QString result = QStringLiteral("");
-	if(dynamicUser_numFields < 1 || !dynamicUser_labels || !dynamicUser_labelLengths) return result;
-
-	for(int i = 0; i < dynamicUser_numFields; i++)
+	QStringList sl = getHeaderList();
+	for(int i=0;i<sl.size();i++)
 	{
-		int labelLength = dynamicUser_labelLengths[i];
-		QString label = QStringLiteral("");
-		for(int j = 0; j < labelLength; j++)
-			label.append(dynamicUser_labels[i][j]);
-
-		result.append(label);
-		if(i != dynamicUser_numFields-1)
-			result.append(", ");
+		result.append(sl.at(i));
+		result.append(i == sl.size()-1 ? "" : ",");
 	}
+
 	return result;
 }
 
@@ -225,7 +229,12 @@ QString DynamicDevice::getLastSerializedStr(void)
 	QString result;
 	QTextStream stream(&result);
 
-	if(dynamicUser_numFields < 1 || !dynamicUser_data || !dynamicUser_fieldTypes || !dynamicUser_fieldLengths) return result;
+	if(dynamicUser_numFields < 1 || !dynamicUser_data || !dynamicUser_fieldTypes)
+		return result;
+
+
+	stream	<<	timeStamp.last().date		<< ',' << \
+				timeStamp.last().ms			<< ',';
 
 	uchar* data = dynamicUser_data;
 	for(int i = 0; i < dynamicUser_numFields; i++)
@@ -253,7 +262,8 @@ struct std_variable DynamicDevice::getSerializedVar(int parameter, int index)
 	struct std_variable v;
 	parameter-=2;
 	if(parameter < 0 || parameter >= dynamicUser_numFields) return v;
-	if(dynamicUser_numFields < 1 || !dynamicUser_data || !dynamicUser_fieldTypes || !dynamicUser_fieldLengths) return v;
+	if(dynamicUser_numFields < 1 || !dynamicUser_data || !dynamicUser_fieldTypes)
+		return v;
 
 	uint8_t* data = dynamicUser_data;
 	int i;
@@ -278,6 +288,9 @@ struct std_variable DynamicDevice::getSerializedVar(int parameter, int index)
 void DynamicDevice::appendSerializedStr(QStringList *splitLine) {(void)splitLine;}
 void DynamicDevice::decodeLastLine(void){}
 void DynamicDevice::decodeAllLine(void){}
-void DynamicDevice::appendEmptyLine(void){}
+void DynamicDevice::appendEmptyLine(void) {
+	timeStamp.append(TimeStamp());
+	eventFlags.append(0);
+}
 int DynamicDevice::length(){ return 1; }
 void DynamicDevice::clear(void){}

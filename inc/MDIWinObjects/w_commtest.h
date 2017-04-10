@@ -74,6 +74,7 @@ private slots:
 	void on_pushButtonStartStop_clicked();
 	void on_pushButtonReset_clicked();
 	void on_tabWidget_currentChanged(int index);
+	void on_busyWaitButton_pressed(void);
 
 private:
 	// Static Variable
@@ -91,6 +92,7 @@ private:
 	int currentTab;
 	uint8_t slaveListCount;
 	uint8_t slaveList[4];
+	bool shouldBusyWait = false;
 
 	//Function(s):
 	void init(void);

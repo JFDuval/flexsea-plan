@@ -123,6 +123,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
 	initSerialComm(mySerialDriver, streamManager);
 	userDataManager = new DynamicUserDataManager(this);
+	connect(mySerialDriver, &SerialDriver::newDataReady, userDataManager, &DynamicUserDataManager::handleNewMessage);
 
 	//Create default objects:
 	createConfig();
@@ -790,7 +791,6 @@ void MainWindow::createUserRW(void)
 				uint8_t*, uint8_t)));
 
 		connect(userDataManager, &DynamicUserDataManager::writeCommand, this, &MainWindow::connectorWriteCommand);
-		connect(mySerialDriver, &SerialDriver::newDataReady, userRW, &W_UserRW::receiveNewData);
 		connect(mySerialDriver, &SerialDriver::openStatus, userRW, &W_UserRW::comStatusChanged);
 	}
 

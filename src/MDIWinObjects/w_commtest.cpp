@@ -215,7 +215,14 @@ void W_CommTest::readCommTest(void)
 
 	if(serialDriver && serialDriver->isOpen())
 	{
-		serialDriver->tryReadWrite(numb, comm_str_usb, 100);
+		if(shouldBusyWait)
+		{
+			serialDriver->tryReadWrite(numb, comm_str_usb, 100);
+		}
+		else
+		{
+			serialDriver->write(numb, comm_str_usb);
+		}
 	}
 
 	//FlexSEA_Generic::packetVisualizer(numb, comm_str_usb);
@@ -378,7 +385,10 @@ void W_CommTest::startStopComTest(bool forceStop)
 		ui->lineEdit->setText(QString::number(tmpFreq));
 
 		experimentTimer->start(TIM_FREQ_TO_P(tmpFreq));
+
 		status = true;
+
+		ui->busyWaitButton->setDisabled(true);
 	}
 	else
 	{
@@ -390,6 +400,8 @@ void W_CommTest::startStopComTest(bool forceStop)
 
 		experimentTimer->stop();
 		status = false;
+
+		ui->busyWaitButton->setDisabled(false);
 	}
 }
 
@@ -405,6 +417,15 @@ void W_CommTest::on_pushButtonReset_clicked()
 	badPackets = 0;
 	receivedPackets = 0;
 	successRate = 0.0;
+}
+
+void W_CommTest::on_busyWaitButton_pressed(void)
+{
+	shouldBusyWait = !shouldBusyWait;
+
+	QString buttonText = "Busy Wait (";
+	buttonText.append(shouldBusyWait ? "On)" : "Off)");
+	ui->busyWaitButton->setText(buttonText);
 }
 
 void W_CommTest::on_tabWidget_currentChanged(int index)

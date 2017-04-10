@@ -48,8 +48,12 @@ public:
 	bool getExecFieldFlags(QList<bool> *flags);
 	bool setPlanFieldFlag(int index, bool setTrue);
 
+public slots:
+	void handleNewMessage();
+
 signals:
 	void writeCommand(uint8_t numb, uint8_t *tx_data, uint8_t r_w);
+	void newData();
 
 private:
 	static DynamicDevice* device;
