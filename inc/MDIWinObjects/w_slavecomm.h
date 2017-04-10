@@ -98,6 +98,7 @@ public slots:
 	void displayDataReceived(int idx, int status);
 	void receiveComPortStatus(bool status);
 	void updateIndicatorTimeout(bool rst);
+	void getSlaveId(int* slaveId);
 
 private slots:
 
