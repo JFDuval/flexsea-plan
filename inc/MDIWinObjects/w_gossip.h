@@ -74,7 +74,7 @@ private:
 	//Variables & Objects:
 	Ui::W_Gossip *ui;
 
-	DisplayMode displayMode;
+	DisplayMode displayMode, lastDisplayMode;
 
 	QList<GossipDevice> *deviceList;
 	GossipDevice *deviceLog;

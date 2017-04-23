@@ -59,6 +59,7 @@ W_TestBench::W_TestBench(QWidget *parent,
 	setWindowTitle(this->getDescription());
 	setWindowIcon(QIcon(":icons/d_logo_small.png"));
 
+	lastDisplayMode = (DisplayMode)1000; // To force the init
 	updateDisplayMode(mode, nullptr);
 }
 
@@ -97,14 +98,20 @@ void W_TestBench::updateDisplayMode(DisplayMode mode, FlexseaDevice* devPtr)
 {
 	(void)devPtr;
 	displayMode = mode;
-	if(displayMode == DisplayLogData)
+
+	if(displayMode != lastDisplayMode)
 	{
-		initLog();
+		if(displayMode == DisplayLogData)
+		{
+			initLog();
+		}
+		else
+		{
+			initLive();
+		}
 	}
-	else
-	{
-		initLive();
-	}
+
+	lastDisplayMode = displayMode;
 }
 
 //****************************************************************************

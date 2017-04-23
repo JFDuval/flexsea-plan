@@ -73,7 +73,7 @@ private:
 	//Variables & Objects:
 	Ui::W_Ricnu *ui;
 
-	DisplayMode displayMode;
+	DisplayMode displayMode, lastDisplayMode;
 
 	QList<RicnuProject> * deviceList;
 	RicnuProject *deviceLog;

@@ -79,7 +79,7 @@ private:
 	//Variables & Objects:
 	Ui::W_Battery *ui;
 
-	DisplayMode displayMode;
+	DisplayMode displayMode, lastDisplayMode;
 
 	QList<BatteryDevice> *deviceList;
 	BatteryDevice *batteryLog;
