@@ -24,7 +24,7 @@ StreamManager::StreamManager(QObject *parent, SerialDriver* driver) :
 		streamLists[i] = std::vector<CmdSlaveRecord>();
 	}
 
-    clockPeriod = 2;
+	clockPeriod = 2;
 	clockTimer = new QTimer();
 	clockTimer->setTimerType(Qt::PreciseTimer);
 	clockTimer->setSingleShot(false);
@@ -109,6 +109,7 @@ void StreamManager::startAutoStreaming(int cmd, int slave, int freq, bool should
 void StreamManager::stopStreaming(int cmd, int slave, int freq)
 {
 	int indexOfFreq = getIndexOfFrequency(freq);
+	if(indexOfFreq < 0) return;
 
 	std::vector<CmdSlaveRecord>* listArray[2] = {autoStreamLists, streamLists};
 
@@ -123,7 +124,7 @@ void StreamManager::stopStreaming(int cmd, int slave, int freq)
 			{
 				(l)[indexOfFreq].erase((l)[indexOfFreq].begin() + i);
 
-				packAndSendStopStreaming(record.device->slaveID);
+				packAndSendStopStreaming(cmd, record.device->slaveID);
 				record.device->isCurrentlyLogging = false;
 
 				qDebug() << "Stopped streaming cmd: " << cmd << ", for slave id: " << slave << "at frequency: " << freq;
@@ -142,7 +143,7 @@ void StreamManager::onComPortClosing()
 		for(unsigned int j = 0; j < autoStreamLists[i].size(); j++)
 		{
 			CmdSlaveRecord record = autoStreamLists[i].at(j);
-			packAndSendStopStreaming(record.device->slaveID);
+			packAndSendStopStreaming(record.cmdType, record.device->slaveID);
 			record.device->isCurrentlyLogging = false;
 			qDebug() << "Stopped streaming cmd: " << record.cmdType << ", for slave id: " << record.device->slaveID << "at frequency: " << timerFrequencies[i];
 			if(record.shouldLog)
@@ -180,8 +181,7 @@ void StreamManager::tryPackAndSend(int cmd, uint8_t slaveId)
 {
 	uint16_t numb = 0;
 	uint8_t info[2] = {PORT_USB, PORT_USB};
-	pack(P_AND_S_DEFAULT, slaveId
-		 , info, &numb, comm_str_usb);
+	pack(P_AND_S_DEFAULT, slaveId, info, &numb, comm_str_usb);
 
 	if(serialDriver && serialDriver->isOpen())
 	{
@@ -249,10 +249,12 @@ void StreamManager::enqueueCommand(uint8_t numb, uint8_t* dataPacket)
 }
 
 
-void StreamManager::packAndSendStopStreaming(uint8_t slaveId)
+void StreamManager::packAndSendStopStreaming(int cmd, uint8_t slaveId)
 {
+	if(cmd < 0) return;
+
 	uint8_t shouldStart = 0; //ie should stop
-	tx_cmd_stream_w(TX_N_DEFAULT, -1, 0, shouldStart);
+	tx_cmd_stream_w(TX_N_DEFAULT, cmd, 0, shouldStart);
 	tryPackAndSend(CMD_STREAM, slaveId);
 }
 
@@ -265,31 +267,31 @@ void StreamManager::sendCommands(int index)
 		CmdSlaveRecord record = streamLists[index].at(i);
 		switch(record.cmdType)
 		{
-		case CMD_READ_ALL:
-			sendCommandReadAll(record.slaveIndex);
-			break;
-		case CMD_READ_ALL_RICNU:
-			sendCommandReadAllRicnu(record.slaveIndex);
-			break;
-		case CMD_A2DOF:
-			sendCommandAnkle2DOF(record.slaveIndex);
-			break;
-		case CMD_MOTORTB:
-			sendCommandTestBench(record.slaveIndex);
-			break;
-		case CMD_BATT:
-			sendCommandBattery(record.slaveIndex);
-			break;
-		case CMD_IN_CONTROL:
-			sendCommandInControl(record.slaveIndex);
-			break;
-		case CMD_USER_DYNAMIC:
-			sendCommandDynamic(record.slaveIndex);
-			break;
-		default:
-			qDebug() << "Unsupported command was given: " << record.cmdType;
-			stopStreaming(record.cmdType, record.slaveIndex, timerFrequencies[index]);
-			break;
+			case CMD_READ_ALL:
+				sendCommandReadAll(record.slaveIndex);
+				break;
+			case CMD_READ_ALL_RICNU:
+				sendCommandReadAllRicnu(record.slaveIndex);
+				break;
+			case CMD_A2DOF:
+				sendCommandAnkle2DOF(record.slaveIndex);
+				break;
+			case CMD_MOTORTB:
+				sendCommandTestBench(record.slaveIndex);
+				break;
+			case CMD_BATT:
+				sendCommandBattery(record.slaveIndex);
+				break;
+			case CMD_IN_CONTROL:
+				sendCommandInControl(record.slaveIndex);
+				break;
+			case CMD_USER_DYNAMIC:
+				sendCommandDynamic(record.slaveIndex);
+				break;
+			default:
+				qDebug() << "Unsupported command was given: " << record.cmdType;
+				stopStreaming(record.cmdType, record.slaveIndex, timerFrequencies[index]);
+				break;
 		}
 	}
 }

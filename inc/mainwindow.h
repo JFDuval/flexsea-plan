@@ -69,6 +69,29 @@ namespace Ui {
 class MainWindow;
 }
 
+//MDI Objects: ID
+#define CONFIG_WINDOWS_ID			0
+#define LOGKEYPAD_WINDOWS_ID		1
+#define SLAVECOMM_WINDOWS_ID		2
+#define PLOT2D_WINDOWS_ID			3
+#define CONTROL_WINDOWS_ID			4
+#define INCONTROL_WINDOWS_ID		5
+#define USERRW_WINDOWS_ID			6
+#define EVENT_WINDOWS_ID			7
+#define ANYCOMMAND_WINDOWS_ID		8
+#define CONVERTER_WINDOWS_ID		9
+#define CALIB_WINDOWS_ID			10
+#define COMMTEST_WINDOWS_ID			11
+#define EX_VIEW_WINDOWS_ID			12
+#define MN_VIEW_WINDOWS_ID			13
+#define BATT_WINDOWS_ID				14
+#define GOSSIP_WINDOWS_ID			15
+#define STRAIN_WINDOWS_ID			16
+#define RICNU_VIEW_WINDOWS_ID		17
+#define TESTBENCH_WINDOWS_ID		18
+#define WINDOWS_TYPES				19 //(has to match the list above)
+#define WINDOWS_MAX_INSTANCES		5
+
 //MDI Objects: set maximums # of child
 #define EX_VIEW_WINDOWS_MAX			5
 #define MN_VIEW_WINDOWS_MAX			2
@@ -90,6 +113,15 @@ class MainWindow;
 #define INCONTROL_WINDOWS_MAX		1
 #define EVENT_WINDOWS_MAX			1
 
+//Window information:
+typedef struct {
+	uint8_t id;
+	QString nickname;
+	bool open;
+	QMdiSubWindow *winPtr;
+
+}mdiState_s;
+
 class MainWindow : public QMainWindow
 {
 	Q_OBJECT
@@ -102,6 +134,7 @@ private:
 	void initFlexSeaDeviceObject(void);
 	void initFlexSeaDeviceLog(void);
 	void initSerialComm(SerialDriver*, StreamManager*);
+	void initializeDataProviders(void);
 
 	Ui::MainWindow *ui;
 
@@ -126,6 +159,8 @@ private:
 	QList<FlexseaDevice*>	testBenchFlexList;
 	QList<FlexseaDevice*>	dynamicDeviceList;
 
+	//QList<DataProvider*> dataProviders;
+
 	// Global Flexsea List
 	QList<FlexseaDevice*> flexseaPtrlist;
 
@@ -142,7 +177,6 @@ private:
 	FlexseaDevice* currentFlexLog;
 
 	bool comPortStatus;
-
 
 	// Sub-Windows
 	W_Execute *myViewExecute[EX_VIEW_WINDOWS_MAX];
@@ -164,6 +198,10 @@ private:
 	W_CommTest *myViewCommTest[COMMTEST_WINDOWS_MAX];
 	W_InControl *myViewInControl[INCONTROL_WINDOWS_MAX];
 	W_Event *myEvent[EVENT_WINDOWS_MAX];
+	//MDI state:
+	mdiState_s mdiState[WINDOWS_TYPES][WINDOWS_MAX_INSTANCES];
+	void (MainWindow::*mdiCreateWinPtr[WINDOWS_TYPES])(void);
+	//void (MainWindow::*mdiCloseWinPtr[WINDOWS_TYPES])(void);
 
 	// Objects
 	SerialDriver *mySerialDriver;
@@ -172,6 +210,9 @@ private:
 	DataLogger *myDataLogger;
 	StreamManager* streamManager;
 	DynamicUserDataManager* userDataManager;
+
+	void writeSettings();
+	void readSettings();
 
 signals:
 	//Allow window to be independly opened in any order by providing a backbone connector
@@ -225,6 +266,15 @@ public slots:
 	void closeViewTestBench(void);
 	void closeViewCommTest(void);
 	void closeToolEvent(void);
+	void closeInControl(void);
+	void saveConfig(void);
+	void loadConfig(void);
+	void defaultConfig(void);
+	void initializeCreateWindowFctPtr(void);
+	//void initializeCloseWindowFctPtr(void);
+	void emptyWinFct(void);
+	void setWinGeo(int id, int obj, int x, int y, int w, int h);
+	void initMdiState(void);
 
 	//Miscellaneous
 
@@ -240,6 +290,10 @@ public slots:
 	void displayDocumentation();
 	void displayLicense();
 	void setStatusBar(QString msg);
+
+	void closeEvent(QCloseEvent *event);
+	void loadCSVconfigFile(void);
+	void saveCSVconfigFile(void);
 };
 
 #endif // MAINWINDOW_H

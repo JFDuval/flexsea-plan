@@ -85,7 +85,7 @@ void W_UserRW::init(void)
 	//Populates Slave list:
 	FlexSEA_Generic::populateSlaveComboBox(ui->comboBox_slave, SL_BASE_ALL, \
 											SL_LEN_ALL);
-	ui->comboBox_slave->setCurrentIndex(4);	//Manage 1 by default
+	ui->comboBox_slave->setCurrentIndex(0);	//Execute 1 by default
 
 	//Variables:
 	active_slave_index = ui->comboBox_slave->currentIndex();

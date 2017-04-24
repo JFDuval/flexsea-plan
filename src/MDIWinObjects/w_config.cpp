@@ -38,6 +38,7 @@
 #include <QSerialPortInfo>
 #include <QDebug>
 #include <QTimer>
+#include <QThread>
 
 //****************************************************************************
 // Constructor & Destructor:
@@ -45,9 +46,9 @@
 
 W_Config::W_Config(QWidget *parent) :
 	QWidget(parent),
+	serialDriver(nullptr),
 	ui(new Ui::W_Config)
 {
-
 	ui->setupUi(this);
 
 	setWindowTitle(this->getDescription());

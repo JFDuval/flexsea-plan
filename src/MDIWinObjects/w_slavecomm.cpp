@@ -96,6 +96,7 @@ W_SlaveComm::~W_SlaveComm()
 //****************************************************************************
 // Public function(s):
 //****************************************************************************
+
 void W_SlaveComm::addExperiment(QList<FlexseaDevice *> *deviceList, int cmdCode)
 {
 	if(numExperiments >= MAX_EXPERIMENTS) return;
@@ -104,6 +105,22 @@ void W_SlaveComm::addExperiment(QList<FlexseaDevice *> *deviceList, int cmdCode)
 	cmdMap[numExperiments] = cmdCode;
 
 	numExperiments++;
+}
+
+void W_SlaveComm::getCurrentDevice(FlexseaDevice** device)
+{
+	*device = nullptr;
+
+	if(ui && ui->comboBoxExp1 && ui->comboBoxSlave1)
+	{
+		int experimentIndex = ui->comboBoxExp1->currentIndex();
+		int slaveIndex = ui->comboBoxSlave1->currentIndex();
+
+		if(experimentIndex >= 0 && slaveIndex >= 0)
+		{
+			*device = (targetListMap[experimentIndex])->at(slaveIndex);
+		}
+	}
 }
 
 void W_SlaveComm::getSlaveId(int* slaveId)
@@ -506,10 +523,12 @@ void W_SlaveComm::on_pushButton2_clicked() { managePushButton(1, false); }
 void W_SlaveComm::on_pushButton3_clicked() { managePushButton(2, false); }
 void W_SlaveComm::on_pushButton4_clicked() { managePushButton(3, false); }
 
-void W_SlaveComm::on_comboBoxExp1_currentIndexChanged(int index) {
+void W_SlaveComm::on_comboBoxExp1_currentIndexChanged(int index)
+{
 	(void)index;
 	manageSelectedExperimentChanged(0);
 }
+
 void W_SlaveComm::on_comboBoxExp2_currentIndexChanged(int index) {	(void)index; manageSelectedExperimentChanged(1); }
 void W_SlaveComm::on_comboBoxExp3_currentIndexChanged(int index) {	(void)index; manageSelectedExperimentChanged(2); }
 void W_SlaveComm::on_comboBoxExp4_currentIndexChanged(int index) {	(void)index; manageSelectedExperimentChanged(3); }

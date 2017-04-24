@@ -38,6 +38,7 @@
 #include <QWidget>
 #include "counter.h"
 #include "flexseaDevice.h"
+#include <serialdriver.h>
 
 #define REFRESH_PERIOD 750 //Port list refresh in ms
 
@@ -66,6 +67,8 @@ public:
 	//Constructor & Destructor:
 	explicit W_Config(QWidget *parent = 0);
 	~W_Config();
+
+	SerialDriver* serialDriver;
 
 	DataSource getDataSourceStatus(void) {return dataSourceState;}
 

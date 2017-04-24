@@ -39,7 +39,7 @@
 #include <QDebug>
 #include <QString>
 #include <QFileDialog>
-//#include "main.h"
+#include <QTextStream>
 #include <flexsea_system.h>
 
 //****************************************************************************
@@ -52,6 +52,8 @@ MainWindow::MainWindow(QWidget *parent) :
 {
 	ui->setupUi(this);
 	QMainWindow::showMaximized();
+
+	initMdiState();
 
 	//Header contains timestamp:
 	QString winHeader = "FlexSEA-Plan GUI v2.1 (Beta) [Last full build: ";
@@ -129,15 +131,14 @@ MainWindow::MainWindow(QWidget *parent) :
 	createConfig();
 	createSlaveComm();
 
-	//Disable options that are not implemented:
-	ui->menuFile->actions().at(3)->setEnabled(false);		//Load configuration
-	ui->menuFile->actions().at(4)->setEnabled(false);		//Save configuration
-
 	//Log and MainWindow
 	connect(myDataLogger, SIGNAL(setStatusBarMessage(QString)), \
 			this, SLOT(setStatusBar(QString)));
 
 	comPortStatus = false;
+
+	initializeCreateWindowFctPtr();
+	loadCSVconfigFile();	//By default we load the last saved settings
 }
 
 MainWindow::~MainWindow()
@@ -273,6 +274,71 @@ void MainWindow::initSerialComm(SerialDriver *driver, StreamManager *manager)
 			this, SLOT(saveComPortStatus(bool)));
 }
 
+void MainWindow::initializeCreateWindowFctPtr(void)
+{
+	//By default, point to empty function:
+	for(int i = 0; i < WINDOWS_TYPES; i++)
+	{
+		mdiCreateWinPtr[i] = &emptyWinFct;
+	}
+
+	mdiCreateWinPtr[CONFIG_WINDOWS_ID] = &createConfig;
+	//mdiCreateWinPtr[LOGKEYPAD_WINDOWS_ID] = &createLogKeyPad();
+	mdiCreateWinPtr[SLAVECOMM_WINDOWS_ID] = &createSlaveComm;
+	mdiCreateWinPtr[PLOT2D_WINDOWS_ID] = &createView2DPlot;
+	mdiCreateWinPtr[CONTROL_WINDOWS_ID] = &createControlControl;
+	mdiCreateWinPtr[INCONTROL_WINDOWS_ID] = &createInControl;
+	mdiCreateWinPtr[USERRW_WINDOWS_ID] = &createUserRW;
+	mdiCreateWinPtr[EVENT_WINDOWS_ID] = &createToolEvent;
+	mdiCreateWinPtr[ANYCOMMAND_WINDOWS_ID] = &createAnyCommand;
+	mdiCreateWinPtr[CONVERTER_WINDOWS_ID] = &createConverter;
+	mdiCreateWinPtr[CALIB_WINDOWS_ID] = &createCalib;
+	mdiCreateWinPtr[COMMTEST_WINDOWS_ID] = &createViewCommTest;
+	mdiCreateWinPtr[EX_VIEW_WINDOWS_ID] = &createViewExecute;
+	mdiCreateWinPtr[MN_VIEW_WINDOWS_ID] = &createViewManage;
+	mdiCreateWinPtr[BATT_WINDOWS_ID] = &createViewBattery;
+	mdiCreateWinPtr[GOSSIP_WINDOWS_ID] = &createViewGossip;
+	mdiCreateWinPtr[STRAIN_WINDOWS_ID] = &createViewStrain;
+	mdiCreateWinPtr[RICNU_VIEW_WINDOWS_ID] = &createViewRicnu;
+	mdiCreateWinPtr[TESTBENCH_WINDOWS_ID] = &createViewTestBench;
+}
+
+/*
+void MainWindow::initializeCloseWindowFctPtr(void)
+{
+	//By default, point to empty function:
+	for(int i = 0; i < WINDOWS_TYPES; i++)
+	{
+		mdiCloseWinPtr[i] = &emptyWinFct;
+	}
+
+	mdiCloseWinPtr[CONFIG_WINDOWS_ID] = &closeConfig;
+	//mdiCloseWinPtr[LOGKEYPAD_WINDOWS_ID] = &closeLogKeyPad();
+	mdiCloseWinPtr[SLAVECOMM_WINDOWS_ID] = &closeSlaveComm;
+	mdiCloseWinPtr[PLOT2D_WINDOWS_ID] = &closeView2DPlot;
+	mdiCloseWinPtr[CONTROL_WINDOWS_ID] = &closeControlControl;
+	mdiCloseWinPtr[INCONTROL_WINDOWS_ID] = &closeInControl;
+	mdiCloseWinPtr[USERRW_WINDOWS_ID] = &closeUserRW;
+	mdiCloseWinPtr[EVENT_WINDOWS_ID] = &closeToolEvent;
+	mdiCloseWinPtr[ANYCOMMAND_WINDOWS_ID] = &closeAnyCommand;
+	mdiCloseWinPtr[CONVERTER_WINDOWS_ID] = &closeConverter;
+	mdiCloseWinPtr[CALIB_WINDOWS_ID] = &closeCalib;
+	mdiCloseWinPtr[COMMTEST_WINDOWS_ID] = &closeViewCommTest;
+	mdiCloseWinPtr[EX_VIEW_WINDOWS_ID] = &closeViewExecute;
+	mdiCloseWinPtr[MN_VIEW_WINDOWS_ID] = &closeViewManage;
+	mdiCloseWinPtr[BATT_WINDOWS_ID] = &closeViewBattery;
+	mdiCloseWinPtr[GOSSIP_WINDOWS_ID] = &closeViewGossip;
+	mdiCloseWinPtr[STRAIN_WINDOWS_ID] = &closeViewStrain;
+	mdiCloseWinPtr[RICNU_VIEW_WINDOWS_ID] = &closeViewRicnu;
+	mdiCloseWinPtr[TESTBENCH_WINDOWS_ID] = &closeViewTestBench;
+}
+*/
+
+void MainWindow::emptyWinFct(void)
+{
+	//Catch all for the function pointer
+}
+
 //****************************************************************************
 // Public function(s):
 //****************************************************************************
@@ -284,6 +350,42 @@ void MainWindow::initSerialComm(SerialDriver *driver, StreamManager *manager)
 void MainWindow::saveComPortStatus(bool status)
 {
 	comPortStatus = status;
+}
+
+void MainWindow::saveConfig(void)
+{
+	qDebug() << "Saving settings...";
+	writeSettings();
+
+	//To CSV:
+	saveCSVconfigFile();
+}
+
+void MainWindow::loadConfig(void)
+{
+	qDebug() << "Loading settings...";
+	readSettings();
+
+	//From CSV:
+	loadCSVconfigFile();
+}
+
+void MainWindow::defaultConfig(void)
+{
+	qDebug() << "Default settings...";
+
+	//Close all Windows other than the essentials:
+	for(int i = PLOT2D_WINDOWS_ID; i < WINDOWS_TYPES; i++)
+	{
+		for(int j = 0; j < WINDOWS_MAX_INSTANCES; j++)
+		{
+			if(mdiState[i][j].open == true)
+			{
+				qDebug() << "Closing" << i << j;
+				mdiState[i][j].winPtr->close();
+			}
+		}
+	}
 }
 
 //Transfer the signal from config to the
@@ -330,7 +432,9 @@ void MainWindow::createViewExecute(void)
 							  &testBenchLog,
 							  getDisplayMode(),
 							  &executeDevList);
-		ui->mdiArea->addSubWindow(myViewExecute[objectCount]);
+
+		mdiState[EX_VIEW_WINDOWS_ID][objectCount].winPtr = ui->mdiArea->addSubWindow(myViewExecute[objectCount]);
+		mdiState[EX_VIEW_WINDOWS_ID][objectCount].open = true;
 		myViewExecute[objectCount]->show();
 
 		sendWindowCreatedMsg(W_Execute::getDescription(), objectCount,
@@ -362,6 +466,7 @@ void MainWindow::createViewExecute(void)
 void MainWindow::closeViewExecute(void)
 {
 	sendCloseWindowMsg(W_Execute::getDescription());
+	mdiState[EX_VIEW_WINDOWS_ID][W_Execute::howManyInstance()-1].open = false;	//ToDo this is wrong!
 }
 
 //Creates a new View Manage window
@@ -374,7 +479,8 @@ void MainWindow::createViewManage(void)
 	{
 		myViewManage[objectCount] = new W_Manage(this, &manageLog,
 												 getDisplayMode(), &manageDevList);
-		ui->mdiArea->addSubWindow(myViewManage[objectCount]);
+		mdiState[MN_VIEW_WINDOWS_ID][objectCount].winPtr = ui->mdiArea->addSubWindow(myViewManage[objectCount]);
+		mdiState[MN_VIEW_WINDOWS_ID][objectCount].open = true;
 		myViewManage[objectCount]->show();
 
 		sendWindowCreatedMsg(W_Manage::getDescription(), objectCount,
@@ -406,6 +512,7 @@ void MainWindow::createViewManage(void)
 void MainWindow::closeViewManage(void)
 {
 	sendCloseWindowMsg(W_Manage::getDescription());
+	mdiState[MN_VIEW_WINDOWS_ID][W_Manage::howManyInstance()].open = false;
 }
 
 //Creates a new Config window
@@ -417,8 +524,11 @@ void MainWindow::createConfig(void)
 	if(objectCount < (CONFIG_WINDOWS_MAX))
 	{
 		myViewConfig[objectCount] = new W_Config(this);
-		ui->mdiArea->addSubWindow(myViewConfig[objectCount]);
+		mdiState[CONFIG_WINDOWS_ID][objectCount].winPtr = ui->mdiArea->addSubWindow(myViewConfig[objectCount]);
+		mdiState[CONFIG_WINDOWS_ID][objectCount].open = true;
 		myViewConfig[objectCount]->show();
+
+		myViewConfig[objectCount]->serialDriver = mySerialDriver;
 
 		sendWindowCreatedMsg(W_Config::getDescription(), objectCount,
 							 W_Config::getMaxWindow() - 1);
@@ -444,6 +554,9 @@ void MainWindow::createConfig(void)
 				this, SLOT(translatorUpdateDataSourceStatus(DataSource, FlexseaDevice *)));
 		connect(myViewConfig[0], SIGNAL(createLogKeypad(DataSource, FlexseaDevice *)),
 				this, SLOT(manageLogKeyPad(DataSource, FlexseaDevice *)));
+
+		/*connect(myViewConfig[0], SIGNAL(writeCommand(uint8_t,uint8_t*,uint8_t)), \
+				this, SIGNAL(connectorWriteCommand(uint8_t,uint8_t*,uint8_t))); */
 	}
 
 	else
@@ -456,10 +569,12 @@ void MainWindow::createConfig(void)
 void MainWindow::closeConfig(void)
 {
 	sendCloseWindowMsg(W_Config::getDescription());
+	mdiState[CONFIG_WINDOWS_ID][0].open = false;	//ToDo shouldn't be 0
 
 	if(W_LogKeyPad::howManyInstance() > 0)
 	{
 		myViewLogKeyPad[0]->parentWidget()->close();
+		mdiState[LOGKEYPAD_WINDOWS_ID][0].open = false;	//ToDo wrong, shouldn't be 0!
 	}
 }
 
@@ -472,7 +587,8 @@ void MainWindow::createControlControl(void)
 	if(objectCount < (CONTROL_WINDOWS_MAX))
 	{
 		myViewControl[objectCount] = new W_Control(this);
-		ui->mdiArea->addSubWindow(myViewControl[objectCount]);
+		mdiState[CONTROL_WINDOWS_ID][objectCount].winPtr = ui->mdiArea->addSubWindow(myViewControl[objectCount]);
+		mdiState[CONTROL_WINDOWS_ID][objectCount].open = true;
 		myViewControl[objectCount]->show();
 
 		sendWindowCreatedMsg(W_Control::getDescription(), objectCount,
@@ -486,7 +602,6 @@ void MainWindow::createControlControl(void)
 		connect(myViewControl[objectCount], SIGNAL(writeCommand(uint8_t,uint8_t*,uint8_t)), \
 				this, SIGNAL(connectorWriteCommand(uint8_t,uint8_t*,uint8_t)));
 	}
-
 	else
 	{
 		sendWindowCreatedFailedMsg(W_Control::getDescription(),
@@ -497,6 +612,7 @@ void MainWindow::createControlControl(void)
 void MainWindow::closeControlControl(void)
 {
 	sendCloseWindowMsg(W_Control::getDescription());
+	mdiState[CONTROL_WINDOWS_ID][0].open = false; //ToDo wrong, shouldn't be 0!
 }
 
 //Creates a new View 2DPlot window
@@ -512,7 +628,8 @@ void MainWindow::createView2DPlot(void)
 												 getDisplayMode(),
 												 &flexseaPtrlist);
 
-		ui->mdiArea->addSubWindow(myView2DPlot[objectCount]);
+		mdiState[PLOT2D_WINDOWS_ID][objectCount].winPtr = ui->mdiArea->addSubWindow(myView2DPlot[objectCount]);
+		mdiState[PLOT2D_WINDOWS_ID][objectCount].open = true;
 		myView2DPlot[objectCount]->show();
 
 		sendWindowCreatedMsg(W_2DPlot::getDescription(), objectCount,
@@ -543,6 +660,7 @@ void MainWindow::createView2DPlot(void)
 void MainWindow::closeView2DPlot(void)
 {
 	sendCloseWindowMsg(W_2DPlot::getDescription());
+	mdiState[PLOT2D_WINDOWS_ID][0].open = false;	//ToDo wrong, shouldn't be 0!
 }
 
 void MainWindow::createSlaveComm(void)
@@ -563,7 +681,8 @@ void MainWindow::createSlaveComm(void)
 													   &testBenchFlexList,
 													   streamManager);
 
-		ui->mdiArea->addSubWindow(myViewSlaveComm[objectCount]);
+		mdiState[SLAVECOMM_WINDOWS_ID][objectCount].winPtr = ui->mdiArea->addSubWindow(myViewSlaveComm[objectCount]);
+		mdiState[SLAVECOMM_WINDOWS_ID][objectCount].open = true;
 		myViewSlaveComm[objectCount]->show();
 
 		sendWindowCreatedMsg(W_SlaveComm::getDescription(), objectCount,
@@ -578,10 +697,7 @@ void MainWindow::createSlaveComm(void)
 				myViewSlaveComm[0], SLOT(displayDataReceived(int, int)));
 		connect(mySerialDriver, SIGNAL(newDataTimeout(bool)), \
 				myViewSlaveComm[0], SLOT(updateIndicatorTimeout(bool)));
-
-		myViewSlaveComm[objectCount]->addExperiment(&dynamicDeviceList, userDataManager->getCommandCode());
 	}
-
 	else
 	{
 		sendWindowCreatedFailedMsg(W_SlaveComm::getDescription(),
@@ -592,6 +708,7 @@ void MainWindow::createSlaveComm(void)
 void MainWindow::closeSlaveComm(void)
 {
 	sendCloseWindowMsg(W_SlaveComm::getDescription());
+	mdiState[SLAVECOMM_WINDOWS_ID][0].open = false;	//ToDo wrong, shouldn't be 0!
 }
 
 //Creates a new Any Command window
@@ -603,7 +720,8 @@ void MainWindow::createAnyCommand(void)
 	if(objectCount < (ANYCOMMAND_WINDOWS_MAX))
 	{
 		myViewAnyCommand[objectCount] = new W_AnyCommand(this);
-		ui->mdiArea->addSubWindow(myViewAnyCommand[objectCount]);
+		mdiState[ANYCOMMAND_WINDOWS_ID][objectCount].winPtr = ui->mdiArea->addSubWindow(myViewAnyCommand[objectCount]);
+		mdiState[ANYCOMMAND_WINDOWS_ID][objectCount].open = true;
 		myViewAnyCommand[objectCount]->show();
 
 		sendWindowCreatedMsg(W_AnyCommand::getDescription(), objectCount,
@@ -621,6 +739,12 @@ void MainWindow::createAnyCommand(void)
 	}
 }
 
+void MainWindow::closeAnyCommand(void)
+{
+	sendCloseWindowMsg(W_AnyCommand::getDescription());
+	mdiState[ANYCOMMAND_WINDOWS_ID][0].open = false;	//ToDo wrong, shouldn't be 0!
+}
+
 void MainWindow::createInControl(void)
 {
 	int objectCount = W_InControl::howManyInstance();
@@ -629,7 +753,8 @@ void MainWindow::createInControl(void)
 	if(objectCount < INCONTROL_WINDOWS_MAX)
 	{
 		myViewInControl[objectCount] = new W_InControl(this);
-		ui->mdiArea->addSubWindow((myViewInControl[objectCount]));
+		mdiState[INCONTROL_WINDOWS_ID][objectCount].winPtr = ui->mdiArea->addSubWindow((myViewInControl[objectCount]));
+		mdiState[INCONTROL_WINDOWS_ID][objectCount].open = true;
 		myViewInControl[objectCount]->show();
 		QRect currRect = myViewInControl[objectCount]->geometry();
 		currRect.setWidth(619);
@@ -649,9 +774,10 @@ void MainWindow::createInControl(void)
 	}
 }
 
-void MainWindow::closeAnyCommand(void)
+void MainWindow::closeInControl(void)
 {
-	sendCloseWindowMsg(W_AnyCommand::getDescription());
+	sendCloseWindowMsg(W_InControl::getDescription());
+	mdiState[INCONTROL_WINDOWS_ID][0].open = false;	//ToDo wrong, shouldn't be 0!
 }
 
 //Creates a new View RIC/NU window
@@ -664,7 +790,8 @@ void MainWindow::createViewRicnu(void)
 	{
 		myViewRicnu[objectCount] = new W_Ricnu(this, &ricnuLog,
 											   getDisplayMode(), &ricnuDevList);;
-		ui->mdiArea->addSubWindow(myViewRicnu[objectCount]);
+		mdiState[RICNU_VIEW_WINDOWS_ID][objectCount].winPtr = ui->mdiArea->addSubWindow(myViewRicnu[objectCount]);
+		mdiState[RICNU_VIEW_WINDOWS_ID][objectCount].open = true;
 		myViewRicnu[objectCount]->show();
 
 		sendWindowCreatedMsg(W_Ricnu::getDescription(), objectCount,
@@ -696,6 +823,7 @@ void MainWindow::createViewRicnu(void)
 void MainWindow::closeViewRicnu(void)
 {
 	sendCloseWindowMsg(W_Ricnu::getDescription());
+	mdiState[RICNU_VIEW_WINDOWS_ID][0].open = false;	//ToDo wrong, shouldn't be 0!
 }
 
 //Creates a new Converter window
@@ -707,7 +835,8 @@ void MainWindow::createConverter(void)
 	if(objectCount < (CONVERTER_WINDOWS_MAX))
 	{
 		my_w_converter[objectCount] = new W_Converter(this);
-		ui->mdiArea->addSubWindow(my_w_converter[objectCount]);
+		mdiState[CONVERTER_WINDOWS_ID][objectCount].winPtr = ui->mdiArea->addSubWindow(my_w_converter[objectCount]);
+		mdiState[CONVERTER_WINDOWS_ID][objectCount].open = true;
 		my_w_converter[objectCount]->show();
 
 		sendWindowCreatedMsg(W_Converter::getDescription(), objectCount,
@@ -728,6 +857,7 @@ void MainWindow::createConverter(void)
 void MainWindow::closeConverter(void)
 {
 	sendCloseWindowMsg(W_Converter::getDescription());
+	mdiState[CONVERTER_WINDOWS_ID][0].open = false;	//ToDo wrong, shouldn't be 0!
 }
 
 //Creates a new Calibration window
@@ -739,7 +869,8 @@ void MainWindow::createCalib(void)
 	if(objectCount < (CALIB_WINDOWS_MAX))
 	{
 		myViewCalibration[objectCount] = new W_Calibration(this);
-		ui->mdiArea->addSubWindow(myViewCalibration[objectCount]);
+		mdiState[CALIB_WINDOWS_ID][objectCount].winPtr = ui->mdiArea->addSubWindow(myViewCalibration[objectCount]);
+		mdiState[CALIB_WINDOWS_ID][objectCount].open = true;
 		myViewCalibration[objectCount]->show();
 
 		sendWindowCreatedMsg(W_Calibration::getDescription(), objectCount,
@@ -763,6 +894,7 @@ void MainWindow::createCalib(void)
 void MainWindow::closeCalib(void)
 {
 	sendCloseWindowMsg(W_Calibration::getDescription());
+	mdiState[CALIB_WINDOWS_ID][0].open = false;	//ToDo wrong, shouldn't be 0!
 }
 
 //Creates a new User R/W window
@@ -775,7 +907,8 @@ void MainWindow::createUserRW(void)
 	{
 		W_UserRW* userRW = new W_UserRW(this, userDataManager);
 		myUserRW[objectCount] = userRW;
-		ui->mdiArea->addSubWindow(myUserRW[objectCount]);
+		mdiState[USERRW_WINDOWS_ID][objectCount].winPtr = ui->mdiArea->addSubWindow(myUserRW[objectCount]);
+		mdiState[USERRW_WINDOWS_ID][objectCount].open = true;
 		myUserRW[objectCount]->show();
 
 		sendWindowCreatedMsg(W_UserRW::getDescription(), objectCount,
@@ -804,6 +937,7 @@ void MainWindow::createUserRW(void)
 void MainWindow::closeUserRW(void)
 {
 	sendCloseWindowMsg(W_UserRW::getDescription());
+	mdiState[USERRW_WINDOWS_ID][0].open = false;	//ToDo wrong, shouldn't be 0!
 }
 
 //Creates a new View Gossip window
@@ -816,7 +950,8 @@ void MainWindow::createViewGossip(void)
 	{
 		myViewGossip[objectCount] = new W_Gossip(this, &gossipLog,
 												 getDisplayMode(), &gossipDevList);
-		ui->mdiArea->addSubWindow(myViewGossip[objectCount]);
+		mdiState[GOSSIP_WINDOWS_ID][objectCount].winPtr = ui->mdiArea->addSubWindow(myViewGossip[objectCount]);
+		mdiState[GOSSIP_WINDOWS_ID][objectCount].open = true;
 		myViewGossip[objectCount]->show();
 
 		sendWindowCreatedMsg(W_Gossip::getDescription(), objectCount,
@@ -848,6 +983,7 @@ void MainWindow::createViewGossip(void)
 void MainWindow::closeViewGossip(void)
 {
 	sendCloseWindowMsg(W_Gossip::getDescription());
+	mdiState[GOSSIP_WINDOWS_ID][0].open = false;	//ToDo wrong, shouldn't be 0!
 }
 
 //Creates a new View Strain window
@@ -860,7 +996,8 @@ void MainWindow::createViewStrain(void)
 	{
 		myViewStrain[objectCount] = new W_Strain(this, &strainLog,
 												 getDisplayMode(), &strainDevList);
-		ui->mdiArea->addSubWindow(myViewStrain[objectCount]);
+		mdiState[STRAIN_WINDOWS_ID][objectCount].winPtr = ui->mdiArea->addSubWindow(myViewStrain[objectCount]);
+		mdiState[STRAIN_WINDOWS_ID][objectCount].open = true;
 		myViewStrain[objectCount]->show();
 
 		sendWindowCreatedMsg(W_Strain::getDescription(), objectCount,
@@ -892,6 +1029,7 @@ void MainWindow::createViewStrain(void)
 void MainWindow::closeViewStrain(void)
 {
 	sendCloseWindowMsg(W_Strain::getDescription());
+	mdiState[STRAIN_WINDOWS_ID][0].open = false;	//ToDo wrong, shouldn't be 0!
 }
 
 //Creates a new View Battery window
@@ -908,7 +1046,8 @@ void MainWindow::createViewBattery(void)
 												&testBenchLog,
 												getDisplayMode(),
 												&batteryDevList);
-		ui->mdiArea->addSubWindow(myViewBatt[objectCount]);
+		mdiState[BATT_WINDOWS_ID][objectCount].winPtr = ui->mdiArea->addSubWindow(myViewBatt[objectCount]);
+		mdiState[BATT_WINDOWS_ID][objectCount].open = true;
 		myViewBatt[objectCount]->show();
 
 		sendWindowCreatedMsg(W_Battery::getDescription(), objectCount,
@@ -940,6 +1079,7 @@ void MainWindow::createViewBattery(void)
 void MainWindow::closeViewBattery(void)
 {
 	sendCloseWindowMsg(W_Battery::getDescription());
+	mdiState[BATT_WINDOWS_ID][0].open = false;	//ToDo wrong, shouldn't be 0!
 }
 
 //Creates a new LogKeyPad
@@ -951,7 +1091,8 @@ void MainWindow::createLogKeyPad(FlexseaDevice *devPtr)
 	if(objectCount < (LOGKEYPAD_WINDOWS_MAX))
 	{
 		myViewLogKeyPad[objectCount] = new W_LogKeyPad(this, devPtr);
-		ui->mdiArea->addSubWindow(myViewLogKeyPad[objectCount]);
+		mdiState[LOGKEYPAD_WINDOWS_ID][objectCount].winPtr = ui->mdiArea->addSubWindow(myViewLogKeyPad[objectCount]);
+		mdiState[LOGKEYPAD_WINDOWS_ID][objectCount].open = true;
 		myViewLogKeyPad[objectCount]->show();
 		myViewLogKeyPad[objectCount]->parentWidget()->setWindowFlags(
 					Qt::Window | Qt::WindowTitleHint | Qt::CustomizeWindowHint);
@@ -978,6 +1119,7 @@ void MainWindow::createLogKeyPad(FlexseaDevice *devPtr)
 void MainWindow::closeLogKeyPad(void)
 {
 	sendCloseWindowMsg(W_LogKeyPad::getDescription());
+	mdiState[LOGKEYPAD_WINDOWS_MAX][0].open = false;	//ToDo wrong, shouldn't be 0!
 }
 
 DisplayMode MainWindow::getDisplayMode(void)
@@ -1005,7 +1147,8 @@ void MainWindow::createViewTestBench(void)
 													   &testBenchLog,
 														getDisplayMode(),
 													   &testBenchDevList);
-		ui->mdiArea->addSubWindow(myViewTestBench[objectCount]);
+		mdiState[TESTBENCH_WINDOWS_ID][objectCount].winPtr = ui->mdiArea->addSubWindow(myViewTestBench[objectCount]);
+		mdiState[TESTBENCH_WINDOWS_ID][objectCount].open = true;
 		myViewTestBench[objectCount]->show();
 
 		sendWindowCreatedMsg(W_TestBench::getDescription(), objectCount,
@@ -1037,6 +1180,7 @@ void MainWindow::createViewTestBench(void)
 void MainWindow::closeViewTestBench(void)
 {
 	sendCloseWindowMsg(W_TestBench::getDescription());
+	mdiState[TESTBENCH_WINDOWS_ID][0].open = false;	//ToDo wrong, shouldn't be 0!
 }
 
 //Creates a new Comm. Test window
@@ -1052,7 +1196,8 @@ void MainWindow::createViewCommTest(void)
 
 		myViewCommTest[objectCount]->serialDriver = mySerialDriver;
 
-		ui->mdiArea->addSubWindow(myViewCommTest[objectCount]);
+		mdiState[COMMTEST_WINDOWS_ID][objectCount].winPtr = ui->mdiArea->addSubWindow(myViewCommTest[objectCount]);
+		mdiState[COMMTEST_WINDOWS_ID][objectCount].open = true;
 		myViewCommTest[objectCount]->show();
 
 		sendWindowCreatedMsg(W_CommTest::getDescription(), objectCount,
@@ -1085,6 +1230,7 @@ void MainWindow::createViewCommTest(void)
 void MainWindow::closeViewCommTest(void)
 {
 	sendCloseWindowMsg(W_CommTest::getDescription());
+	mdiState[COMMTEST_WINDOWS_ID][0].open = false;	//ToDo wrong, shouldn't be 0!
 }
 
 //Creates a new Event window
@@ -1096,7 +1242,8 @@ void MainWindow::createToolEvent(void)
 	if(objectCount < (EVENT_WINDOWS_MAX))
 	{
 		myEvent[objectCount] = new W_Event(this);
-		ui->mdiArea->addSubWindow(myEvent[objectCount]);
+		mdiState[EVENT_WINDOWS_ID][objectCount].winPtr = ui->mdiArea->addSubWindow(myEvent[objectCount]);
+		mdiState[EVENT_WINDOWS_ID][objectCount].open = true;
 		myEvent[objectCount]->show();
 
 		sendWindowCreatedMsg(W_Event::getDescription(), objectCount,
@@ -1117,6 +1264,7 @@ void MainWindow::createToolEvent(void)
 void MainWindow::closeToolEvent(void)
 {
 	sendCloseWindowMsg(W_Event::getDescription());
+	mdiState[EVENT_WINDOWS_ID][0].open = false;	//ToDo wrong, shouldn't be 0!
 }
 
 void MainWindow::sendWindowCreatedMsg(QString windowName, int index, int maxIndex)
@@ -1184,4 +1332,157 @@ void MainWindow::displayDocumentation()
 void MainWindow::setStatusBar(QString msg)
 {
 	ui->statusBar->showMessage(msg);
+}
+
+void MainWindow::writeSettings()
+{
+	QSettings settings("Dephy, Inc.", "Plan-GUI");
+
+	settings.beginGroup("MainWindow");
+	settings.setValue("size", size());
+	settings.setValue("pos", pos());
+	settings.setValue("geometry", saveGeometry());
+	settings.setValue("windowState", saveState());
+	settings.endGroup();
+}
+
+void MainWindow::readSettings()
+{
+	QSettings settings("Dephy, Inc.", "Plan-GUI");
+
+	settings.beginGroup("MainWindow");
+	resize(settings.value("size", QSize(400, 400)).toSize());
+	move(settings.value("pos", QPoint(200, 200)).toPoint());
+	restoreGeometry(settings.value("myWidget/geometry").toByteArray());
+	restoreState(settings.value("myWidget/windowState").toByteArray());
+	settings.endGroup();
+}
+
+void MainWindow::closeEvent(QCloseEvent *event)
+{
+	qDebug() << "Closing, see you soon!";
+	//writeSettings();
+	event->accept();
+}
+
+void MainWindow::loadCSVconfigFile(void)
+{
+	QFile configFile;
+
+	QString path = QDir::currentPath();
+	QString filename = path + "/config.csv";
+
+	//Now we open it:
+	configFile.setFileName(filename);
+
+	//Check if the file was successfully opened
+	if(configFile.open(QIODevice::ReadOnly) == false)
+	{
+		qDebug() << "Couldn't open file " << filename;
+		return;
+	}
+
+	qDebug() << "Opened:" << filename;
+
+	if(configFile.size() == 0)
+	{
+		qDebug() << "Empty file.";
+		return;
+	}
+
+	//Read and save the file information.
+	QString line;
+	QStringList splitLine;
+
+	int on = 0, obj = 0, id = 0, x = 0, y = 0, w = 0, h = 0;
+	line = configFile.readLine();	//Get rid of header
+	while(!configFile.atEnd())
+	{
+		line = configFile.readLine();
+		splitLine = line.split(',', QString::KeepEmptyParts);
+		qDebug() << splitLine;
+
+		id = splitLine.at(1).toInt();
+		obj = splitLine.at(2).toInt();
+		on = splitLine.at(3).toInt();
+		x = splitLine.at(4).toInt();
+		y = splitLine.at(5).toInt();
+		w = splitLine.at(6).toInt();
+		h = splitLine.at(7).toInt();
+		if(on == 1)
+		{
+			if(id != CONFIG_WINDOWS_ID && id != SLAVECOMM_WINDOWS_ID)
+			{
+				//Create any extra windows:
+				(this->*mdiCreateWinPtr[id])();	//Create window
+			}
+			setWinGeo(id, obj, x, y, w, h);	//Position it
+		}
+	}
+}
+
+void MainWindow::saveCSVconfigFile(void)
+{
+	QFile configFile;
+	QTextStream cfStream;
+
+	QString path = QDir::currentPath();
+	QString filename = path + "/config.csv";
+
+	//Now we open it:
+	configFile.setFileName(filename);
+
+	//Check if the file was successfully opened
+	if(configFile.open(QIODevice::ReadWrite) == false)
+	{
+		qDebug() << "Couldn't RW open file " << filename;
+		return;
+	}
+
+	qDebug() << "Opened:" << filename;
+	cfStream.setDevice(&configFile);
+
+	//CLear all data:
+	configFile.resize(0);
+
+	cfStream << "Nickname,id,objectCnt,visible,x,y,w,h" << endl;
+
+	//We scan the list, and we save the needed info:
+	for(int i = 0; i < WINDOWS_TYPES; i++)
+	{
+		for(int j = 0; j < WINDOWS_MAX_INSTANCES; j++)
+		{
+			if(mdiState[i][j].open == true)
+			{
+				//Window is open, we save its info:
+				QRect rect = mdiState[i][j].winPtr->geometry();
+				int x = rect.x();
+				int y = rect.y();
+				int w = rect.width();
+				int h = rect.height();
+				cfStream << "nickname," << QString::number(i) << ',' << QString::number(j) \
+						 << ",1," <<  QString::number(x) << ',' << QString::number(y) \
+						 << ',' << QString::number(w) << ',' << QString::number(h) << endl;
+			}
+		}
+	}
+
+	//Close file:
+	configFile.close();
+}
+
+void MainWindow::setWinGeo(int id, int obj, int x, int y, int w, int h)
+{
+	mdiState[id][obj].winPtr->setGeometry(x,y,w,h);
+}
+
+void MainWindow::initMdiState(void)
+{
+	for(int i = 0; i < WINDOWS_TYPES; i++)
+	{
+		for(int j = 0; j < WINDOWS_MAX_INSTANCES; j++)
+		{
+			mdiState[i][j].open = false;
+		}
+	}
 }

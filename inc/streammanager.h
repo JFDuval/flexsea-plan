@@ -76,7 +76,7 @@ private:
 	std::vector<CmdSlaveRecord> streamLists[NUM_TIMER_FREQS];
 
 	void tryPackAndSend(int cmd, uint8_t slaveId);
-	void packAndSendStopStreaming(uint8_t slaveId);
+	void packAndSendStopStreaming(int cmd, uint8_t slaveId);
 	int getIndexOfFrequency(int freq);
 	QString getNameOfExperiment(int cmd);
 	SerialDriver* serialDriver;

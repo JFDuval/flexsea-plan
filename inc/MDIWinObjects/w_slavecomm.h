@@ -57,9 +57,9 @@
 // Definition(s)
 //****************************************************************************
 
-#define MAX_SC_ITEMS            4
+#define MAX_SC_ITEMS			4
 #define MAX_SLAVES				10
-#define MAX_EXPERIMENTS         10
+#define MAX_EXPERIMENTS			12
 
 #define TIM_FREQ_TO_P(f)		(1000/f)	//f in Hz, return in ms
 
@@ -99,6 +99,7 @@ public slots:
 	void receiveComPortStatus(bool status);
 	void updateIndicatorTimeout(bool rst);
 	void getSlaveId(int* slaveId);
+	void getCurrentDevice(FlexseaDevice** device);
 
 private slots:
 

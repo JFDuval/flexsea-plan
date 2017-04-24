@@ -62,6 +62,8 @@ public:
 
 	void init(void);
 	bool isOpen() { return USBSerialPort.isOpen(); }
+	void flush(void);
+	void clear(void);
 
 	void addDevice(FlexseaDevice* device);
 
@@ -80,7 +82,7 @@ private:
 	uint8_t largeRxBuffer[MAX_SERIAL_RX_LEN];
 
 	std::vector<FlexseaDevice*> devices;
-	FlexseaDevice* getDeviceById(uint8_t slaveId);
+	FlexseaDevice* getDeviceByIdCmd(uint8_t slaveId, int cmd);
 
 	void signalSuccessfulParse();
 	void debugStats(int,int);

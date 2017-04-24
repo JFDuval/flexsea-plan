@@ -81,7 +81,8 @@ void SerialDriver::open(QString name, int tries, int delay, bool *success)
 	USBSerialPort.setDataBits(QSerialPort::Data8);
 	USBSerialPort.setParity(QSerialPort::NoParity);
 	USBSerialPort.setStopBits(QSerialPort::OneStop);
-	USBSerialPort.setFlowControl(QSerialPort::HardwareControl);
+	//USBSerialPort.setFlowControl(QSerialPort::HardwareControl);
+	USBSerialPort.setFlowControl(QSerialPort::NoFlowControl);
 
 	connect(&USBSerialPort, &QSerialPort::readyRead, this, &SerialDriver::handleReadyRead);
 
@@ -136,6 +137,9 @@ void SerialDriver::close(void)
 	comPortOpen = false;
 	emit openStatus(comPortOpen);
 
+	circularBuffer_t* cb = commPeriph[PORT_USB].rx.circularBuff;
+	circ_buff_move_head(cb, circ_buff_get_size(cb));
+
 	USBSerialPort.flush();
 	//Delay (for ongoing transmissions)
 	usleep(100000);
@@ -169,11 +173,20 @@ int SerialDriver::write(uint8_t bytes_to_send, uint8_t *serial_tx_data)
 	return (int) write_ret;
 }
 
-FlexseaDevice* SerialDriver::getDeviceById(uint8_t slaveId)
+void SerialDriver::flush(void)
+{
+	USBSerialPort.flush();
+}
+
+void SerialDriver::clear(void)
+{
+	USBSerialPort.clear();
+}
+FlexseaDevice* SerialDriver::getDeviceByIdCmd(uint8_t slaveId, int cmd)
 {
 	for(unsigned int i = 0; i < devices.size(); i++)
 	{
-		if(devices.at(i)->slaveID == slaveId)
+		if(devices.at(i)->slaveID == slaveId && devices.at(i)->experimentIndex == cmd)
 			return devices.at(i);
 	}
 	return nullptr;
@@ -183,7 +196,9 @@ void SerialDriver::signalSuccessfulParse()
 {
 	//Update appropriate FlexseaDevice
 	uint8_t slaveId = packet[PORT_USB][INBOUND].unpaked[P_XID];
-	FlexseaDevice* device = getDeviceById(slaveId);
+	int cmd = (int)CMD_7BITS(packet[PORT_USB][INBOUND].unpaked[P_CMD1]);
+	FlexseaDevice* device = getDeviceByIdCmd(slaveId, cmd);
+
 	if(device)
 	{
 		device->decodeLastLine();
@@ -273,8 +288,8 @@ void SerialDriver::handleReadyRead()
 	int maxMessagesExpected = (len / COMM_STR_BUF_LEN + (len % COMM_STR_BUF_LEN != 0));
 	uint16_t bytesToWrite;
 	int error;
-    for(int i = 0; i < numBuffers; i++)
-    {
+	for(int i = 0; i < numBuffers; i++)
+	{
 		bytesToWrite = remainingBytes > CHUNK_SIZE ? CHUNK_SIZE : remainingBytes;
 		error = update_rx_buf_usb(&largeRxBuffer[i*CHUNK_SIZE], bytesToWrite);
 		if(error)
@@ -293,16 +308,16 @@ void SerialDriver::handleReadyRead()
 		} while(successfulParse && numMessagesReceived < maxMessagesExpected);
 	}
 
-    // Notify user in GUI: ... TODO: support 4 channels
-    if(numMessagesReceived >= numMessagesExpected)
-        emit dataStatus(0, DATAIN_STATUS_GREEN);
-    else if(numMessagesReceived == 0)
-        emit dataStatus(0, DATAIN_STATUS_RED);
-    else
-        emit dataStatus(0, DATAIN_STATUS_YELLOW);
+	// Notify user in GUI: ... TODO: support 4 channels
+	if(numMessagesReceived >= numMessagesExpected)
+		emit dataStatus(0, DATAIN_STATUS_GREEN);
+	else if(numMessagesReceived == 0)
+		emit dataStatus(0, DATAIN_STATUS_RED);
+	else
+		emit dataStatus(0, DATAIN_STATUS_YELLOW);
 
 	if(numMessagesReceived)
-        emit newDataTimeout(true); //Reset counter
+		emit newDataTimeout(true); //Reset counter
 
 //	debugStats(len, numMessagesReceived);
 
