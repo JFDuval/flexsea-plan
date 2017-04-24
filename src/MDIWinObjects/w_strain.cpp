@@ -51,12 +51,22 @@ W_Strain::W_Strain(QWidget *parent,
 	deviceLog  = deviceLogPtr;
 	deviceList = deviceListPtr;
 
-	displayMode = mode;
-
 	setWindowTitle(this->getDescription());
 	setWindowIcon(QIcon(":icons/d_logo_small.png"));
 
-	updateDisplayMode(displayMode, nullptr);
+	lastDisplayMode = (DisplayMode)1000; // To force the init
+	updateDisplayMode(mode, nullptr);
+
+	QString ttip = "<html><head/><body><p>Decoded: ±100% of full scale"
+				   "</p></body></html>";
+
+	ui->disp_strain_ch1_d->setToolTip(ttip);
+	ui->disp_strain_ch2_d->setToolTip(ttip);
+	ui->disp_strain_ch3_d->setToolTip(ttip);
+	ui->disp_strain_ch4_d->setToolTip(ttip);
+	ui->disp_strain_ch5_d->setToolTip(ttip);
+	ui->disp_strain_ch6_d->setToolTip(ttip);
+
 }
 
 W_Strain::~W_Strain()
@@ -95,14 +105,20 @@ void W_Strain::updateDisplayMode(DisplayMode mode, FlexseaDevice* devPtr)
 {
 	(void)devPtr;
 	displayMode = mode;
-	if(displayMode == DisplayLogData)
+
+	if(displayMode != lastDisplayMode)
 	{
-		initLog();
+		if(displayMode == DisplayLogData)
+		{
+			initLog();
+		}
+		else
+		{
+			initLive();
+		}
 	}
-	else
-	{
-		initLive();
-	}
+
+	lastDisplayMode = displayMode;
 }
 
 //****************************************************************************

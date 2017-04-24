@@ -51,12 +51,11 @@ W_Gossip::W_Gossip(QWidget *parent,
 	deviceLog  = deviceLogPtr;
 	deviceList = deviceListPtr;
 
-	displayMode = mode;
-
 	setWindowTitle(this->getDescription());
 	setWindowIcon(QIcon(":icons/d_logo_small.png"));
 
-	updateDisplayMode(displayMode, nullptr);
+	lastDisplayMode = (DisplayMode)1000; // To force the init
+	updateDisplayMode(mode, nullptr);
 }
 
 W_Gossip::~W_Gossip()
@@ -95,14 +94,20 @@ void W_Gossip::updateDisplayMode(DisplayMode mode, FlexseaDevice* devPtr)
 {
 	(void)devPtr;
 	displayMode = mode;
-	if(displayMode == DisplayLogData)
+
+	if(displayMode != lastDisplayMode)
 	{
-		initLog();
+		if(displayMode == DisplayLogData)
+		{
+			initLog();
+		}
+		else
+		{
+			initLive();
+		}
 	}
-	else
-	{
-		initLive();
-	}
+
+	lastDisplayMode = displayMode;
 }
 
 //****************************************************************************

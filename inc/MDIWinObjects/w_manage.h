@@ -75,7 +75,7 @@ private:
 	//Variables & Objects:
 	Ui::W_Manage *ui;
 
-	DisplayMode displayMode;
+	DisplayMode displayMode, lastDisplayMode;
 
 	QList<ManageDevice> *deviceList;
 	ManageDevice *deviceLog;

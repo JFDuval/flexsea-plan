@@ -72,7 +72,7 @@ private:
 	//Variables & Objects:
 	Ui::W_TestBench *ui;
 
-	DisplayMode displayMode;
+	DisplayMode displayMode, lastDisplayMode;
 
 	QList<TestBenchProject> *deviceList;
 	TestBenchProject *deviceLog;

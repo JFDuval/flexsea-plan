@@ -72,6 +72,7 @@ W_2DPlot::W_2DPlot(QWidget *parent,
 	initChart();
 
 	// Big part of the init have been moved to this function.
+	lastDisplayMode = (DisplayMode)1000; // To force the init
 	updateDisplayMode(mode, devLogInit);
 
 	useOpenGL(false);
@@ -214,45 +215,44 @@ void W_2DPlot::refreshDisplayLog(int index, FlexseaDevice * devPtr)
 
 void W_2DPlot::updateDisplayMode(DisplayMode mode, FlexseaDevice* devPtr)
 {
-	static bool firstTime = true;
-	static DisplayMode prevMode = DisplayLogData;
-	if(mode == prevMode && !firstTime) return;
-	prevMode = mode;
-	firstTime = false;
-
 	displayMode = mode;
-	if(displayMode == DisplayLogData)
+	if(displayMode != lastDisplayMode)
 	{
-		logDevList.clear();
-		logDevList.append(devPtr);
-		currentDevList = &logDevList;
+		if(displayMode == DisplayLogData)
+		{
+			logDevList.clear();
+			logDevList.append(devPtr);
+			currentDevList = &logDevList;
 
-		initUserInput();
-		initData();
+			initUserInput();
+			initData();
 
-		ui->pushButtonFreeze->setDisabled(true);
-		ui->radioButtonXA->setChecked(0);
-		ui->radioButtonXM->setChecked(1);
-		ui->radioButtonXA->setDisabled(true);
-		ui->radioButtonXM->setDisabled(true);
-		ui->lineEditXMin->setDisabled(false);
-		ui->lineEditXMax->setDisabled(false);
+			ui->pushButtonFreeze->setDisabled(true);
+			ui->radioButtonXA->setChecked(0);
+			ui->radioButtonXM->setChecked(1);
+			ui->radioButtonXA->setDisabled(true);
+			ui->radioButtonXM->setDisabled(true);
+			ui->lineEditXMin->setDisabled(false);
+			ui->lineEditXMax->setDisabled(false);
+		}
+		else
+		{
+			currentDevList = liveDevList;
+
+			initUserInput();
+			initData();
+
+			ui->pushButtonFreeze->setDisabled(false);
+			ui->radioButtonXA->setChecked(1);
+			ui->radioButtonXM->setChecked(0);
+			ui->radioButtonXA->setDisabled(false);
+			ui->radioButtonXM->setDisabled(false);
+			ui->lineEditXMin->setDisabled(true);
+			ui->lineEditXMax->setDisabled(true);
+		}
 	}
-	else
-	{
-		currentDevList = liveDevList;
 
-		initUserInput();
-		initData();
-
-		ui->pushButtonFreeze->setDisabled(false);
-		ui->radioButtonXA->setChecked(1);
-		ui->radioButtonXM->setChecked(0);
-		ui->radioButtonXA->setDisabled(false);
-		ui->radioButtonXM->setDisabled(false);
-		ui->lineEditXMin->setDisabled(true);
-		ui->lineEditXMax->setDisabled(true);
-	}
+	lastDisplayMode = displayMode;
 }
 
 //****************************************************************************

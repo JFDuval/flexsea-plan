@@ -74,7 +74,7 @@ private:
 	//Variables & Objects:
 	Ui::W_Strain *ui;
 
-	DisplayMode displayMode;
+	DisplayMode displayMode, lastDisplayMode;
 
 	QList<StrainDevice> *deviceList;
 	StrainDevice *deviceLog;

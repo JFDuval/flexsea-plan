@@ -51,12 +51,11 @@ W_Ricnu::W_Ricnu(QWidget *parent,
 	deviceLog = deviceLogPtr;
 	deviceList = deviceListPtr;
 
-	displayMode = mode;
-
 	setWindowTitle(this->getDescription());
 	setWindowIcon(QIcon(":icons/d_logo_small.png"));
 
-	updateDisplayMode(displayMode, nullptr);
+	lastDisplayMode = (DisplayMode)1000; // To force the init
+	updateDisplayMode(mode, nullptr);
 }
 
 W_Ricnu::~W_Ricnu()
@@ -95,14 +94,20 @@ void W_Ricnu::updateDisplayMode(DisplayMode mode, FlexseaDevice* devPtr)
 {
 	(void)devPtr;
 	displayMode = mode;
-	if(displayMode == DisplayLogData)
+
+	if(displayMode != lastDisplayMode)
 	{
-		initLog();
+		if(displayMode == DisplayLogData)
+		{
+			initLog();
+		}
+		else
+		{
+			initLive();
+		}
 	}
-	else
-	{
-		initLive();
-	}
+
+	lastDisplayMode = displayMode;
 }
 
 //****************************************************************************
@@ -140,8 +145,8 @@ void W_Ricnu::display(RicnuProject *devicePtr, int index)
 	ui->disp_gyroy->setText(QString::number(ricnu->ex->gyro.y));
 	ui->disp_gyroz->setText(QString::number(ricnu->ex->gyro.z));
 
-    ui->enc_mot->setText(QString::number(ricnu->enc_motor));
-    ui->enc_joint->setText(QString::number(ricnu->enc_joint));
+	ui->enc_mot->setText(QString::number(ricnu->enc_motor));
+	ui->enc_joint->setText(QString::number(ricnu->enc_joint));
 	ui->pwm->setText(QString::number(ricnu->ex->sine_commut_pwm));
 
 	ui->strain1->setText(QString::number(ricnu->st->ch[0].strain_filtered));

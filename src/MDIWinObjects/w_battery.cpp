@@ -60,6 +60,7 @@ W_Battery::W_Battery(QWidget *parent,
 	ui->comboBox_slaveM->setDisabled(true);
 	ui->comboBox_slaveM->addItem("Not implemented");
 
+	lastDisplayMode = (DisplayMode)1000; // To force the init
 	updateDisplayMode(mode, currentLog);
 
 	//Disable modules that aren't programmed yet:
@@ -119,14 +120,20 @@ void W_Battery::refreshDisplayLog(int index, FlexseaDevice * devPtr)
 void W_Battery::updateDisplayMode(DisplayMode mode, FlexseaDevice* devPtr)
 {
 	displayMode = mode;
-	if(displayMode == DisplayLogData)
+
+	if(displayMode != lastDisplayMode)
 	{
-		initLog(devPtr);
+		if(displayMode == DisplayLogData)
+		{
+			initLog(devPtr);
+		}
+		else
+		{
+			initLive();
+		}
 	}
-	else
-	{
-		initLive();
-	}
+
+	lastDisplayMode = displayMode;
 }
 
 //****************************************************************************

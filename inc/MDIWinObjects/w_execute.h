@@ -79,7 +79,7 @@ private:
 	//Variables & Objects:
 	Ui::W_Execute *ui;
 
-	DisplayMode displayMode;
+	DisplayMode displayMode, lastDisplayMode;
 
 	QList<ExecuteDevice> *deviceList;
 	ExecuteDevice *executeLog;
