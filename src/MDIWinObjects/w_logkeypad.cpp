@@ -97,6 +97,12 @@ void W_LogKeyPad::init(void)
 	ui->TimeSlider->setRange(0, devicePtr->timeStamp.length()-1);
 	cursor = QString::number(devicePtr->timeStamp[0].ms) + \
 			 " ms (" + QString::number(0, 'f', 1) + "%)";
+
+	cursor = QString::number(devicePtr->timeStamp[0].ms) + " ms (" +\
+			 QString::number(0, 'f', 1) + "%, sample " +\
+			 QString::number(0+1) + " of " +
+			 QString::number(devicePtr->timeStamp.length()) + ")";
+
 	ui->labelCursor->setText(cursor);
 
 	ui->TimeSlider->setFocus();
@@ -106,15 +112,17 @@ void W_LogKeyPad::init(void)
 // Private slot(s):
 //****************************************************************************
 
-void W_LogKeyPad::on_TimeSlider_valueChanged(int value)
+void W_LogKeyPad::on_TimeSlider_valueChanged(int index)
 {
 	QString cursor;
 	int pctVal = 0;
 
-	emit logTimeSliderValueChanged(value, devicePtr);
+	emit logTimeSliderValueChanged(index, devicePtr);
 
-	pctVal = (value * 100.0) / (devicePtr->timeStamp.length()-1);
-	cursor = QString::number(devicePtr->timeStamp[value].ms) + \
-			 " ms (" + QString::number(pctVal, 'f', 1) + "%)";
+	pctVal = (index * 100.0) / (devicePtr->timeStamp.length()-1);
+	cursor = QString::number(devicePtr->timeStamp[index].ms) + " ms (" +\
+			 QString::number(pctVal, 'f', 1) + "%, sample " +\
+			 QString::number(index+1) + " of " +
+			 QString::number(devicePtr->timeStamp.length()) + ")";
 	ui->labelCursor->setText(cursor);
 }
