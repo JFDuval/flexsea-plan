@@ -181,7 +181,7 @@ signals:
 private:
 	QTimer* drawingTimer;
 
-	DisplayMode displayMode;
+	DisplayMode displayMode, lastDisplayMode;
 
 	// GUI Pointer table
 	QLabel **lbT[VAR_NUM];
