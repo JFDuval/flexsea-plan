@@ -56,6 +56,17 @@ W_Strain::W_Strain(QWidget *parent,
 
 	lastDisplayMode = (DisplayMode)1000; // To force the init
 	updateDisplayMode(mode, nullptr);
+
+	QString ttip = "<html><head/><body><p>Decoded: ±100% of full scale"
+				   "</p></body></html>";
+
+	ui->disp_strain_ch1_d->setToolTip(ttip);
+	ui->disp_strain_ch2_d->setToolTip(ttip);
+	ui->disp_strain_ch3_d->setToolTip(ttip);
+	ui->disp_strain_ch4_d->setToolTip(ttip);
+	ui->disp_strain_ch5_d->setToolTip(ttip);
+	ui->disp_strain_ch6_d->setToolTip(ttip);
+
 }
 
 W_Strain::~W_Strain()
