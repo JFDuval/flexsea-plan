@@ -188,12 +188,6 @@ void W_2DPlot::refresh2DPlot(void)
 		{
 			if(vtp[i].used && !vDataBuffer[i].isEmpty())
 			{
-				int bufLength = vDataBuffer[i].size();
-				for(int j = 0; j < bufLength; j++)
-				{
-					vDataBuffer[i][j].setX(j);
-				}
-
 				qlsChart[i]->replace(vDataBuffer[i]);
 			}
 
@@ -582,6 +576,14 @@ void W_2DPlot::saveNewPoint(int row, int data)
 		vDataBuffer[row].removeFirst();
 		vDataBuffer[row].append(QPointF(plot_len-1, data));
 	}
+
+	// Fill the x value properly
+	int bufLength = vDataBuffer[row].size();
+
+	for(int j = 0; j < bufLength; j++)
+	{
+		vDataBuffer[row][j].setX(j);
+	}
 }
 
 void W_2DPlot::saveNewPointsLog(int index)
@@ -595,16 +597,21 @@ void W_2DPlot::saveNewPointsLog(int index)
 	{
 		int dataIter = 0;
 		// Manage the starting point for parsing the data
+
+		// set the data iterator to start with an half
+		// the plot filled to the right (oscilloscope style)
 		if(index > plot_len / 2)
 		{
 			dataIter = index - (plot_len / 2);
 		}
+		// if the index is higher thant plot-len/2, plot normally
 		else
 		{
 			dataIter = 0;
 		}
 
 
+		// Set the plot iterator
 		int graphIter = (plot_len / 2) - index;
 
 		if(graphIter < 0)
@@ -612,6 +619,8 @@ void W_2DPlot::saveNewPointsLog(int index)
 			graphIter = 0;
 		}
 
+
+		// Add data until one of the limit is reached.
 		while(dataIter < selectedDevList[item]->length() &&
 			  graphIter < plot_len &&
 			  varIndex[item] > 0)
