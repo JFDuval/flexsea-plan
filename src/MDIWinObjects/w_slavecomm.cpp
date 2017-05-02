@@ -413,6 +413,7 @@ void W_SlaveComm::managePushButton(int row, bool forceOff)
 	int refreshRateIndex = comboBoxRefreshPtr[row]->currentIndex();
 	int cmdCode = cmdMap[experimentIndex];
 
+
 	if(cmdCode < 0) return;
 
 	int refreshRate = streamManager->getRefreshRates()[refreshRateIndex];
@@ -433,6 +434,8 @@ void W_SlaveComm::managePushButton(int row, bool forceOff)
 		target->experimentIndex = cmdCode;
 		target->experimentName = comboBoxExpPtr[row]->currentText();
 
+		emit activeSlaveStreaming(target->slaveName);
+
 		if(auto_checkbox[row]->isChecked())
 		{
 			streamManager->startAutoStreaming(cmdCode, slaveId, refreshRate, log_cb_ptr[row]->isChecked(), target);
@@ -451,6 +454,9 @@ void W_SlaveComm::managePushButton(int row, bool forceOff)
 		(on_off_pb_ptr[row])->setText(QChar(0x2718));
 		(on_off_pb_ptr[row])->setStyleSheet("background-color: \
 						rgb(127, 127, 127); color: rgb(0, 0, 0)");
+
+		// Used to open view window by default.
+		emit activeSlaveStreaming("None");
 
 		// start streaming
 		if(cmdCode >= 0)

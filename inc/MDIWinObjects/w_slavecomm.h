@@ -118,6 +118,7 @@ private slots:
 
 signals:
 	void windowClosed(void);
+	void activeSlaveStreaming(QString slaveName);
 
 private:
 	//Helper Functions

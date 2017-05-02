@@ -55,6 +55,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
 	initMdiState();
 
+	activeSlaveNameStreaming = "None";
+
 	//Header contains timestamp:
 	QString winHeader = "FlexSEA-Plan GUI v2.1 (Beta) [Last full build: ";
 	winHeader = winHeader + QString(__DATE__) + QString(' ') + QString(__TIME__) \
@@ -346,6 +348,11 @@ void MainWindow::emptyWinFct(void)
 //****************************************************************************
 // Public slot(s):
 //****************************************************************************
+void MainWindow::translatorActiveSlaveStreaming(QString slaveName)
+{
+	activeSlaveNameStreaming = slaveName;
+	emit connectorCurrentSlaveStreaming(slaveName);
+}
 
 void MainWindow::saveComPortStatus(bool status)
 {
@@ -626,7 +633,8 @@ void MainWindow::createView2DPlot(void)
 		myView2DPlot[objectCount] = new W_2DPlot(nullptr,
 												 currentFlexLog,
 												 getDisplayMode(),
-												 &flexseaPtrlist);
+												 &flexseaPtrlist,
+												 activeSlaveNameStreaming);
 
 		mdiState[PLOT2D_WINDOWS_ID][objectCount].winPtr = ui->mdiArea->addSubWindow(myView2DPlot[objectCount]);
 		mdiState[PLOT2D_WINDOWS_ID][objectCount].open = true;
@@ -641,6 +649,9 @@ void MainWindow::createView2DPlot(void)
 		//Link to MainWindow for the close signal:
 		connect(myView2DPlot[objectCount], SIGNAL(windowClosed()), \
 				this, SLOT(closeView2DPlot()));
+
+		connect(this, SIGNAL(connectorCurrentSlaveStreaming(QString)), \
+				myView2DPlot[objectCount], SLOT(activeSlaveStreaming(QString)));
 
 		// Link to the slider of logKeyPad. Intermediate signal (connector) to
 		// allow opening of window asynchroniously
@@ -691,12 +702,16 @@ void MainWindow::createSlaveComm(void)
 		connect(myViewSlaveComm[objectCount], SIGNAL(windowClosed()), \
 				this, SLOT(closeSlaveComm()));
 
+		connect(myViewSlaveComm[objectCount], SIGNAL(activeSlaveStreaming(QString)), \
+				this, SLOT(translatorActiveSlaveStreaming(QString)));
+
 		connect(mySerialDriver, SIGNAL(openStatus(bool)), \
 				myViewSlaveComm[0], SLOT(receiveComPortStatus(bool)));
 		connect(mySerialDriver, SIGNAL(dataStatus(int, int)), \
 				myViewSlaveComm[0], SLOT(displayDataReceived(int, int)));
 		connect(mySerialDriver, SIGNAL(newDataTimeout(bool)), \
 				myViewSlaveComm[0], SLOT(updateIndicatorTimeout(bool)));
+
 	}
 	else
 	{

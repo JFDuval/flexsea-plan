@@ -54,7 +54,8 @@ QT_CHARTS_USE_NAMESPACE
 W_2DPlot::W_2DPlot(QWidget *parent,
 				   FlexseaDevice* devLogInit,
 				   DisplayMode mode,
-				   QList<FlexseaDevice*> *devListInit) :
+				   QList<FlexseaDevice*> *devListInit,
+				   QString activeSlave) :
 	QWidget(parent),
 	ui(new Ui::W_2DPlot)
 {
@@ -81,6 +82,8 @@ W_2DPlot::W_2DPlot(QWidget *parent,
 	drawingTimer->setInterval(40);
 	drawingTimer->setSingleShot(false);
 	connect(drawingTimer, &QTimer::timeout, this, &W_2DPlot::refresh2DPlot);
+
+	selectSlave(activeSlave);
 }
 
 W_2DPlot::~W_2DPlot()
@@ -247,6 +250,11 @@ void W_2DPlot::updateDisplayMode(DisplayMode mode, FlexseaDevice* devPtr)
 	}
 
 	lastDisplayMode = displayMode;
+}
+
+void W_2DPlot::activeSlaveStreaming(QString slaveName)
+{
+	selectSlave(slaveName);
 }
 
 //****************************************************************************
@@ -1629,6 +1637,19 @@ void W_2DPlot::updateScalingFactors(uint8_t var, uint8_t param, QString txt)
 void W_2DPlot::scale(uint8_t item, int *value)
 {
 	(*value) = (*value)*scaling[item][0] + scaling[item][1];
+}
+
+void W_2DPlot::selectSlave(QString slaveName)
+{
+	for(int i = 0; i < currentDevList->length(); ++i)
+	{
+		if((*currentDevList)[i]->slaveName == slaveName)
+		{
+			(*cbVarSlave[0])->setCurrentIndex(i);
+		}
+	}
+
+	on_pbIMU_clicked();
 }
 
 void W_2DPlot::on_lineEditM1_textEdited(const QString &arg1)
