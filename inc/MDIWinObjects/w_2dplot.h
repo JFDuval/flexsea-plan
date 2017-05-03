@@ -151,6 +151,7 @@ private slots:
 	void on_pushButtonClear_clicked();
 	void on_pbReset_clicked();
 	void on_pbIMU_clicked();
+	void on_pbScreenShot_clicked();
 	void on_pbPoints_clicked();
 	void genTestData(void);
 	void myHoverHandler0(QPointF pt, bool state);
@@ -232,6 +233,7 @@ private:
 
 	//Function(s):
 
+	void saveScreenshot(void);
 	void initChart(void);
 	void initUserInput(void);
 	void saveNewPoint(int row, int data);

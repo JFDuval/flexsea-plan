@@ -84,6 +84,7 @@ W_2DPlot::W_2DPlot(QWidget *parent,
 	connect(drawingTimer, &QTimer::timeout, this, &W_2DPlot::refresh2DPlot);
 
 	selectSlave(activeSlave);
+
 }
 
 W_2DPlot::~W_2DPlot()
@@ -260,6 +261,24 @@ void W_2DPlot::activeSlaveStreaming(QString slaveName)
 //****************************************************************************
 // Private function(s):
 //****************************************************************************
+
+void W_2DPlot::saveScreenshot(void)
+{
+	QPixmap originalPixmap = this->grab();
+
+	const QString format = "png";
+	QString path = QDir::currentPath();
+	QString dateTime =	QDate::currentDate().toString("yyyy-MM-dd_") + \
+						QTime::currentTime().toString("HH'h'mm'm'ss's'");
+	path += tr("/Plan-GUI-Logs/")+ dateTime + "." + format;
+
+	if (!originalPixmap.save(path)) {
+		QMessageBox::warning(this, tr("Save Error"), tr("The image could not be saved to \"%1\".")
+							 .arg(QDir::toNativeSeparators(path)));
+	}
+
+
+}
 
 void W_2DPlot::initPtr(void)
 {
@@ -1505,6 +1524,11 @@ void W_2DPlot::on_pbIMU_clicked()
 	{
 		(*cbVar[item])->setCurrentIndex(item + 2);
 	}
+}
+
+void W_2DPlot::on_pbScreenShot_clicked()
+{
+	saveScreenshot();
 }
 
 void W_2DPlot::on_pbPoints_clicked()
