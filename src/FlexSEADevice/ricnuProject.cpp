@@ -37,6 +37,7 @@
 #include <QTextStream>
 #include "executeDevice.h"
 #include "strainDevice.h"
+#include "flexsea_global_structs.h"
 
 //****************************************************************************
 // Constructor & Destructor:
@@ -63,11 +64,36 @@ RicnuProject::RicnuProject(execute_s *exPtr, strain_s *stPtr): FlexseaDevice()
 
 	this->dataSource = LiveDataFile;
 	timeStamp.append(TimeStamp());
-	riList.append(new ricnu_s_plan());
+	riList.append(&ricnu_1);
 	riList.last()->ex = exPtr;
 	riList.last()->st = stPtr;
+	ownershipList.append(false); //we assume we don't own this device ptr, and whoever passed it to us is responsible for clean up
 	serializedLength = header.length();
 	slaveTypeName = "ricnu";
+}
+
+RicnuProject::~RicnuProject()
+{
+	if(ownershipList.size() != riList.size())
+	{
+		qDebug() << "RICNU Device class cleaning up: execute list size doesn't match list of ownership info size.";
+		qDebug() << "Not sure whether it is safe to delete these device records.";
+		return;
+	}
+
+	while(ownershipList.size())
+	{
+		bool shouldDelete = ownershipList.takeLast();
+		ricnu_s* readyToDelete = riList.takeLast();
+		if(shouldDelete)
+		{
+			delete readyToDelete->ex->enc_ang;
+			delete readyToDelete->ex->enc_ang_vel;
+			delete readyToDelete->ex;
+			delete readyToDelete->st;
+			delete readyToDelete;
+		}
+	}
 }
 
 //****************************************************************************
@@ -304,20 +330,30 @@ void RicnuProject::clear(void)
 {
 	FlexseaDevice::clear();
 	riList.clear();
+	ownershipList.clear();
 	timeStamp.clear();
 }
 
 void RicnuProject::appendEmptyLine(void)
 {
 	timeStamp.append(TimeStamp());
-	riList.append(new ricnu_s_plan());
+
+	execute_s *emptyEx = new execute_s();
+	emptyEx->enc_ang = new int32_t();
+	emptyEx->enc_ang_vel = new int32_t();
+	strain_s *emptySt = new strain_s();
+	ricnu_s *emptyStruct = new ricnu_s();
+	emptyStruct->ex = emptyEx;
+	emptyStruct->st = emptySt;
+	riList.append(emptyStruct);
+	ownershipList.append(true); // we own this struct, so we must delete it in destructor
 }
 
 void RicnuProject::appendEmptyLineWithStruct(void)
 {
 	appendEmptyLine();
-	riList.last()->ex = new execute_s();
-	riList.last()->st = new strain_s();
+	//riList.last()->ex = new execute_s();
+	//riList.last()->st = new strain_s();
 }
 
 void RicnuProject::decodeLastLine(void)
@@ -337,15 +373,17 @@ void RicnuProject::decodeAllLine(void)
 
 void RicnuProject::decode(struct ricnu_s *riPtr)
 {
-	ExecuteDevice::decode(&riPtr->ex);
-	StrainDevice::decode(&riPtr->st);
+	ExecuteDevice::decode(riPtr->ex);
+	StrainDevice::decode(riPtr->st);
 }
 
+/*
 void RicnuProject::decode(struct ricnu_s_plan *riPtr)
 {
 	ExecuteDevice::decode(riPtr->ex);
 	StrainDevice::decode(riPtr->st);
 }
+*/
 
 QString RicnuProject::getStatusStr(int index)
 {

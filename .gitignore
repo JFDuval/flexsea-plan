@@ -9,3 +9,4 @@ doxygen_output/*
 Doxyfile
 *.orig
 *.gif
+doc/

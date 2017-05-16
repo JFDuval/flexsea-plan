@@ -1672,8 +1672,6 @@ void W_2DPlot::selectSlave(QString slaveName)
 			(*cbVarSlave[0])->setCurrentIndex(i);
 		}
 	}
-
-	on_pbIMU_clicked();
 }
 
 void W_2DPlot::on_lineEditM1_textEdited(const QString &arg1)

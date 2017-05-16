@@ -53,30 +53,12 @@ namespace Ui
 	class RicnuProject;
 }
 
-struct ricnu_s_plan
-{
-	//Execute:
-	struct execute_s *ex;
-
-    int32_t enc_motor;
-    int32_t enc_joint;
-
-	//Extra sensors (Strain):
-	//uint16_t ext_strain[6];
-	struct strain_s *st;
-
-	//Decoded values (ext_strain only)
-	struct decoded_ricnu_s decoded;
-
-	int16_t gen_var[6];
-};
-
 class RicnuProject : public FlexseaDevice
 {
 public:
 	explicit RicnuProject(void);
 	explicit RicnuProject(execute_s *exPtr, strain_s *stPtr);
-
+	virtual ~RicnuProject();
 
 	// Interface implementation
 	QString getHeaderStr(void);
@@ -95,14 +77,15 @@ public:
 
 	void appendEmptyLineWithStruct(void);
 
-	QList<struct ricnu_s_plan*> riList;
+	//QList<struct ricnu_s_plan*> riList;
+	QList<struct ricnu_s*> riList;
 	static void decode(struct ricnu_s *riPtr);
-	static void decode(struct ricnu_s_plan *riPtr);
+	//static void decode(struct ricnu_s_plan *riPtr);
 
 private:
 	static QStringList header;
 	static QStringList headerDecoded;
-
+	QList<bool> ownershipList;
 };
 
 

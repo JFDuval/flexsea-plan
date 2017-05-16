@@ -133,7 +133,8 @@ void W_Ricnu::initLog(void)
 
 void W_Ricnu::display(RicnuProject *devicePtr, int index)
 {
-	struct ricnu_s_plan *ricnu = devicePtr->riList[index];
+	//struct ricnu_s_plan *ricnu = devicePtr->riList[index];
+	struct ricnu_s *ricnu = devicePtr->riList[index];
 
 	//Raw values:
 	//===========
