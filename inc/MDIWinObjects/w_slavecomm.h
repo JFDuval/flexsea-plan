@@ -61,7 +61,7 @@
 #define MAX_SLAVES				10
 #define MAX_EXPERIMENTS			12
 
-#define TIM_FREQ_TO_P(f)		(1000/f)	//f in Hz, return in ms
+#define DATA_TIMEOUT			100	//Timer will fire every 100ms
 
 //****************************************************************************
 // Namespace & Class Definition:
@@ -116,6 +116,8 @@ private slots:
 
 	void on_lineEdit_returnPressed();
 
+	void dataTimeoutEvent(void);
+
 signals:
 	void windowClosed(void);
 	void activeSlaveStreaming(QString slaveName);
@@ -127,6 +129,7 @@ private:
 	void manageSelectedExperimentChanged(int row);
 	void mapSerializedPointers(void);
 	void initializeMaps(void);
+	void initTimers(void);
 	FlexseaDevice* getTargetDevice(int cmd, int experimentIndex, int slaveIndex);
 
 	//UI objects
@@ -173,6 +176,8 @@ private:
 	void updateStatusBar(QString txt);
 
 	uint8_t numExperiments;
+
+	QTimer *dataTimeout;
 };
 
 #endif // W_SLAVECOMM_H

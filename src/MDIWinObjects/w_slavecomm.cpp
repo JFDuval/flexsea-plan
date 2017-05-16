@@ -85,6 +85,7 @@ W_SlaveComm::W_SlaveComm(QWidget *parent,
 	mapSerializedPointers();
 	initExperimentList();
 	initSlaveCom();
+	initTimers();
 }
 
 W_SlaveComm::~W_SlaveComm()
@@ -248,6 +249,13 @@ void W_SlaveComm::initializeMaps()
 	cmdMap[6] = CMD_MOTORTB;
 
 	numExperiments = 7;
+}
+
+void W_SlaveComm::initTimers(void)
+{
+	dataTimeout = new QTimer(this);
+	connect(dataTimeout, SIGNAL(timeout()), this, SLOT(dataTimeoutEvent()));
+	dataTimeout->start(DATA_TIMEOUT);
 }
 
 void W_SlaveComm::populateSlaveComboBox(QComboBox* box, int indexOfExperimentSelected)
@@ -591,4 +599,9 @@ void W_SlaveComm::on_lineEdit_returnPressed()
 	}
 
 	//qDebug() << "Result: " << offsetArray;
+}
+
+void W_SlaveComm::dataTimeoutEvent(void)
+{
+	updateIndicatorTimeout(false);
 }
