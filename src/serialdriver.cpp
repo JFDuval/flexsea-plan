@@ -184,15 +184,6 @@ void SerialDriver::clear(void)
 }
 FlexseaDevice* SerialDriver::getDeviceByIdCmd(uint8_t slaveId, int cmd)
 {
-	static uint8_t div = 0;
-	div++;
-	div %=20;
-	if(!div)
-	{
-		qDebug() << devices.at(0)->slaveID << slaveId;
-		qDebug() << devices.at(0)->experimentIndex << cmd;
-	}
-
 	for(unsigned int i = 0; i < devices.size(); i++)
 	{
 		if(devices.at(i)->slaveID == slaveId && devices.at(i)->experimentIndex == cmd)
