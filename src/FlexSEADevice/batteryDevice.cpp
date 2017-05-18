@@ -44,7 +44,7 @@ BatteryDevice::BatteryDevice(void): FlexseaDevice()
 {
 	if(header.length() != headerDecoded.length())
 	{
-		qDebug() << "Mismatch between header lenght Battery!";
+		qDebug() << "Mismatch between header length Battery!";
 	}
 
 	this->dataSource = LogDataFile;
@@ -56,7 +56,7 @@ BatteryDevice::BatteryDevice(battery_s *devicePtr): FlexseaDevice()
 {
 	if(header.length() != headerDecoded.length())
 	{
-		qDebug() << "Mismatch between header lenght Battery!";
+		qDebug() << "Mismatch between header length Battery!";
 	}
 
 	this->dataSource = LiveDataFile;

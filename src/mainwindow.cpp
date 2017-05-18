@@ -147,11 +147,8 @@ MainWindow::~MainWindow()
 {
 	delete ui;
 
-//	serialThread->quit();
 	delete mySerialDriver;
 	delete streamManager;
-//	delete serialThread;
-
 
 	int num2d = W_2DPlot::howManyInstance();
 	for(int i = 0; i < num2d; i++)
@@ -211,8 +208,8 @@ void MainWindow::initFlexSeaDeviceObject(void)
 	gossipFlexList.append(&gossipDevList.last());
 
 	batteryDevList.append(BatteryDevice(&batt1));
-	batteryDevList.last().slaveName = "Battery 1";
-	batteryDevList.last().slaveID = FLEXSEA_BATTERY_1;
+	batteryDevList.last().slaveName = "Battery";
+	batteryDevList.last().slaveID = FLEXSEA_VIRTUAL_PROJECT;
 	flexseaPtrlist.append(&batteryDevList.last());
 	batteryFlexList.append(&batteryDevList.last());
 
@@ -804,7 +801,7 @@ void MainWindow::createViewRicnu(void)
 	if(objectCount < (RICNU_VIEW_WINDOWS_MAX))
 	{
 		myViewRicnu[objectCount] = new W_Ricnu(this, &ricnuLog,
-											   getDisplayMode(), &ricnuDevList);;
+											   getDisplayMode(), &ricnuDevList);
 		mdiState[RICNU_VIEW_WINDOWS_ID][objectCount].winPtr = ui->mdiArea->addSubWindow(myViewRicnu[objectCount]);
 		mdiState[RICNU_VIEW_WINDOWS_ID][objectCount].open = true;
 		myViewRicnu[objectCount]->show();

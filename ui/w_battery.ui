@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>340</width>
-    <height>440</height>
+    <height>379</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -15,69 +15,15 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <layout class="QGridLayout" name="gridLayout" rowstretch="3,3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1">
-     <item row="11" column="1" colspan="3">
-      <widget class="QLabel" name="labelStatus">
-       <property name="text">
-        <string>TextLabel</string>
-       </property>
-      </widget>
-     </item>
-     <item row="15" column="1">
-      <widget class="QLabel" name="dispIP">
-       <property name="minimumSize">
-        <size>
-         <width>75</width>
-         <height>22</height>
-        </size>
-       </property>
-       <property name="maximumSize">
-        <size>
-         <width>200</width>
-         <height>16777215</height>
-        </size>
-       </property>
-       <property name="baseSize">
-        <size>
-         <width>50</width>
-         <height>0</height>
-        </size>
-       </property>
-       <property name="autoFillBackground">
-        <bool>false</bool>
-       </property>
-       <property name="frameShape">
-        <enum>QFrame::Box</enum>
-       </property>
-       <property name="frameShadow">
-        <enum>QFrame::Raised</enum>
-       </property>
-       <property name="lineWidth">
-        <number>1</number>
-       </property>
-       <property name="text">
-        <string>Default</string>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-       </property>
-      </widget>
-     </item>
-     <item row="2" column="0" colspan="4">
-      <widget class="Line" name="line_2">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-      </widget>
-     </item>
-     <item row="17" column="0">
+    <layout class="QGridLayout" name="gridLayout" rowstretch="3,0,0,0,0,0,0,0,0,0,0,0,0,0,0">
+     <item row="14" column="0">
       <widget class="QLabel" name="label_15">
        <property name="text">
         <string>Max voltage:</string>
        </property>
       </widget>
      </item>
-     <item row="9" column="1">
+     <item row="6" column="1">
       <widget class="QLabel" name="dispPB">
        <property name="minimumSize">
         <size>
@@ -117,21 +63,68 @@
        </property>
       </widget>
      </item>
-     <item row="15" column="0">
-      <widget class="QLabel" name="label_17">
+     <item row="12" column="1">
+      <widget class="QLabel" name="dispIP">
+       <property name="minimumSize">
+        <size>
+         <width>75</width>
+         <height>22</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>200</width>
+         <height>16777215</height>
+        </size>
+       </property>
+       <property name="baseSize">
+        <size>
+         <width>50</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="autoFillBackground">
+        <bool>false</bool>
+       </property>
+       <property name="frameShape">
+        <enum>QFrame::Box</enum>
+       </property>
+       <property name="frameShadow">
+        <enum>QFrame::Raised</enum>
+       </property>
+       <property name="lineWidth">
+        <number>1</number>
+       </property>
        <property name="text">
-        <string>Peak current:</string>
+        <string>Default</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
        </property>
       </widget>
      </item>
-     <item row="16" column="0">
+     <item row="8" column="1" colspan="3">
+      <widget class="QLabel" name="labelStatus">
+       <property name="text">
+        <string>TextLabel</string>
+       </property>
+      </widget>
+     </item>
+     <item row="6" column="0">
+      <widget class="QLabel" name="label_6">
+       <property name="text">
+        <string>Pushbutton</string>
+       </property>
+      </widget>
+     </item>
+     <item row="13" column="0">
       <widget class="QLabel" name="label_16">
        <property name="text">
         <string>Min voltage:</string>
        </property>
       </widget>
      </item>
-     <item row="7" column="3">
+     <item row="4" column="3">
       <widget class="QLabel" name="label_11">
        <property name="minimumSize">
         <size>
@@ -144,15 +137,15 @@
        </property>
       </widget>
      </item>
-     <item row="9" column="0">
-      <widget class="QLabel" name="label_6">
+     <item row="12" column="0">
+      <widget class="QLabel" name="label_17">
        <property name="text">
-        <string>Pushbutton</string>
+        <string>Peak current:</string>
        </property>
       </widget>
      </item>
-     <item row="4" column="1">
-      <widget class="QLabel" name="label">
+     <item row="1" column="2">
+      <widget class="QLabel" name="label_2">
        <property name="minimumSize">
         <size>
          <width>75</width>
@@ -160,11 +153,11 @@
         </size>
        </property>
        <property name="text">
-        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; text-decoration: underline;&quot;&gt;Raw:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; text-decoration: underline;&quot;&gt;Decoded:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
        </property>
       </widget>
      </item>
-     <item row="14" column="1">
+     <item row="11" column="1">
       <widget class="QLabel" name="dispICont">
        <property name="minimumSize">
         <size>
@@ -204,15 +197,8 @@
        </property>
       </widget>
      </item>
-     <item row="6" column="0">
-      <widget class="QLabel" name="label_3">
-       <property name="text">
-        <string>Current</string>
-       </property>
-      </widget>
-     </item>
-     <item row="4" column="2">
-      <widget class="QLabel" name="label_2">
+     <item row="1" column="1">
+      <widget class="QLabel" name="label">
        <property name="minimumSize">
         <size>
          <width>75</width>
@@ -220,39 +206,18 @@
         </size>
        </property>
        <property name="text">
-        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; text-decoration: underline;&quot;&gt;Decoded:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; text-decoration: underline;&quot;&gt;Raw:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
        </property>
       </widget>
      </item>
-     <item row="5" column="0">
-      <widget class="QLabel" name="label_4">
+     <item row="3" column="0">
+      <widget class="QLabel" name="label_3">
        <property name="text">
-        <string>Voltage</string>
+        <string>Current</string>
        </property>
       </widget>
      </item>
-     <item row="7" column="0">
-      <widget class="QLabel" name="label_5">
-       <property name="text">
-        <string>Power</string>
-       </property>
-      </widget>
-     </item>
-     <item row="10" column="0">
-      <widget class="QLabel" name="label_7">
-       <property name="text">
-        <string>Status</string>
-       </property>
-      </widget>
-     </item>
-     <item row="12" column="0" colspan="3">
-      <widget class="Line" name="line">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-      </widget>
-     </item>
-     <item row="5" column="3">
+     <item row="2" column="3">
       <widget class="QLabel" name="label_9">
        <property name="minimumSize">
         <size>
@@ -265,27 +230,35 @@
        </property>
       </widget>
      </item>
-     <item row="1" column="0">
-      <widget class="QLabel" name="label_13">
+     <item row="7" column="0">
+      <widget class="QLabel" name="label_7">
        <property name="text">
-        <string>Connected to:</string>
+        <string>Status</string>
        </property>
       </widget>
      </item>
-     <item row="6" column="3">
-      <widget class="QLabel" name="label_10">
-       <property name="minimumSize">
-        <size>
-         <width>35</width>
-         <height>0</height>
-        </size>
-       </property>
+     <item row="2" column="0">
+      <widget class="QLabel" name="label_4">
        <property name="text">
-        <string>A</string>
+        <string>Voltage</string>
        </property>
       </widget>
      </item>
-     <item row="16" column="2">
+     <item row="4" column="0">
+      <widget class="QLabel" name="label_5">
+       <property name="text">
+        <string>Power</string>
+       </property>
+      </widget>
+     </item>
+     <item row="9" column="0" colspan="3">
+      <widget class="Line" name="line">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+      </widget>
+     </item>
+     <item row="13" column="2">
       <widget class="QLabel" name="dispVminD">
        <property name="minimumSize">
         <size>
@@ -325,7 +298,20 @@
        </property>
       </widget>
      </item>
-     <item row="17" column="2">
+     <item row="3" column="3">
+      <widget class="QLabel" name="label_10">
+       <property name="minimumSize">
+        <size>
+         <width>35</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="text">
+        <string>A</string>
+       </property>
+      </widget>
+     </item>
+     <item row="14" column="2">
       <widget class="QLabel" name="dispVmaxD">
        <property name="minimumSize">
         <size>
@@ -365,21 +351,14 @@
        </property>
       </widget>
      </item>
-     <item row="3" column="0" colspan="2">
-      <widget class="QLabel" name="label_18">
+     <item row="10" column="0" colspan="2">
+      <widget class="QLabel" name="label_8">
        <property name="text">
-        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600; text-decoration: underline;&quot;&gt;Sensor readings:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600; text-decoration: underline;&quot;&gt;Internal variables &amp;amp; limits:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
        </property>
       </widget>
      </item>
-     <item row="0" column="0">
-      <widget class="QLabel" name="label_12">
-       <property name="text">
-        <string>Active slave:</string>
-       </property>
-      </widget>
-     </item>
-     <item row="10" column="1">
+     <item row="7" column="1">
       <widget class="QLabel" name="dispStatus1">
        <property name="minimumSize">
         <size>
@@ -419,28 +398,21 @@
        </property>
       </widget>
      </item>
-     <item row="13" column="0" colspan="2">
-      <widget class="QLabel" name="label_8">
+     <item row="0" column="0" colspan="2">
+      <widget class="QLabel" name="label_18">
        <property name="text">
-        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600; text-decoration: underline;&quot;&gt;Internal variables &amp;amp; limits:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600; text-decoration: underline;&quot;&gt;Sensor readings:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
        </property>
       </widget>
      </item>
-     <item row="4" column="0">
-      <widget class="QLabel" name="label_19">
-       <property name="text">
-        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; text-decoration: underline;&quot;&gt;Parameter:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-       </property>
-      </widget>
-     </item>
-     <item row="14" column="0">
+     <item row="11" column="0">
       <widget class="QLabel" name="label_14">
        <property name="text">
         <string>Max continuous current:</string>
        </property>
       </widget>
      </item>
-     <item row="5" column="2">
+     <item row="2" column="2">
       <widget class="QLabel" name="dispVd">
        <property name="minimumSize">
         <size>
@@ -480,87 +452,14 @@
        </property>
       </widget>
      </item>
-     <item row="5" column="1">
-      <widget class="QLabel" name="dispV">
-       <property name="minimumSize">
-        <size>
-         <width>75</width>
-         <height>22</height>
-        </size>
-       </property>
-       <property name="maximumSize">
-        <size>
-         <width>200</width>
-         <height>16777215</height>
-        </size>
-       </property>
-       <property name="baseSize">
-        <size>
-         <width>50</width>
-         <height>0</height>
-        </size>
-       </property>
-       <property name="autoFillBackground">
-        <bool>false</bool>
-       </property>
-       <property name="frameShape">
-        <enum>QFrame::Box</enum>
-       </property>
-       <property name="frameShadow">
-        <enum>QFrame::Raised</enum>
-       </property>
-       <property name="lineWidth">
-        <number>1</number>
-       </property>
+     <item row="1" column="0">
+      <widget class="QLabel" name="label_19">
        <property name="text">
-        <string>Default</string>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; text-decoration: underline;&quot;&gt;Parameter:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
        </property>
       </widget>
      </item>
-     <item row="7" column="2">
-      <widget class="QLabel" name="dispPd">
-       <property name="minimumSize">
-        <size>
-         <width>75</width>
-         <height>22</height>
-        </size>
-       </property>
-       <property name="maximumSize">
-        <size>
-         <width>200</width>
-         <height>16777215</height>
-        </size>
-       </property>
-       <property name="baseSize">
-        <size>
-         <width>50</width>
-         <height>0</height>
-        </size>
-       </property>
-       <property name="autoFillBackground">
-        <bool>false</bool>
-       </property>
-       <property name="frameShape">
-        <enum>QFrame::Box</enum>
-       </property>
-       <property name="frameShadow">
-        <enum>QFrame::Raised</enum>
-       </property>
-       <property name="lineWidth">
-        <number>1</number>
-       </property>
-       <property name="text">
-        <string>Default</string>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-       </property>
-      </widget>
-     </item>
-     <item row="6" column="1">
+     <item row="3" column="1">
       <widget class="QLabel" name="dispI">
        <property name="minimumSize">
         <size>
@@ -600,7 +499,87 @@
        </property>
       </widget>
      </item>
-     <item row="6" column="2">
+     <item row="2" column="1">
+      <widget class="QLabel" name="dispV">
+       <property name="minimumSize">
+        <size>
+         <width>75</width>
+         <height>22</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>200</width>
+         <height>16777215</height>
+        </size>
+       </property>
+       <property name="baseSize">
+        <size>
+         <width>50</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="autoFillBackground">
+        <bool>false</bool>
+       </property>
+       <property name="frameShape">
+        <enum>QFrame::Box</enum>
+       </property>
+       <property name="frameShadow">
+        <enum>QFrame::Raised</enum>
+       </property>
+       <property name="lineWidth">
+        <number>1</number>
+       </property>
+       <property name="text">
+        <string>Default</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item row="4" column="2">
+      <widget class="QLabel" name="dispPd">
+       <property name="minimumSize">
+        <size>
+         <width>75</width>
+         <height>22</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>200</width>
+         <height>16777215</height>
+        </size>
+       </property>
+       <property name="baseSize">
+        <size>
+         <width>50</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="autoFillBackground">
+        <bool>false</bool>
+       </property>
+       <property name="frameShape">
+        <enum>QFrame::Box</enum>
+       </property>
+       <property name="frameShadow">
+        <enum>QFrame::Raised</enum>
+       </property>
+       <property name="lineWidth">
+        <number>1</number>
+       </property>
+       <property name="text">
+        <string>Default</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="2">
       <widget class="QLabel" name="dispId">
        <property name="minimumSize">
         <size>
@@ -640,7 +619,7 @@
        </property>
       </widget>
      </item>
-     <item row="14" column="2">
+     <item row="11" column="2">
       <widget class="QLabel" name="dispIContD">
        <property name="minimumSize">
         <size>
@@ -680,7 +659,7 @@
        </property>
       </widget>
      </item>
-     <item row="15" column="2">
+     <item row="12" column="2">
       <widget class="QLabel" name="dispIPD">
        <property name="minimumSize">
         <size>
@@ -720,7 +699,7 @@
        </property>
       </widget>
      </item>
-     <item row="16" column="1">
+     <item row="13" column="1">
       <widget class="QLabel" name="dispVmin">
        <property name="minimumSize">
         <size>
@@ -760,94 +739,7 @@
        </property>
       </widget>
      </item>
-     <item row="17" column="1">
-      <widget class="QLabel" name="dispVmax">
-       <property name="minimumSize">
-        <size>
-         <width>75</width>
-         <height>22</height>
-        </size>
-       </property>
-       <property name="maximumSize">
-        <size>
-         <width>200</width>
-         <height>16777215</height>
-        </size>
-       </property>
-       <property name="baseSize">
-        <size>
-         <width>50</width>
-         <height>0</height>
-        </size>
-       </property>
-       <property name="autoFillBackground">
-        <bool>false</bool>
-       </property>
-       <property name="frameShape">
-        <enum>QFrame::Box</enum>
-       </property>
-       <property name="frameShadow">
-        <enum>QFrame::Raised</enum>
-       </property>
-       <property name="lineWidth">
-        <number>1</number>
-       </property>
-       <property name="text">
-        <string>Default</string>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-       </property>
-      </widget>
-     </item>
-     <item row="8" column="0">
-      <widget class="QLabel" name="label_20">
-       <property name="text">
-        <string>Temperature</string>
-       </property>
-      </widget>
-     </item>
-     <item row="8" column="1">
-      <widget class="QLabel" name="dispTemp">
-       <property name="minimumSize">
-        <size>
-         <width>75</width>
-         <height>22</height>
-        </size>
-       </property>
-       <property name="maximumSize">
-        <size>
-         <width>200</width>
-         <height>16777215</height>
-        </size>
-       </property>
-       <property name="baseSize">
-        <size>
-         <width>50</width>
-         <height>0</height>
-        </size>
-       </property>
-       <property name="autoFillBackground">
-        <bool>false</bool>
-       </property>
-       <property name="frameShape">
-        <enum>QFrame::Box</enum>
-       </property>
-       <property name="frameShadow">
-        <enum>QFrame::Raised</enum>
-       </property>
-       <property name="lineWidth">
-        <number>1</number>
-       </property>
-       <property name="text">
-        <string>Default</string>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-       </property>
-      </widget>
-     </item>
-     <item row="8" column="2">
+     <item row="5" column="2">
       <widget class="QLabel" name="dispTempD">
        <property name="minimumSize">
         <size>
@@ -887,7 +779,94 @@
        </property>
       </widget>
      </item>
-     <item row="8" column="3">
+     <item row="5" column="1">
+      <widget class="QLabel" name="dispTemp">
+       <property name="minimumSize">
+        <size>
+         <width>75</width>
+         <height>22</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>200</width>
+         <height>16777215</height>
+        </size>
+       </property>
+       <property name="baseSize">
+        <size>
+         <width>50</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="autoFillBackground">
+        <bool>false</bool>
+       </property>
+       <property name="frameShape">
+        <enum>QFrame::Box</enum>
+       </property>
+       <property name="frameShadow">
+        <enum>QFrame::Raised</enum>
+       </property>
+       <property name="lineWidth">
+        <number>1</number>
+       </property>
+       <property name="text">
+        <string>Default</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item row="5" column="0">
+      <widget class="QLabel" name="label_20">
+       <property name="text">
+        <string>Temperature</string>
+       </property>
+      </widget>
+     </item>
+     <item row="14" column="1">
+      <widget class="QLabel" name="dispVmax">
+       <property name="minimumSize">
+        <size>
+         <width>75</width>
+         <height>22</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>200</width>
+         <height>16777215</height>
+        </size>
+       </property>
+       <property name="baseSize">
+        <size>
+         <width>50</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="autoFillBackground">
+        <bool>false</bool>
+       </property>
+       <property name="frameShape">
+        <enum>QFrame::Box</enum>
+       </property>
+       <property name="frameShadow">
+        <enum>QFrame::Raised</enum>
+       </property>
+       <property name="lineWidth">
+        <number>1</number>
+       </property>
+       <property name="text">
+        <string>Default</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item row="5" column="3">
       <widget class="QLabel" name="label_21">
        <property name="minimumSize">
         <size>
@@ -897,26 +876,6 @@
        </property>
        <property name="text">
         <string>°C</string>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="1" colspan="2">
-      <widget class="QComboBox" name="comboBox_slaveM">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="1" colspan="2">
-      <widget class="QComboBox" name="comboBox_slave">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
        </property>
       </widget>
      </item>

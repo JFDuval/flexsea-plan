@@ -189,7 +189,8 @@ void W_SlaveComm::initExperimentList(void)
 	testBenchTargetList.append(*executeDevList);
 	testBenchTargetList.append(*manageDevList);
 
-	batteryTargetList.append(*batteryDevList);
+	batteryTargetList.append(*executeDevList);
+	batteryTargetList.append(*manageDevList);
 }
 
 void W_SlaveComm::mapSerializedPointers(void)
@@ -395,18 +396,21 @@ FlexseaDevice* W_SlaveComm::getTargetDevice(int cmd, int experimentIndex, int sl
 
 	switch(cmd)
 	{
-	case CMD_RICNU:
-		target = ricnuDevList->at(0);
-		break;
-	case CMD_A2DOF:
-		target = ankle2DofDevList->at(0);
-		break;
-	case CMD_MOTORTB:
-		target = testBenchDevList->at(0);
-		break;
-	default:
-		target = (targetListMap[experimentIndex])->at(slaveIndex);
-		break;
+		case CMD_BATT:
+			target = batteryDevList->at(0);
+			break;
+		case CMD_RICNU:
+			target = ricnuDevList->at(0);
+			break;
+		case CMD_A2DOF:
+			target = ankle2DofDevList->at(0);
+			break;
+		case CMD_MOTORTB:
+			target = testBenchDevList->at(0);
+			break;
+		default:
+			target = (targetListMap[experimentIndex])->at(slaveIndex);
+			break;
 	}
 
 	return target;
