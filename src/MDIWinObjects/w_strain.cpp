@@ -66,7 +66,6 @@ W_Strain::W_Strain(QWidget *parent,
 	ui->disp_strain_ch4_d->setToolTip(ttip);
 	ui->disp_strain_ch5_d->setToolTip(ttip);
 	ui->disp_strain_ch6_d->setToolTip(ttip);
-
 }
 
 W_Strain::~W_Strain()

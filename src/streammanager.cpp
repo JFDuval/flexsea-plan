@@ -270,7 +270,7 @@ void StreamManager::sendCommands(int index)
 			case CMD_READ_ALL:
 				sendCommandReadAll(record.slaveIndex);
 				break;
-			case CMD_READ_ALL_RICNU:
+			case CMD_RICNU:
 				sendCommandReadAllRicnu(record.slaveIndex);
 				break;
 			case CMD_A2DOF:
@@ -311,7 +311,7 @@ void StreamManager::sendCommandReadAllRicnu(uint8_t slaveId)
 	tx_cmd_ricnu_r(TX_N_DEFAULT, (uint8_t)(ricnuOffsets.at(index)));
 	index++;
 	index %= ricnuOffsets.size();
-	tryPackAndSend(CMD_READ_ALL_RICNU, slaveId);
+	tryPackAndSend(CMD_RICNU, slaveId);
 }
 
 void StreamManager::sendCommandAnkle2DOF(uint8_t slaveId)

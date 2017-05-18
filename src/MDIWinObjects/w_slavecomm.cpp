@@ -242,7 +242,7 @@ void W_SlaveComm::initializeMaps()
 
 	cmdMap[0] = CMD_READ_ALL;
 	cmdMap[1] = CMD_IN_CONTROL;
-	cmdMap[2] = CMD_READ_ALL_RICNU;
+	cmdMap[2] = CMD_RICNU;
 	cmdMap[3] = -1;
 	cmdMap[4] = CMD_A2DOF;
 	cmdMap[5] = CMD_BATT;
@@ -395,7 +395,7 @@ FlexseaDevice* W_SlaveComm::getTargetDevice(int cmd, int experimentIndex, int sl
 
 	switch(cmd)
 	{
-	case CMD_READ_ALL_RICNU:
+	case CMD_RICNU:
 		target = ricnuDevList->at(0);
 		break;
 	case CMD_A2DOF:
@@ -415,18 +415,17 @@ FlexseaDevice* W_SlaveComm::getTargetDevice(int cmd, int experimentIndex, int sl
 //The 4 PB slots call this function:
 void W_SlaveComm::managePushButton(int row, bool forceOff)
 {
-
 	int experimentIndex = comboBoxExpPtr[row]->currentIndex();
 	int slaveIndex = comboBoxSlavePtr[row]->currentIndex();
 	int refreshRateIndex = comboBoxRefreshPtr[row]->currentIndex();
 	int cmdCode = cmdMap[experimentIndex];
-
 
 	if(cmdCode < 0) return;
 
 	int refreshRate = streamManager->getRefreshRates()[refreshRateIndex];
 	FlexseaDevice* target = getTargetDevice(cmdCode, experimentIndex, slaveIndex);
 	int slaveId = (targetListMap[experimentIndex])->at(slaveIndex)->slaveID;
+	target->slaveID = slaveId;
 
 	if(on_off_pb_ptr[row]->isChecked() == true &&
 		forceOff == false && cmdCode >= 0)

@@ -47,7 +47,7 @@ RicnuProject::RicnuProject(void): FlexseaDevice()
 {
 	if(header.length() != headerDecoded.length())
 	{
-		qDebug() << "Mismatch between header lenght Ricnu!";
+		qDebug() << "Mismatch between header length Ricnu!";
 	}
 
 	this->dataSource = LogDataFile;
@@ -59,7 +59,7 @@ RicnuProject::RicnuProject(execute_s *exPtr, strain_s *stPtr): FlexseaDevice()
 {
 	if(header.length() != headerDecoded.length())
 	{
-		qDebug() << "Mismatch between header lenght Ricnu!";
+		qDebug() << "Mismatch between header length Ricnu!";
 	}
 
 	this->dataSource = LiveDataFile;
@@ -352,13 +352,14 @@ void RicnuProject::appendEmptyLine(void)
 void RicnuProject::appendEmptyLineWithStruct(void)
 {
 	appendEmptyLine();
-	//riList.last()->ex = new execute_s();
-	//riList.last()->st = new strain_s();
 }
 
 void RicnuProject::decodeLastLine(void)
 {
-	if(dataSource == LiveDataFile){StrainDevice::decompressRawBytes(riList.last()->st);}
+	if(dataSource == LiveDataFile)
+	{
+		StrainDevice::decompressRawBytes(riList.last()->st);
+	}
 	decode(riList.last());
 }
 
@@ -376,14 +377,6 @@ void RicnuProject::decode(struct ricnu_s *riPtr)
 	ExecuteDevice::decode(riPtr->ex);
 	StrainDevice::decode(riPtr->st);
 }
-
-/*
-void RicnuProject::decode(struct ricnu_s_plan *riPtr)
-{
-	ExecuteDevice::decode(riPtr->ex);
-	StrainDevice::decode(riPtr->st);
-}
-*/
 
 QString RicnuProject::getStatusStr(int index)
 {
