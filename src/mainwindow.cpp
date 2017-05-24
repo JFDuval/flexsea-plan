@@ -219,7 +219,7 @@ void MainWindow::initFlexSeaDeviceObject(void)
 	flexseaPtrlist.append(&strainDevList.last());
 	strainFlexList.append(&strainDevList.last());
 
-	ricnuDevList.append(RicnuProject(&exec1, &strain1));
+	ricnuDevList.append(RicnuProject(&exec1, &strain1, &batt1));
 	ricnuDevList.last().slaveName = "RIC/NU";
 	ricnuDevList.last().slaveID = FLEXSEA_VIRTUAL_PROJECT;
 	flexseaPtrlist.append(&ricnuDevList.last());

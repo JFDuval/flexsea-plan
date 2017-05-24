@@ -159,7 +159,7 @@ void W_CommTest::initCommon(void)
 //First tab: Plan <> Device test
 void W_CommTest::initTab1(void)
 {
-	ui->label_info_tab1->setText("Test the communication between \nPlan and a device connected \nvia USB, Bluetooth, SPI, ...");
+	ui->label_info_tab1->setText("Test the communication between \nPlan and a device connected \nvia USB, Bluetooth, SPI, ...\n\nWe recommend using Busy Wait\nwith Manage.");
 }
 
 //Second tab: Manage <> Execute test

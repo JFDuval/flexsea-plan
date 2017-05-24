@@ -57,7 +57,7 @@ class RicnuProject : public FlexseaDevice
 {
 public:
 	explicit RicnuProject(void);
-	explicit RicnuProject(execute_s *exPtr, strain_s *stPtr);
+	explicit RicnuProject(execute_s *exPtr, strain_s *stPtr, battery_s *baPtr);
 	virtual ~RicnuProject();
 
 	// Interface implementation
@@ -77,10 +77,8 @@ public:
 
 	void appendEmptyLineWithStruct(void);
 
-	//QList<struct ricnu_s_plan*> riList;
 	QList<struct ricnu_s*> riList;
 	static void decode(struct ricnu_s *riPtr);
-	//static void decode(struct ricnu_s_plan *riPtr);
 
 private:
 	static QStringList header;
