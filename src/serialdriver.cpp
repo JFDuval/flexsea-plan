@@ -52,6 +52,18 @@
 SerialDriver::SerialDriver(QObject *parent) : QObject(parent)
 {
 	comPortOpen = false;
+
+	//QThread *thread1 = new QThread; // First thread
+	//thread1->start();
+
+	//Timer:
+	clockTimer = new QTimer();
+	clockTimer->setTimerType(Qt::CoarseTimer);
+	clockTimer->setSingleShot(false);
+	//clockTimer->setInterval(CLOCK_TIMER_PERIOD);
+	connect(clockTimer, &QTimer::timeout, this, &SerialDriver::timerEvent);
+
+	//clockTimer->moveToThread(thread1);
 }
 
 SerialDriver::~SerialDriver() {
@@ -81,10 +93,14 @@ void SerialDriver::open(QString name, int tries, int delay, bool *success)
 	USBSerialPort.setDataBits(QSerialPort::Data8);
 	USBSerialPort.setParity(QSerialPort::NoParity);
 	USBSerialPort.setStopBits(QSerialPort::OneStop);
-	//USBSerialPort.setFlowControl(QSerialPort::HardwareControl);
-	USBSerialPort.setFlowControl(QSerialPort::NoFlowControl);
+	USBSerialPort.setFlowControl(QSerialPort::HardwareControl);
+	//USBSerialPort.setFlowControl(QSerialPort::NoFlowControl);
 
 	connect(&USBSerialPort, &QSerialPort::readyRead, this, &SerialDriver::handleReadyRead);
+
+	//Start timer:
+	timerCount = 0;
+	clockTimer->start(CLOCK_TIMER_PERIOD);
 
 	do
 	{
@@ -219,7 +235,7 @@ void SerialDriver::signalSuccessfulParse()
 
 void SerialDriver::debugStats(int readLength, int numMessagesDecoded)
 {
-	/*	Below code benchmarks the read stream proess
+	/*	Below code benchmarks the read stream process
 	 *  Measures the time between reads, low passes, periodically qDebug()'s it
 	 * (use ctime lib instead of QTime because somehow QTime is so inefficient it changes the speed
 	 * */
@@ -275,7 +291,7 @@ void SerialDriver::handleReadyRead()
 
 	if(USBSerialPort.bytesAvailable())
 	{	//this indicates our buffer is filling faster than we can process it
-		//qDebug() << "Data length over " << MAX_SERIAL_RX_LEN << " bytes (" << len << "bytes)";
+		qDebug() << "Data length over " << MAX_SERIAL_RX_LEN << " bytes (" << len << "bytes)";
 		USBSerialPort.clear((QSerialPort::AllDirections));
 		emit dataStatus(0, DATAIN_STATUS_RED);
 	}
@@ -288,6 +304,7 @@ void SerialDriver::handleReadyRead()
 	int maxMessagesExpected = (len / COMM_STR_BUF_LEN + (len % COMM_STR_BUF_LEN != 0));
 	uint16_t bytesToWrite;
 	int error;
+	commPeriph[PORT_USB].rx.bytesReadyFlag += numBuffers;
 	for(int i = 0; i < numBuffers; i++)
 	{
 		bytesToWrite = remainingBytes > CHUNK_SIZE ? CHUNK_SIZE : remainingBytes;
@@ -356,3 +373,20 @@ void SerialDriver::init(void)
 // Private slot(s):
 //****************************************************************************
 
+void SerialDriver::timerEvent(void)
+{
+	if(timerCount < CLOCK_TIMER_MAX_COUNT && comPortOpen == false)
+	{
+		timerCount++;
+		emit openProgress(100*(timerCount/CLOCK_TIMER_MAX_COUNT));
+		qDebug() << "Tick...";
+	}
+	else
+	{
+		//We have reached the maximum count, or the port opened.
+
+		qDebug() << "Timer expired or port opened";
+
+		clockTimer->stop();
+	}
+}

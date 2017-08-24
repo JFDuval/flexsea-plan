@@ -75,6 +75,7 @@ public:
 
 private slots:
 	void getComList(void);
+	QString getCOMnickname(const QSerialPortInfo *c);
 	void on_openComButton_clicked();
 	void on_closeComButton_clicked();
 	void on_pbLoadLogFile_clicked();
@@ -102,6 +103,8 @@ private:
 	void closeReadingFile(void);
 	void updateDataSourceStatus(DataSource , FlexseaDevice *);
 	void windowClosed(void);
+	//void writeSerial(uint8_t bytes_to_send, uint8_t *serial_tx_data);
+	void writeCommand(uint8_t numb, uint8_t *tx_data, uint8_t r_w);
 };
 
 #endif // W_CONFIG_H

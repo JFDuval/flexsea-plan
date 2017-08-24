@@ -295,6 +295,9 @@ void W_SlaveComm::initSlaveCom(void)
 			when the stream is active.</p></body></html>";
 	QString on_off_pb_ttip = "<html><head/><body><p>Turn streaming on/off</p></body></html>";
 	QString labelStatusttip = "<html><head/><body><p>Stream Status.</p></body></html>";
+	QString lineEdit_ttip = "<html><head/><body><p>In regular mode entering '0,3' will read 2 \
+							values (0 and 3). In Auto mode, it will take the min and max. \
+							With the same input, it will read 4 values.</p></body></html>";
 
 	//Safeguard - protected from signals emited during setup
 	allComboBoxesPopulated = false;
@@ -363,6 +366,7 @@ void W_SlaveComm::initSlaveCom(void)
 	defaultCmdLineText = "o=0,1;";
 	ui->lineEdit->setEnabled(false);
 	ui->lineEdit->setText(" ");
+	ui->lineEdit->setToolTip(lineEdit_ttip);
 
 	allComboBoxesPopulated = true;
 	return;
@@ -373,9 +377,10 @@ void W_SlaveComm::manageSelectedExperimentChanged(int row)
 	int indexOfNewlySelectedExperiment = comboBoxExpPtr[row]->currentIndex();
 	this->populateSlaveComboBox(comboBoxSlavePtr[row], indexOfNewlySelectedExperiment);
 
-	//ricnu has cmd line arguments
-	ui->lineEdit->setEnabled(indexOfNewlySelectedExperiment == 2);
-	ui->lineEdit->setText(indexOfNewlySelectedExperiment == 2 ? defaultCmdLineText : " ");
+	//RICNU & Rigid have cmd line arguments:
+	bool en = (indexOfNewlySelectedExperiment == 2 || indexOfNewlySelectedExperiment == 9);
+	ui->lineEdit->setEnabled(en);
+	ui->lineEdit->setText(en ? defaultCmdLineText : " ");
 }
 
 void W_SlaveComm::setRowDisabled(int row, bool disabled)
@@ -423,6 +428,7 @@ void W_SlaveComm::managePushButton(int row, bool forceOff)
 	int slaveIndex = comboBoxSlavePtr[row]->currentIndex();
 	int refreshRateIndex = comboBoxRefreshPtr[row]->currentIndex();
 	int cmdCode = cmdMap[experimentIndex];
+	static bool cmdLineState[4] = {false, false, false, false};
 
 	if(cmdCode < 0) return;
 
@@ -440,6 +446,15 @@ void W_SlaveComm::managePushButton(int row, bool forceOff)
 		on_off_pb_ptr[row]->setStyleSheet("background-color: \
 								rgb(0, 255, 0); color: rgb(0, 0, 0)");
 
+		//Disable command line:
+		cmdLineState[row] = ui->lineEdit->isEnabled();
+		if(cmdLineState[row] == true)
+		{
+			//If it was enabled we disable it and read it:
+			ui->lineEdit->setDisabled(true);
+			readCommandLine();
+		}
+
 		// start streaming
 		target->frequency = refreshRate;
 		target->experimentIndex = cmdCode;
@@ -449,7 +464,9 @@ void W_SlaveComm::managePushButton(int row, bool forceOff)
 
 		if(auto_checkbox[row]->isChecked())
 		{
-			streamManager->startAutoStreaming(cmdCode, slaveId, refreshRate, log_cb_ptr[row]->isChecked(), target);
+			streamManager->startAutoStreaming(cmdCode, slaveId, refreshRate, \
+								log_cb_ptr[row]->isChecked(), \
+								target, streamManager->minOffs, streamManager->maxOffs);
 		}
 		else
 		{
@@ -465,6 +482,12 @@ void W_SlaveComm::managePushButton(int row, bool forceOff)
 		(on_off_pb_ptr[row])->setText(QChar(0x2718));
 		(on_off_pb_ptr[row])->setStyleSheet("background-color: \
 						rgb(127, 127, 127); color: rgb(0, 0, 0)");
+
+		//Enable command line if needed:
+		if(cmdLineState[row] == true)
+		{
+			ui->lineEdit->setEnabled(true);
+		}
 
 		// Used to open view window by default.
 		emit activeSlaveStreaming("None");
@@ -546,18 +569,19 @@ void W_SlaveComm::on_comboBoxExp1_currentIndexChanged(int index)
 	manageSelectedExperimentChanged(0);
 }
 
-void W_SlaveComm::on_comboBoxExp2_currentIndexChanged(int index) {	(void)index; manageSelectedExperimentChanged(1); }
-void W_SlaveComm::on_comboBoxExp3_currentIndexChanged(int index) {	(void)index; manageSelectedExperimentChanged(2); }
-void W_SlaveComm::on_comboBoxExp4_currentIndexChanged(int index) {	(void)index; manageSelectedExperimentChanged(3); }
+void W_SlaveComm::on_comboBoxExp2_currentIndexChanged(int index) {(void)index; manageSelectedExperimentChanged(1); }
+void W_SlaveComm::on_comboBoxExp3_currentIndexChanged(int index) {(void)index; manageSelectedExperimentChanged(2); }
+void W_SlaveComm::on_comboBoxExp4_currentIndexChanged(int index) {(void)index; manageSelectedExperimentChanged(3); }
 
 //Command line input: enter pressed
-void W_SlaveComm::on_lineEdit_returnPressed()
+void W_SlaveComm::readCommandLine()
 {
 	qDebug() << "Command line:";
 	QString txt = ui->lineEdit->text();
 	QChar cmd = txt.at(0);
 	int cmdInt = cmd.toLatin1();
 	int len = txt.length();
+	int tmp = 0, min = 0, max = 0;
 
 	if(txt.at(len-1) == ';')
 	{
@@ -583,9 +607,22 @@ void W_SlaveComm::on_lineEdit_returnPressed()
 				offsetString = txt.at(2 + 2*i).toLatin1();
 				if(offsetString.isDigit())
 				{
-					offsets.append(QString(offsetString).toInt());
+					tmp = QString(offsetString).toInt();
+					offsets.append(tmp);
 					qDebug() << "[o]ffset[:" << i << "] =" << offsetString;
 
+					//Update min & max offsets:
+					if(i == 0)
+					{
+						//First time:
+						min = tmp;
+						max = tmp;
+					}
+					else
+					{
+						if(tmp < min){min = tmp;}
+						if(tmp > max){max = tmp;}
+					}
 				}
 				else
 				{
@@ -593,7 +630,10 @@ void W_SlaveComm::on_lineEdit_returnPressed()
 				}
 			}
 
+			qDebug() << "Min offset:" << min << ", Max offset:" << max;
 			streamManager->ricnuOffsets = offsets;
+			streamManager->minOffs = min;
+			streamManager->maxOffs = max;
 			break;
 
 		default:

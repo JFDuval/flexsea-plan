@@ -131,6 +131,7 @@ public:
 	~MainWindow();
 
 private:
+	void initMenus(void);
 	void initFlexSeaDeviceObject(void);
 	void initFlexSeaDeviceLog(void);
 	void initSerialComm(SerialDriver*, StreamManager*);

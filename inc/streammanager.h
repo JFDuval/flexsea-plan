@@ -22,13 +22,15 @@ public:
 	}
 
 	void startStreaming(int cmd, int slave, int freq, bool shouldLog, FlexseaDevice* logToDevice);
-	void startAutoStreaming(int cmd, int slave, int freq, bool shouldLog, FlexseaDevice* logToDevice);
+	void startAutoStreaming(int cmd, int slave, int freq, bool shouldLog, \
+							FlexseaDevice* logToDevice, uint8_t firstIndex, uint8_t lastIndex);
 	void stopStreaming(int cmd, int slave, int freq);
 
 	QList<int> getRefreshRates();
 
 	static const int NUM_TIMER_FREQS = 8;
 	QList<int> ricnuOffsets;
+	int minOffs = 0, maxOffs = 0;
 
 signals:
 	void sentRead(int cmd, int slave);

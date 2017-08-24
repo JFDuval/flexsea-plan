@@ -133,6 +133,9 @@ MainWindow::MainWindow(QWidget *parent) :
 	createConfig();
 	createSlaveComm();
 
+	//Populate the QAction menu lists
+	initMenus();
+
 	//Log and MainWindow
 	connect(myDataLogger, SIGNAL(setStatusBarMessage(QString)), \
 			this, SLOT(setStatusBar(QString)));
@@ -155,6 +158,49 @@ MainWindow::~MainWindow()
 	{
 		delete myView2DPlot[i];
 	}
+}
+
+//Populates the QAction menu lists
+void MainWindow::initMenus(void)
+{
+	//File:
+	ui->menuFile->addAction("Configuration", this, &MainWindow::createConfig);
+	ui->menuFile->addAction("Slave Communication", this, &MainWindow::createSlaveComm);
+	ui->menuFile->addSeparator();
+	ui->menuFile->addAction("Load Settings", this, &MainWindow::loadConfig);
+	ui->menuFile->addAction("Save Settings", this, &MainWindow::saveConfig);
+	ui->menuFile->addAction("Default Settings", this, &MainWindow::defaultConfig);
+
+	//Add View:
+	ui->menuView->addAction("Battery", this, &MainWindow::createViewBattery);
+	ui->menuView->addAction("Execute", this, &MainWindow::createViewExecute);
+	ui->menuView->addAction("Gossip", this, &MainWindow::createViewGossip);
+	ui->menuView->addAction("Manage", this, &MainWindow::createViewManage);
+	ui->menuView->addAction("Strain", this, &MainWindow::createViewStrain);
+	ui->menuView->addSeparator();
+	ui->menuView->addAction("2D Plot", this, &MainWindow::createView2DPlot);
+
+	//Add Control:
+	ui->menuControl->addAction("Control Loop", this, &MainWindow::createControlControl);
+	ui->menuControl->addAction("In Control Tool", this, &MainWindow::createInControl);
+	ui->menuControl->addAction("Any Command", this, &MainWindow::createAnyCommand);
+
+	//User:
+	ui->menuUser->addAction("Event Flags", this, &MainWindow::createToolEvent);
+	ui->menuUser->addAction("User R/W", this, &MainWindow::createUserRW);
+	ui->menuUser->addSeparator();
+	ui->menuUser->addAction("RIC/NU Knee", this, &MainWindow::createViewRicnu);
+
+	//Tools:
+	ui->menuTools->addAction("Calibration", this, &MainWindow::createCalib);
+	ui->menuTools->addAction("Communication Test", this, &MainWindow::createViewCommTest);
+	ui->menuTools->addAction("Converter", this, &MainWindow::createConverter);
+	ui->menuTools->addAction("Test Bench", this, &MainWindow::createViewTestBench);
+
+	//Help:
+	ui->menuHelp->addAction("Documentation", this, &MainWindow::displayDocumentation);
+	ui->menuHelp->addAction("License", this, &MainWindow::displayLicense);
+	ui->menuHelp->addAction("About", this, &MainWindow::displayAbout);
 }
 
 void MainWindow::initFlexSeaDeviceObject(void)

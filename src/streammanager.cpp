@@ -74,7 +74,8 @@ void StreamManager::startStreaming(int cmd, int slave, int freq, bool shouldLog,
 	}
 }
 
-void StreamManager::startAutoStreaming(int cmd, int slave, int freq, bool shouldLog, FlexseaDevice* device)
+void StreamManager::startAutoStreaming(int cmd, int slave, int freq, bool shouldLog, \
+							FlexseaDevice* device, uint8_t firstIndex, uint8_t lastIndex)
 {
 	if(!device) return;
 
@@ -93,12 +94,13 @@ void StreamManager::startAutoStreaming(int cmd, int slave, int freq, bool should
 
 		serialDriver->addDevice(device);
 
-		tx_cmd_stream_w(TX_N_DEFAULT, cmd, 1000/freq, shouldStart);
+		tx_cmd_stream_w(TX_N_DEFAULT, cmd, 1000/freq, shouldStart, firstIndex, lastIndex);
 		tryPackAndSend(CMD_STREAM, device->slaveID);
 
 		CmdSlaveRecord record(cmd, slave, shouldLog, device);
 		autoStreamLists[indexOfFreq].push_back(record);
 		qDebug() << "Started streaming cmd: " << cmd << ", for slave id: " << slave << "at frequency: " << freq;
+		qDebug() << "Covering indexes" << firstIndex << "to" << lastIndex << ".";
 	}
 	else
 	{
@@ -254,7 +256,7 @@ void StreamManager::packAndSendStopStreaming(int cmd, uint8_t slaveId)
 	if(cmd < 0) return;
 
 	uint8_t shouldStart = 0; //ie should stop
-	tx_cmd_stream_w(TX_N_DEFAULT, cmd, 0, shouldStart);
+	tx_cmd_stream_w(TX_N_DEFAULT, cmd, 0, shouldStart, 0, 0);
 	tryPackAndSend(CMD_STREAM, slaveId);
 }
 

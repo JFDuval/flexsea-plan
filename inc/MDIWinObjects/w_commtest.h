@@ -39,6 +39,7 @@
 #include "counter.h"
 #include "flexsea_generic.h"
 #include <serialdriver.h>
+
 //****************************************************************************
 // Namespace & Class Definition:
 //****************************************************************************
@@ -84,7 +85,7 @@ private:
 	int active_slave, active_slave_index;
 	QTimer *experimentTimer, *displayTimer;
 	QDateTime *statsTimer;
-	float successRate, lossRate;
+	float throughputRate, lossRate, qualityRate;
 	int32_t receivedPackets;
 	int32_t experimentTimerFreq;
 	float measuredRefreshSend, measuredRefreshReceive;
@@ -93,6 +94,8 @@ private:
 	uint8_t slaveListCount;
 	uint8_t slaveList[4];
 	bool shouldBusyWait = false;
+	qint64 timeElapsedStart;
+	bool computeAverage = false;
 
 	//Function(s):
 	void init(void);
@@ -106,6 +109,10 @@ private:
 	void startStopComTest(bool forceStop);
 	void latchManyExTab(void);
 	void releaseManyExTab(void);
+
+	void setTimeElapsedCounterToZero(void);
+	qint64 getTimeElapsed(void);
+	float getAverageRate(qint64 dt, int32_t packets);
 };
 
 //****************************************************************************

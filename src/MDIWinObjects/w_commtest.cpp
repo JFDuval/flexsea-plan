@@ -142,10 +142,12 @@ void W_CommTest::initCommon(void)
 	ui->labelSentPackets->setText("0");
 	ui->labelReceivedPackets->setText("0");
 	ui->labelGoodPackets->setText("0");
-	ui->labelSuccess->setText("0");
+	ui->labelThroughput->setText("0");
 	ui->labelLossRate->setText("0");
 	ui->label_rrSend->setText("N/A");
 	ui->label_rrReceive->setText("N/A");
+	ui->label_rrSend_Avg->setText("N/A");
+	ui->label_rrReceive_Avg->setText("N/A");
 	ui->lineEdit->setText(QString::number(DEFAULT_EXPERIMENT_TIMER_FREQ));
 
 	measuredRefreshSend = 0;
@@ -154,6 +156,8 @@ void W_CommTest::initCommon(void)
 	//Seed:
 	QTime myTime;
 	initRandomGenerator(myTime.msecsSinceStartOfDay());
+
+	setTimeElapsedCounterToZero();
 }
 
 //First tab: Plan <> Device test
@@ -320,23 +324,28 @@ void W_CommTest::refreshDisplay(void)
 	if(sentPackets == 0 || receivedPackets == 0)
 	{
 		//Avoid /0
-		successRate = 0;
+		throughputRate = 0;
 		lossRate = 0;
+		qualityRate = 0;
 	}
 	else
 	{
-		successRate = (float)goodPackets/receivedPackets;
+		throughputRate = (float)receivedPackets/sentPackets;
 		lossRate = (float)(sentPackets-receivedPackets) / sentPackets;
+		qualityRate = (float)goodPackets / receivedPackets;
 	}
 
 	ui->labelSentPackets->setText(QString::number(sentPackets));
 	ui->labelReceivedPackets->setText(QString::number(receivedPackets));
 	ui->labelGoodPackets->setText(QString::number(goodPackets));
+	ui->labelLostPackets->setText(QString::number(sentPackets-receivedPackets));
 
-	QString txt = QString::number(100*successRate, 'f',2) + "%";
-	ui->labelSuccess->setText(txt);
+	QString txt = QString::number(100*throughputRate, 'f',2) + "%";
+	ui->labelThroughput->setText(txt);
 	txt = QString::number(100*lossRate, 'f',2) + "%";
 	ui->labelLossRate->setText(txt);
+	txt = QString::number(100*qualityRate, 'f',2) + "%";
+	ui->labelQuality->setText(txt);
 
 	QString refreshTxt;
 	refreshTxt = QString::number(measuredRefreshSend, 'f', 2) + " Hz";
@@ -345,6 +354,18 @@ void W_CommTest::refreshDisplay(void)
 	ui->label_rrReceive->setText(refreshTxt);
 
 	ui->label_packetOffset->setText(QString::number(packetOffset));
+
+	//Average rates:
+	if(computeAverage == true)
+	{
+		qint64 tE = getTimeElapsed();
+		float r = getAverageRate(tE, sentPackets);
+		refreshTxt = QString::number(r, 'f', 2) + " Hz";
+		ui->label_rrSend_Avg->setText(refreshTxt);
+		r = getAverageRate(tE, receivedPackets);
+		refreshTxt = QString::number(r, 'f', 2) + " Hz";
+		ui->label_rrReceive_Avg->setText(refreshTxt);
+	}
 }
 
 void W_CommTest::on_comboBox_slave_currentIndexChanged(int index)
@@ -389,6 +410,9 @@ void W_CommTest::startStopComTest(bool forceStop)
 		status = true;
 
 		ui->busyWaitButton->setDisabled(true);
+
+		setTimeElapsedCounterToZero();
+		computeAverage = true;
 	}
 	else
 	{
@@ -402,6 +426,7 @@ void W_CommTest::startStopComTest(bool forceStop)
 		status = false;
 
 		ui->busyWaitButton->setDisabled(false);
+		computeAverage = false;
 	}
 }
 
@@ -416,7 +441,8 @@ void W_CommTest::on_pushButtonReset_clicked()
 	goodPackets = 0;
 	badPackets = 0;
 	receivedPackets = 0;
-	successRate = 0.0;
+	throughputRate = 0.0;
+	qualityRate = 0.0;
 }
 
 void W_CommTest::on_busyWaitButton_pressed(void)
@@ -498,4 +524,25 @@ void W_CommTest::releaseManyExTab(void)
 	ui->cbSEX2->setEnabled(true);
 	ui->cbSEX3->setEnabled(true);
 	ui->cbSEX4->setEnabled(true);
+}
+
+//Returns the number of ms since a test was started
+qint64 W_CommTest::getTimeElapsed(void)
+{
+	return (statsTimer->currentMSecsSinceEpoch() - timeElapsedStart);
+}
+
+//Call this at start to latch the starting timestamp
+void W_CommTest::setTimeElapsedCounterToZero(void)
+{
+	timeElapsedStart = statsTimer->currentMSecsSinceEpoch();
+}
+
+//Computes the average rate
+float W_CommTest::getAverageRate(qint64 dt, int32_t packets)
+{
+	int64_t tmp1 = (int64_t)(1000 * packets) / dt;
+	float tmp2 = (float) tmp1;
+	//qDebug() << "Average rate:" << tmp2 << endl;
+	return (tmp2);
 }

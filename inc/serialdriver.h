@@ -39,10 +39,15 @@
 #include <QSerialPort>
 #include <vector>
 #include <flexseaDevice.h>
+#include <QTimer>
 
 //USB driver:
 #define CHUNK_SIZE				48
 #define MAX_SERIAL_RX_LEN		(CHUNK_SIZE*10 + 10)
+
+//Timer:
+#define CLOCK_TIMER_PERIOD		500	//ms
+#define CLOCK_TIMER_MAX_COUNT	30	//30*500ms = 15s
 
 //****************************************************************************
 // Namespace & Class
@@ -80,12 +85,15 @@ private:
 	bool comPortOpen;
 	unsigned char usb_rx[256];
 	uint8_t largeRxBuffer[MAX_SERIAL_RX_LEN];
+	QTimer* clockTimer;
+	uint16_t timerCount;
 
 	std::vector<FlexseaDevice*> devices;
 	FlexseaDevice* getDeviceByIdCmd(uint8_t slaveId, int cmd);
 
 	void signalSuccessfulParse();
 	void debugStats(int,int);
+	void timerEvent(void);
 
 signals:
 	void timerClocked(void);

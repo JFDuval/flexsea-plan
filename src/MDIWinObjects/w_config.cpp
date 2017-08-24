@@ -107,6 +107,7 @@ void W_Config::getComList(void)
 {
 	static int lastComPortCounts = 0;
 	int ComPortCounts = 0;
+	QString nn;
 
 	//Available ports?
 	QList<QSerialPortInfo> comPortInfo = QSerialPortInfo::availablePorts();
@@ -131,11 +132,24 @@ void W_Config::getComList(void)
 			//Rewrite the list:
 			for(const QSerialPortInfo &info : comPortInfo)
 			{
-				ui->comPortComboBox->addItem(info.portName());
+				nn = getCOMnickname(&info);
+				ui->comPortComboBox->addItem(info.portName() + " " + nn);
 			}
 		}
 	}
 	lastComPortCounts = ComPortCounts;
+}
+
+QString W_Config::getCOMnickname(const QSerialPortInfo *c)
+{
+	QString tmpD = c->description(), o = "[?]";
+	QString tmpM = c->manufacturer();
+
+	if(tmpD.contains("Bluetooth")){o = "[BT]";}
+	if(tmpD.contains("STM")){o = "[USB-STM]";}
+	if(tmpM.contains("Cypress")){o = "[USB-PSoC]";}
+
+	return o;
 }
 
 //****************************************************************************
@@ -145,11 +159,14 @@ void W_Config::getComList(void)
 void W_Config::on_openComButton_clicked()
 {
 	bool success = false;
+	QString nAll, n1;
 
 	//Stop port refresh
 	comPortRefreshTimer->stop();
 	//Emit signal:
-	emit openCom(ui->comPortComboBox->currentText(), 25, 100000, &success);
+	nAll = ui->comPortComboBox->currentText();
+	n1 = nAll.section(" ", 0, 0, QString::SectionSkipEmpty);
+	emit openCom(n1, 25, 100000, &success);
 
 	//Connection is successful.
 	if(success)

@@ -275,8 +275,6 @@ void W_2DPlot::saveScreenshot(void)
 		QMessageBox::warning(this, tr("Save Error"), tr("The image could not be saved to \"%1\".")
 							 .arg(QDir::toNativeSeparators(path)));
 	}
-
-
 }
 
 void W_2DPlot::initPtr(void)
@@ -360,7 +358,6 @@ void W_2DPlot::initChart(void)
 	chart->createDefaultAxes();
 	chart->axisX()->setRange(INIT_PLOT_XMIN, INIT_PLOT_XMAX);
 	chart->axisY()->setRange(INIT_PLOT_YMIN, INIT_PLOT_YMAX);
-
 
 	//Colors:
 	chart->setTheme(QChart::ChartThemeDark);
@@ -457,8 +454,8 @@ void W_2DPlot::initUserInput(void)
 	var_list_margin.clear();
 
 	//Margin options:
-	var_list_margin << "±2%" << "±5%" << "±10%" << "±10 ticks" << "±25 ticks" \
-					<< "±100 ticks" << "±1000 ticks";
+	var_list_margin << "±2%" << "±5%" << "±10%" << "±5 ticks" << "±10 ticks" \
+					<< "±25 ticks" << "±100 ticks" << "±1000 ticks";
 	for(int i = 0; i < var_list_margin.length(); i++)
 	{
 		ui->comboBoxMargin->addItem(var_list_margin.at(i));
@@ -472,7 +469,6 @@ void W_2DPlot::initUserInput(void)
 	//==========================
 
 	//Note: Color coded labels will be defined based on the chart.
-
 
 	//Slave combo box:
 	for(int i = 0; i < VAR_NUM; i++)
@@ -503,7 +499,6 @@ void W_2DPlot::initUserInput(void)
 
 	//By default, we track Slave 1:
 	ui->checkBoxTrack->setChecked(true);
-
 
 	pointsVisible = false;
 	globalYmin = 0;
@@ -636,7 +631,6 @@ void W_2DPlot::saveNewPointsLog(int index)
 			dataIter = 0;
 		}
 
-
 		// Set the plot iterator
 		int graphIter = (plot_len / 2) - index;
 
@@ -729,7 +723,6 @@ void W_2DPlot::computeStats(void)
 
 			for(int j = 0; j < vDataBuffer[i].length(); j++)
 			{
-
 				//Minimum:
 				if(vDataBuffer[i].at(j).y() < min)
 				{
@@ -821,6 +814,7 @@ float W_2DPlot::getRefreshRateDisplay(void)
 		timer.start();
 		return -1;
 	}
+
 	int64_t msec = timer.elapsed();
 	timer.restart();
 
@@ -920,19 +914,23 @@ void W_2DPlot::addMargins(int *ymin, int *ymax)
 			*ymin = (*ymin-(abs(*ymin)/10));
 			*ymax = (*ymax+(abs(*ymax)/10));
 			break;
-		case 3: //10 ticks
+		case 3: //5 ticks
+			*ymin = (*ymin-5);
+			*ymax = (*ymax+5);
+			break;
+		case 4: //10 ticks
 			*ymin = (*ymin-10);
 			*ymax = (*ymax+10);
 			break;
-		case 4: //25 ticks
+		case 5: //25 ticks
 			*ymin = (*ymin-25);
 			*ymax = (*ymax+25);
 			break;
-		case 5: //100 ticks
+		case 6: //100 ticks
 			*ymin = (*ymin-100);
 			*ymax = (*ymax+100);
 			break;
-		case 6: //1000 ticks
+		case 7: //1000 ticks
 			*ymin = (*ymin-1000);
 			*ymax = (*ymax+1000);
 			break;
@@ -1009,8 +1007,6 @@ void W_2DPlot::setChartAxis(void)
 		//Save values:
 		plot_xmin = tmpXmin;
 		plot_xmax = tmpXmax;
-
-
 	}
 	else if(ui->radioButtonXA->isChecked())
 	{
@@ -1170,31 +1166,31 @@ void W_2DPlot::updateVarList(uint8_t item)
 //pointer.
 void W_2DPlot::assignVariable(uint8_t item)
 {
-		struct std_variable varHandle = selectedDevList[item]->getSerializedVar(varIndex[item] + 1);
+	struct std_variable varHandle = selectedDevList[item]->getSerializedVar(varIndex[item] + 1);
 
-		if(varIndex[item] == 0)
-		{
-			vtp[item].used = false;
-			vtp[item].format = NULL_PTR;
-			vtp[item].rawGenPtr = nullptr;
-			vtp[item].decodedPtr = nullptr;
-		}
-		else
-		{
-			vtp[item].used = true;
-			vtp[item].format = varHandle.format;
-			vtp[item].rawGenPtr = varHandle.rawGenPtr;
-			vtp[item].decodedPtr = varHandle.decodedPtr;
-		}
+	if(varIndex[item] == 0)
+	{
+		vtp[item].used = false;
+		vtp[item].format = NULL_PTR;
+		vtp[item].rawGenPtr = nullptr;
+		vtp[item].decodedPtr = nullptr;
+	}
+	else
+	{
+		vtp[item].used = true;
+		vtp[item].format = varHandle.format;
+		vtp[item].rawGenPtr = varHandle.rawGenPtr;
+		vtp[item].decodedPtr = varHandle.decodedPtr;
+	}
 
-		if(displayMode == DisplayLogData)
-		{
-			saveNewPointsLog(logIndex);
-			refresh2DPlot();
-		}
+	if(displayMode == DisplayLogData)
+	{
+		saveNewPointsLog(logIndex);
+		refresh2DPlot();
+	}
 
-		if(allChannelUnused()) drawingTimer->stop();
-		else if(!drawingTimer->isActive()) drawingTimer->start();
+	if(allChannelUnused()) drawingTimer->stop();
+	else if(!drawingTimer->isActive()) drawingTimer->start();
 }
 
 //****************************************************************************
@@ -1648,8 +1644,6 @@ void W_2DPlot::updateScalingFactors(uint8_t var, uint8_t param, QString txt)
 		qDebug() << "Invalid parameter, scaling unchaged.";
 		return;
 	}
-
-	//qDebug() << "scaling[" << var << "]" << "[" << param << "] =" << num;
 
 	//Change array:
 	scaling[var][param] = num;
