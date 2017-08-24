@@ -84,7 +84,6 @@ W_2DPlot::W_2DPlot(QWidget *parent,
 	connect(drawingTimer, &QTimer::timeout, this, &W_2DPlot::refresh2DPlot);
 
 	selectSlave(activeSlave);
-
 }
 
 W_2DPlot::~W_2DPlot()
@@ -645,7 +644,6 @@ void W_2DPlot::saveNewPointsLog(int index)
 		{
 			graphIter = 0;
 		}
-
 
 		// Add data until one of the limit is reached.
 		while(dataIter < selectedDevList[item]->length() &&

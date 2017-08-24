@@ -162,9 +162,6 @@ void W_Ricnu::display(RicnuProject *devicePtr, int index)
 	//Decode some of them:
 	//===================
 
-	//This should be in the decodeLastLine() call (see ExecuteDevice). Temporary hack.
-	//ExecuteDevice::decode(ricnu->ex);
-
 	ui->disp_accx_d->setText(QString::number((float)ricnu->ex->decoded.accel.x/1000,'f',2));
 	ui->disp_accy_d->setText(QString::number((float)ricnu->ex->decoded.accel.y/1000,'f',2));
 	ui->disp_accz_d->setText(QString::number((float)ricnu->ex->decoded.accel.z/1000,'f',2));
@@ -183,8 +180,6 @@ void W_Ricnu::display(RicnuProject *devicePtr, int index)
 	ui->strain5d->setText(QString::number(ricnu->st->decoded.strain[4],'i',0));
 	ui->strain6d->setText(QString::number(ricnu->st->decoded.strain[5],'i',0));
 }
-
-
 
 //****************************************************************************
 // Private slot(s):

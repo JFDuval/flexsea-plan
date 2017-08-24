@@ -40,7 +40,7 @@
 #include "flexseaDevice.h"
 #include <serialdriver.h>
 
-#define REFRESH_PERIOD 750 //Port list refresh in ms
+#define REFRESH_PERIOD	750 //Port list refresh in ms
 
 //****************************************************************************
 // Namespace & Class Definition:
@@ -102,7 +102,6 @@ private:
 	void closeReadingFile(void);
 	void updateDataSourceStatus(DataSource , FlexseaDevice *);
 	void windowClosed(void);
-
 };
 
 #endif // W_CONFIG_H

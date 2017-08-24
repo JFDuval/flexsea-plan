@@ -345,6 +345,7 @@ void MainWindow::emptyWinFct(void)
 //****************************************************************************
 // Public slot(s):
 //****************************************************************************
+
 void MainWindow::translatorActiveSlaveStreaming(QString slaveName)
 {
 	activeSlaveNameStreaming = slaveName;
