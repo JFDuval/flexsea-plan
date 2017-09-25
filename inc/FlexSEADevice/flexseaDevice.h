@@ -112,6 +112,7 @@ public:
 	QString targetSlaveName;
 	int		experimentIndex;
 	QString experimentName;
+	QString userNotes = "Default user notes.";
 
 	int		frequency;
 	bool isCurrentlyLogging;

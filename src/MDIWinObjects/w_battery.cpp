@@ -143,6 +143,7 @@ void W_Battery::initLive(void)
 
 void W_Battery::initLog(FlexseaDevice *devPtr)
 {
+	(void)devPtr;
 }
 
 void W_Battery::display(BatteryDevice *devicePtr, int index)

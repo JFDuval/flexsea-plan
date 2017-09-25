@@ -44,7 +44,7 @@ void DynamicUserDataManager::handleNewMessage()
 }
 
 bool DynamicUserDataManager::parseDynamicUserMetadata(QList<QString> *labels, QList<QString> *types)
-{	
+{
 	if(dynamicUser_numFields < 1) return false;
 	if(!dynamicUser_labels || !dynamicUser_labelLengths || !labels) return false;
 	if(!newMetaDataAvailable) return false;
@@ -117,6 +117,16 @@ bool DynamicUserDataManager::getPlanFieldFlags(QList<bool> *flags)
 	flags->clear();
 	if(dynamicUser_numFields < 1) return false;
 	if(!dynamicUser_fieldFlagsPlan || !flags) return false;
+
+	//this turns on the first 8 flags by default
+	static bool firstTime = true;
+	if(firstTime)
+	{
+		firstTime = false;
+		for(uint8_t i = 0; i < 8 && i < dynamicUser_numFields; i++)
+			dynamicUser_fieldFlagsPlan[i] = 1;
+	}
+
 	for(int i = 0; i < dynamicUser_numFields; i++)
 	{
 		flags->append(dynamicUser_fieldFlagsPlan[i]);
@@ -191,6 +201,7 @@ QStringList DynamicDevice::getHeaderList(void)
 
 	result.append("Timestamp (date)");
 	result.append("Timestamp (ms)");
+	result.append("Event Flags");
 	for(int i = 0; i < dynamicUser_numFields; i++)
 	{
 		int labelLength = dynamicUser_labelLengths[i];
@@ -232,9 +243,9 @@ QString DynamicDevice::getLastSerializedStr(void)
 	if(dynamicUser_numFields < 1 || !dynamicUser_data || !dynamicUser_fieldTypes)
 		return result;
 
-
 	stream	<<	timeStamp.last().date		<< ',' << \
-				timeStamp.last().ms			<< ',';
+				timeStamp.last().ms			<< ',' << \
+				eventFlags.last()			<< ',';
 
 	uchar* data = dynamicUser_data;
 	for(int i = 0; i < dynamicUser_numFields; i++)
@@ -260,7 +271,7 @@ struct std_variable DynamicDevice::getSerializedVar(int parameter, int index)
 {
 	(void)index;
 	struct std_variable v;
-	parameter-=2;
+	parameter -= 3;	//Tweak this if 2DPlot and UserR/W are offseted
 	if(parameter < 0 || parameter >= dynamicUser_numFields) return v;
 	if(dynamicUser_numFields < 1 || !dynamicUser_data || !dynamicUser_fieldTypes)
 		return v;

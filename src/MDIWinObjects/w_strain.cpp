@@ -159,6 +159,13 @@ void W_Strain::display(StrainDevice *devicePtr, int index)
 	//Decoded values:
 	//===================
 
+	//When reading the board indirectly (when it's attached to another board)
+	//it doesn't get decoded. We do it here:
+	if(st->preDecoded == 1)
+	{
+		StrainDevice::decode(st);
+	}
+
 	ui->disp_strain_ch1_d->setText(QString::number(st->decoded.strain[0],'i',0));
 	ui->disp_strain_ch2_d->setText(QString::number(st->decoded.strain[1],'i',0));
 	ui->disp_strain_ch3_d->setText(QString::number(st->decoded.strain[2],'i',0));

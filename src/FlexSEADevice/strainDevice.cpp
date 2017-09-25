@@ -251,12 +251,15 @@ void StrainDevice::decompressRawBytes(struct strain_s *stPtr)
 {
 	uint8_t *buf = stPtr->compressedBytes;
 
-	stPtr->ch[0].strain_filtered = ((*(buf+0) << 8 | *(buf+1)) >> 4);
-	stPtr->ch[1].strain_filtered = (((*(buf+1) << 8 | *(buf+2))) & 0xFFF);
-	stPtr->ch[2].strain_filtered = ((*(buf+3) << 8 | *(buf+4)) >> 4);
-	stPtr->ch[3].strain_filtered = (((*(buf+4) << 8 | *(buf+5))) & 0xFFF);
-	stPtr->ch[4].strain_filtered = ((*(buf+6) << 8 | *(buf+7)) >> 4);
-	stPtr->ch[5].strain_filtered = (((*(buf+7) << 8 | *(buf+8))) & 0xFFF);
+	if(stPtr->preDecoded != 1)
+	{
+		stPtr->ch[0].strain_filtered = ((*(buf+0) << 8 | *(buf+1)) >> 4);
+		stPtr->ch[1].strain_filtered = (((*(buf+1) << 8 | *(buf+2))) & 0xFFF);
+		stPtr->ch[2].strain_filtered = ((*(buf+3) << 8 | *(buf+4)) >> 4);
+		stPtr->ch[3].strain_filtered = (((*(buf+4) << 8 | *(buf+5))) & 0xFFF);
+		stPtr->ch[4].strain_filtered = ((*(buf+6) << 8 | *(buf+7)) >> 4);
+		stPtr->ch[5].strain_filtered = (((*(buf+7) << 8 | *(buf+8))) & 0xFFF);
+	}
 }
 
 //****************************************************************************

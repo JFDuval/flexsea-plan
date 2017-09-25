@@ -44,6 +44,7 @@
 #include <flexsea_payload.h>
 #include <ctime>
 #include <w_event.h>
+#include <QThread>
 
 //****************************************************************************
 // Constructor & Destructor:
@@ -81,7 +82,6 @@ SerialDriver::~SerialDriver() {
 //Open port
 void SerialDriver::open(QString name, int tries, int delay, bool *success)
 {
-//    name = "/dev/ttyACM9";
 	int cnt = 0;
 	bool isPortOpen = false;
 	int comProgress = 0;

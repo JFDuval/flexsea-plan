@@ -97,8 +97,6 @@ QString DataLogger::generateFileName(QString shortFileName, int fileIndex)
 	result.replace(" ", "_");
 	// Replace double underscores with single underscore
 
-
-
 	// Remove invalid character for a filename(According to Windows)
 	result.remove(QRegExp("[<>:\"/|?*]"));
 	result.remove("\\");

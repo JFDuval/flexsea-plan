@@ -17,13 +17,13 @@ INCLUDEPATH += inc \
 	inc/MDIWinObjects \
 	inc/FlexSEADevice \
 	flexsea-comm/inc \
-	flexsea-comm/test \
+	#flexsea-comm/test \
 	flexsea-system/inc \
-	flexsea-system/test \
+	#flexsea-system/test \
 	flexsea-shared/unity \
 	flexsea-shared/inc \
 	flexsea-user/inc \
-	flexsea-user/test \
+	#flexsea-user/test \
 	flexsea-user/MIT_2DoF_Ankle_v1/inc \
 	flexsea-user/MotorTestBench/inc \
 	flexsea-user/RICNU_Knee_v1/inc
@@ -79,11 +79,11 @@ SOURCES += src/main.cpp \
 	flexsea-comm/src/flexsea_circular_buffer.c \
 	flexsea-comm/src/flexsea_comm.c \
 	flexsea-comm/src/flexsea_payload.c \
-	flexsea-comm/test/flexsea-comm_test-all.c \
-	flexsea-comm/test/test-flexsea.c \
-	flexsea-comm/test/test-flexsea_buffers.c \
-	flexsea-comm/test/test-flexsea_comm.c \
-	flexsea-comm/test/test-flexsea_payload.c \
+	#flexsea-comm/test/flexsea-comm_test-all.c \
+	#flexsea-comm/test/test-flexsea.c \
+	#flexsea-comm/test/test-flexsea_buffers.c \
+	#flexsea-comm/test/test-flexsea_comm.c \
+	#flexsea-comm/test/test-flexsea_payload.c \
 	flexsea-system/src/flexsea_system.c \
 	flexsea-system/src/flexsea_global_structs.c \
 	flexsea-system/src/flexsea_cmd_data.c \
@@ -95,13 +95,13 @@ SOURCES += src/main.cpp \
 	flexsea-system/src/flexsea_cmd_tools.c \
 	flexsea-system/src/flexsea_cmd_in_control.c \
 	flexsea-system/src/flexsea_cmd_stream.c \
-	flexsea-system/test/test-flexsea_system.c \
-	flexsea-system/test/flexsea-system_test-all.c \
-	flexsea-system/test/test-flexsea_cmd_data.c \
-	flexsea-system/test/test-flexsea_cmd_external.c \
-	flexsea-system/test/test-flexsea_cmd_sensors.c \
-	flexsea-system/test/test-flexsea_cmd_control_1.c \
-	flexsea-system/test/test-flexsea_cmd_control_2.c \
+	#flexsea-system/test/test-flexsea_system.c \
+	#flexsea-system/test/flexsea-system_test-all.c \
+	#flexsea-system/test/test-flexsea_cmd_data.c \
+	#flexsea-system/test/test-flexsea_cmd_external.c \
+	#flexsea-system/test/test-flexsea_cmd_sensors.c \
+	#flexsea-system/test/test-flexsea_cmd_control_1.c \
+	#flexsea-system/test/test-flexsea_cmd_control_2.c \
 	flexsea-user/MIT_2DoF_Ankle_v1/src/user-ex-MIT_2DoF_Ankle_v1.c \
 	flexsea-user/MIT_2DoF_Ankle_v1/src/user-mn-MIT_2DoF_Ankle_v1.c \
 	flexsea-user/MotorTestBench/src/user-ex-MotorTestBench.c \
@@ -110,9 +110,9 @@ SOURCES += src/main.cpp \
 	flexsea-user/RICNU_Knee_v1/src/user-mn-RICNU_Knee_v1.c \
 	flexsea-user/src/user-ex.c \
 	flexsea-user/src/user-mn.c \
-	flexsea-system/test/test-flexsea_cmd_tools.c \
-    src/dynamicuserdatamanager.cpp \
-    flexsea-user/src/dynamic_user_structs_common.c
+	#flexsea-system/test/test-flexsea_cmd_tools.c \
+	src/dynamicuserdatamanager.cpp \
+	flexsea-user/src/dynamic_user_structs_common.c
 
 HEADERS += inc/main.h \
 	inc/mainwindow.h \
@@ -158,7 +158,7 @@ HEADERS += inc/main.h \
 	flexsea-user/inc/flexsea_cmd_user.h \
 	flexsea-user/MIT_2DoF_Ankle_v1/inc/cmd-MIT_2DoF_Ankle_v1.h \
 	flexsea-user/RICNU_Knee_v1/inc/cmd-RICNU_Knee_v1.h \
-	flexsea-user/test/flexsea-user_test-all.h \
+	#flexsea-user/test/flexsea-user_test-all.h \
 	flexsea-user/inc/flexsea_user_structs.h \
 	flexsea-user/MotorTestBench/inc/cmd-MotorTestBench.h \
 	flexsea-user/inc/dynamic_user_structs.h \
@@ -168,7 +168,7 @@ HEADERS += inc/main.h \
 	flexsea-comm/inc/flexsea_circular_buffer.h \
 	flexsea-comm/inc/flexsea_comm.h \
 	flexsea-comm/inc/flexsea_payload.h \
-	flexsea-comm/test/flexsea-comm_test-all.h \
+	#flexsea-comm/test/flexsea-comm_test-all.h \
 	flexsea-system/inc/flexsea_system.h \
 	flexsea-system/inc/flexsea_sys_def.h \
 	flexsea-system/inc/flexsea_global_structs.h \
@@ -181,9 +181,9 @@ HEADERS += inc/main.h \
 	flexsea-system/inc/flexsea_cmd_tools.h \
 	flexsea-system/inc/flexsea_cmd_in_control.h \
 	inc/MDIWinObjects/w_event.h \
-        flexsea-system/inc/flexsea_cmd_stream.h \
+		flexsea-system/inc/flexsea_cmd_stream.h \
 	flexsea-system/inc/flexsea_dataformats.h \
-        inc/dynamicuserdatamanager.h \
+		inc/dynamicuserdatamanager.h \
 	flexsea-system/test/flexsea-system_test-all.h
 
 FORMS += ui/mainwindow.ui \

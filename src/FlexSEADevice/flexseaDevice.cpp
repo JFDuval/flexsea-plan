@@ -37,6 +37,7 @@
 #include <QStringList>
 #include <QDate>
 #include <QDebug>
+#include "w_slavecomm.h"
 
 //****************************************************************************
 // Constructor & Destructor:
@@ -69,12 +70,18 @@ void FlexseaDevice::clear(void)
 
 QString FlexseaDevice::getIdentifierStr(void)
 {
-
 	return getIdentifierStrList().join(',');
 }
 
 QStringList FlexseaDevice::getIdentifierStrList(void)
 {
+	/*
+	userNotes = "Changed the notes here...";
+	QString test;
+	test = W_SlaveComm::getUserNotes();
+	userNotes = test;
+	*/
+
 	QStringList identifier = QStringList()
 							<< "Slave Name (or Project):"
 							<< slaveName
@@ -87,7 +94,9 @@ QStringList FlexseaDevice::getIdentifierStrList(void)
 							<< "Slave type:"
 							<< slaveTypeName
 							<< "Target Slave Name"
-							<< targetSlaveName;
+							<< targetSlaveName
+							<< "Notes:"
+							<< userNotes;
 
 	return identifier;
 }
