@@ -2,5 +2,7 @@
     <qresource prefix="/">
         <file>icons/d_logo_small.png</file>
         <file>icons/d_logo_small_outlined.png</file>
+		<file>icons/checkboxCheckedStar.png</file>
+		<file>icons/checkboxUncheckedStar.png</file>
     </qresource>
 </RCC>
