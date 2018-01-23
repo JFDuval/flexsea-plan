@@ -149,12 +149,14 @@ MainWindow::MainWindow(QWidget *parent) :
 
 	comPortStatus = PortClosed;
 
+	/*
 	initializeDataProviders();
 	chartController = new ChartController(this);
 	for(int i = 0; i < dataProviders.size(); i++)
 	{
 		chartController->addDataProvider(dataProviders.at(i));
 	}
+	*/
 
 	initializeCreateWindowFctPtr();
 	loadCSVconfigFile();	//By default we load the last saved settings

@@ -61,6 +61,7 @@
 #include <commanager.h>
 #include <dynamicuserdatamanager.h>
 
+#include <dataprovider.h>
 #include "main.h"
 
 #include <QList>
@@ -214,7 +215,7 @@ private:
 	QStringList favoritePort;
 
 	// Objects
-	ChartController *chartController;
+	//ChartController *chartController;
 	QThread* comManagerThread;
 
 	DataLogger *myDataLogger;
