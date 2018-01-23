@@ -181,20 +181,7 @@ DynamicDevice::DynamicDevice()
 	serializedLength = dynamicUser_numFields;
 }
 
-QString DynamicDevice::getHeaderStr(void)
-{
-	QString result = QStringLiteral("");
-	QStringList sl = getHeaderList();
-	for(int i=0;i<sl.size();i++)
-	{
-		result.append(sl.at(i));
-		result.append(i == sl.size()-1 ? "" : ",");
-	}
-
-	return result;
-}
-
-QStringList DynamicDevice::getHeaderList(void)
+QStringList DynamicDevice::getHeader(void)
 {
 	QStringList result;
 	if(dynamicUser_numFields < 1 || !dynamicUser_labels || !dynamicUser_labelLengths) return result;
@@ -214,7 +201,8 @@ QStringList DynamicDevice::getHeaderList(void)
 	return result;
 }
 
-QStringList DynamicDevice::getHeaderDecList(void) { return this->getHeaderList(); }
+// todo change this to return the measure unit properly
+QStringList DynamicDevice::getHeaderUnit(void) { return this->getHeader(); }
 
 void DynamicDevice::readPointerAsFormat(QTextStream* stream, void* data, uint8_t format)
 {
@@ -235,7 +223,7 @@ QString DynamicDevice::readPointerAsFormat(void* data, uint8_t format)
 	return s;
 }
 
-QString DynamicDevice::getLastSerializedStr(void)
+QString DynamicDevice::getLastDataEntry(void)
 {
 	QString result;
 	QTextStream stream(&result);
@@ -267,18 +255,18 @@ QString DynamicDevice::getLastSerializedStr(void)
 	return result;
 }
 
-struct std_variable DynamicDevice::getSerializedVar(int parameter, int index)
+struct std_variable DynamicDevice::getSerializedVar(int headerIndex, int index)
 {
 	(void)index;
 	struct std_variable v;
-	parameter -= 3;	//Tweak this if 2DPlot and UserR/W are offseted
-	if(parameter < 0 || parameter >= dynamicUser_numFields) return v;
+	headerIndex -= 3;	//Tweak this if 2DPlot and UserR/W are offseted
+	if(headerIndex < 0 || headerIndex >= dynamicUser_numFields) return v;
 	if(dynamicUser_numFields < 1 || !dynamicUser_data || !dynamicUser_fieldTypes)
 		return v;
 
 	uint8_t* data = dynamicUser_data;
 	int i;
-	for(i = 0; i < parameter; i++)
+	for(i = 0; i < headerIndex; i++)
 	{
 		int dataSize = FORMAT_SIZE_MAP[dynamicUser_fieldTypes[i]];
 		if(dataSize < 1)
@@ -297,9 +285,9 @@ struct std_variable DynamicDevice::getSerializedVar(int parameter, int index)
 }
 
 void DynamicDevice::appendSerializedStr(QStringList *splitLine) {(void)splitLine;}
-void DynamicDevice::decodeLastLine(void){}
-void DynamicDevice::decodeAllLine(void){}
-void DynamicDevice::appendEmptyLine(void) {
+void DynamicDevice::decodeLastElement(void){}
+void DynamicDevice::decodeAllElement(void){}
+void DynamicDevice::appendEmptyElement(void) {
 	timeStamp.append(TimeStamp());
 	eventFlags.append(0);
 }

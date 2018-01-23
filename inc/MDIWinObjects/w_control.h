@@ -38,6 +38,7 @@
 #include <QWidget>
 #include "counter.h"
 #include "flexsea_generic.h"
+#include "cmd-ActPack.h"
 
 //****************************************************************************
 // Namespace & Class Definition:
@@ -77,6 +78,12 @@ private slots:
 	void on_comboBox_slave_currentIndexChanged(int index);
 	void on_control_slider_min_textEdited(const QString &arg1);
 	void on_control_slider_max_textEdited(const QString &arg1);
+	void on_control_slider_max_editingFinished();
+	void on_control_slider_min_editingFinished();
+
+	void on_comboBoxCmdStyle_currentIndexChanged(int index);
+
+	void on_comboBoxFSM2_currentIndexChanged(int index);
 
 private:
 	//Variables & Objects:
@@ -93,6 +100,7 @@ private:
 	QTimer *timerCtrl, *timerDisplay;
 	uint8_t transferBuf[48];
 	static int setp;
+	struct ActPack_s ActPack;
 
 	//Function(s):
 	void initControl(void);
@@ -106,6 +114,10 @@ private:
 	void refreshStatusGain(void);
 	void control_trapeze(void);
 	void minMaxTextChanged(void);
+	void update_CtrlMinMax(void);
+	void initActPack(void);
+	void sendActPack(void);
+	void setController(uint8_t ctrl);
 };
 
 #define CONTROLLERS         6

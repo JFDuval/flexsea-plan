@@ -54,17 +54,10 @@ SerialDriver::SerialDriver(QObject *parent) : QObject(parent)
 {
 	comPortOpen = false;
 
-	//QThread *thread1 = new QThread; // First thread
-	//thread1->start();
+	USBSerialPort = new QSerialPort(this);
 
-	//Timer:
-	clockTimer = new QTimer();
-	clockTimer->setTimerType(Qt::CoarseTimer);
-	clockTimer->setSingleShot(false);
-	//clockTimer->setInterval(CLOCK_TIMER_PERIOD);
-	connect(clockTimer, &QTimer::timeout, this, &SerialDriver::timerEvent);
-
-	//clockTimer->moveToThread(thread1);
+	// Used to register the custom type for the signal/slot function using it.
+	qRegisterMetaType<SerialPortStatus>();
 }
 
 SerialDriver::~SerialDriver() {
@@ -84,61 +77,56 @@ void SerialDriver::open(QString name, int tries, int delay, bool *success)
 {
 	int cnt = 0;
 	bool isPortOpen = false;
-	int comProgress = 0;
 
-	emit openProgress(comProgress);
+	USBSerialPort->setPortName(name);
+	USBSerialPort->setBaudRate(400000);
+	USBSerialPort->setDataBits(QSerialPort::Data8);
+	USBSerialPort->setParity(QSerialPort::NoParity);
+	USBSerialPort->setStopBits(QSerialPort::OneStop);
+	USBSerialPort->setFlowControl(QSerialPort::HardwareControl);
+	//USBSerialPort->setFlowControl(QSerialPort::NoFlowControl);
 
-	USBSerialPort.setPortName(name);
-	USBSerialPort.setBaudRate(400000);
-	USBSerialPort.setDataBits(QSerialPort::Data8);
-	USBSerialPort.setParity(QSerialPort::NoParity);
-	USBSerialPort.setStopBits(QSerialPort::OneStop);
-	USBSerialPort.setFlowControl(QSerialPort::HardwareControl);
-	//USBSerialPort.setFlowControl(QSerialPort::NoFlowControl);
-
-	connect(&USBSerialPort, &QSerialPort::readyRead, this, &SerialDriver::handleReadyRead);
+	// Handle data received.
+	connect(USBSerialPort, &QSerialPort::readyRead, this, &SerialDriver::handleReadyRead);
+	// Handle a deconnection event
+	connect(USBSerialPort, &QSerialPort::errorOccurred, this,  &SerialDriver::serialPortErrorEvent);
 
 	//Start timer:
 	timerCount = 0;
-	clockTimer->start(CLOCK_TIMER_PERIOD);
 
-	do
+	while(isPortOpen == false && cnt < tries)
 	{
-		isPortOpen = USBSerialPort.open(QIODevice::ReadWrite);  //returns true if successful
+		isPortOpen = USBSerialPort->open(QIODevice::ReadWrite);  //returns true if successful
 		cnt++;
-		if(cnt >= tries)
-			break;
 
 		//When false, print error code:
 		if(!isPortOpen)
 		{
 			qDebug() << "Try #" << cnt << " failed. Error: " << \
-						USBSerialPort.errorString() << ".\n";
-			emit openProgress(100*cnt/tries);
+						USBSerialPort->errorString() << ".\n";
+			emit openStatus(WhileOpening, cnt);
 		}
 
 		usleep(delay);
-	} while(!isPortOpen);
+	}
 
 	if (!isPortOpen)
 	{
 		qDebug() << "Tried " << cnt << " times, couldn't open " << name << ".\n";
-		emit openProgress(0);
 		comPortOpen = false;
-		emit openStatus(comPortOpen);
+		emit openStatus(PortOpeningFailed, -1);
 
 		*success = false;
 	}
 	else
 	{
 		qDebug() << "Successfully opened " << name << ".\n";
-		emit openProgress(100);
 
 		//Clear any data that was already in the buffers:
-		USBSerialPort.clear((QSerialPort::AllDirections));
+		USBSerialPort->clear((QSerialPort::AllDirections));
 
 		comPortOpen = true;
-		emit openStatus(comPortOpen);
+		emit openStatus(PortOpeningSucceed, -1);
 
 		*success = true;
 	}
@@ -151,17 +139,17 @@ void SerialDriver::close(void)
 
 	//Turn comm. off
 	comPortOpen = false;
-	emit openStatus(comPortOpen);
+	emit openStatus(PortClosed, -1);
 
 	circularBuffer_t* cb = commPeriph[PORT_USB].rx.circularBuff;
 	circ_buff_move_head(cb, circ_buff_get_size(cb));
 
-	USBSerialPort.flush();
+	USBSerialPort->flush();
 	//Delay (for ongoing transmissions)
 	usleep(100000);
 
-	USBSerialPort.clear((QSerialPort::AllDirections));
-	USBSerialPort.close();
+	USBSerialPort->clear((QSerialPort::AllDirections));
+	USBSerialPort->close();
 }
 
 int SerialDriver::write(uint8_t bytes_to_send, uint8_t *serial_tx_data)
@@ -172,11 +160,11 @@ int SerialDriver::write(uint8_t bytes_to_send, uint8_t *serial_tx_data)
 
 	if(comPortOpen)
 	{
-		write_ret = USBSerialPort.write((const char*)serial_tx_data, bytes_to_send);
+		write_ret = USBSerialPort->write((const char*)serial_tx_data, bytes_to_send);
 		if(write_ret < 0)
 		{
 			qDebug() << "Write failed";
-			USBSerialPort.clear();
+			USBSerialPort->clear();
 		}
 	}
 	else
@@ -191,13 +179,14 @@ int SerialDriver::write(uint8_t bytes_to_send, uint8_t *serial_tx_data)
 
 void SerialDriver::flush(void)
 {
-	USBSerialPort.flush();
+	USBSerialPort->flush();
 }
 
 void SerialDriver::clear(void)
 {
-	USBSerialPort.clear();
+	USBSerialPort->clear();
 }
+
 FlexseaDevice* SerialDriver::getDeviceByIdCmd(uint8_t slaveId, int cmd)
 {
 	for(unsigned int i = 0; i < devices.size(); i++)
@@ -217,7 +206,7 @@ void SerialDriver::signalSuccessfulParse()
 
 	if(device)
 	{
-		device->decodeLastLine();
+		device->decodeLastElement();
 		if(device->isCurrentlyLogging)
 		{
 			device->applyTimestamp();
@@ -276,23 +265,23 @@ void SerialDriver::debugStats(int readLength, int numMessagesDecoded)
 
 void SerialDriver::tryReadWrite(uint8_t bytes_to_send, uint8_t *serial_tx_data, int timeout)
 {
-	bool prev = USBSerialPort.blockSignals(true);
+	bool prev = USBSerialPort->blockSignals(true);
 	write(bytes_to_send, serial_tx_data);
-	if(USBSerialPort.waitForReadyRead(timeout))
+	if(USBSerialPort->waitForReadyRead(timeout))
 		handleReadyRead();
-	USBSerialPort.blockSignals(prev);
+	USBSerialPort->blockSignals(prev);
 }
 
 void SerialDriver::handleReadyRead()
 {
 	//We check to see if we are getting good packets, or a bunch of crap:
-	int len = USBSerialPort.read((char*)largeRxBuffer, MAX_SERIAL_RX_LEN);
+	int len = USBSerialPort->read((char*)largeRxBuffer, MAX_SERIAL_RX_LEN);
 	if(len < 1) return;
 
-	if(USBSerialPort.bytesAvailable())
+	if(USBSerialPort->bytesAvailable())
 	{	//this indicates our buffer is filling faster than we can process it
 		qDebug() << "Data length over " << MAX_SERIAL_RX_LEN << " bytes (" << len << "bytes)";
-		USBSerialPort.clear((QSerialPort::AllDirections));
+		USBSerialPort->clear((QSerialPort::AllDirections));
 		emit dataStatus(0, DATAIN_STATUS_RED);
 	}
 
@@ -364,29 +353,18 @@ void SerialDriver::addDevice(FlexseaDevice* device)
 // Private function(s):
 //****************************************************************************
 
-void SerialDriver::init(void)
-{
-	comPortOpen = false;
-}
 
 //****************************************************************************
 // Private slot(s):
 //****************************************************************************
 
-void SerialDriver::timerEvent(void)
+void SerialDriver::serialPortErrorEvent(QSerialPort::SerialPortError error)
 {
-	if(timerCount < CLOCK_TIMER_MAX_COUNT && comPortOpen == false)
+	if (comPortOpen == true &&
+		error == QSerialPort::ResourceError)
 	{
-		timerCount++;
-		emit openProgress(100*(timerCount/CLOCK_TIMER_MAX_COUNT));
-		qDebug() << "Tick...";
-	}
-	else
-	{
-		//We have reached the maximum count, or the port opened.
-
-		qDebug() << "Timer expired or port opened";
-
-		clockTimer->stop();
+		comPortOpen = false;
+		close();
 	}
 }
+

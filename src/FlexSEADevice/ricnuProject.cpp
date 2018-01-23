@@ -46,7 +46,7 @@
 
 RicnuProject::RicnuProject(void): FlexseaDevice()
 {
-	if(header.length() != headerDecoded.length())
+	if(header.length() != headerUnitList.length())
 	{
 		qDebug() << "Mismatch between header length Ricnu!";
 	}
@@ -58,7 +58,7 @@ RicnuProject::RicnuProject(void): FlexseaDevice()
 
 RicnuProject::RicnuProject(execute_s *exPtr, strain_s *stPtr, battery_s *baPtr): FlexseaDevice()
 {
-	if(header.length() != headerDecoded.length())
+	if(header.length() != headerUnitList.length())
 	{
 		qDebug() << "Mismatch between header length Ricnu!";
 	}
@@ -103,11 +103,6 @@ RicnuProject::~RicnuProject()
 // Public function(s):
 //****************************************************************************
 
-QString RicnuProject::getHeaderStr(void)
-{
-	return header.join(',');
-}
-
 //ToDo Add Battery board to this list
 QStringList RicnuProject::header = QStringList()
 								<< "Timestamp"
@@ -131,7 +126,7 @@ QStringList RicnuProject::header = QStringList()
 								<< "PWM";
 
 //ToDo Add Battery board to this list
-QStringList RicnuProject::headerDecoded = QStringList()
+QStringList RicnuProject::headerUnitList = QStringList()
 								<< "Raw Value Only"
 								<< "Raw Value Only"
 
@@ -144,16 +139,16 @@ QStringList RicnuProject::headerDecoded = QStringList()
 								<< "Decoded: mA"
 								<< "Raw value only"
 								<< "Raw value only"
-								<< "Decoded: ±100%"
-								<< "Decoded: ±100%"
-								<< "Decoded: ±100%"
-								<< "Decoded: ±100%"
-								<< "Decoded: ±100%"
-								<< "Decoded: ±100%"
+								<< "Decoded: Â±100%"
+								<< "Decoded: Â±100%"
+								<< "Decoded: Â±100%"
+								<< "Decoded: Â±100%"
+								<< "Decoded: Â±100%"
+								<< "Decoded: Â±100%"
 								<< "PWM, -1024 to 1024";
 
 //ToDo Add Battery board to this list
-QString RicnuProject::getLastSerializedStr(void)
+QString RicnuProject::getLastDataEntry(void)
 {
 	QString str;
 	QTextStream(&str) <<	timeStamp.last().date						<< ',' << \
@@ -210,23 +205,18 @@ void RicnuProject::appendSerializedStr(QStringList *splitLine)
 	}
 }
 
-struct std_variable RicnuProject::getSerializedVar(int parameter)
-{
-	return getSerializedVar(parameter, 0);
-}
-
 //ToDo Add Battery board to this list
-struct std_variable RicnuProject::getSerializedVar(int parameter, int index)
+struct std_variable RicnuProject::getSerializedVar(int headerIndex, int index)
 {
 	struct std_variable var;
 
 	if(index >= riList.length())
 	{
-		parameter = INT_MAX;
+		headerIndex = INT_MAX;
 	}
 
 	//Assign pointer:
-	switch(parameter)
+	switch(headerIndex)
 	{
 		/*Format: (every Case except Unused)
 		 * Line 1: data format, raw variable
@@ -342,7 +332,7 @@ void RicnuProject::clear(void)
 	timeStamp.clear();
 }
 
-void RicnuProject::appendEmptyLine(void)
+void RicnuProject::appendEmptyElement(void)
 {
 	timeStamp.append(TimeStamp());
 
@@ -361,10 +351,10 @@ void RicnuProject::appendEmptyLine(void)
 
 void RicnuProject::appendEmptyLineWithStruct(void)
 {
-	appendEmptyLine();
+	appendEmptyElement();
 }
 
-void RicnuProject::decodeLastLine(void)
+void RicnuProject::decodeLastElement(void)
 {
 	if(dataSource == LiveDataFile)
 	{
@@ -374,7 +364,7 @@ void RicnuProject::decodeLastLine(void)
 	decode(riList.last());
 }
 
-void RicnuProject::decodeAllLine(void)
+void RicnuProject::decodeAllElement(void)
 {
 	for(int i = 0; i < riList.size(); ++i)
 	{

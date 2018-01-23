@@ -38,9 +38,16 @@
 #include <QWidget>
 #include "counter.h"
 #include "flexseaDevice.h"
-#include <serialdriver.h>
+#include "serialdriver.h"
 
-#define REFRESH_PERIOD	750 //Port list refresh in ms
+#define REFRESH_PERIOD		100 //Port list refresh in ms
+#define BT_CONF_DELAY		500
+#define BT_FIELDS			6
+
+#define COM_OPEN_TRIES		3
+#define COM_OPEN_DELAY_US	2000.0
+#define BT_DELAY_MS			4000.0
+#define COM_BAR_RES			15.0		// Increment resolution of the progress bar
 
 //****************************************************************************
 // Namespace & Class Definition:
@@ -65,37 +72,57 @@ class W_Config : public QWidget, public Counter<W_Config>
 
 public:
 	//Constructor & Destructor:
-	explicit W_Config(QWidget *parent = 0);
+	explicit W_Config(QWidget *parent = 0, QStringList *initFavoritePort = 0);
 	~W_Config();
-
-	SerialDriver* serialDriver;
 
 	DataSource getDataSourceStatus(void) {return dataSourceState;}
 
-
 private slots:
-	void getComList(void);
+	void refreshComList(bool forceRefresh = false, \
+						bool keepCurrentSelection = false);
 	QString getCOMnickname(const QSerialPortInfo *c);
+	void btConfig();
 	void on_openComButton_clicked();
 	void on_closeComButton_clicked();
 	void on_pbLoadLogFile_clicked();
 	void on_pbCloseLogFile_clicked();
+	void on_pbBTmode_clicked();
+	void on_pbBTdefault_clicked();
+	void on_pbBTfactory_clicked();
+	void on_pbBTreset_clicked();
+	void on_pbBTfast_clicked();
+	void on_checkBoxFavoritePort_clicked();
 
 public slots:
-	void setComProgress(int val);
+	void on_openStatusUpdate(SerialPortStatus status, int nbTries);
+	void refreshComTimeout();
+	void refresh();
+	void serialAboutToClose();
+	void progressUpdate();
 
 private:
 	//Variables & Objects:
 	Ui::W_Config *ui;
 	DataSource dataSourceState;
+	bool btDataMode;
+	int btConfigField;
+	int lastComPortCounts = 0;
+	QString noPortString = "No Port";
+	QStringList *favoritePort;
+	int progressTries, progressCnt;
 
-	QTimer *comPortRefreshTimer;
+	QTimer *comPortRefreshTimer, *btConfigTimer, *openProgressTimer;
 
 	//Function(s):
 	void initCom(void);
 	void defaultComOffUi(void);
+	void enableBluetoothCommandButtons(void);
+	void disableBluetoothCommandButtons(void);
+	void closingPortRoutine(void);
+	void toggleBtDataMode(bool forceDataMode = false);
+	void favoritePortManagement(int ComPortCounts);
 
- signals:
+signals:
 	void openCom(QString name, int tries, int delay, bool *success);
 	void closeCom(void);
 	void openReadingFile(bool *, FlexseaDevice **);
@@ -105,6 +132,9 @@ private:
 	void windowClosed(void);
 	//void writeSerial(uint8_t bytes_to_send, uint8_t *serial_tx_data);
 	void writeCommand(uint8_t numb, uint8_t *tx_data, uint8_t r_w);
+	void write(uint8_t bytes_to_send, uint8_t *serial_tx_data);
+	void flush();
+
 };
 
 #endif // W_CONFIG_H

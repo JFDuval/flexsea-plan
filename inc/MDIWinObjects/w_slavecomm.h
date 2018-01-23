@@ -50,8 +50,8 @@
 #include "strainDevice.h"
 #include "ricnuProject.h"
 #include "ankle2DofProject.h"
-#include "testBenchProject.h"
-#include <streammanager.h>
+#include "rigidDevice.h"
+#include <commanager.h>
 
 //****************************************************************************
 // Definition(s)
@@ -85,10 +85,11 @@ public:
 							QList<FlexseaDevice*> *strainDevListInit = nullptr,
 							QList<FlexseaDevice*> *ricnuDevListInit = nullptr,
 							QList<FlexseaDevice*> *ankle2DofDevListIni = nullptr,
-							QList<FlexseaDevice*> *testBenchDevListInit = nullptr,
-							StreamManager* sm = nullptr);
+							QList<FlexseaDevice*> *dynamicUserDevListInit = nullptr,
+							QList<FlexseaDevice*> *rigidDevListInit = nullptr,
+							QList<int> *SRefreshRates = nullptr);
 
-	StreamManager* streamManager;
+	ComManager* streamManager;
 
 	void addExperiment(QList<FlexseaDevice*> *deviceList, int cmdCode);
 
@@ -96,10 +97,12 @@ public:
 
 public slots:
 	void displayDataReceived(int idx, int status);
-	void receiveComPortStatus(bool status);
+	void receiveComPortStatus(SerialPortStatus status,int nbTries);
 	void updateIndicatorTimeout(bool rst);
 	void getSlaveId(int* slaveId);
 	void getCurrentDevice(FlexseaDevice** device);
+	void startExperiment(int r, bool log, bool autoSample, QString offs, QString uNotes);
+	void stopExperiment(void);
 
 private slots:
 
@@ -113,16 +116,16 @@ private slots:
 	void on_comboBoxExp2_currentIndexChanged(int index);
 	void on_comboBoxExp3_currentIndexChanged(int index);
 	void on_comboBoxExp4_currentIndexChanged(int index);
-
 	void readCommandLine();
 	void dataTimeoutEvent(void);
-
-	void on_pushButtonPresets_clicked();
 
 signals:
 	void windowClosed(void);
 	void activeSlaveStreaming(QString slaveName);
-
+	void setOffsetParameter(QList<int> ricnuOffsets, QList<int> rigidOffsets, int minOffs, int maxOffs);
+	void startStreaming(bool shouldLog, FlexseaDevice* logToDevice);
+	void startAutoStreaming(bool shouldLog, FlexseaDevice* logToDevice);
+	void stopStreaming(FlexseaDevice *device);
 private:
 	//Helper Functions
 	void populateSlaveComboBox(QComboBox* box, int indexOfExperimentSelected);
@@ -155,17 +158,19 @@ private:
 	QList<FlexseaDevice*> *gossipDevList;
 	QList<FlexseaDevice*> *batteryDevList;
 	QList<FlexseaDevice*> *strainDevList;
+	QList<FlexseaDevice*> *rigidDevList;
 
 	QList<FlexseaDevice*> *ricnuDevList;
 	QList<FlexseaDevice*> *ankle2DofDevList;
-	QList<FlexseaDevice*> *testBenchDevList;
+	QList<FlexseaDevice*> *dynamicUserDevList;
 
 	QList<FlexseaDevice*> readAllTargetList;
 	QList<FlexseaDevice*> inControlTargetList;
 	QList<FlexseaDevice*> ricnuTargetList;
 	QList<FlexseaDevice*> ankle2DofTargetList;
-	QList<FlexseaDevice*> testBenchTargetList;
+	QList<FlexseaDevice*> dynamicUserTargetList;
 	QList<FlexseaDevice*> batteryTargetList;
+	QList<FlexseaDevice*> rigidTargetList;
 
 	//Command line (only for RIC/NU as of today):
 	QString defaultCmdLineText;
@@ -177,6 +182,8 @@ private:
 	void updateStatusBar(QString txt);
 
 	uint8_t numExperiments;
+
+	QList<int> *refreshRates;
 
 	QTimer *dataTimeout;
 };

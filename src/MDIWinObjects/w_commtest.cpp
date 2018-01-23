@@ -50,9 +50,8 @@
 //****************************************************************************
 
 W_CommTest::W_CommTest(QWidget *parent,
-					   bool comStatusInit) :
+					   SerialPortStatus comStatusInit) :
 	QWidget(parent),
-	serialDriver(nullptr),
 	ui(new Ui::W_CommTest)
 {
 	ui->setupUi(this);
@@ -63,7 +62,7 @@ W_CommTest::W_CommTest(QWidget *parent,
 	init();
 	initTimers();
 
-	receiveComPortStatus(comStatusInit);
+	receiveComPortStatus(comStatusInit, -1);
 }
 
 W_CommTest::~W_CommTest()
@@ -81,16 +80,19 @@ W_CommTest::~W_CommTest()
 //****************************************************************************
 
 //This slot gets called when the port status changes (turned On or Off)
-void W_CommTest::receiveComPortStatus(bool status)
+void W_CommTest::receiveComPortStatus(SerialPortStatus status,int nbTries)
 {
-	if(!status)
+	// Not use by this slot.
+	(void)nbTries;
+
+	if(status == PortClosed)
 	{
 		//PushButton:
 		ui->pushButtonReset->setDisabled(true);
 		ui->pushButtonStartStop->setDisabled(true);
 		startStopComTest(true);
 	}
-	else
+	else if(status == PortOpeningSucceed)
 	{
 		//PushButton:
 		ui->pushButtonReset->setDisabled(false);
@@ -183,11 +185,13 @@ void W_CommTest::initTimers(void)
 	experimentTimerFreq = DEFAULT_EXPERIMENT_TIMER_FREQ;
 
 	displayTimer = new QTimer(this);
-	connect(displayTimer, SIGNAL(timeout()), this, SLOT(refreshDisplay()));
+	connect(displayTimer,	&QTimer::timeout,
+			this,			&W_CommTest::refreshDisplay);
 	displayTimer->start(TIM_FREQ_TO_P(DISPLAY_TIMER));
 
 	experimentTimer = new QTimer(this);
-	connect(experimentTimer, SIGNAL(timeout()), this, SLOT(readCommTest()));
+	connect(experimentTimer,	&QTimer::timeout,
+			this,				&W_CommTest::readCommTest);
 	experimentTimer->stop();
 
 	statsTimer = new QDateTime;
@@ -217,16 +221,14 @@ void W_CommTest::readCommTest(void)
 		pack(P_AND_S_DEFAULT, slaveList[currentSlaveIndex], info, &numb, comm_str_usb);
 	}
 
-	if(serialDriver && serialDriver->isOpen())
+
+	if(shouldBusyWait)
 	{
-		if(shouldBusyWait)
-		{
-			serialDriver->tryReadWrite(numb, comm_str_usb, 100);
-		}
-		else
-		{
-			serialDriver->write(numb, comm_str_usb);
-		}
+		emit tryReadWrite(numb, comm_str_usb, 100);
+	}
+	else
+	{
+		emit write(numb, comm_str_usb);
 	}
 
 	//FlexSEA_Generic::packetVisualizer(numb, comm_str_usb);
@@ -385,7 +387,7 @@ void W_CommTest::startStopComTest(bool forceStop)
 		status = true;
 	}
 
-	if(status == false && serialDriver && serialDriver->isOpen())
+	if(status == false)
 	{
 		//We were showing Start.
 		ui->pushButtonStartStop->setText("Stop test");

@@ -33,7 +33,14 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout" stretch="2,13,3,15">
    <item>
-    <layout class="QGridLayout" name="gridLayout_4" columnstretch="1,2">
+    <layout class="QGridLayout" name="gridLayout_4" columnstretch="1,0,0,0,0">
+     <item row="0" column="2">
+      <widget class="QLabel" name="label_4">
+       <property name="text">
+        <string>Commands:</string>
+       </property>
+      </widget>
+     </item>
      <item row="0" column="1">
       <widget class="QComboBox" name="comboBox_slave">
        <property name="sizePolicy">
@@ -50,6 +57,22 @@
        </property>
       </widget>
      </item>
+     <item row="0" column="4">
+      <spacer name="horizontalSpacer_2">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item row="0" column="3">
+      <widget class="QComboBox" name="comboBoxCmdStyle"/>
+     </item>
      <item row="0" column="0">
       <widget class="QLabel" name="label">
        <property name="sizePolicy">
@@ -62,6 +85,16 @@
         <string>Active slave:</string>
        </property>
       </widget>
+     </item>
+     <item row="1" column="2">
+      <widget class="QLabel" name="label_5">
+       <property name="text">
+        <string>FSM2:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="3">
+      <widget class="QComboBox" name="comboBoxFSM2"/>
      </item>
     </layout>
    </item>
@@ -578,7 +611,7 @@
    <item>
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
-      <number>0</number>
+      <number>1</number>
      </property>
      <widget class="QWidget" name="tab0">
       <attribute name="title">

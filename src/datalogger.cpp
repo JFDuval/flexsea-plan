@@ -47,6 +47,7 @@
 #include "manageDevice.h"
 #include "ricnuProject.h"
 #include "strainDevice.h"
+#include "rigidDevice.h"
 
 //****************************************************************************
 // Constructor & Destructor:
@@ -62,7 +63,7 @@ DataLogger::DataLogger(QWidget *parent,
 					   StrainDevice *strainInitPtr,
 					   RicnuProject *ricnuInitPtr,
 					   Ankle2DofProject *ankle2DofInitPtr,
-					   TestBenchProject *testBenchInitPtr) :
+					   RigidDevice *rigidInitPtr) :
 	QWidget(parent)
 {
 	executeDevPtr = executeInitPtr;
@@ -72,7 +73,7 @@ DataLogger::DataLogger(QWidget *parent,
 	strainDevPtr = strainInitPtr;
 	ricnuDevPtr = ricnuInitPtr;
 	ankle2DofDevPtr = ankle2DofInitPtr;
-	testBenchDevPtr = testBenchInitPtr;
+	rigidDevPtr = rigidInitPtr;
 
 	planGUIRootPath = QDir::currentPath();
 
@@ -175,6 +176,8 @@ QFile* DataLogger::openfile(QString name)
 		//in which case this line would move elsewhere
 		logFileStream.setDevice(logFile);
 		setStatus(tr("Opened '") + fullPathToFile + "'.");
+		//"fullPathToFile" has what I want. Name too.
+		emit logFileName(name, fullPathToFile);
 	}
 
 	//If no file selected
@@ -254,7 +257,7 @@ void DataLogger::openReadingFile(bool * isOpen, FlexseaDevice **devPtr)
 	else if(slavetype == strainDevPtr->slaveTypeName)	{flexSEAPtr = strainDevPtr;}
 	else if(slavetype == ricnuDevPtr->slaveTypeName)	{flexSEAPtr = ricnuDevPtr;}
 	else if(slavetype == ankle2DofDevPtr->slaveTypeName)	{flexSEAPtr = ankle2DofDevPtr;}
-	else if(slavetype == testBenchDevPtr->slaveTypeName)	{flexSEAPtr = testBenchDevPtr;}
+	else if(slavetype == rigidDevPtr->slaveTypeName)	{flexSEAPtr = rigidDevPtr;}
 	else
 	{
 		setStatus("Error : Loaded file Slave Type is not supported.");
@@ -288,7 +291,7 @@ void DataLogger::openReadingFile(bool * isOpen, FlexseaDevice **devPtr)
 		flexSEAPtr->appendSerializedStr(&splitLine);
 	}
 
-	flexSEAPtr->decodeAllLine();
+	flexSEAPtr->decodeAllElement();
 
 	setStatus(tr("Opened '") + filename + "'.");
 
@@ -323,7 +326,7 @@ void DataLogger::writeToFile(FlexseaDevice *devicePtr)
 		{
 			//Header:
 			logFileStream << devicePtr->getIdentifierStr() << endl;
-			logFileStream << devicePtr->getHeaderStr() << endl;
+			logFileStream << devicePtr->getHeader().join(',') << endl;
 		}
 
 		// If the stream write has failed, reset the flag. (This can happen when
@@ -337,7 +340,7 @@ void DataLogger::writeToFile(FlexseaDevice *devicePtr)
 		}
 
 		//And we add to the text file:
-		logFileStream << devicePtr->getLastSerializedStr() << endl;
+		logFileStream << devicePtr->getLastDataEntry() << endl;
 		(*numLinesWritten)++;
 
 	}

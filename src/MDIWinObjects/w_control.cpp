@@ -43,6 +43,8 @@
 #include <QTimer>
 #include <QDebug>
 #include <flexsea_comm.h>
+#include <cmd-ActPack.h>
+
 //****************************************************************************
 // Constructor & Destructor:
 //****************************************************************************
@@ -86,7 +88,7 @@ void W_Control::initControl(void)
 
 	//Populates Slave list:
 	FlexSEA_Generic::populateSlaveComboBox(ui->comboBox_slave, SL_BASE_EX, \
-											SL_LEN_EX);
+											SL_LEN_EX+SL_LEN_MN);
 	//Variables:
 	active_slave_index = ui->comboBox_slave->currentIndex();
 	active_slave = FlexSEA_Generic::getSlaveID(SL_BASE_EX, active_slave_index);
@@ -120,6 +122,17 @@ void W_Control::initControl(void)
 		ui->comboBoxDispSel->addItem(var_list_enc_disp.at(index));
 	}
 	ui->labelDispEncoder->setText("No data");   //Initial
+
+	//Command style & FSM2:
+	ui->comboBoxCmdStyle->addItem("Single Action");
+	ui->comboBoxCmdStyle->addItem("ActPack");
+	ui->comboBoxCmdStyle->setCurrentIndex(0);
+	ui->comboBoxFSM2->addItem("Enabled (default)");
+	ui->comboBoxFSM2->addItem("Disabled");
+	ui->comboBoxFSM2->setCurrentIndex(0);
+	ui->comboBoxFSM2->setEnabled(false);
+
+	initActPack();
 }
 
 void W_Control::initTabToggle(void)
@@ -163,10 +176,12 @@ void W_Control::initTabSlider(void)
 void W_Control::initTimers(void)
 {
 	timerCtrl = new QTimer(this);
-	connect(timerCtrl, SIGNAL(timeout()), this, SLOT(timerCtrlEvent()));
+	connect(timerCtrl,	&QTimer::timeout,
+			this,		&W_Control::timerCtrlEvent);
 
 	timerDisplay = new QTimer(this);
-	connect(timerDisplay, SIGNAL(timeout()), this, SLOT(timerDisplayEvent()));
+	connect(timerDisplay,	&QTimer::timeout,
+			this,			&W_Control::timerDisplayEvent);
 	timerDisplay->start(75);
 }
 
@@ -180,6 +195,49 @@ void W_Control::init_ctrl_gains(void)
 			//All gains = 0:
 			ctrl_gains[i][j] = 0;
 		}
+	}
+}
+
+//Initialize ActPack
+void W_Control::initActPack(void)
+{
+	ActPack.controller = CTRL_NONE;
+	ActPack.setpoint = 0;
+	ActPack.setGains = KEEP;
+	ActPack.g0 = 0;
+	ActPack.g1 = 0;
+	ActPack.g2 = 0;
+	ActPack.g3 = 0;
+	ActPack.system = 0;
+}
+
+//Send the ActPack command. It will use the ActPack structure values.
+void W_Control::sendActPack(void)
+{
+	uint8_t info[2] = {PORT_USB, PORT_USB};
+	uint16_t numb = 0;
+	uint8_t offset = 0;
+
+	/*//Debugging only:
+	qDebug() << "[ActPack]";
+	qDebug() << "Controller: " << ActPack.controller;
+	qDebug() << "Setpoint: " << ActPack.setpoint;
+	qDebug() << "Set Gains: " << ActPack.setGains;
+	qDebug() << "g0: " << ActPack.g0;
+	qDebug() << "g1: " << ActPack.g1;
+	qDebug() << "g2: " << ActPack.g2;
+	qDebug() << "g3: " << ActPack.g3;*/
+
+	//Send command:
+	tx_cmd_actpack_rw(TX_N_DEFAULT, offset, ActPack.controller, ActPack.setpoint, \
+					  ActPack.setGains, ActPack.g0, ActPack.g1, ActPack.g2, \
+					  ActPack.g3, ActPack.system);
+	pack(P_AND_S_DEFAULT, active_slave, info, &numb, comm_str_usb);
+	emit writeCommand(numb, comm_str_usb, WRITE);
+
+	if(ActPack.setGains == CHANGE)
+	{
+		ActPack.setGains = KEEP;
 	}
 }
 
@@ -237,9 +295,18 @@ void W_Control::controller_setpoint(int val)
 
 	if(valid)
 	{
-		//Common for all gain functions:
-		pack(P_AND_S_DEFAULT, active_slave, info, &numb, comm_str_usb);
-		emit writeCommand(numb, comm_str_usb, WRITE);
+		ActPack.setpoint = val;
+
+		if(!ui->comboBoxCmdStyle->currentIndex())
+		{
+			//Common for all gain functions:
+			pack(P_AND_S_DEFAULT, active_slave, info, &numb, comm_str_usb);
+			emit writeCommand(numb, comm_str_usb, WRITE);
+		}
+		else
+		{
+			sendActPack();
+		}
 	}
 	else
 	{
@@ -287,11 +354,12 @@ void W_Control::timerCtrlEvent(void)
 {
 	toggle_output_state ^= 1;
 
-	qDebug() << "Control Toggle Timer Event, output = " << toggle_output_state;
+	//qDebug() << "Control Toggle Timer Event, output = " << toggle_output_state;
 
 	if(toggle_output_state)
 	{
-		ctrl_setpoint = ui->control_setp_a->text().toInt();
+		//qDebug() << "Toggle: B => A";
+		ctrl_setpoint = ui->control_setp_b->text().toInt();
 		trap_posi = ui->control_setp_b->text().toInt();
 		trap_posf = ui->control_setp_a->text().toInt();
 		trap_pos = ctrl_setpoint;
@@ -300,7 +368,8 @@ void W_Control::timerCtrlEvent(void)
 	}
 	else
 	{
-		ctrl_setpoint = ui->control_setp_b->text().toInt();
+		//qDebug() << "Toggle: A => B";
+		ctrl_setpoint = ui->control_setp_a->text().toInt();
 		trap_posi = ui->control_setp_a->text().toInt();
 		trap_posf = ui->control_setp_b->text().toInt();
 		trap_pos = ctrl_setpoint;
@@ -325,8 +394,6 @@ void W_Control::timerDisplayEvent(void)
 
 void W_Control::on_pushButton_SetController_clicked()
 {
-	uint8_t info[2] = {PORT_USB, PORT_USB};
-	uint16_t numb = 0;
 	int16_t ctrl = CTRL_NONE;
 
 	selected_controller = ui->comboBox_ctrl_list->currentIndex();
@@ -357,15 +424,31 @@ void W_Control::on_pushButton_SetController_clicked()
 			break;
 	}
 
-	//Prepare and send command:
-	tx_cmd_ctrl_mode_w(TX_N_DEFAULT, ctrl);
-	pack(P_AND_S_DEFAULT, active_slave, info, &numb, comm_str_usb);
-	emit writeCommand(numb, comm_str_usb, WRITE);
+	setController(ctrl);
 
 	//Notify user:
 	QString msg;
 	msg = "Active controller: " + var_list_controllers.at(wanted_controller);
 	ui->statusController->setText(msg);
+}
+
+void W_Control::setController(uint8_t ctrl)
+{
+	uint8_t info[2] = {PORT_USB, PORT_USB};
+	uint16_t numb = 0;
+
+	if(!ui->comboBoxCmdStyle->currentIndex())
+	{
+		//Prepare and send command:
+		tx_cmd_ctrl_mode_w(TX_N_DEFAULT, ctrl);
+		pack(P_AND_S_DEFAULT, active_slave, info, &numb, comm_str_usb);
+		emit writeCommand(numb, comm_str_usb, WRITE);
+	}
+	else
+	{
+		ActPack.controller = ctrl;
+		sendActPack();
+	}
 }
 
 void W_Control::on_pushButton_setp_a_go_clicked()
@@ -442,32 +525,44 @@ void W_Control::on_pushButton_toggle_clicked()
 		toggle_output_state = 1;
 
 		//Start timer:
-		timerCtrl->start(ui->control_toggle_delayA->text().toInt());
+		timerCtrl->start(10);	//Will be at setpoint A in 10ms
 	}
 }
 
 void W_Control::on_pushButton_CtrlMinMax_clicked()
 {
+	update_CtrlMinMax();
+}
+
+void W_Control::update_CtrlMinMax()
+{
+	static int last_min, last_max = -1;
+
 	//Get min & max, update slider limits:
 	int min = ui->control_slider_min->text().toInt();
 	int max = ui->control_slider_max->text().toInt();
 
-	//Safety:
-	if(min > max)
+	if(last_min != min || last_max != max)
 	{
-		min = max;
-		ui->control_slider_min->setText(QString::number(min));
+		//Safety:
+		if(min > max)
+		{
+			min = max;
+			ui->control_slider_min->setText(QString::number(min));
+		}
+
+		ui->hSlider_Ctrl->setMinimum(min);
+		ui->hSlider_Ctrl->setMaximum(max);
+
+		//Default position:
+		if(min < 0)	{ui->hSlider_Ctrl->setValue(0);}
+		else {ui->hSlider_Ctrl->setValue(min);}
+
+		//Reset button's color:
+		ui->pushButton_CtrlMinMax->setStyleSheet("");
 	}
-
-	ui->hSlider_Ctrl->setMinimum(min);
-	ui->hSlider_Ctrl->setMaximum(max);
-
-	//Default position:
-	if(min < 0)	{ui->hSlider_Ctrl->setValue(0);}
-	else {ui->hSlider_Ctrl->setValue(min);}
-
-	//Reset button's color:
-	ui->pushButton_CtrlMinMax->setStyleSheet("");
+	last_min = min;
+	last_max = max;
 }
 
 void W_Control::on_hSlider_Ctrl_valueChanged(int value)
@@ -543,10 +638,22 @@ void W_Control::on_pushButton_SetGains_clicked()
 	if(valid)
 	{
 		qDebug() << "Valid controller.";
+		ActPack.setGains = CHANGE;
+		ActPack.g0 = gains[0];
+		ActPack.g1 = gains[1];
+		ActPack.g2 = gains[2];
+		ActPack.g3 = gains[3];
 
-		//Common for all gain functions:
-		pack(P_AND_S_DEFAULT, active_slave, info, &numb, comm_str_usb);
-		emit writeCommand(numb, comm_str_usb, WRITE);
+		if(!ui->comboBoxCmdStyle->currentIndex())
+		{
+			//Common for all gain functions:
+			pack(P_AND_S_DEFAULT, active_slave, info, &numb, comm_str_usb);
+			emit writeCommand(numb, comm_str_usb, WRITE);
+		}
+		else
+		{
+			sendActPack();
+		}
 	}
 	else
 	{
@@ -708,4 +815,28 @@ void W_Control::minMaxTextChanged(void)
 {
 	ui->pushButton_CtrlMinMax->setStyleSheet("background-color: rgb(255, 255, 0); \
 											   color: rgb(0, 0, 0)");
+}
+
+void W_Control::on_control_slider_min_editingFinished()
+{
+	update_CtrlMinMax();
+}
+
+void W_Control::on_control_slider_max_editingFinished()
+{
+	update_CtrlMinMax();
+}
+
+void W_Control::on_comboBoxCmdStyle_currentIndexChanged(int index)
+{
+	if(index == 0){ui->comboBoxFSM2->setEnabled(false);}
+	else {ui->comboBoxFSM2->setEnabled(true);}
+}
+
+void W_Control::on_comboBoxFSM2_currentIndexChanged(int index)
+{
+	if(index == 0){ActPack.system = SYS_NORMAL;}
+	else {ActPack.system = SYS_DISABLE_FSM2;}
+
+	sendActPack();
 }

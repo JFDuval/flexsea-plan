@@ -38,7 +38,7 @@
 #include <QWidget>
 #include "counter.h"
 #include "flexsea_generic.h"
-#include <serialdriver.h>
+#include "serialdriver.h"
 
 //****************************************************************************
 // Namespace & Class Definition:
@@ -55,18 +55,18 @@ class W_CommTest : public QWidget, public Counter<W_CommTest>
 public:
 	//Constructor & Destructor:
 	explicit W_CommTest(QWidget *parent = 0,
-						bool comStatusInit = false);
+						SerialPortStatus comStatusInit = PortClosed);
 	~W_CommTest();
 
-	SerialDriver* serialDriver;
-
 public slots:
-	void receiveComPortStatus(bool status);
+	void receiveComPortStatus(SerialPortStatus status,int nbTries);
 	void receivedData(void);
 
 signals:
 	void windowClosed(void);
 	void writeCommand(uint8_t numb, uint8_t *tx_data, uint8_t r_w);
+	void tryReadWrite(uint8_t bytes_to_send, uint8_t *serial_tx_data, int timeout);
+	int write(uint8_t bytes_to_send, uint8_t *serial_tx_data);
 
 private slots:
 	void refreshDisplay(void);

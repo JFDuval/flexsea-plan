@@ -42,7 +42,7 @@
 
 StrainDevice::StrainDevice(void): FlexseaDevice()
 {
-	if(header.length() != headerDecoded.length())
+	if(header.length() != headerUnitList.length())
 	{
 		qDebug() << "Mismatch between header lenght Strain!";
 	}
@@ -54,7 +54,7 @@ StrainDevice::StrainDevice(void): FlexseaDevice()
 
 StrainDevice::StrainDevice(strain_s *devicePtr): FlexseaDevice()
 {
-	if(header.length() != headerDecoded.length())
+	if(header.length() != headerUnitList.length())
 	{
 		qDebug() << "Mismatch between header lenght Strain!";
 	}
@@ -70,11 +70,6 @@ StrainDevice::StrainDevice(strain_s *devicePtr): FlexseaDevice()
 // Public function(s):
 //****************************************************************************
 
-QString StrainDevice::getHeaderStr(void)
-{
-	return header.join(',');
-}
-
 QStringList StrainDevice::header = QStringList()
 								<< "Timestamp"
 								<< "Timestamp (ms)"
@@ -86,7 +81,7 @@ QStringList StrainDevice::header = QStringList()
 								<< "Strain ch[5]"
 								<< "Strain ch[6]";
 
-QStringList StrainDevice::headerDecoded = QStringList()
+QStringList StrainDevice::headerUnitList = QStringList()
 								<< "Raw Value Only"
 								<< "Raw Value Only"
 
@@ -97,7 +92,7 @@ QStringList StrainDevice::headerDecoded = QStringList()
 								<< "Decoded: ±100%"
 								<< "Decoded: ±100%";
 
-QString StrainDevice::getLastSerializedStr(void)
+QString StrainDevice::getLastDataEntry(void)
 {
 	QString str;
 	QTextStream(&str) <<	timeStamp.last().date					<< ',' << \
@@ -117,7 +112,7 @@ void StrainDevice::appendSerializedStr(QStringList *splitLine)
 	//Check if data line contain the number of data expected
 	if(splitLine->length() >= serializedLength)
 	{
-		appendEmptyLine();
+		appendEmptyElement();
 		timeStamp.last().date					= (*splitLine)[0];
 		timeStamp.last().ms						= (*splitLine)[1].toInt();
 
@@ -130,22 +125,17 @@ void StrainDevice::appendSerializedStr(QStringList *splitLine)
 	}
 }
 
-struct std_variable StrainDevice::getSerializedVar(int parameter)
-{
-	return getSerializedVar(parameter, 0);
-}
-
-struct std_variable StrainDevice::getSerializedVar(int parameter, int index)
+struct std_variable StrainDevice::getSerializedVar(int headerIndex, int index)
 {
 	struct std_variable var;
 
 	if(index >= stList.length())
 	{
-		parameter = INT_MAX;
+		headerIndex = INT_MAX;
 	}
 
 	//Assign pointer:
-	switch(parameter)
+	switch(headerIndex)
 	{
 		/*Format: (every Case except Unused)
 		 * Line 1: data format, raw variable
@@ -210,19 +200,19 @@ void StrainDevice::clear(void)
 	timeStamp.clear();
 }
 
-void StrainDevice::appendEmptyLine(void)
+void StrainDevice::appendEmptyElement(void)
 {
 	timeStamp.append(TimeStamp());
 	stList.append(new strain_s());
 }
 
-void StrainDevice::decodeLastLine(void)
+void StrainDevice::decodeLastElement(void)
 {
 	if(dataSource == LiveDataFile){decompressRawBytes(stList.last());}
 	decode(stList.last());
 }
 
-void StrainDevice::decodeAllLine(void)
+void StrainDevice::decodeAllElement(void)
 {
 	for(int i = 0; i < stList.size(); ++i)
 	{

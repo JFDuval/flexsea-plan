@@ -56,31 +56,33 @@ namespace Ui
 class BatteryDevice : public FlexseaDevice
 {
 public:
+	// Constructor & Destructor
 	explicit BatteryDevice(void);
 	explicit BatteryDevice(battery_s *devicePtr);
 
 	// Interface implementation
-	QString getHeaderStr(void);
-	QStringList getHeaderList(void) {return header;}
-	QStringList getHeaderDecList(void) {return headerDecoded;}
-	QString getLastSerializedStr(void);
-	struct std_variable getSerializedVar(int parameter);
-	struct std_variable getSerializedVar(int parameter, int index);
+	QStringList getHeader(void) {return header;}
+	QStringList getHeaderUnit(void) {return headerUnitList;}
+	QString getLastDataEntry(void);
+	struct std_variable getSerializedVar(int headerIndex, int index);
 	void appendSerializedStr(QStringList *splitLine);
-	void decodeLastLine(void);
-	void decodeAllLine(void);
+	void decodeLastElement(void);
+	void decodeAllElement(void);
 	int length(void) {return baList.length();}
 	void clear(void);
-	void appendEmptyLine(void);
-	QString getStatusStr(int index);
+	void appendEmptyElement(void);
 
-	QList<struct battery_s*> baList;
+	// Class Function
+	QString getStatusStr(int index);
 	static void decode(struct battery_s *baPtr);
 	static void decompressRawBytes(struct battery_s *baPtr);
 
+	// Class Variable
+	QList<struct battery_s*> baList;
+
 private:
 	static QStringList header;
-	static QStringList headerDecoded;
+	static QStringList headerUnitList;
 };
 
 

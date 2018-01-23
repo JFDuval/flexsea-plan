@@ -36,7 +36,7 @@ SOURCES += src/main.cpp \
 	src/flexsea_board.c \
 	src/trapez.c \
 	src/peripherals.c \
-	src/streammanager.cpp \
+	src/commanager.cpp \
 	src/FlexSEADevice/executeDevice.cpp \
 	src/FlexSEADevice/flexseaDevice.cpp \
 	src/FlexSEADevice/batteryDevice.cpp \
@@ -45,7 +45,6 @@ SOURCES += src/main.cpp \
 	src/FlexSEADevice/strainDevice.cpp \
 	src/FlexSEADevice/ricnuProject.cpp \
 	src/FlexSEADevice/ankle2DofProject.cpp \
-	src/FlexSEADevice/testBenchProject.cpp \
 	src/MDIWinObjects/w_2dplot.cpp \
 	src/MDIWinObjects/w_anycommand.cpp \
 	src/MDIWinObjects/w_battery.cpp \
@@ -63,13 +62,11 @@ SOURCES += src/main.cpp \
 	src/MDIWinObjects/w_userrw.cpp \
 	src/MDIWinObjects/w_incontrol.cpp \
 	src/MDIWinObjects/w_event.cpp \
-	src/MDIWinObjects/w_testbench.cpp \
 	src/MDIWinObjects/w_commtest.cpp \
 	flexsea-shared/unity/unity.c \
 	flexsea-user/src/flexsea_cmd_user.c \
 	flexsea-user/src/dynamic_user_structs_plan.c \
 	flexsea-user/src/flexsea_user_structs.c \
-	flexsea-user/MotorTestBench/src/cmd-MotorTestBench.c \
 	flexsea-user/MIT_2DoF_Ankle_v1/src/cmd-MIT_2DoF_Ankle_v1.c \
 	flexsea-user/RICNU_Knee_v1/src/cmd-RICNU_Knee_v1.c \
 	flexsea-user/test/flexsea-user_test-all.c \
@@ -104,8 +101,6 @@ SOURCES += src/main.cpp \
 	#flexsea-system/test/test-flexsea_cmd_control_2.c \
 	flexsea-user/MIT_2DoF_Ankle_v1/src/user-ex-MIT_2DoF_Ankle_v1.c \
 	flexsea-user/MIT_2DoF_Ankle_v1/src/user-mn-MIT_2DoF_Ankle_v1.c \
-	flexsea-user/MotorTestBench/src/user-ex-MotorTestBench.c \
-	flexsea-user/MotorTestBench/src/user-mn-MotorTestBench.c \
 	flexsea-user/RICNU_Knee_v1/src/user-ex-RICNU_Knee_v1.c \
 	flexsea-user/RICNU_Knee_v1/src/user-mn-RICNU_Knee_v1.c \
 	flexsea-user/src/user-ex.c \
@@ -123,7 +118,7 @@ HEADERS += inc/main.h \
 	inc/flexsea_generic.h \
 	inc/flexsea_board.h \
 	inc/peripherals.h \
-	inc/streammanager.h \
+	inc/commanager.h \
 	inc/define.h \
 	inc/FlexSEADevice/executeDevice.h \
 	inc/FlexSEADevice/flexseaDevice.h \
@@ -133,7 +128,6 @@ HEADERS += inc/main.h \
 	inc/FlexSEADevice/strainDevice.h \
 	inc/FlexSEADevice/ricnuProject.h \
 	inc/FlexSEADevice/ankle2DofProject.h \
-	inc/FlexSEADevice/testBenchProject.h \
 	inc/MDIWinObjects/w_2dplot.h \
 	inc/MDIWinObjects/w_anycommand.h \
 	inc/MDIWinObjects/w_battery.h \
@@ -152,7 +146,6 @@ HEADERS += inc/main.h \
 	inc/MDIWinObjects/w_logkeypad.h \
 	inc/MDIWinObjects/w_userrw.h \
 	inc/MDIWinObjects/w_commtest.h \
-	inc/MDIWinObjects/w_testbench.h \
 	flexsea-shared/unity/unity.h \
 	flexsea-shared/unity/unity_internals.h \
 	flexsea-user/inc/flexsea_cmd_user.h \
@@ -160,7 +153,6 @@ HEADERS += inc/main.h \
 	flexsea-user/RICNU_Knee_v1/inc/cmd-RICNU_Knee_v1.h \
 	#flexsea-user/test/flexsea-user_test-all.h \
 	flexsea-user/inc/flexsea_user_structs.h \
-	flexsea-user/MotorTestBench/inc/cmd-MotorTestBench.h \
 	flexsea-user/inc/dynamic_user_structs.h \
 	flexsea-comm/inc/flexsea.h \
 	flexsea-comm/inc/flexsea_comm_def.h \
@@ -203,7 +195,6 @@ FORMS += ui/mainwindow.ui \
 	ui/w_logkeypad.ui \
 	ui/w_userrw.ui \
 	ui/w_commtest.ui \
-	ui/w_testbench.ui \
 	ui/w_incontrol.ui \
 	ui/w_event.ui
 

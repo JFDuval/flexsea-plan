@@ -43,7 +43,7 @@
 
 ExecuteDevice::ExecuteDevice(void): FlexseaDevice()
 {
-	if(header.length() != headerDecoded.length())
+	if(header.length() != headerUnitList.length())
 	{
 		qDebug() << "Mismatch between header length Execute!";
 	}
@@ -55,7 +55,7 @@ ExecuteDevice::ExecuteDevice(void): FlexseaDevice()
 
 ExecuteDevice::ExecuteDevice(execute_s *devicePtr): FlexseaDevice()
 {
-	if(header.length() != headerDecoded.length())
+	if(header.length() != headerUnitList.length())
 	{
 		qDebug() << "Mismatch between header length Execute!";
 	}
@@ -101,11 +101,6 @@ ExecuteDevice::~ExecuteDevice()
 // Public function(s):
 //****************************************************************************
 
-QString ExecuteDevice::getHeaderStr(void)
-{
-	return header.join(',');
-}
-
 QStringList ExecuteDevice::header = QStringList()
 								<< "Timestamp"
 								<< "Timestamp (ms)"
@@ -135,7 +130,7 @@ QStringList ExecuteDevice::header = QStringList()
 								<< "Status2"
 								<< "Sine Commut PWM";
 
-QStringList ExecuteDevice::headerDecoded = QStringList()
+QStringList ExecuteDevice::headerUnitList = QStringList()
 								<< "Raw Value Only"
 								<< "Raw Value Only"
 								<< "Raw Value Only"
@@ -165,7 +160,7 @@ QStringList ExecuteDevice::headerDecoded = QStringList()
 								<< "Raw value only"
 								<< "Raw value only";
 
-QString ExecuteDevice::getLastSerializedStr(void)
+QString ExecuteDevice::getLastDataEntry(void)
 {
 	QString str;
 	QTextStream(&str) <<	timeStamp.last().date			<< ',' << \
@@ -206,7 +201,7 @@ void ExecuteDevice::appendSerializedStr(QStringList *splitLine)
 	//Check if data line contain the number of data expected
 	if(splitLine->length() >= serializedLength)
 	{
-		appendEmptyLine();
+		appendEmptyElement();
 		timeStamp.last().date			= (*splitLine)[idx++];
 		timeStamp.last().ms				= (*splitLine)[idx++].toInt();
 		eventFlags.last()				= (*splitLine)[idx++].toInt();
@@ -238,22 +233,17 @@ void ExecuteDevice::appendSerializedStr(QStringList *splitLine)
 	}
 }
 
-struct std_variable ExecuteDevice::getSerializedVar(int parameter)
-{
-	return getSerializedVar(parameter, 0);
-}
-
-struct std_variable ExecuteDevice::getSerializedVar(int parameter, int index)
+struct std_variable ExecuteDevice::getSerializedVar(int headerIndex, int index)
 {
 	struct std_variable var;
 
 	if(index >= exList.length())
 	{
-		parameter = INT_MAX;
+		headerIndex = INT_MAX;
 	}
 
 	//Assign pointer:
-	switch(parameter)
+	switch(headerIndex)
 	{
 		/*Format: (every Case except Unused)
 		 * Line 1: data format, raw variable
@@ -416,7 +406,7 @@ void ExecuteDevice::clear(void)
 	eventFlags.clear();
 }
 
-void ExecuteDevice::appendEmptyLine(void)
+void ExecuteDevice::appendEmptyElement(void)
 {
 	timeStamp.append(TimeStamp());
 	execute_s *emptyStruct = new execute_s();
@@ -427,12 +417,12 @@ void ExecuteDevice::appendEmptyLine(void)
 	eventFlags.append(0);
 }
 
-void ExecuteDevice::decodeLastLine(void)
+void ExecuteDevice::decodeLastElement(void)
 {
 	decode(exList.last());
 }
 
-void ExecuteDevice::decodeAllLine(void)
+void ExecuteDevice::decodeAllElement(void)
 {
 	for(int i = 0; i < exList.size(); ++i)
 	{

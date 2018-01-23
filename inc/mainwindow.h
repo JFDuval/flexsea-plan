@@ -54,10 +54,11 @@
 #include "w_incontrol.h"
 #include "w_event.h"
 
+#include "w_rigid.h"
 #include "flexseaDevice.h"
-#include "w_testbench.h"
+
 #include "w_commtest.h"
-#include <streammanager.h>
+#include <commanager.h>
 #include <dynamicuserdatamanager.h>
 
 #include "main.h"
@@ -89,7 +90,8 @@ class MainWindow;
 #define STRAIN_WINDOWS_ID			16
 #define RICNU_VIEW_WINDOWS_ID		17
 #define TESTBENCH_WINDOWS_ID		18
-#define WINDOWS_TYPES				19 //(has to match the list above)
+#define RIGID_WINDOWS_ID			19
+#define WINDOWS_TYPES				20 //(has to match the list above)
 #define WINDOWS_MAX_INSTANCES		5
 
 //MDI Objects: set maximums # of child
@@ -108,10 +110,11 @@ class MainWindow;
 #define GOSSIP_WINDOWS_MAX			2
 #define STRAIN_WINDOWS_MAX			2
 #define USERRW_WINDOWS_MAX			1
-#define TESTBENCH_WINDOWS_MAX		1
+
 #define COMMTEST_WINDOWS_MAX		1
 #define INCONTROL_WINDOWS_MAX		1
 #define EVENT_WINDOWS_MAX			1
+#define RIGID_WINDOWS_MAX				1
 
 //Window information:
 typedef struct {
@@ -134,33 +137,35 @@ private:
 	void initMenus(void);
 	void initFlexSeaDeviceObject(void);
 	void initFlexSeaDeviceLog(void);
-	void initSerialComm(SerialDriver*, StreamManager*);
+	void initSerialComm(void);
 	void initializeDataProviders(void);
 
 	Ui::MainWindow *ui;
 
+	QString appPath;
+
 	// Device Object
 	QList<ExecuteDevice>	executeDevList;
 	QList<ManageDevice>		manageDevList;
+	QList<RigidDevice>		rigidDevList;
 	QList<GossipDevice>		gossipDevList;
 	QList<BatteryDevice>	batteryDevList;
 	QList<StrainDevice>		strainDevList;
 	QList<RicnuProject>		ricnuDevList;
 	QList<Ankle2DofProject> ankle2DofDevList;
-	QList<TestBenchProject> testBenchDevList;
 
 	// Specific Flexsea list
 	QList<FlexseaDevice*>	executeFlexList;
 	QList<FlexseaDevice*>	manageFlexList;
+	QList<FlexseaDevice*>	rigidFlexList;
 	QList<FlexseaDevice*>	gossipFlexList;
 	QList<FlexseaDevice*>	batteryFlexList;
 	QList<FlexseaDevice*>	strainFlexList;
 	QList<FlexseaDevice*>	ricnuFlexList;
 	QList<FlexseaDevice*>	ankle2DofFlexList;
-	QList<FlexseaDevice*>	testBenchFlexList;
 	QList<FlexseaDevice*>	dynamicDeviceList;
 
-	//QList<DataProvider*> dataProviders;
+	QList<DataProvider*> dataProviders;
 
 	// Global Flexsea List
 	QList<FlexseaDevice*> flexseaPtrlist;
@@ -169,15 +174,15 @@ private:
 	ExecuteDevice executeLog = ExecuteDevice();
 	ManageDevice manageLog = ManageDevice();
 	GossipDevice gossipLog = GossipDevice();
+	RigidDevice rigidLog = RigidDevice();
 	BatteryDevice batteryLog = BatteryDevice();
 	StrainDevice strainLog = StrainDevice();
 	RicnuProject ricnuLog = RicnuProject();
 	Ankle2DofProject ankle2DofLog = Ankle2DofProject();
-	TestBenchProject testBenchLog = TestBenchProject();
 
 	FlexseaDevice* currentFlexLog;
 
-	bool comPortStatus;
+	SerialPortStatus comPortStatus;
 	QString activeSlaveNameStreaming;
 
 	// Sub-Windows
@@ -196,22 +201,27 @@ private:
 	W_Gossip *myViewGossip[GOSSIP_WINDOWS_MAX];
 	W_Strain *myViewStrain[STRAIN_WINDOWS_MAX];
 	W_UserRW *myUserRW[USERRW_WINDOWS_MAX];
-	W_TestBench *myViewTestBench[TESTBENCH_WINDOWS_MAX];
 	W_CommTest *myViewCommTest[COMMTEST_WINDOWS_MAX];
 	W_InControl *myViewInControl[INCONTROL_WINDOWS_MAX];
 	W_Event *myEvent[EVENT_WINDOWS_MAX];
+	W_Rigid *myViewRigid[RIGID_WINDOWS_MAX];
 	//MDI state:
 	mdiState_s mdiState[WINDOWS_TYPES][WINDOWS_MAX_INSTANCES];
 	void (MainWindow::*mdiCreateWinPtr[WINDOWS_TYPES])(void);
-	//void (MainWindow::*mdiCloseWinPtr[WINDOWS_TYPES])(void);
+
+	// Favorite Port list
+	QList<QStringList> loadedConfig;
+	QStringList favoritePort;
 
 	// Objects
-	SerialDriver *mySerialDriver;
-	QThread* serialThread;
+	ChartController *chartController;
+	QThread* comManagerThread;
 
 	DataLogger *myDataLogger;
-	StreamManager* streamManager;
+	ComManager* comManager;
 	DynamicUserDataManager* userDataManager;
+
+	QList<int> comRefreshRate;
 
 	void writeSettings();
 	void readSettings();
@@ -220,14 +230,14 @@ signals:
 	//Allow window to be independly opened in any order by providing a backbone connector
 	void connectorRefreshLogTimeSlider(int index, FlexseaDevice*);
 	void connectorUpdateDisplayMode(DisplayMode mode, FlexseaDevice* devPtr);
-	void connectorWriteCommand(uint8_t ch, uint8_t* chPtr, uint8_t r_w);
 	void connectorCurrentSlaveStreaming(QString slaveName);
+	void connectorRefresh(void);
 
 
 public slots:
 
 	void translatorActiveSlaveStreaming(QString slaveName);
-	void saveComPortStatus(bool status);
+	void saveComPortStatus(SerialPortStatus status);
 	void translatorUpdateDataSourceStatus(DataSource status, FlexseaDevice* devPtr);
 	void manageLogKeyPad(DataSource status, FlexseaDevice *);
 
@@ -247,10 +257,10 @@ public slots:
 	void createViewBattery(void);
 	void createLogKeyPad(FlexseaDevice * devPtr);
 	void createUserRW(void);
-	void createViewTestBench(void);
 	void createViewCommTest(void);
 	void createInControl(void);
 	void createToolEvent(void);
+	void createViewRigid(void);
 
 	//MDI Windows (closed):
 	void closeViewExecute(void);
@@ -268,10 +278,10 @@ public slots:
 	void closeViewBattery(void);
 	void closeLogKeyPad(void);
 	void closeUserRW(void);
-	void closeViewTestBench(void);
 	void closeViewCommTest(void);
 	void closeToolEvent(void);
 	void closeInControl(void);
+	void closeViewRigid(void);
 	void saveConfig(void);
 	void loadConfig(void);
 	void defaultConfig(void);
@@ -299,6 +309,7 @@ public slots:
 	void closeEvent(QCloseEvent *event);
 	void loadCSVconfigFile(void);
 	void saveCSVconfigFile(void);
+	void applyLoadedConfig(void);
 };
 
 #endif // MAINWINDOW_H

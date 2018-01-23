@@ -82,6 +82,7 @@ void W_LogKeyPad::init(void)
 	//Filename, experiment and basic stats:
 	ui->FileNameLabel->setText(devicePtr->shortFileName);	//Filename
 	ui->labelExperiment->setText(devicePtr->experimentName);//Experiment
+	ui->labelUserNotes->setText(devicePtr->userNotes); // User notes
 
 	samples = devicePtr->timeStamp.length();
 	ui->labelDataPoints->setText(QString::number(samples));

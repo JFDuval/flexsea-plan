@@ -66,6 +66,10 @@ public:
 
 signals:
 	void windowClosed(void);
+	void buttonClick(int index);
+
+public slots:
+	void externalButtonClick(int index);
 
 private slots:
 

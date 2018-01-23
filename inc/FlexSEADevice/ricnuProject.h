@@ -56,33 +56,34 @@ namespace Ui
 class RicnuProject : public FlexseaDevice
 {
 public:
+	// Constructor & Destructor
 	explicit RicnuProject(void);
 	explicit RicnuProject(execute_s *exPtr, strain_s *stPtr, battery_s *baPtr);
 	virtual ~RicnuProject();
 
 	// Interface implementation
-	QString getHeaderStr(void);
-	QStringList getHeaderList(void) {return header;}
-	QStringList getHeaderDecList(void) {return headerDecoded;}
-	QString getLastSerializedStr(void);
-	struct std_variable getSerializedVar(int parameter);
+	QStringList getHeader(void) {return header;}
+	QStringList getHeaderUnit(void) {return headerUnitList;}
+	QString getLastDataEntry(void);
 	struct std_variable getSerializedVar(int parameter, int index);
 	void appendSerializedStr(QStringList *splitLine);
-	void decodeLastLine(void);
-	void decodeAllLine(void);
+	void decodeLastElement(void);
+	void decodeAllElement(void);
 	int length(void) {return riList.length();}
 	void clear(void);
-	void appendEmptyLine(void);
-	QString getStatusStr(int index);
+	void appendEmptyElement(void);
 
+	// Class Function
+	QString getStatusStr(int index);
+	static void decode(struct ricnu_s *riPtr);
 	void appendEmptyLineWithStruct(void);
 
+	// Class Variable
 	QList<struct ricnu_s*> riList;
-	static void decode(struct ricnu_s *riPtr);
 
 private:
 	static QStringList header;
-	static QStringList headerDecoded;
+	static QStringList headerUnitList;
 	QList<bool> ownershipList;
 };
 

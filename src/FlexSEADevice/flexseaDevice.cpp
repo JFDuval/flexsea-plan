@@ -119,6 +119,8 @@ void FlexseaDevice::saveIdentifierStr(QStringList *splitLine)
 		experimentName	= (*splitLine)[5];
 		frequency		= (*splitLine)[7].toInt();
 		targetSlaveName = (*splitLine)[11];
+		// Simplified remove the "/n"
+		userNotes		= ((*splitLine)[13]).simplified();
 	}
 }
 
@@ -126,7 +128,7 @@ void FlexseaDevice::applyTimestamp()
 {
 	if(this->timeStamp.size() < 1)
 	{
-		this->appendEmptyLine();
+		this->appendEmptyElement();
 	}
 
 	if(this->timeStamp.isEmpty())

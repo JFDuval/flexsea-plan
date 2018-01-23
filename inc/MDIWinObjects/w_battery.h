@@ -38,7 +38,6 @@
 #include <QWidget>
 #include "counter.h"
 #include "batteryDevice.h"
-#include "testBenchProject.h"
 #include "define.h"
 
 //****************************************************************************
@@ -58,7 +57,6 @@ public:
 	explicit W_Battery(QWidget *parent = 0,
 					   FlexseaDevice *currentLog = nullptr,
 					   BatteryDevice *batteryLogPtrInit = nullptr,
-					   TestBenchProject *testBenchLogPtrInit = nullptr,
 					   DisplayMode mode = DisplayLiveData,
 					   QList<BatteryDevice> *deviceListPtr = nullptr);
 	~W_Battery();
@@ -83,7 +81,6 @@ private:
 
 	QList<BatteryDevice> *deviceList;
 	BatteryDevice *batteryLog;
-	TestBenchProject *testBenchLog;
 
 	//Function(s):
 	void initLive(void);

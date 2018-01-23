@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>558</width>
-    <height>256</height>
+    <width>604</width>
+    <height>283</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -174,7 +174,7 @@
       </widget>
      </item>
      <item row="0" column="4" alignment="Qt::AlignHCenter">
-      <widget class="QLabel" name="label_9">
+      <widget class="QLabel" name="labelLog">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
          <horstretch>0</horstretch>
@@ -188,7 +188,7 @@
         </size>
        </property>
        <property name="toolTip">
-        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Check this box to log the stream. &lt;/p&gt;&lt;p&gt;It will log under the folder &amp;quot;Plan-GUI-Logs&amp;quot; when the stream is active.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        <string/>
        </property>
        <property name="text">
         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600; text-decoration: underline;&quot;&gt;Log?&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -246,7 +246,7 @@
       </widget>
      </item>
      <item row="0" column="5" alignment="Qt::AlignHCenter">
-      <widget class="QLabel" name="label_11">
+      <widget class="QLabel" name="labelAuto">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
          <horstretch>0</horstretch>
@@ -593,7 +593,7 @@
       </widget>
      </item>
      <item row="0" column="6" colspan="2" alignment="Qt::AlignHCenter">
-      <widget class="QLabel" name="label_8">
+      <widget class="QLabel" name="labelOnOffTitle">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
          <horstretch>0</horstretch>
@@ -607,7 +607,7 @@
         </size>
        </property>
        <property name="toolTip">
-        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Activate the data stream for analysing window.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        <string/>
        </property>
        <property name="text">
         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600; text-decoration: underline;&quot;&gt;On/Off&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -1186,19 +1186,6 @@
        </property>
        <property name="text">
         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; color:#7f7f7f;&quot;&gt;Status&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QPushButton" name="pushButtonPresets">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Minimum" vsizetype="MinimumExpanding">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="text">
-        <string>Preset</string>
        </property>
       </widget>
      </item>

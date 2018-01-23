@@ -42,7 +42,7 @@
 
 BatteryDevice::BatteryDevice(void): FlexseaDevice()
 {
-	if(header.length() != headerDecoded.length())
+	if(header.length() != headerUnitList.length())
 	{
 		qDebug() << "Mismatch between header length Battery!";
 	}
@@ -54,7 +54,7 @@ BatteryDevice::BatteryDevice(void): FlexseaDevice()
 
 BatteryDevice::BatteryDevice(battery_s *devicePtr): FlexseaDevice()
 {
-	if(header.length() != headerDecoded.length())
+	if(header.length() != headerUnitList.length())
 	{
 		qDebug() << "Mismatch between header length Battery!";
 	}
@@ -70,11 +70,6 @@ BatteryDevice::BatteryDevice(battery_s *devicePtr): FlexseaDevice()
 // Public function(s):
 //****************************************************************************
 
-QString BatteryDevice::getHeaderStr(void)
-{
-		return header.join(',');
-}
-
 QStringList BatteryDevice::header =	QStringList()
 								<< "Timestamp"
 								<< "Timestamp (ms)"
@@ -87,7 +82,7 @@ QStringList BatteryDevice::header =	QStringList()
 								<< "Pushbutton"
 								<< "Status";
 
-QStringList BatteryDevice::headerDecoded = QStringList()
+QStringList BatteryDevice::headerUnitList = QStringList()
 								<< "Raw Value Only"
 								<< "Raw Value Only"
 								<< "Decoded: mV"
@@ -98,7 +93,7 @@ QStringList BatteryDevice::headerDecoded = QStringList()
 								<< "Raw Values Only"
 								<< "Raw Values Only";
 
-QString BatteryDevice::getLastSerializedStr(void)
+QString BatteryDevice::getLastDataEntry(void)
 {
 	QString str;
 	QTextStream(&str) <<	timeStamp.last().date		<< ',' << \
@@ -119,7 +114,7 @@ void BatteryDevice::appendSerializedStr(QStringList *splitLine)
 	//Check if data line contain the number of data expected
 	if(splitLine->length() >= serializedLength)
 	{
-		appendEmptyLine();
+		appendEmptyElement();
 		timeStamp.last().date		= (*splitLine)[0];
 		timeStamp.last().ms			= (*splitLine)[1].toInt();
 		baList.last()->voltage		= (*splitLine)[2].toInt();
@@ -131,22 +126,17 @@ void BatteryDevice::appendSerializedStr(QStringList *splitLine)
 	}
 }
 
-struct std_variable BatteryDevice::getSerializedVar(int parameter)
-{
-	return getSerializedVar(parameter, 0);
-}
-
-struct std_variable BatteryDevice::getSerializedVar(int parameter, int index)
+struct std_variable BatteryDevice::getSerializedVar(int headerIndex, int index)
 {
 	struct std_variable var;
 
 	if(index >= baList.length())
 	{
-		parameter = INT_MAX;
+		headerIndex = INT_MAX;
 	}
 
 	//Assign pointer:
-	switch(parameter)
+	switch(headerIndex)
 	{
 		/*Format: (every Case except Unused)
 		 * Line 1: data format, raw variable
@@ -210,19 +200,19 @@ void BatteryDevice::clear(void)
 	timeStamp.clear();
 }
 
-void BatteryDevice::appendEmptyLine(void)
+void BatteryDevice::appendEmptyElement(void)
 {
 	timeStamp.append(TimeStamp());
 	baList.append(new battery_s());
 }
 
-void BatteryDevice::decodeLastLine(void)
+void BatteryDevice::decodeLastElement(void)
 {
 	if(dataSource == LiveDataFile){decompressRawBytes(baList.last());}
 	decode(baList.last());
 }
 
-void BatteryDevice::decodeAllLine(void)
+void BatteryDevice::decodeAllElement(void)
 {
 	for(int i = 0; i < baList.size(); ++i)
 	{

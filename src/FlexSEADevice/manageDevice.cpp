@@ -42,7 +42,7 @@
 
 ManageDevice::ManageDevice(void): FlexseaDevice()
 {
-	if(header.length() != headerDecoded.length())
+	if(header.length() != headerUnitList.length())
 	{
 		qDebug() << "Mismatch between header length Manage!";
 	}
@@ -54,7 +54,7 @@ ManageDevice::ManageDevice(void): FlexseaDevice()
 
 ManageDevice::ManageDevice(manage_s *devicePtr): FlexseaDevice()
 {
-	if(header.length() != headerDecoded.length())
+	if(header.length() != headerUnitList.length())
 	{
 		qDebug() << "Mismatch between header length Manage!";
 	}
@@ -71,10 +71,6 @@ ManageDevice::ManageDevice(manage_s *devicePtr): FlexseaDevice()
 // Public function(s):
 //****************************************************************************
 
-QString ManageDevice::getHeaderStr(void)
-{
-	return header.join(',');
-}
 QStringList ManageDevice::header = QStringList()
 								<< "Timestamp"
 								<< "Timestamp (ms)"
@@ -97,7 +93,7 @@ QStringList ManageDevice::header = QStringList()
 								<< "Analog[7]"
 								<< "Status";
 
-QStringList ManageDevice::headerDecoded = QStringList()
+QStringList ManageDevice::headerUnitList = QStringList()
 								<< "Raw Value Only"
 								<< "Raw Value Only"
 								<< "Raw Value Only"
@@ -119,7 +115,7 @@ QStringList ManageDevice::headerDecoded = QStringList()
 								<< "Decoded: mV"
 								<< "Raw Value Only";
 
-QString ManageDevice::getLastSerializedStr(void)
+QString ManageDevice::getLastDataEntry(void)
 {
 	QString str;
 	QTextStream(&str) <<	timeStamp.last().date		<< ',' << \
@@ -148,11 +144,11 @@ QString ManageDevice::getLastSerializedStr(void)
 void ManageDevice::appendSerializedStr(QStringList *splitLine)
 {
 	uint8_t idx = 0;
-	
+
 	//Check if data line contain the number of data expected
 	if(splitLine->length() >= serializedLength)
 	{
-		appendEmptyLine();
+		appendEmptyElement();
 		timeStamp.last().date		= (*splitLine)[idx++];
 		timeStamp.last().ms			= (*splitLine)[idx++].toInt();
 		eventFlags.last()			= (*splitLine)[idx++].toInt();
@@ -177,22 +173,17 @@ void ManageDevice::appendSerializedStr(QStringList *splitLine)
 	}
 }
 
-struct std_variable ManageDevice::getSerializedVar(int parameter)
-{
-	return getSerializedVar(parameter, 0);
-}
-
-struct std_variable ManageDevice::getSerializedVar(int parameter, int index)
+struct std_variable ManageDevice::getSerializedVar(int headerIndex, int index)
 {
 	struct std_variable var;
 
 	if(index >= mnList.length())
 	{
-		parameter = INT_MAX;
+		headerIndex = INT_MAX;
 	}
 
 	//Assign pointer:
-	switch(parameter)
+	switch(headerIndex)
 	{
 		/*Format: (every Case except Unused)
 		 * Line 1: data format, raw variable
@@ -317,19 +308,19 @@ void ManageDevice::clear(void)
 	eventFlags.clear();
 }
 
-void ManageDevice::appendEmptyLine(void)
+void ManageDevice::appendEmptyElement(void)
 {
 	timeStamp.append(TimeStamp());
 	mnList.append(new manage_s());
 	eventFlags.append(0);
 }
 
-void ManageDevice::decodeLastLine(void)
+void ManageDevice::decodeLastElement(void)
 {
 	decode(mnList.last());
 }
 
-void ManageDevice::decodeAllLine(void)
+void ManageDevice::decodeAllElement(void)
 {
 	for(int i = 0; i < mnList.size(); ++i)
 	{

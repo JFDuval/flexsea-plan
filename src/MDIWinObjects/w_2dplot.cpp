@@ -196,6 +196,7 @@ void W_2DPlot::refresh2DPlot(void)
 
 			(*lbMin[i])->setText(QString::number(stats[i][STATS_MIN]));
 			(*lbMax[i])->setText(QString::number(stats[i][STATS_MAX]));
+			(*lbDiff[i])->setText(QString::number(stats[i][STATS_DIFF]));
 			(*lbAvg[i])->setText(QString::number(stats[i][STATS_AVG]));
 		}
 	}
@@ -321,6 +322,13 @@ void W_2DPlot::initPtr(void)
 	lbMax[4] = &ui->label_5_max;
 	lbMax[5] = &ui->label_6_max;
 
+	lbDiff[0]= &ui->label_diff_1;
+	lbDiff[1]= &ui->label_diff_2;
+	lbDiff[2]= &ui->label_diff_3;
+	lbDiff[3]= &ui->label_diff_4;
+	lbDiff[4]= &ui->label_diff_5;
+	lbDiff[5]= &ui->label_diff_6;
+
 	lbAvg[0] = &ui->label_1_avg;
 	lbAvg[1] = &ui->label_2_avg;
 	lbAvg[2] = &ui->label_3_avg;
@@ -388,18 +396,18 @@ void W_2DPlot::initChart(void)
 	chart->setCacheMode(QGraphicsItem::DeviceCoordinateCache);
 	QPixmapCache::setCacheLimit(100000);
 	//Data indicator:
-	connect(qlsChart[0], SIGNAL(hovered(const QPointF, bool)),\
-			this, SLOT(myHoverHandler0(QPointF, bool)));
-	connect(qlsChart[1], SIGNAL(hovered(const QPointF, bool)),\
-			this, SLOT(myHoverHandler1(QPointF, bool)));
-	connect(qlsChart[2], SIGNAL(hovered(const QPointF, bool)),\
-			this, SLOT(myHoverHandler2(QPointF, bool)));
-	connect(qlsChart[3], SIGNAL(hovered(const QPointF, bool)),\
-			this, SLOT(myHoverHandler3(QPointF, bool)));
-	connect(qlsChart[4], SIGNAL(hovered(const QPointF, bool)),\
-			this, SLOT(myHoverHandler4(QPointF, bool)));
-	connect(qlsChart[5], SIGNAL(hovered(const QPointF, bool)),\
-			this, SLOT(myHoverHandler5(QPointF, bool)));
+	connect(qlsChart[0],	&QLineSeries::hovered,\
+			this,			&W_2DPlot::myHoverHandler0);
+	connect(qlsChart[1],	&QLineSeries::hovered,\
+			this,			&W_2DPlot::myHoverHandler1);
+	connect(qlsChart[2],	&QLineSeries::hovered,\
+			this,			&W_2DPlot::myHoverHandler2);
+	connect(qlsChart[3],	&QLineSeries::hovered,\
+			this,			&W_2DPlot::myHoverHandler3);
+	connect(qlsChart[4],	&QLineSeries::hovered,\
+			this,			&W_2DPlot::myHoverHandler4);
+	connect(qlsChart[5],	&QLineSeries::hovered,\
+			this,			&W_2DPlot::myHoverHandler5);
 }
 
 //Fills the fields and combo boxes:
@@ -616,28 +624,13 @@ void W_2DPlot::saveNewPointsLog(int index)
 
 	for(int item = 0; item < VAR_NUM; item++)
 	{
-		int dataIter = 0;
+
 		// Manage the starting point for parsing the data
+		// set the data iterator to start with the index desired
+		int dataIter = index;
 
-		// set the data iterator to start with an half
-		// the plot filled to the right (oscilloscope style)
-		if(index > plot_len / 2)
-		{
-			dataIter = index - (plot_len / 2);
-		}
-		// if the index is higher thant plot-len/2, plot normally
-		else
-		{
-			dataIter = 0;
-		}
-
-		// Set the plot iterator
-		int graphIter = (plot_len / 2) - index;
-
-		if(graphIter < 0)
-		{
-			graphIter = 0;
-		}
+		// Set the plot iterator to the begining
+		int graphIter = 0;
 
 		// Add data until one of the limit is reached.
 		while(dataIter < selectedDevList[item]->length() &&
@@ -745,12 +738,14 @@ void W_2DPlot::computeStats(void)
 			//Save:
 			stats[i][STATS_MIN] = (int64_t) min;
 			stats[i][STATS_MAX] = (int64_t) max;
+			stats[i][STATS_DIFF]= (int64_t) max - min;
 			stats[i][STATS_AVG] = (int64_t) avg;
 		}
 		else
 		{
 			stats[i][STATS_MIN] = 0;
 			stats[i][STATS_MAX] = 0;
+			stats[i][STATS_DIFF]= 0;
 			stats[i][STATS_AVG] = 0;
 		}
 	}
@@ -1113,6 +1108,7 @@ void W_2DPlot::initStats(void)
 	{
 		(*lbMin[i])->setText(QString::number(0));
 		(*lbMax[i])->setText(QString::number(0));
+		(*lbDiff[i])->setText(QString::number(0));
 		(*lbAvg[i])->setText(QString::number(0));
 	}
 }
@@ -1123,6 +1119,7 @@ void W_2DPlot::refreshStats(void)
 	{
 		(*lbMin[i])->setText(QString::number(stats[i][STATS_MIN]));
 		(*lbMax[i])->setText(QString::number(stats[i][STATS_MAX]));
+		(*lbDiff[i])->setText(QString::number(stats[i][STATS_DIFF]));
 		(*lbAvg[i])->setText(QString::number(stats[i][STATS_AVG]));
 	}
 }
@@ -1149,8 +1146,8 @@ void W_2DPlot::updateVarList(uint8_t item)
 	(*cbVar[item])->clear();
 	(*cbVar[item])->setToolTipDuration(350);
 
-	QStringList headerList(selectedDevList[item]->getHeaderList());
-	QStringList headerDecList(selectedDevList[item]->getHeaderDecList());
+	QStringList headerList(selectedDevList[item]->getHeader());
+	QStringList headerDecList(selectedDevList[item]->getHeaderUnit());
 
 	(*cbVar[item])->addItem("**Unused**");
 	(*cbVar[item])->setItemData(0, "Unused", Qt::ToolTipRole);
@@ -1516,7 +1513,11 @@ void W_2DPlot::on_pbIMU_clicked()
 
 	for(int item = 0; item < VAR_NUM; item++)
 	{
-		(*cbVar[item])->setCurrentIndex(item + 2);
+		//Special case for Rigid:
+		if((*cbVarSlave[item])->count()-1 == (*cbVarSlave[item])->currentIndex())
+			(*cbVar[item])->setCurrentIndex(item + 4);
+		else
+			(*cbVar[item])->setCurrentIndex(item + 2);
 	}
 }
 

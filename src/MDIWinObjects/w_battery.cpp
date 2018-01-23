@@ -42,7 +42,6 @@
 W_Battery::W_Battery(QWidget *parent,
 					 FlexseaDevice *currentLog,
 					 BatteryDevice *batteryLogPtrInit,
-					 TestBenchProject *testBenchLogPtrInit,
 					 DisplayMode mode,
 					 QList<BatteryDevice> *deviceListPtr) :
 	QWidget(parent),
@@ -51,7 +50,6 @@ W_Battery::W_Battery(QWidget *parent,
 	ui->setupUi(this);
 
 	batteryLog = batteryLogPtrInit;
-	testBenchLog = testBenchLogPtrInit;
 	deviceList = deviceListPtr;
 
 	setWindowTitle(this->getDescription());
@@ -102,13 +100,6 @@ void W_Battery::refreshDisplayLog(int index, FlexseaDevice * devPtr)
 		if(batteryLog->baList.isEmpty() == false)
 		{
 			 display(batteryLog, index);
-		}
-	}
-	else if (slaveName == testBenchLog->slaveName)
-	{
-		if(testBenchLog->tbList.isEmpty() == false)
-		{
-			display(testBenchLog->tbList[index]->ba);
 		}
 	}
 }

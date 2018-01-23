@@ -44,7 +44,7 @@
 #include <QString>
 #include <flexsea_comm.h>
 #include <flexsea_sys_def.h>
-#include "../flexsea-user/inc/flexsea_cmd_user.h"
+#include "../flexsea-projects/inc/flexsea_cmd_user.h"
 
 //****************************************************************************
 // Constructor & Destructor:
@@ -58,18 +58,20 @@ W_SlaveComm::W_SlaveComm(QWidget *parent,
 						 QList<FlexseaDevice*> *strainDevListInit,
 						 QList<FlexseaDevice*> *ricnuDevListInit,
 						 QList<FlexseaDevice*> *ankle2DofDevListInit,
-						 QList<FlexseaDevice*> *testBenchDevListInit,
-						 StreamManager* sm) :
+						 QList<FlexseaDevice*> *dynamicUserDevListInit,
+						 QList<FlexseaDevice*> *rigidDevListInit,
+						 QList<int> *SRefreshRates) :
 	QWidget(parent),
-	streamManager(sm),
 	ui(new Ui::W_SlaveComm)
 {
-	if(!sm) qDebug("Null StreamManager passed to SlaveComm Window.");
-
+	if(!SRefreshRates) qDebug("Null RefreshRates passed to SlaveComm Window.");
 	ui->setupUi(this);
 
 	setWindowTitle(this->getDescription());
 	setWindowIcon(QIcon(":icons/d_logo_small.png"));
+
+	// Used to register the custom type for the signal/slot function using it.
+	qRegisterMetaType<QList<int>>();
 
 	executeDevList = executeDevListInit;
 	manageDevList = manageDevListInit;
@@ -79,7 +81,9 @@ W_SlaveComm::W_SlaveComm(QWidget *parent,
 
 	ricnuDevList = ricnuDevListInit;
 	ankle2DofDevList = ankle2DofDevListInit;
-	testBenchDevList = testBenchDevListInit;
+	rigidDevList = rigidDevListInit;
+	dynamicUserDevList = dynamicUserDevListInit;
+	refreshRates = SRefreshRates;
 
 	initializeMaps();
 	mapSerializedPointers();
@@ -145,9 +149,12 @@ void W_SlaveComm::getSlaveId(int* slaveId)
 //****************************************************************************
 
 //This slot gets called when the port status changes (turned On or Off)
-void W_SlaveComm::receiveComPortStatus(bool status)
+void W_SlaveComm::receiveComPortStatus(SerialPortStatus status,int nbTries)
 {
-	if(status == false)
+	// Not use by this slot.
+	(void)nbTries;
+
+	if(status == PortClosed)
 	{
 		qDebug() << "COM port was closed";
 
@@ -157,7 +164,7 @@ void W_SlaveComm::receiveComPortStatus(bool status)
 		log_cb_ptr[0]->setDisabled(true);
 		auto_checkbox[0]->setDisabled(true);
 	}
-	else
+	else if(status == PortOpeningSucceed)
 	{
 		qDebug() << "COM port was opened";
 
@@ -165,6 +172,26 @@ void W_SlaveComm::receiveComPortStatus(bool status)
 		log_cb_ptr[0]->setDisabled(false);
 		auto_checkbox[0]->setDisabled(false);
 	}
+}
+
+void W_SlaveComm::startExperiment(int r, bool log, bool autoSample, QString offs, QString uNotes)
+{
+	on_off_pb_ptr[0]->setChecked(true);
+
+	//We set a few things based on what we received
+	comboBoxRefreshPtr[0]->setCurrentIndex(r);
+	log_cb_ptr[0]->setChecked(log);
+	auto_checkbox[0]->setChecked(autoSample);
+	ui->lineEdit->setText(offs);
+	ui->lineEdit_userNotes->setText(uNotes);
+
+	managePushButton(0, false);
+}
+
+void W_SlaveComm::stopExperiment(void)
+{
+	on_off_pb_ptr[0]->setChecked(false);
+	managePushButton(0, false);
 }
 
 //****************************************************************************
@@ -186,11 +213,10 @@ void W_SlaveComm::initExperimentList(void)
 	ankle2DofTargetList.append(*executeDevList);
 	ankle2DofTargetList.append(*manageDevList);
 
-	testBenchTargetList.append(*executeDevList);
-	testBenchTargetList.append(*manageDevList);
-
 	batteryTargetList.append(*executeDevList);
 	batteryTargetList.append(*manageDevList);
+	rigidTargetList.append(*manageDevList);
+	dynamicUserTargetList.append(*dynamicUserDevList);
 }
 
 void W_SlaveComm::mapSerializedPointers(void)
@@ -239,7 +265,9 @@ void W_SlaveComm::initializeMaps()
 	targetListMap[3] = nullptr;
 	targetListMap[4] = &ankle2DofTargetList;
 	targetListMap[5] = &batteryTargetList;
-	targetListMap[6] = &testBenchTargetList;
+	targetListMap[7] = &dynamicUserTargetList;
+	//targetListMap[8] = &;
+	targetListMap[9] = &rigidTargetList;
 
 	cmdMap[0] = CMD_READ_ALL;
 	cmdMap[1] = CMD_IN_CONTROL;
@@ -248,14 +276,18 @@ void W_SlaveComm::initializeMaps()
 	cmdMap[4] = CMD_A2DOF;
 	cmdMap[5] = CMD_BATT;
 	cmdMap[6] = CMD_MOTORTB;
+	cmdMap[7] = CMD_USER_DYNAMIC;
+	//cmdMap[8] = ;
+	cmdMap[9] = CMD_READ_ALL_RIGID;
 
-	numExperiments = 7;
+	numExperiments = 10;
 }
 
 void W_SlaveComm::initTimers(void)
 {
 	dataTimeout = new QTimer(this);
-	connect(dataTimeout, SIGNAL(timeout()), this, SLOT(dataTimeoutEvent()));
+	connect(dataTimeout,	&QTimer::timeout,
+			this,			&W_SlaveComm::dataTimeoutEvent);
 	dataTimeout->start(DATA_TIMEOUT);
 }
 
@@ -293,8 +325,15 @@ void W_SlaveComm::initSlaveCom(void)
 	QString log_cb_ptr_ttip = "<html><head/><body><p>Check this box to log the stream. \
 			</p><p>It will log under the folder &quot;Plan-GUI-Logs&quot; \
 			when the stream is active.</p></body></html>";
+	QString auto_cb_ptr_ttip = "<html><head/><body><p>In Auto mode, Plan sends one\
+							  read request and the slave starts streaming data at \
+							  the desired frequency (unidirectional communication).</p>\
+							  <p>In Normal mode one Read request is needed per Reply\
+							  (bidirectional communication).</p></body></html>";
 	QString on_off_pb_ttip = "<html><head/><body><p>Turn streaming on/off</p></body></html>";
 	QString labelStatusttip = "<html><head/><body><p>Stream Status.</p></body></html>";
+	QString labelOnOffTitle = "<html><head/><body><p>Activate the data stream\
+							  for analysing window.</p></body></html>";
 	QString lineEdit_ttip = "<html><head/><body><p>In regular mode entering '0,3' will read 2 \
 							values (0 and 3). In Auto mode, it will take the min and max. \
 							With the same input, it will read 4 values.</p></body></html>";
@@ -309,9 +348,8 @@ void W_SlaveComm::initSlaveCom(void)
 	updateStatusBar("Slave communication object created. Ready.");
 
 	QStringList refreshRateStrings;
-	QList<int> refreshRates = streamManager->getRefreshRates();
-	for(int i = 0; i < refreshRates.size(); i++)
-		refreshRateStrings << (QString::number(refreshRates.at(i)) + "Hz");
+	for(int i = 0; i < refreshRates->size(); i++)
+		refreshRateStrings << (QString::number(refreshRates->at(i)) + "Hz");
 
 	QFont font( "Arial", 12, QFont::Bold);
 
@@ -321,6 +359,9 @@ void W_SlaveComm::initSlaveCom(void)
 		{
 			//Fill the experiment combo box
 			comboBoxExpPtr[row]->addItems(FlexSEA_Generic::var_list_exp);
+			//Start with Rigid, CL enabled:
+			comboBoxExpPtr[row]->setCurrentIndex(FlexSEA_Generic::var_list_exp.count()-2);
+
 			//Fill the slave combo box accordingly
 			int selectedExperimentIndex = comboBoxExpPtr[row]->currentIndex();
 			this->populateSlaveComboBox(comboBoxSlavePtr[row], selectedExperimentIndex);
@@ -332,9 +373,12 @@ void W_SlaveComm::initSlaveCom(void)
 		(log_cb_ptr[row])->setChecked(false);
 		(log_cb_ptr[row])->setEnabled(false);
 		(log_cb_ptr[row])->setToolTip(log_cb_ptr_ttip);
+		ui->labelLog->setToolTip(log_cb_ptr_ttip);
 
 		(auto_checkbox[row])->setChecked(false);
 		(auto_checkbox[row])->setEnabled(false);
+		(auto_checkbox[row])->setToolTip(auto_cb_ptr_ttip);
+		ui->labelAuto->setToolTip(auto_cb_ptr_ttip);
 
 		//On/Off Button init:
 		(on_off_pb_ptr[row])->setText(QChar(0x2718));
@@ -343,6 +387,7 @@ void W_SlaveComm::initSlaveCom(void)
 										color: rgb(0, 0, 0)");
 		(on_off_pb_ptr[row])->setToolTip(on_off_pb_ttip);
 		(on_off_pb_ptr[row])->setDisabled(true);
+		ui->labelOnOffTitle->setToolTip(labelOnOffTitle);
 
 		// Label int:
 		// Whites space are to allow balanced scale-up between on-off and label.
@@ -361,19 +406,19 @@ void W_SlaveComm::initSlaveCom(void)
 		(on_off_pb_ptr[row])->setDisabled(true);
 	}
 
-	//Default command line settings, RIC/NU:
-	streamManager->ricnuOffsets = QList<int>({0, 1});
-	defaultCmdLineText = "o=0,1;";
-	ui->lineEdit->setEnabled(false);
-	ui->lineEdit->setText(" ");
+	//Default command line settings, RIC/NU & Rigid:
+	emit setOffsetParameter(QList<int>({0, 1}), QList<int>({0, 1}), 0, 0);
+	defaultCmdLineText = "o=0,1,2,3;";
+	//We start with Rigid, so we enable the CL:
+	ui->lineEdit->setEnabled(true);
+	ui->lineEdit->setText(defaultCmdLineText);
 	ui->lineEdit->setToolTip(lineEdit_ttip);
 
 	allComboBoxesPopulated = true;
 
 	//User notes:
 	ui->lineEdit_userNotes->setEnabled(true);
-	//Presets - disabled for now:
-	ui->pushButtonPresets->setEnabled(false);
+
 	return;
 }
 
@@ -415,8 +460,9 @@ FlexseaDevice* W_SlaveComm::getTargetDevice(int cmd, int experimentIndex, int sl
 		case CMD_A2DOF:
 			target = ankle2DofDevList->at(0);
 			break;
-		case CMD_MOTORTB:
-			target = testBenchDevList->at(0);
+			break;
+		case CMD_READ_ALL_RIGID:
+			target = rigidDevList->at(0);
 			break;
 		default:
 			target = (targetListMap[experimentIndex])->at(slaveIndex);
@@ -437,10 +483,11 @@ void W_SlaveComm::managePushButton(int row, bool forceOff)
 
 	if(cmdCode < 0) return;
 
-	int refreshRate = streamManager->getRefreshRates()[refreshRateIndex];
 	FlexseaDevice* target = getTargetDevice(cmdCode, experimentIndex, slaveIndex);
-	int slaveId = (targetListMap[experimentIndex])->at(slaveIndex)->slaveID;
-	target->slaveID = slaveId;
+	target->slaveID = (targetListMap[experimentIndex])->at(slaveIndex)->slaveID;
+	target->frequency = refreshRates->at(refreshRateIndex);
+	target->experimentIndex = cmdCode;
+	target->experimentName = comboBoxExpPtr[row]->currentText();
 
 	if(on_off_pb_ptr[row]->isChecked() == true &&
 		forceOff == false && cmdCode >= 0)
@@ -461,9 +508,6 @@ void W_SlaveComm::managePushButton(int row, bool forceOff)
 		}
 
 		// start streaming
-		target->frequency = refreshRate;
-		target->experimentIndex = cmdCode;
-		target->experimentName = comboBoxExpPtr[row]->currentText();
 
 		//User notes, with any comma replaced by a space:
 		QString uNotes = ui->lineEdit_userNotes->text();
@@ -477,13 +521,11 @@ void W_SlaveComm::managePushButton(int row, bool forceOff)
 
 		if(auto_checkbox[row]->isChecked())
 		{
-			streamManager->startAutoStreaming(cmdCode, slaveId, refreshRate, \
-								log_cb_ptr[row]->isChecked(), \
-								target, streamManager->minOffs, streamManager->maxOffs);
+			emit startAutoStreaming(log_cb_ptr[row]->isChecked(), target);
 		}
 		else
 		{
-			streamManager->startStreaming(cmdCode, slaveId, refreshRate, log_cb_ptr[row]->isChecked(), target);
+			emit startStreaming(log_cb_ptr[row]->isChecked(), target);
 		}
 
 		setRowDisabled(row, true);
@@ -509,7 +551,7 @@ void W_SlaveComm::managePushButton(int row, bool forceOff)
 
 		// start streaming
 		if(cmdCode >= 0)
-			streamManager->stopStreaming(cmdCode, slaveId, refreshRate);
+			emit stopStreaming(target);
 
 		setRowDisabled(row, false);
 		displayDataReceived(row,DATAIN_STATUS_GREY);
@@ -646,9 +688,8 @@ void W_SlaveComm::readCommandLine()
 			}
 
 			qDebug() << "Min offset:" << min << ", Max offset:" << max;
-			streamManager->ricnuOffsets = offsets;
-			streamManager->minOffs = min;
-			streamManager->maxOffs = max;
+
+			emit setOffsetParameter(offsets, offsets, min, max);
 			break;
 
 		default:
@@ -662,9 +703,4 @@ void W_SlaveComm::readCommandLine()
 void W_SlaveComm::dataTimeoutEvent(void)
 {
 	updateIndicatorTimeout(false);
-}
-
-void W_SlaveComm::on_pushButtonPresets_clicked()
-{
-	//Nothing for this version
 }

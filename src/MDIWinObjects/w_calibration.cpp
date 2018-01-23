@@ -42,6 +42,8 @@
 #include <QTextStream>
 #include <flexsea_comm.h>
 #include <flexsea_board.h>
+#include <QDebug>
+#include "cmd-ActPack.h"
 
 //****************************************************************************
 // Constructor & Destructor:
@@ -109,8 +111,95 @@ void W_Calibration::init(void)
 	ui->pbCurrentSave->setEnabled(0);
 	ui->pbCurrentRead->setEnabled(0);
 	ui->lineEditCurrentFind->setEnabled(0);
+
+	//Rigid/Actuator Package:
+	initActPack();
+	ui->comboBoxActPackFSM2->addItem("Enabled (default)");
+	ui->comboBoxActPackFSM2->addItem("Disabled");
+
+	//Indicate the end of the calibration:
+	calibration = 0;
 }
 
 //****************************************************************************
 // Private slot(s):
 //****************************************************************************
+
+void W_Calibration::on_comboBox_slave_currentIndexChanged(int index)
+{
+	active_slave_index = ui->comboBox_slave->currentIndex();
+	active_slave = FlexSEA_Generic::getSlaveID(SL_BASE_ALL, active_slave_index);
+
+	if((index >= SL_BASE_MN) && (index < (SL_BASE_MN + SL_LEN_MN)))
+	{
+		ui->comboBoxActPackFSM2->setEnabled(true);
+	}
+	else
+	{
+		ui->comboBoxActPackFSM2->setEnabled(false);
+	}
+}
+
+void W_Calibration::on_comboBoxActPackFSM2_currentIndexChanged(int index)
+{
+	if(!calibration)
+	{
+		qDebug() << "FSM2 state changed (" << index << ")";
+
+		if(!index)
+		{
+			//Enabled (default):
+			ActPack.system = SYS_NORMAL;
+		}
+		else
+		{
+			ActPack.system = SYS_DISABLE_FSM2;
+		}
+	}
+
+	sendActPack();
+}
+
+//Initialize ActPack
+void W_Calibration::initActPack(void)
+{
+	ActPack.controller = CTRL_NONE;
+	ActPack.setpoint = 0;
+	ActPack.setGains = KEEP;
+	ActPack.g0 = 0;
+	ActPack.g1 = 0;
+	ActPack.g2 = 0;
+	ActPack.g3 = 0;
+	ActPack.system = 0;
+}
+
+//Send the ActPack command. It will use the ActPack structure values.
+void W_Calibration::sendActPack(void)
+{
+	uint8_t info[2] = {PORT_USB, PORT_USB};
+	uint16_t numb = 0;
+	uint8_t offset = 0;
+
+	//Debugging only:
+	qDebug() << "[ActPack]";
+	qDebug() << "Controller: " << ActPack.controller;
+	qDebug() << "Setpoint: " << ActPack.setpoint;
+	qDebug() << "Set Gains: " << ActPack.setGains;
+	qDebug() << "g0: " << ActPack.g0;
+	qDebug() << "g1: " << ActPack.g1;
+	qDebug() << "g2: " << ActPack.g2;
+	qDebug() << "g3: " << ActPack.g3;
+	qDebug() << "system: " << ActPack.system;
+
+	//Send command:
+	tx_cmd_actpack_rw(TX_N_DEFAULT, offset, ActPack.controller, ActPack.setpoint, \
+					  ActPack.setGains, ActPack.g0, ActPack.g1, ActPack.g2, \
+					  ActPack.g3, ActPack.system);
+	pack(P_AND_S_DEFAULT, active_slave, info, &numb, comm_str_usb);
+	emit writeCommand(numb, comm_str_usb, WRITE);
+
+	if(ActPack.setGains == CHANGE)
+	{
+		ActPack.setGains = KEEP;
+	}
+}

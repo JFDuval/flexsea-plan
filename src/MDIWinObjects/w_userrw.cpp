@@ -105,7 +105,8 @@ void W_UserRW::init(void)
 
 	//Timer used to refresh the received data:
 	refreshDelayTimer = new QTimer(this);
-	connect(refreshDelayTimer, SIGNAL(timeout()), this, SLOT(refreshDisplay()));
+	connect(refreshDelayTimer,	&QTimer::timeout,
+			this,				&W_UserRW::refreshDisplay);
 
 	userDataMan->requestMetaData(active_slave);
 	connect(userDataMan, &DynamicUserDataManager::newData, this, &W_UserRW::receiveNewData);
@@ -230,9 +231,12 @@ void W_UserRW::receiveNewData()
 	}
 }
 
-void W_UserRW::comStatusChanged(bool isOpen)
+void W_UserRW::comStatusChanged(SerialPortStatus status,int nbTries)
 {
-	if(isOpen)
+	// Not use by this slot.
+	(void)nbTries;
+
+	if(status == PortOpeningSucceed)
 		userDataMan->requestMetaData(active_slave);
 }
 

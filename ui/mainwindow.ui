@@ -234,11 +234,6 @@
     <string>User R/W</string>
    </property>
   </action>
-  <action name="actionTest_Bench">
-   <property name="text">
-    <string>Test Bench</string>
-   </property>
-  </action>
   <action name="actionCommunication_Test">
    <property name="text">
     <string>Communication Test</string>

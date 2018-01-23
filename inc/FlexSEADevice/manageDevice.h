@@ -60,30 +60,32 @@ namespace Ui
 class ManageDevice : public FlexseaDevice
 {
 public:
+	// Constructor & Destructor
 	explicit ManageDevice(void);
 	explicit ManageDevice(manage_s *devicePtr);
 
 	// Interface implementation
-	QString getHeaderStr(void);
-	QStringList getHeaderList(void) {return header;}
-	QStringList getHeaderDecList(void) {return headerDecoded;}
-	QString getLastSerializedStr(void);
-	struct std_variable getSerializedVar(int parameter);
-	struct std_variable getSerializedVar(int parameter, int index);
+	QStringList getHeader(void) {return header;}
+	QStringList getHeaderUnit(void) {return headerUnitList;}
+	QString getLastDataEntry(void);
+	struct std_variable getSerializedVar(int headerIndex, int index);
 	void appendSerializedStr(QStringList *splitLine);
-	void decodeLastLine(void);
-	void decodeAllLine(void);
+	void decodeLastElement(void);
+	void decodeAllElement(void);
 	int length(void) {return mnList.length();}
 	void clear(void);
-	void appendEmptyLine(void);
-	QString getStatusStr(int index);
+	void appendEmptyElement(void);
 
-	QList<struct manage_s*> mnList;
+	// Class Function
+	QString getStatusStr(int index);
 	static void decode(struct manage_s *mnPtr);
+
+	// Class Variable
+	QList<struct manage_s*> mnList;
 
 private:
 	static QStringList header;
-	static QStringList headerDecoded;
+	static QStringList headerUnitList;
 };
 
 

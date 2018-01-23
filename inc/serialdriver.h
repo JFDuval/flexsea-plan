@@ -57,35 +57,43 @@ namespace Ui {
 class SerialDriver;
 }
 
+typedef enum SerialPortStatus {
+	Idle = -1,
+	PortOpeningFailed = 0,
+	WhileOpening = 1,
+	PortOpeningSucceed = 2,
+	PortClosed = 3
+}SerialPortStatus;
+Q_DECLARE_METATYPE(SerialPortStatus)
+
 class SerialDriver : public QObject
 {
 	Q_OBJECT
+
+
 
 public:
 	explicit SerialDriver(QObject *parent = 0);
 	virtual ~SerialDriver();
 
-	void init(void);
-	bool isOpen() { return USBSerialPort.isOpen(); }
-	void flush(void);
-	void clear(void);
-
-	void addDevice(FlexseaDevice* device);
-
 public slots:
+
 	void open(QString name, int tries, int delay, bool* success);
 	void close(void);
-	int write(uint8_t bytes_to_send, uint8_t *serial_tx_data);
-	void handleReadyRead();
 	void tryReadWrite(uint8_t bytes_to_send, uint8_t *serial_tx_data, int timeout);
+	int write(uint8_t bytes_to_send, uint8_t *serial_tx_data);
+	void flush(void);
+
+	bool isOpen() { return USBSerialPort->isOpen(); }
+	void clear(void);
+	void addDevice(FlexseaDevice* device);
 
 private:
 
-	QSerialPort USBSerialPort;
+	QSerialPort* USBSerialPort;
 	bool comPortOpen;
 	unsigned char usb_rx[256];
 	uint8_t largeRxBuffer[MAX_SERIAL_RX_LEN];
-	QTimer* clockTimer;
 	uint16_t timerCount;
 
 	std::vector<FlexseaDevice*> devices;
@@ -93,12 +101,13 @@ private:
 
 	void signalSuccessfulParse();
 	void debugStats(int,int);
-	void timerEvent(void);
+
+private slots:
+	void handleReadyRead();
+	void serialPortErrorEvent(QSerialPort::SerialPortError error);
 
 signals:
-	void timerClocked(void);
-	void openProgress(int val);
-	void openStatus(bool status);
+	void openStatus(SerialPortStatus status,int nbTries);
 	void newDataReady(void);
 	void dataStatus(int idx, int status);
 	void newDataTimeout(bool rst);

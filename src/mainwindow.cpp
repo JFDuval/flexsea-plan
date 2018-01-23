@@ -41,6 +41,8 @@
 #include <QFileDialog>
 #include <QTextStream>
 #include <flexsea_system.h>
+#include "cmd-Rigid.h"
+#include <unistd.h>
 
 //****************************************************************************
 // Constructor & Destructor:
@@ -50,6 +52,8 @@ MainWindow::MainWindow(QWidget *parent) :
 	QMainWindow(parent),
 	ui(new Ui::MainWindow)
 {
+	qRegisterMetaType<uint8_t>("uint8_t");
+
 	ui->setupUi(this);
 	QMainWindow::showMaximized();
 
@@ -62,6 +66,9 @@ MainWindow::MainWindow(QWidget *parent) :
 	winHeader = winHeader + QString(__DATE__) + QString(' ') + QString(__TIME__) \
 				+ QString(']');
 	setWindowTitle(winHeader);
+
+	//Save application's path:
+	appPath = QDir::currentPath();
 
 	ui->statusBar->showMessage("Program launched. COM: Not Connected. \
 								Stream status: N/A", 0);
@@ -85,10 +92,10 @@ MainWindow::MainWindow(QWidget *parent) :
 	W_Gossip::setMaxWindow(GOSSIP_WINDOWS_MAX);
 	W_Strain::setMaxWindow(STRAIN_WINDOWS_MAX);
 	W_UserRW::setMaxWindow(USERRW_WINDOWS_MAX);
-	W_TestBench::setMaxWindow(TESTBENCH_WINDOWS_MAX);
 	W_CommTest::setMaxWindow(COMMTEST_WINDOWS_MAX);
 	W_InControl::setMaxWindow(INCONTROL_WINDOWS_MAX);
 	W_Event::setMaxWindow(EVENT_WINDOWS_MAX);
+	W_Rigid::setMaxWindow(RIGID_WINDOWS_MAX);
 
 	W_Execute::setDescription("Execute");
 	W_Manage::setDescription("Manage - Barebone");
@@ -105,15 +112,13 @@ MainWindow::MainWindow(QWidget *parent) :
 	W_Gossip::setDescription("Gossip - Barebone");
 	W_Strain::setDescription("6ch StrainAmp - Barebone");
 	W_UserRW::setDescription("User R/W");
-	W_TestBench::setDescription("Test Bench");
 	W_CommTest::setDescription("Communication Test");
 	W_InControl::setDescription("Controller Tuning");
 	W_Event::setDescription("Event Flag");
+	W_Rigid::setDescription("FlexSEA-Rigid");
 
 	initFlexSeaDeviceObject();
-	//SerialDriver:
-	mySerialDriver = new SerialDriver();
-	streamManager = new StreamManager(nullptr, mySerialDriver);
+	comManager = new ComManager();
 	//Datalogger:
 	myDataLogger = new DataLogger(this,
 								  &executeLog,
@@ -123,11 +128,13 @@ MainWindow::MainWindow(QWidget *parent) :
 								  &strainLog,
 								  &ricnuLog,
 								  &ankle2DofLog,
-								  &testBenchLog);
+								  &rigidLog);
 
-	initSerialComm(mySerialDriver, streamManager);
+	initSerialComm();
 	userDataManager = new DynamicUserDataManager(this);
-	connect(mySerialDriver, &SerialDriver::newDataReady, userDataManager, &DynamicUserDataManager::handleNewMessage);
+
+	connect(comManager, &ComManager::newDataReady,
+			userDataManager, &DynamicUserDataManager::handleNewMessage);
 
 	//Create default objects:
 	createConfig();
@@ -137,21 +144,29 @@ MainWindow::MainWindow(QWidget *parent) :
 	initMenus();
 
 	//Log and MainWindow
-	connect(myDataLogger, SIGNAL(setStatusBarMessage(QString)), \
-			this, SLOT(setStatusBar(QString)));
+	connect(myDataLogger, &DataLogger::setStatusBarMessage, \
+			this, &MainWindow::setStatusBar);
 
-	comPortStatus = false;
+	comPortStatus = PortClosed;
+
+	initializeDataProviders();
+	chartController = new ChartController(this);
+	for(int i = 0; i < dataProviders.size(); i++)
+	{
+		chartController->addDataProvider(dataProviders.at(i));
+	}
 
 	initializeCreateWindowFctPtr();
 	loadCSVconfigFile();	//By default we load the last saved settings
+	applyLoadedConfig();
+
 }
 
 MainWindow::~MainWindow()
 {
 	delete ui;
 
-	delete mySerialDriver;
-	delete streamManager;
+	delete comManager;
 
 	int num2d = W_2DPlot::howManyInstance();
 	for(int i = 0; i < num2d; i++)
@@ -176,6 +191,7 @@ void MainWindow::initMenus(void)
 	ui->menuView->addAction("Execute", this, &MainWindow::createViewExecute);
 	ui->menuView->addAction("Gossip", this, &MainWindow::createViewGossip);
 	ui->menuView->addAction("Manage", this, &MainWindow::createViewManage);
+	ui->menuView->addAction("Rigid", this, &MainWindow::createViewRigid);
 	ui->menuView->addAction("Strain", this, &MainWindow::createViewStrain);
 	ui->menuView->addSeparator();
 	ui->menuView->addAction("2D Plot", this, &MainWindow::createView2DPlot);
@@ -195,7 +211,7 @@ void MainWindow::initMenus(void)
 	ui->menuTools->addAction("Calibration", this, &MainWindow::createCalib);
 	ui->menuTools->addAction("Communication Test", this, &MainWindow::createViewCommTest);
 	ui->menuTools->addAction("Converter", this, &MainWindow::createConverter);
-	ui->menuTools->addAction("Test Bench", this, &MainWindow::createViewTestBench);
+
 
 	//Help:
 	ui->menuHelp->addAction("Documentation", this, &MainWindow::displayDocumentation);
@@ -277,46 +293,48 @@ void MainWindow::initFlexSeaDeviceObject(void)
 	flexseaPtrlist.append(&ankle2DofDevList.last());
 	ankle2DofFlexList.append(&ankle2DofDevList.last());
 
-	testBenchDevList.append(TestBenchProject(&exec1, &exec2, &motortb, &batt1));
-	testBenchDevList.last().slaveName = "Test Bench";
-	testBenchDevList.last().slaveID = FLEXSEA_VIRTUAL_PROJECT;
-	// TODO: Does it make sense?
-	// Answer: It does not make sense to use the same FlexseaDevice type for both:
-	//				a) slaves
-	//				b) projects / experiments
-	flexseaPtrlist.append(&testBenchDevList.last());
-	testBenchFlexList.append(&testBenchDevList.last());
-
 	dynamicDeviceList.append(userDataManager->getDevice());
 	flexseaPtrlist.append(userDataManager->getDevice());
+
+	rigidDevList.append(RigidDevice(&rigid1));
+	rigidDevList.last().slaveName = "Rigid 1";
+	rigidDevList.last().slaveID = FLEXSEA_VIRTUAL_PROJECT;
+	flexseaPtrlist.append(&rigidDevList.last());
+	rigidFlexList.append(&rigidDevList.last());
+
+	init_rigid();
 
 	return;
 }
 
-void MainWindow::initSerialComm(SerialDriver *driver, StreamManager *manager)
+void MainWindow::initSerialComm(void)
 {
-//	serialThread = new QThread(this);
-//	driver->moveToThread(serialThread);
-//	manager->moveToThread(serialThread);
-//	serialThread->start(QThread::HighestPriority);
+	comManagerThread = new QThread();
+	connect(comManagerThread, &QThread::started,
+			comManager, &ComManager::init);
+	connect(comManagerThread, &QThread::finished,
+			comManagerThread, &QThread::deleteLater);
+	comManager->moveToThread(comManagerThread);
+	comManagerThread->start(QThread::HighestPriority);
 
-	connect(driver, &SerialDriver::aboutToClose, manager, &StreamManager::onComPortClosing, Qt::DirectConnection);
+	sleep(1);
+	comRefreshRate = comManager->getRefreshRates();
 
-	//Link StreamManager/SerialDriver and DataLogger
-	connect(manager, SIGNAL(openRecordingFile(FlexseaDevice *)), \
-			myDataLogger, SLOT(openRecordingFile(FlexseaDevice *)));
-	connect(driver, SIGNAL(writeToLogFile(FlexseaDevice *)), \
-			myDataLogger, SLOT(writeToFile(FlexseaDevice *)));
-	connect(manager, SIGNAL(closeRecordingFile(FlexseaDevice*)), \
-			myDataLogger, SLOT(closeRecordingFile(FlexseaDevice*)));
-	connect(this, SIGNAL(connectorWriteCommand(uint8_t,uint8_t*,uint8_t)), \
-		manager, SLOT(enqueueCommand(uint8_t,uint8_t*)));
+	//Link ComManager and DataLogger
+	connect(comManager,		&ComManager::openRecordingFile, \
+			myDataLogger,	&DataLogger::openRecordingFile);
 
-	//SerialDriver and MainWindow
-	connect(driver, SIGNAL(setStatusBarMessage(QString)), \
-			this, SLOT(setStatusBar(QString)));
-	connect(driver, SIGNAL(openStatus(bool)), \
-			this, SLOT(saveComPortStatus(bool)));
+	connect(comManager,		&ComManager::writeToLogFile, \
+			myDataLogger,	&DataLogger::writeToFile);
+
+	connect(comManager,		&ComManager::closeRecordingFile, \
+			myDataLogger,	&DataLogger::closeRecordingFile);
+
+	//ComManager and MainWindow
+	connect(comManager, &ComManager::setStatusBarMessage, \
+			this,		&MainWindow::setStatusBar);
+	connect(comManager, &ComManager::openStatus, \
+			this,		&MainWindow::saveComPortStatus);
 }
 
 void MainWindow::initializeCreateWindowFctPtr(void)
@@ -324,29 +342,28 @@ void MainWindow::initializeCreateWindowFctPtr(void)
 	//By default, point to empty function:
 	for(int i = 0; i < WINDOWS_TYPES; i++)
 	{
-		mdiCreateWinPtr[i] = &emptyWinFct;
+		mdiCreateWinPtr[i] = &MainWindow::emptyWinFct;
 	}
 
-	mdiCreateWinPtr[CONFIG_WINDOWS_ID] = &createConfig;
-	//mdiCreateWinPtr[LOGKEYPAD_WINDOWS_ID] = &createLogKeyPad();
-	mdiCreateWinPtr[SLAVECOMM_WINDOWS_ID] = &createSlaveComm;
-	mdiCreateWinPtr[PLOT2D_WINDOWS_ID] = &createView2DPlot;
-	mdiCreateWinPtr[CONTROL_WINDOWS_ID] = &createControlControl;
-	mdiCreateWinPtr[INCONTROL_WINDOWS_ID] = &createInControl;
-	mdiCreateWinPtr[USERRW_WINDOWS_ID] = &createUserRW;
-	mdiCreateWinPtr[EVENT_WINDOWS_ID] = &createToolEvent;
-	mdiCreateWinPtr[ANYCOMMAND_WINDOWS_ID] = &createAnyCommand;
-	mdiCreateWinPtr[CONVERTER_WINDOWS_ID] = &createConverter;
-	mdiCreateWinPtr[CALIB_WINDOWS_ID] = &createCalib;
-	mdiCreateWinPtr[COMMTEST_WINDOWS_ID] = &createViewCommTest;
-	mdiCreateWinPtr[EX_VIEW_WINDOWS_ID] = &createViewExecute;
-	mdiCreateWinPtr[MN_VIEW_WINDOWS_ID] = &createViewManage;
-	mdiCreateWinPtr[BATT_WINDOWS_ID] = &createViewBattery;
-	mdiCreateWinPtr[GOSSIP_WINDOWS_ID] = &createViewGossip;
-	mdiCreateWinPtr[STRAIN_WINDOWS_ID] = &createViewStrain;
-	mdiCreateWinPtr[RICNU_VIEW_WINDOWS_ID] = &createViewRicnu;
-	mdiCreateWinPtr[TESTBENCH_WINDOWS_ID] = &createViewTestBench;
-}
+	mdiCreateWinPtr[CONFIG_WINDOWS_ID] = &MainWindow::createConfig;
+	//mdiCreateWinPtr[LOGKEYPAD_WINDOWS_ID] = &MainWindow::createLogKeyPad();
+	mdiCreateWinPtr[SLAVECOMM_WINDOWS_ID] = &MainWindow::createSlaveComm;
+	mdiCreateWinPtr[PLOT2D_WINDOWS_ID] = &MainWindow::createView2DPlot;
+	mdiCreateWinPtr[CONTROL_WINDOWS_ID] = &MainWindow::createControlControl;
+	mdiCreateWinPtr[INCONTROL_WINDOWS_ID] = &MainWindow::createInControl;
+	mdiCreateWinPtr[USERRW_WINDOWS_ID] = &MainWindow::createUserRW;
+	mdiCreateWinPtr[EVENT_WINDOWS_ID] = &MainWindow::createToolEvent;
+	mdiCreateWinPtr[ANYCOMMAND_WINDOWS_ID] = &MainWindow::createAnyCommand;
+	mdiCreateWinPtr[CONVERTER_WINDOWS_ID] = &MainWindow::createConverter;
+	mdiCreateWinPtr[CALIB_WINDOWS_ID] = &MainWindow::createCalib;
+	mdiCreateWinPtr[COMMTEST_WINDOWS_ID] = &MainWindow::createViewCommTest;
+	mdiCreateWinPtr[EX_VIEW_WINDOWS_ID] = &MainWindow::createViewExecute;
+	mdiCreateWinPtr[MN_VIEW_WINDOWS_ID] = &MainWindow::createViewManage;
+	mdiCreateWinPtr[BATT_WINDOWS_ID] = &MainWindow::createViewBattery;
+	mdiCreateWinPtr[GOSSIP_WINDOWS_ID] = &MainWindow::createViewGossip;
+	mdiCreateWinPtr[STRAIN_WINDOWS_ID] = &MainWindow::createViewStrain;
+	mdiCreateWinPtr[RICNU_VIEW_WINDOWS_ID] = &MainWindow::createViewRicnu;
+	mdiCreateWinPtr[RIGID_WINDOWS_ID] = &MainWindow::createViewRigid;}
 
 /*
 void MainWindow::initializeCloseWindowFctPtr(void)
@@ -354,29 +371,28 @@ void MainWindow::initializeCloseWindowFctPtr(void)
 	//By default, point to empty function:
 	for(int i = 0; i < WINDOWS_TYPES; i++)
 	{
-		mdiCloseWinPtr[i] = &emptyWinFct;
+		mdiCloseWinPtr[i] = &MainWindow::emptyWinFct;
 	}
 
-	mdiCloseWinPtr[CONFIG_WINDOWS_ID] = &closeConfig;
-	//mdiCloseWinPtr[LOGKEYPAD_WINDOWS_ID] = &closeLogKeyPad();
-	mdiCloseWinPtr[SLAVECOMM_WINDOWS_ID] = &closeSlaveComm;
-	mdiCloseWinPtr[PLOT2D_WINDOWS_ID] = &closeView2DPlot;
-	mdiCloseWinPtr[CONTROL_WINDOWS_ID] = &closeControlControl;
-	mdiCloseWinPtr[INCONTROL_WINDOWS_ID] = &closeInControl;
-	mdiCloseWinPtr[USERRW_WINDOWS_ID] = &closeUserRW;
-	mdiCloseWinPtr[EVENT_WINDOWS_ID] = &closeToolEvent;
-	mdiCloseWinPtr[ANYCOMMAND_WINDOWS_ID] = &closeAnyCommand;
-	mdiCloseWinPtr[CONVERTER_WINDOWS_ID] = &closeConverter;
-	mdiCloseWinPtr[CALIB_WINDOWS_ID] = &closeCalib;
-	mdiCloseWinPtr[COMMTEST_WINDOWS_ID] = &closeViewCommTest;
-	mdiCloseWinPtr[EX_VIEW_WINDOWS_ID] = &closeViewExecute;
-	mdiCloseWinPtr[MN_VIEW_WINDOWS_ID] = &closeViewManage;
-	mdiCloseWinPtr[BATT_WINDOWS_ID] = &closeViewBattery;
-	mdiCloseWinPtr[GOSSIP_WINDOWS_ID] = &closeViewGossip;
-	mdiCloseWinPtr[STRAIN_WINDOWS_ID] = &closeViewStrain;
-	mdiCloseWinPtr[RICNU_VIEW_WINDOWS_ID] = &closeViewRicnu;
-	mdiCloseWinPtr[TESTBENCH_WINDOWS_ID] = &closeViewTestBench;
-}
+	mdiCloseWinPtr[CONFIG_WINDOWS_ID] = &MainWindow::closeConfig;
+	//mdiCloseWinPtr[LOGKEYPAD_WINDOWS_ID] = &MainWindow::closeLogKeyPad();
+	mdiCloseWinPtr[SLAVECOMM_WINDOWS_ID] = &MainWindow::closeSlaveComm;
+	mdiCloseWinPtr[PLOT2D_WINDOWS_ID] = &MainWindow::closeView2DPlot;
+	mdiCloseWinPtr[CONTROL_WINDOWS_ID] = &MainWindow::closeControlControl;
+	mdiCloseWinPtr[INCONTROL_WINDOWS_ID] = &MainWindow::closeInControl;
+	mdiCloseWinPtr[USERRW_WINDOWS_ID] = &MainWindow::closeUserRW;
+	mdiCloseWinPtr[EVENT_WINDOWS_ID] = &MainWindow::closeToolEvent;
+	mdiCloseWinPtr[ANYCOMMAND_WINDOWS_ID] = &MainWindow::closeAnyCommand;
+	mdiCloseWinPtr[CONVERTER_WINDOWS_ID] = &MainWindow::closeConverter;
+	mdiCloseWinPtr[CALIB_WINDOWS_ID] = &MainWindow::closeCalib;
+	mdiCloseWinPtr[COMMTEST_WINDOWS_ID] = &MainWindow::closeViewCommTest;
+	mdiCloseWinPtr[EX_VIEW_WINDOWS_ID] = &MainWindow::closeViewExecute;
+	mdiCloseWinPtr[MN_VIEW_WINDOWS_ID] = &MainWindow::closeViewManage;
+	mdiCloseWinPtr[BATT_WINDOWS_ID] = &MainWindow::closeViewBattery;
+	mdiCloseWinPtr[GOSSIP_WINDOWS_ID] = &MainWindow::closeViewGossip;
+	mdiCloseWinPtr[STRAIN_WINDOWS_ID] = &MainWindow::closeViewStrain;
+	mdiCloseWinPtr[RICNU_VIEW_WINDOWS_ID] = &MainWindow::closeViewRicnu;
+	mdiCloseWinPtr[RIGID_WINDOWS_ID] = &MainWindow::closeViewRigid;}
 */
 
 void MainWindow::emptyWinFct(void)
@@ -398,7 +414,7 @@ void MainWindow::translatorActiveSlaveStreaming(QString slaveName)
 	emit connectorCurrentSlaveStreaming(slaveName);
 }
 
-void MainWindow::saveComPortStatus(bool status)
+void MainWindow::saveComPortStatus(SerialPortStatus status)
 {
 	comPortStatus = status;
 }
@@ -419,6 +435,7 @@ void MainWindow::loadConfig(void)
 
 	//From CSV:
 	loadCSVconfigFile();
+	applyLoadedConfig();
 }
 
 void MainWindow::defaultConfig(void)
@@ -480,7 +497,6 @@ void MainWindow::createViewExecute(void)
 							  currentFlexLog,
 							  &executeLog,
 							  &ankle2DofLog,
-							  &testBenchLog,
 							  getDisplayMode(),
 							  &executeDevList);
 
@@ -491,20 +507,21 @@ void MainWindow::createViewExecute(void)
 		sendWindowCreatedMsg(W_Execute::getDescription(), objectCount,
 							 W_Execute::getMaxWindow() - 1);
 
-		//Link SerialDriver and Execute:
-		connect(mySerialDriver, SIGNAL(newDataReady()), \
-				myViewExecute[objectCount], SLOT(refreshDisplay()));
+		//Link ComManager and Execute:
+		connect(comManager, &ComManager::newDataReady, \
+				myViewExecute[objectCount], &W_Execute::refreshDisplay);
 
 		//Link to MainWindow for the close signal:
-		connect(myViewExecute[objectCount], SIGNAL(windowClosed()), \
-				this, SLOT(closeViewExecute()));
+		connect(myViewExecute[objectCount], &W_Execute::windowClosed, \
+				this, &MainWindow::closeViewExecute);
 
 		// Link to the slider of logKeyPad. Intermediate signal (connector) to
 		// allow opening of window asynchroniously
-		connect(this, SIGNAL(connectorRefreshLogTimeSlider(int, FlexseaDevice *)), \
-				myViewExecute[objectCount], SLOT(refreshDisplayLog(int, FlexseaDevice *)));
-		connect(this, SIGNAL(connectorUpdateDisplayMode(DisplayMode, FlexseaDevice*)), \
-				myViewExecute[objectCount], SLOT(updateDisplayMode(DisplayMode, FlexseaDevice*)));
+		connect(this,						&MainWindow::connectorRefreshLogTimeSlider,
+				myViewExecute[objectCount], &W_Execute::refreshDisplayLog);
+
+		connect(this,						&MainWindow::connectorUpdateDisplayMode,
+				myViewExecute[objectCount], &W_Execute::updateDisplayMode);
 	}
 
 	else
@@ -537,20 +554,21 @@ void MainWindow::createViewManage(void)
 		sendWindowCreatedMsg(W_Manage::getDescription(), objectCount,
 							 W_Manage::getMaxWindow() - 1);
 
-		//Link SerialDriver and Manage:
-		connect(mySerialDriver, SIGNAL(newDataReady()), \
-				myViewManage[objectCount], SLOT(refreshDisplay()));
+		//Link ComManager and Manage:
+		connect(comManager, &ComManager::newDataReady, \
+				myViewManage[objectCount], &W_Manage::refreshDisplay);
 
 		//Link to MainWindow for the close signal:
-		connect(myViewManage[objectCount], SIGNAL(windowClosed()), \
-				this, SLOT(closeViewManage()));
+		connect(myViewManage[objectCount], &W_Manage::windowClosed, \
+				this, &MainWindow::closeViewManage);
 
 		// Link to the slider of logKeyPad. Intermediate signal (connector) to
 		// allow opening of window asynchroniously
-		connect(this, SIGNAL(connectorRefreshLogTimeSlider(int, FlexseaDevice *)), \
-				myViewManage[objectCount], SLOT(refreshDisplayLog(int, FlexseaDevice *)));
-		connect(this, SIGNAL(connectorUpdateDisplayMode(DisplayMode, FlexseaDevice*)), \
-				myViewManage[objectCount], SLOT(updateDisplayMode(DisplayMode, FlexseaDevice*)));
+		connect(this, &MainWindow::connectorRefreshLogTimeSlider, \
+				myViewManage[objectCount], &W_Manage::refreshDisplayLog);
+
+		connect(this, &MainWindow::connectorUpdateDisplayMode, \
+				myViewManage[objectCount], &W_Manage::updateDisplayMode);
 	}
 
 	else
@@ -574,40 +592,52 @@ void MainWindow::createConfig(void)
 	//Limited number of windows:
 	if(objectCount < (CONFIG_WINDOWS_MAX))
 	{
-		myViewConfig[objectCount] = new W_Config(this);
+		myViewConfig[objectCount] = new W_Config(this, &favoritePort);
 		mdiState[CONFIG_WINDOWS_ID][objectCount].winPtr = ui->mdiArea->addSubWindow(myViewConfig[objectCount]);
 		mdiState[CONFIG_WINDOWS_ID][objectCount].open = true;
 		myViewConfig[objectCount]->show();
-
-		myViewConfig[objectCount]->serialDriver = mySerialDriver;
 
 		sendWindowCreatedMsg(W_Config::getDescription(), objectCount,
 							 W_Config::getMaxWindow() - 1);
 
 		//Link to MainWindow for the close signal:
-		connect(myViewConfig[objectCount], SIGNAL(windowClosed()), \
-				this, SLOT(closeConfig()));
+		connect(myViewConfig[objectCount],	&W_Config::windowClosed, \
+				this,						&MainWindow::closeConfig);
+
+		connect(this,						&MainWindow::connectorRefresh, \
+				myViewConfig[objectCount],	&W_Config::refresh);
 
 		//Link to DataLogger
-		connect(myViewConfig[0], SIGNAL(openReadingFile(bool *, FlexseaDevice **)), \
-				myDataLogger, SLOT(openReadingFile(bool *, FlexseaDevice **)));
-		connect(myViewConfig[0], SIGNAL(closeReadingFile()), \
-				myDataLogger, SLOT(closeReadingFile()));
+		connect(myViewConfig[0],	&W_Config::openReadingFile, \
+				myDataLogger,		&DataLogger::openReadingFile);
 
-		// Link to SerialDriver
-		connect(myViewConfig[0], SIGNAL(openCom(QString,int,int, bool*)), \
-				mySerialDriver, SLOT(open(QString,int,int, bool*)));
-		connect(myViewConfig[0], SIGNAL(closeCom()), \
-				mySerialDriver, SLOT(close()));
-		connect(mySerialDriver, SIGNAL(openProgress(int)), \
-				myViewConfig[0], SLOT(setComProgress(int)));
-		connect(myViewConfig[0], SIGNAL(updateDataSourceStatus(DataSource, FlexseaDevice *)),
-				this, SLOT(translatorUpdateDataSourceStatus(DataSource, FlexseaDevice *)));
-		connect(myViewConfig[0], SIGNAL(createLogKeypad(DataSource, FlexseaDevice *)),
-				this, SLOT(manageLogKeyPad(DataSource, FlexseaDevice *)));
+		connect(myViewConfig[0],	&W_Config::closeReadingFile, \
+				myDataLogger,		&DataLogger::closeReadingFile);
 
-		/*connect(myViewConfig[0], SIGNAL(writeCommand(uint8_t,uint8_t*,uint8_t)), \
-				this, SIGNAL(connectorWriteCommand(uint8_t,uint8_t*,uint8_t))); */
+		// Link to ComManager
+		connect(myViewConfig[0],&W_Config::openCom, \
+				comManager, &ComManager::open);
+
+		connect(comManager, &ComManager::openStatus, \
+				myViewConfig[0],&W_Config::on_openStatusUpdate);
+
+		connect(myViewConfig[0],&W_Config::closeCom, \
+				comManager, &ComManager::close);
+
+		connect(myViewConfig[0],&W_Config::write,
+				comManager, &ComManager::write);
+
+		connect(myViewConfig[0],&W_Config::flush,
+				comManager, &ComManager::flush);
+
+		connect(myViewConfig[0],&W_Config::updateDataSourceStatus,
+				this,			&MainWindow::translatorUpdateDataSourceStatus);
+
+		connect(myViewConfig[0],&W_Config::createLogKeypad,
+				this,			&MainWindow::manageLogKeyPad);
+
+		connect(comManager,  &ComManager::aboutToClose, \
+				myViewConfig[0], &W_Config::serialAboutToClose);
 	}
 
 	else
@@ -646,12 +676,12 @@ void MainWindow::createControlControl(void)
 							 W_Control::getMaxWindow() - 1);
 
 		//Link to MainWindow for the close signal:
-		connect(myViewControl[objectCount], SIGNAL(windowClosed()), \
-				this, SLOT(closeControlControl()));
+		connect(myViewControl[objectCount], &W_Control::windowClosed, \
+				this,						&MainWindow::closeControlControl);
 
 		//Link to SlaveComm to send commands:
-		connect(myViewControl[objectCount], SIGNAL(writeCommand(uint8_t,uint8_t*,uint8_t)), \
-				this, SIGNAL(connectorWriteCommand(uint8_t,uint8_t*,uint8_t)));
+		connect(myViewControl[objectCount], &W_Control::writeCommand, \
+				comManager,					&ComManager::enqueueCommand);
 	}
 	else
 	{
@@ -687,22 +717,23 @@ void MainWindow::createView2DPlot(void)
 		sendWindowCreatedMsg(W_2DPlot::getDescription(), objectCount,
 							 W_2DPlot::getMaxWindow() - 1);
 
-		connect(mySerialDriver, SIGNAL(newDataReady()), \
-				myView2DPlot[objectCount], SLOT(receiveNewData()));
+		connect(comManager,				&ComManager::newDataReady, \
+				myView2DPlot[objectCount],	&W_2DPlot::receiveNewData);
 
 		//Link to MainWindow for the close signal:
-		connect(myView2DPlot[objectCount], SIGNAL(windowClosed()), \
-				this, SLOT(closeView2DPlot()));
+		connect(myView2DPlot[objectCount],	&W_2DPlot::windowClosed, \
+				this,						&MainWindow::closeView2DPlot);
 
-		connect(this, SIGNAL(connectorCurrentSlaveStreaming(QString)), \
-				myView2DPlot[objectCount], SLOT(activeSlaveStreaming(QString)));
+		connect(this,						&MainWindow::connectorCurrentSlaveStreaming, \
+				myView2DPlot[objectCount],	&W_2DPlot::activeSlaveStreaming);
 
 		// Link to the slider of logKeyPad. Intermediate signal (connector) to
 		// allow opening of window asynchroniously
-		connect(this, SIGNAL(connectorRefreshLogTimeSlider(int, FlexseaDevice *)), \
-				myView2DPlot[objectCount], SLOT(refreshDisplayLog(int, FlexseaDevice *)));
-		connect(this, SIGNAL(connectorUpdateDisplayMode(DisplayMode, FlexseaDevice*)), \
-				myView2DPlot[objectCount], SLOT(updateDisplayMode(DisplayMode, FlexseaDevice*)));
+		connect(this,						&MainWindow::connectorRefreshLogTimeSlider, \
+				myView2DPlot[objectCount],	&W_2DPlot::refreshDisplayLog);
+
+		connect(this,						&MainWindow::connectorUpdateDisplayMode, \
+				myView2DPlot[objectCount],	&W_2DPlot::updateDisplayMode);
 	}
 
 	else
@@ -733,8 +764,9 @@ void MainWindow::createSlaveComm(void)
 													   &strainFlexList,
 													   &ricnuFlexList,
 													   &ankle2DofFlexList,
-													   &testBenchFlexList,
-													   streamManager);
+													   &dynamicDeviceList,
+													   &rigidFlexList,
+													   &comRefreshRate);
 
 		mdiState[SLAVECOMM_WINDOWS_ID][objectCount].winPtr = ui->mdiArea->addSubWindow(myViewSlaveComm[objectCount]);
 		mdiState[SLAVECOMM_WINDOWS_ID][objectCount].open = true;
@@ -743,19 +775,33 @@ void MainWindow::createSlaveComm(void)
 		sendWindowCreatedMsg(W_SlaveComm::getDescription(), objectCount,
 							 W_SlaveComm::getMaxWindow() - 1);
 
-		connect(myViewSlaveComm[objectCount], SIGNAL(windowClosed()), \
-				this, SLOT(closeSlaveComm()));
+		connect(myViewSlaveComm[objectCount],	&W_SlaveComm::windowClosed, \
+				this,							&MainWindow::closeSlaveComm);
 
-		connect(myViewSlaveComm[objectCount], SIGNAL(activeSlaveStreaming(QString)), \
-				this, SLOT(translatorActiveSlaveStreaming(QString)));
+		connect(myViewSlaveComm[objectCount],	&W_SlaveComm::activeSlaveStreaming, \
+				this,							&MainWindow::translatorActiveSlaveStreaming);
 
-		connect(mySerialDriver, SIGNAL(openStatus(bool)), \
-				myViewSlaveComm[0], SLOT(receiveComPortStatus(bool)));
-		connect(mySerialDriver, SIGNAL(dataStatus(int, int)), \
-				myViewSlaveComm[0], SLOT(displayDataReceived(int, int)));
-		connect(mySerialDriver, SIGNAL(newDataTimeout(bool)), \
-				myViewSlaveComm[0], SLOT(updateIndicatorTimeout(bool)));
+		connect(myViewSlaveComm[objectCount],	&W_SlaveComm::setOffsetParameter, \
+				comManager,						&ComManager::setOffsetParameter);
 
+		connect(myViewSlaveComm[objectCount],	&W_SlaveComm::startStreaming, \
+				comManager,						&ComManager::startStreaming);
+
+		connect(myViewSlaveComm[objectCount],	SIGNAL(startAutoStreaming(bool,FlexseaDevice*)), \
+				comManager,						SLOT(startAutoStreaming(bool, FlexseaDevice*)));
+
+		connect(myViewSlaveComm[objectCount],	SIGNAL(stopStreaming(FlexseaDevice*)), \
+				comManager,						SLOT(stopStreaming(FlexseaDevice*)));
+
+
+		connect(comManager,		&ComManager::openStatus, \
+				myViewSlaveComm[0], &W_SlaveComm::receiveComPortStatus);
+
+		connect(comManager,		&ComManager::dataStatus, \
+				myViewSlaveComm[0], &W_SlaveComm::displayDataReceived);
+
+		connect(comManager,		&ComManager::newDataTimeout, \
+				myViewSlaveComm[0], &W_SlaveComm::updateIndicatorTimeout);
 	}
 	else
 	{
@@ -787,8 +833,8 @@ void MainWindow::createAnyCommand(void)
 							 W_AnyCommand::getMaxWindow() - 1);
 
 		//Link to MainWindow for the close signal:
-		connect(myViewAnyCommand[objectCount], SIGNAL(windowClosed()), \
-				this, SLOT(closeAnyCommand()));
+		connect(myViewAnyCommand[objectCount],	&W_AnyCommand::windowClosed, \
+				this,							&MainWindow::closeAnyCommand);
 	}
 
 	else
@@ -823,8 +869,8 @@ void MainWindow::createInControl(void)
 		sendWindowCreatedMsg(W_InControl::getDescription(), objectCount,
 		W_InControl::getMaxWindow() - 1);
 
-		connect(mySerialDriver, SIGNAL(newDataReady()), \
-				myViewInControl[objectCount], SLOT(updateUIData()));
+		connect(comManager,					&ComManager::newDataReady, \
+				myViewInControl[objectCount],	&W_InControl::updateUIData);
 	}
 	else
 	{
@@ -856,20 +902,21 @@ void MainWindow::createViewRicnu(void)
 		sendWindowCreatedMsg(W_Ricnu::getDescription(), objectCount,
 							 W_Ricnu::getMaxWindow() - 1);
 
-		//Link SerialDriver and RIC/NU:
-		connect(mySerialDriver, SIGNAL(newDataReady()), \
-				myViewRicnu[objectCount], SLOT(refreshDisplay()));
+		//Link ComManager and RIC/NU:
+		connect(comManager,				&ComManager::newDataReady, \
+				myViewRicnu[objectCount],	&W_Ricnu::refreshDisplay);
 
 		//Link to MainWindow for the close signal:
-		connect(myViewRicnu[objectCount], SIGNAL(windowClosed()), \
-				this, SLOT(closeViewRicnu()));
+		connect(myViewRicnu[objectCount],	&W_Ricnu::windowClosed, \
+				this,						&MainWindow::closeViewRicnu);
 
 		// Link to the slider of logKeyPad. Intermediate signal (connector) to
 		// allow opening of window asynchroniously
-		connect(this, SIGNAL(connectorRefreshLogTimeSlider(int, FlexseaDevice *)), \
-				myViewRicnu[objectCount], SLOT(refreshDisplayLog(int, FlexseaDevice *)));
-		connect(this, SIGNAL(connectorUpdateDisplayMode(DisplayMode, FlexseaDevice*)), \
-				myViewRicnu[objectCount], SLOT(updateDisplayMode(DisplayMode, FlexseaDevice*)));
+		connect(this,						&MainWindow::connectorRefreshLogTimeSlider, \
+				myViewRicnu[objectCount],	&W_Ricnu::refreshDisplayLog);
+
+		connect(this,						&MainWindow::connectorUpdateDisplayMode, \
+				myViewRicnu[objectCount],	&W_Ricnu::updateDisplayMode);
 	}
 
 	else
@@ -902,8 +949,8 @@ void MainWindow::createConverter(void)
 							 W_Converter::getMaxWindow() - 1);
 
 		//Link to MainWindow for the close signal:
-		connect(my_w_converter[objectCount], SIGNAL(windowClosed()), \
-				this, SLOT(closeConverter()));
+		connect(my_w_converter[objectCount],	&W_Converter::windowClosed, \
+				this,							&MainWindow::closeConverter);
 	}
 
 	else
@@ -936,12 +983,12 @@ void MainWindow::createCalib(void)
 							 W_Calibration::getMaxWindow() - 1);
 
 		//Link to MainWindow for the close signal:
-		connect(myViewCalibration[objectCount], SIGNAL(windowClosed()), \
-				this, SLOT(closeCalib()));
+		connect(myViewCalibration[objectCount], &W_Calibration::windowClosed, \
+				this,							&MainWindow::closeCalib);
 
 		//Link to SlaveComm to send commands:
-		connect(myViewCalibration[objectCount], SIGNAL(writeCommand(uint8_t,uint8_t*,uint8_t)), \
-				this, SIGNAL(connectorWriteCommand(uint8_t,uint8_t*,uint8_t)));
+		connect(myViewCalibration[objectCount], &W_Calibration::writeCommand, \
+				comManager,						&ComManager::enqueueCommand);
 	}
 	else
 	{
@@ -974,16 +1021,18 @@ void MainWindow::createUserRW(void)
 							 W_UserRW::getMaxWindow() - 1);
 
 		//Link to MainWindow for the close signal:
-		connect(myUserRW[objectCount], SIGNAL(windowClosed()), \
-				this, SLOT(closeUserRW()));
+		connect(myUserRW[objectCount],	&W_UserRW::windowClosed, \
+				this,					&MainWindow::closeUserRW);
 
 		//Link to SlaveComm to send commands:
-		connect(myUserRW[objectCount], SIGNAL(writeCommand(uint8_t,\
-				uint8_t*,uint8_t)), this, SIGNAL(connectorWriteCommand(uint8_t,\
-				uint8_t*, uint8_t)));
+		connect(myUserRW[objectCount],	&W_UserRW::writeCommand,
+				comManager,				&ComManager::enqueueCommand);
 
-		connect(userDataManager, &DynamicUserDataManager::writeCommand, this, &MainWindow::connectorWriteCommand);
-		connect(mySerialDriver, &SerialDriver::openStatus, userRW, &W_UserRW::comStatusChanged);
+		connect(userDataManager,	&DynamicUserDataManager::writeCommand,
+				comManager,			&ComManager::enqueueCommand);
+
+		connect(comManager,		&ComManager::openStatus,
+				userRW,				&W_UserRW::comStatusChanged);
 	}
 
 	else
@@ -1016,20 +1065,21 @@ void MainWindow::createViewGossip(void)
 		sendWindowCreatedMsg(W_Gossip::getDescription(), objectCount,
 							 W_Gossip::getMaxWindow() - 1);
 
-		//Link SerialDriver and Gossip:
-		connect(mySerialDriver, SIGNAL(newDataReady()), \
-				myViewGossip[objectCount], SLOT(refreshDisplay()));
+		//Link ComManager and Gossip:
+		connect(comManager,				&ComManager::newDataReady, \
+				myViewGossip[objectCount],	&W_Gossip::refreshDisplay);
 
 		//Link to MainWindow for the close signal:
-		connect(myViewGossip[objectCount], SIGNAL(windowClosed()), \
-				this, SLOT(closeViewGossip()));
+		connect(myViewGossip[objectCount],	&W_Gossip::windowClosed, \
+				this,						&MainWindow::closeViewGossip);
 
 		// Link to the slider of logKeyPad. Intermediate signal (connector) to
 		// allow opening of window asynchroniously
-		connect(this, SIGNAL(connectorRefreshLogTimeSlider(int, FlexseaDevice *)), \
-				myViewGossip[objectCount], SLOT(refreshDisplayLog(int, FlexseaDevice *)));
-		connect(this, SIGNAL(connectorUpdateDisplayMode(DisplayMode, FlexseaDevice*)), \
-				myViewGossip[objectCount], SLOT(updateDisplayMode(DisplayMode, FlexseaDevice*)));
+		connect(this,						&MainWindow::connectorRefreshLogTimeSlider, \
+				myViewGossip[objectCount],	&W_Gossip::refreshDisplayLog);
+
+		connect(this,						&MainWindow::connectorUpdateDisplayMode, \
+				myViewGossip[objectCount],	&W_Gossip::updateDisplayMode);
 	}
 
 	else
@@ -1043,6 +1093,56 @@ void MainWindow::closeViewGossip(void)
 {
 	sendCloseWindowMsg(W_Gossip::getDescription());
 	mdiState[GOSSIP_WINDOWS_ID][0].open = false;	//ToDo wrong, shouldn't be 0!
+}
+
+//Creates a new View Rigid window
+void MainWindow::createViewRigid(void)
+{
+	int objectCount = W_Rigid::howManyInstance();
+
+	//Limited number of windows:
+	if(objectCount < (RIGID_WINDOWS_MAX))
+	{
+		myViewRigid[objectCount] = new W_Rigid(this,
+											   currentFlexLog,
+											   &rigidLog,
+											   getDisplayMode(),
+											   &rigidDevList);
+		mdiState[RIGID_WINDOWS_ID][objectCount].winPtr = ui->mdiArea->addSubWindow(myViewRigid[objectCount]);
+		mdiState[RIGID_WINDOWS_ID][objectCount].open = true;
+		myViewRigid[objectCount]->show();
+
+		sendWindowCreatedMsg(W_Rigid::getDescription(), objectCount,
+							 W_Rigid::getMaxWindow() - 1);
+
+		//Link ComManager and Rigid:
+		connect(comManager,				&ComManager::newDataReady, \
+				myViewRigid[objectCount],	&W_Rigid::refreshDisplay);
+
+		//Link to MainWindow for the close signal:
+		connect(myViewRigid[objectCount],	&W_Rigid::windowClosed, \
+				this,						&MainWindow::closeViewGossip);
+
+		// Link to the slider of logKeyPad. Intermediate signal (connector) to
+		// allow opening of window asynchroniously
+		connect(this,						&MainWindow::connectorRefreshLogTimeSlider, \
+				myViewRigid[objectCount],	&W_Rigid::refreshDisplayLog);
+
+		connect(this,						&MainWindow::connectorUpdateDisplayMode, \
+				myViewRigid[objectCount],	&W_Rigid::updateDisplayMode);
+	}
+
+	else
+	{
+		sendWindowCreatedFailedMsg(W_Rigid::getDescription(),
+								   W_Rigid::getMaxWindow());
+	}
+}
+
+void MainWindow::closeViewRigid(void)
+{
+	sendCloseWindowMsg(W_Rigid::getDescription());
+	mdiState[RIGID_WINDOWS_ID][0].open = false;	//ToDo wrong, shouldn't be 0!
 }
 
 //Creates a new View Strain window
@@ -1062,20 +1162,21 @@ void MainWindow::createViewStrain(void)
 		sendWindowCreatedMsg(W_Strain::getDescription(), objectCount,
 							 W_Strain::getMaxWindow() - 1);
 
-		//Link SerialDriver and Strain:
-		connect(mySerialDriver, SIGNAL(newDataReady()), \
-				myViewStrain[objectCount], SLOT(refreshDisplay()));
+		//Link ComManager and Strain:
+		connect(comManager,				&ComManager::newDataReady, \
+				myViewStrain[objectCount],	&W_Strain::refreshDisplay);
 
 		//Link to MainWindow for the close signal:
-		connect(myViewStrain[objectCount], SIGNAL(windowClosed()), \
-				this, SLOT(closeViewStrain()));
+		connect(myViewStrain[objectCount],	&W_Strain::windowClosed, \
+				this,						&MainWindow::closeViewStrain);
 
 		// Link to the slider of logKeyPad. Intermediate signal (connector) to
 		// allow opening of window asynchroniously
-		connect(this, SIGNAL(connectorRefreshLogTimeSlider(int, FlexseaDevice *)), \
-				myViewStrain[objectCount], SLOT(refreshDisplayLog(int, FlexseaDevice *)));
-		connect(this, SIGNAL(connectorUpdateDisplayMode(DisplayMode, FlexseaDevice*)), \
-				myViewStrain[objectCount], SLOT(updateDisplayMode(DisplayMode, FlexseaDevice*)));
+		connect(this,						&MainWindow::connectorRefreshLogTimeSlider, \
+				myViewStrain[objectCount],	&W_Strain::refreshDisplayLog);
+
+		connect(this,						&MainWindow::connectorUpdateDisplayMode, \
+				myViewStrain[objectCount],	&W_Strain::updateDisplayMode);
 	}
 
 	else
@@ -1102,7 +1203,6 @@ void MainWindow::createViewBattery(void)
 		myViewBatt[objectCount] = new W_Battery(this,
 												currentFlexLog,
 												&batteryLog,
-												&testBenchLog,
 												getDisplayMode(),
 												&batteryDevList);
 		mdiState[BATT_WINDOWS_ID][objectCount].winPtr = ui->mdiArea->addSubWindow(myViewBatt[objectCount]);
@@ -1112,20 +1212,21 @@ void MainWindow::createViewBattery(void)
 		sendWindowCreatedMsg(W_Battery::getDescription(), objectCount,
 							 W_Battery::getMaxWindow() - 1);
 
-		//Link SerialDriver and Battery:
-		connect(mySerialDriver, SIGNAL(newDataReady()), \
-				myViewBatt[objectCount], SLOT(refreshDisplay()));
+		//Link ComManager and Battery:
+		connect(comManager,				&ComManager::newDataReady, \
+				myViewBatt[objectCount],	&W_Battery::refreshDisplay);
 
 		//Link to MainWindow for the close signal:
-		connect(myViewBatt[objectCount], SIGNAL(windowClosed()), \
-				this, SLOT(closeViewBattery()));
+		connect(myViewBatt[objectCount],	&W_Battery::windowClosed, \
+				this,						&MainWindow::closeViewBattery);
 
 		// Link to the slider of logKeyPad. Intermediate signal (connector) to
 		// allow opening of window asynchroniously
-		connect(this, SIGNAL(connectorRefreshLogTimeSlider(int, FlexseaDevice *)), \
-				myViewBatt[objectCount], SLOT(refreshDisplayLog(int, FlexseaDevice *)));
-		connect(this, SIGNAL(connectorUpdateDisplayMode(DisplayMode, FlexseaDevice*)), \
-				myViewBatt[objectCount], SLOT(updateDisplayMode(DisplayMode, FlexseaDevice*)));
+		connect(this,						&MainWindow::connectorRefreshLogTimeSlider, \
+				myViewBatt[objectCount],	&W_Battery::refreshDisplayLog);
+
+		connect(this,						&MainWindow::connectorUpdateDisplayMode, \
+				myViewBatt[objectCount],	&W_Battery::updateDisplayMode);
 	}
 
 	else
@@ -1160,12 +1261,12 @@ void MainWindow::createLogKeyPad(FlexseaDevice *devPtr)
 							 W_LogKeyPad::getMaxWindow() - 1);
 
 		// Link for the data slider
-		connect(myViewLogKeyPad[objectCount], SIGNAL(logTimeSliderValueChanged(int, FlexseaDevice *)), \
-				this, SIGNAL(connectorRefreshLogTimeSlider(int, FlexseaDevice*)));
+		connect(myViewLogKeyPad[objectCount],	&W_LogKeyPad::logTimeSliderValueChanged, \
+				this,							&MainWindow::connectorRefreshLogTimeSlider);
 
 		//Link to MainWindow for the close signal:
-		connect(myViewLogKeyPad[objectCount], SIGNAL(windowClosed()), \
-				this, SLOT(closeLogKeyPad()));
+		connect(myViewLogKeyPad[objectCount],	&W_LogKeyPad::windowClosed, \
+				this,							&MainWindow::closeLogKeyPad);
 	}
 
 	else
@@ -1194,54 +1295,6 @@ DisplayMode MainWindow::getDisplayMode(void)
 	return status;
 }
 
-//Creates a new View TestBench window
-void MainWindow::createViewTestBench(void)
-{
-	int objectCount = W_TestBench::howManyInstance();
-
-	//Limited number of windows:
-	if(objectCount < (TESTBENCH_WINDOWS_MAX))
-	{
-		myViewTestBench[objectCount] = new W_TestBench(this,
-													   &testBenchLog,
-														getDisplayMode(),
-													   &testBenchDevList);
-		mdiState[TESTBENCH_WINDOWS_ID][objectCount].winPtr = ui->mdiArea->addSubWindow(myViewTestBench[objectCount]);
-		mdiState[TESTBENCH_WINDOWS_ID][objectCount].open = true;
-		myViewTestBench[objectCount]->show();
-
-		sendWindowCreatedMsg(W_TestBench::getDescription(), objectCount,
-							 W_TestBench::getMaxWindow() - 1);
-
-		//Link SerialDriver and Battery:
-		connect(mySerialDriver, SIGNAL(newDataReady()), \
-				myViewTestBench[objectCount], SLOT(refreshDisplay()));
-
-		//Link to MainWindow for the close signal:
-		connect(myViewTestBench[objectCount], SIGNAL(windowClosed()), \
-				this, SLOT(closeViewBattery()));
-
-		// Link to the slider of logKeyPad. Intermediate signal (connector) to
-		// allow opening of window asynchroniously
-		connect(this, SIGNAL(connectorRefreshLogTimeSlider(int, FlexseaDevice *)), \
-				myViewTestBench[objectCount], SLOT(refreshDisplayLog(int, FlexseaDevice *)));
-		connect(this, SIGNAL(connectorUpdateDisplayMode(DisplayMode, FlexseaDevice*)), \
-				myViewTestBench[objectCount], SLOT(updateDisplayMode(DisplayMode, FlexseaDevice*)));
-	}
-
-	else
-	{
-		sendWindowCreatedFailedMsg(W_TestBench::getDescription(),
-								   W_TestBench::getMaxWindow());
-	}
-}
-
-void MainWindow::closeViewTestBench(void)
-{
-	sendCloseWindowMsg(W_TestBench::getDescription());
-	mdiState[TESTBENCH_WINDOWS_ID][0].open = false;	//ToDo wrong, shouldn't be 0!
-}
-
 //Creates a new Comm. Test window
 void MainWindow::createViewCommTest(void)
 {
@@ -1253,8 +1306,6 @@ void MainWindow::createViewCommTest(void)
 		myViewCommTest[objectCount] = new W_CommTest(this,
 													 comPortStatus);
 
-		myViewCommTest[objectCount]->serialDriver = mySerialDriver;
-
 		mdiState[COMMTEST_WINDOWS_ID][objectCount].winPtr = ui->mdiArea->addSubWindow(myViewCommTest[objectCount]);
 		mdiState[COMMTEST_WINDOWS_ID][objectCount].open = true;
 		myViewCommTest[objectCount]->show();
@@ -1263,20 +1314,25 @@ void MainWindow::createViewCommTest(void)
 							 W_CommTest::getMaxWindow() - 1);
 
 		//Link to MainWindow for the close signal:
-		connect(myViewCommTest[objectCount], SIGNAL(windowClosed()), \
-				this, SLOT(closeViewCommTest()));
+		connect(myViewCommTest[objectCount],	&W_CommTest::windowClosed, \
+				this,							&MainWindow::closeViewCommTest);
 
 		//Link to SerialDriver to know when we receive data:
-		connect(mySerialDriver, SIGNAL(openStatus(bool)), \
-				myViewCommTest[objectCount], SLOT(receiveComPortStatus(bool)));
+		connect(comManager,					&ComManager::openStatus, \
+				myViewCommTest[objectCount],&W_CommTest::receiveComPortStatus);
 
-		connect(mySerialDriver, SIGNAL(newDataReady()), \
-				myViewCommTest[objectCount], SLOT(receivedData()));
+		connect(comManager,					&ComManager::newDataReady, \
+				myViewCommTest[objectCount],&W_CommTest::receivedData);
+
+		connect(myViewCommTest[objectCount],&W_CommTest::tryReadWrite, \
+				comManager,					&ComManager::tryReadWrite);
+
+		connect(myViewCommTest[objectCount],&W_CommTest::write, \
+				comManager,					&ComManager::write);
 
 		//Link to SlaveComm to send commands:
-		connect(myViewCommTest[objectCount], SIGNAL(writeCommand(uint8_t,\
-				uint8_t*,uint8_t)), this, SIGNAL(connectorWriteCommand(uint8_t,\
-				uint8_t*, uint8_t)));
+		connect(myViewCommTest[objectCount],	&W_CommTest::writeCommand,
+				comManager,						&ComManager::enqueueCommand);
 	}
 
 	else
@@ -1309,8 +1365,8 @@ void MainWindow::createToolEvent(void)
 							 W_Event::getMaxWindow() - 1);
 
 		//Link to MainWindow for the close signal:
-		connect(myEvent[objectCount], SIGNAL(windowClosed()), \
-				this, SLOT(closeToolEvent()));
+		connect(myEvent[objectCount],	&W_Event::windowClosed, \
+				this,					&MainWindow::closeToolEvent);
 	}
 
 	else
@@ -1421,6 +1477,7 @@ void MainWindow::closeEvent(QCloseEvent *event)
 {
 	qDebug() << "Closing, see you soon!";
 	//writeSettings();
+	comManagerThread->quit();
 	event->accept();
 }
 
@@ -1453,21 +1510,43 @@ void MainWindow::loadCSVconfigFile(void)
 	QString line;
 	QStringList splitLine;
 
-	int on = 0, obj = 0, id = 0, x = 0, y = 0, w = 0, h = 0;
 	line = configFile.readLine();	//Get rid of header
+
+	//Clear the old config
+	loadedConfig.clear();
+
+	//Save the new config
 	while(!configFile.atEnd())
 	{
 		line = configFile.readLine();
 		splitLine = line.split(',', QString::KeepEmptyParts);
-		qDebug() << splitLine;
+		if(splitLine.at(0) != "Favorite Com List")
+		{
+			loadedConfig.append(splitLine);
+		}
+	}
 
-		id = splitLine.at(1).toInt();
-		obj = splitLine.at(2).toInt();
-		on = splitLine.at(3).toInt();
-		x = splitLine.at(4).toInt();
-		y = splitLine.at(5).toInt();
-		w = splitLine.at(6).toInt();
-		h = splitLine.at(7).toInt();
+	//Save the favorite port configuration
+	splitLine.removeDuplicates();
+	splitLine.removeOne("\n");
+	favoritePort = splitLine.mid(1);
+}
+
+void MainWindow::applyLoadedConfig(void)
+{
+	//Open the differents windows according to configuration file loaded
+	int on = 0, obj = 0, id = 0, x = 0, y = 0, w = 0, h = 0;
+
+	for (int i = 0; i < loadedConfig.size(); ++i)
+	{
+		id	= loadedConfig.at(i).at(1).toInt();
+		obj = loadedConfig.at(i).at(2).toInt();
+		on	= loadedConfig.at(i).at(3).toInt();
+		x	= loadedConfig.at(i).at(4).toInt();
+		y	= loadedConfig.at(i).at(5).toInt();
+		w	= loadedConfig.at(i).at(6).toInt();
+		h	= loadedConfig.at(i).at(7).toInt();
+
 		if(on == 1)
 		{
 			if(id != CONFIG_WINDOWS_ID && id != SLAVECOMM_WINDOWS_ID)
@@ -1478,6 +1557,9 @@ void MainWindow::loadCSVconfigFile(void)
 			setWinGeo(id, obj, x, y, w, h);	//Position it
 		}
 	}
+
+	//Update the Favorite port listing if a config window is opened.
+	emit connectorRefresh();
 }
 
 void MainWindow::saveCSVconfigFile(void)
@@ -1525,6 +1607,15 @@ void MainWindow::saveCSVconfigFile(void)
 			}
 		}
 	}
+
+	cfStream << "Favorite Com List,";
+	//We scan the favorite com port list, and we save the info:
+	for ( QStringList::Iterator it = favoritePort.begin(); it != favoritePort.end(); ++it )
+	{
+		cfStream << *it << ",";
+	}
+
+	cfStream << endl;
 
 	//Close file:
 	configFile.close();

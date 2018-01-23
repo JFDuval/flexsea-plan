@@ -43,7 +43,7 @@
 
 Ankle2DofProject::Ankle2DofProject(void): FlexseaDevice()
 {
-	if(header.length() != headerDecoded.length())
+	if(header.length() != headerUnitList.length())
 	{
 		qDebug() << "Mismatch between header lenght Ankle2DOF!";
 	}
@@ -55,7 +55,7 @@ Ankle2DofProject::Ankle2DofProject(void): FlexseaDevice()
 
 Ankle2DofProject::Ankle2DofProject(execute_s *ex1Ptr, execute_s *ex2Ptr): FlexseaDevice()
 {
-	if(header.length() != headerDecoded.length())
+	if(header.length() != headerUnitList.length())
 	{
 		qDebug() << "Mismatch between header length Ankle2DOF!";
 	}
@@ -109,11 +109,6 @@ Ankle2DofProject::~Ankle2DofProject()
 // Public function(s):
 //****************************************************************************
 
-QString Ankle2DofProject::getHeaderStr(void)
-{
-	return header.join(',');
-}
-
 QStringList Ankle2DofProject::header = QStringList()
 								<< "Timestamp"
 								<< "Timestamp (ms)"
@@ -154,7 +149,7 @@ QStringList Ankle2DofProject::header = QStringList()
 								<< "ex2 Status1"
 								<< "ex2 Status2";
 
-QStringList Ankle2DofProject::headerDecoded = QStringList()
+QStringList Ankle2DofProject::headerUnitList = QStringList()
 								<< "Raw Value Only"
 								<< "Raw Value Only"
 
@@ -194,7 +189,7 @@ QStringList Ankle2DofProject::headerDecoded = QStringList()
 								<< "Raw value only"
 								<< "Raw value only";
 
-QString Ankle2DofProject::getLastSerializedStr(void)
+QString Ankle2DofProject::getLastDataEntry(void)
 {
 	QString str;
 	QTextStream(&str) <<	timeStamp.last().date			<< ',' << \
@@ -291,22 +286,17 @@ void Ankle2DofProject::appendSerializedStr(QStringList *splitLine)
 	}
 }
 
-struct std_variable Ankle2DofProject::getSerializedVar(int parameter)
-{
-	return getSerializedVar(parameter, 0);
-}
-
-struct std_variable Ankle2DofProject::getSerializedVar(int parameter, int index)
+struct std_variable Ankle2DofProject::getSerializedVar(int headerIndex, int index)
 {
 	struct std_variable var;
 
 	if(index >= akList.length())
 	{
-		parameter = INT_MAX;
+		headerIndex = INT_MAX;
 	}
 
 	//Assign pointer:
-	switch(parameter)
+	switch(headerIndex)
 	{
 		/*Format: (every Case except Unused)
 		 * Line 1: data format, raw variable
@@ -521,7 +511,7 @@ void Ankle2DofProject::clear(void)
 	timeStamp.clear();
 }
 
-void Ankle2DofProject::appendEmptyLine(void)
+void Ankle2DofProject::appendEmptyElement(void)
 {
 	timeStamp.append(TimeStamp());
 	akList.append(new ankle2Dof_s_plan());
@@ -530,7 +520,7 @@ void Ankle2DofProject::appendEmptyLine(void)
 
 void Ankle2DofProject::appendEmptyLineWithStruct(void)
 {
-	appendEmptyLine();
+	appendEmptyElement();
 	execute_s* emptyEx = new execute_s();
 	emptyEx->enc_ang = new int32_t();
 	emptyEx->enc_ang_vel = new int32_t();
@@ -542,12 +532,12 @@ void Ankle2DofProject::appendEmptyLineWithStruct(void)
 	akList.last()->ex2 = emptyEx;
 }
 
-void Ankle2DofProject::decodeLastLine(void)
+void Ankle2DofProject::decodeLastElement(void)
 {
 	decode(akList.last());
 }
 
-void Ankle2DofProject::decodeAllLine(void)
+void Ankle2DofProject::decodeAllElement(void)
 {
 	for(int i = 0; i < akList.size(); ++i)
 	{

@@ -38,6 +38,7 @@
 #include <QWidget>
 #include "counter.h"
 #include "flexsea_generic.h"
+#include "serialdriver.h"
 #include <dynamicuserdatamanager.h>
 #include <QListWidgetItem>
 //****************************************************************************
@@ -61,7 +62,7 @@ public:
 
 public slots:
 	void receiveNewData();
-	void comStatusChanged(bool isOpen);
+	void comStatusChanged(SerialPortStatus status,int nbTries);
 	void handlePlanFlagListChange(QListWidgetItem* item);
 
 signals:

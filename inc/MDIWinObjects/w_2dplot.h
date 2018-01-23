@@ -64,11 +64,12 @@
 #define A_GAIN						1000
 
 //Stats:
-#define STATS_FIELDS				4
+#define STATS_FIELDS				5
 #define STATS_MIN					0
 #define STATS_MAX					1
 #define STATS_AVG					2
 #define STATS_RMS					3
+#define STATS_DIFF					4
 
 //Scaling:
 #define SCALE_DEFAULT_M				1
@@ -193,6 +194,7 @@ private:
 	QCheckBox **ckbDecode[VAR_NUM];
 	QLabel **lbMin[VAR_NUM];
 	QLabel **lbMax[VAR_NUM];
+	QLabel **lbDiff[VAR_NUM];
 	QLabel **lbAvg[VAR_NUM];
 
 	//Variables & Objects:

@@ -83,6 +83,12 @@ int W_Event::getEventCode(void)
 // Public slot(s):
 //****************************************************************************
 
+void W_Event::externalButtonClick(int index)
+{
+	qDebug() << "Ext button: " << index;
+	pushButtonEvent(index);
+}
+
 //****************************************************************************
 // Private function(s):
 //****************************************************************************
@@ -96,13 +102,17 @@ void W_Event::init(void)
 
 	//Timers:
 	timerPb[0] = new QTimer(this);
-	connect(timerPb[0], SIGNAL(timeout()), this, SLOT(timerPb0()));
+	connect(timerPb[0], &QTimer::timeout,
+			this,		&W_Event::timerPb0);
 	timerPb[1] = new QTimer(this);
-	connect(timerPb[1], SIGNAL(timeout()), this, SLOT(timerPb1()));
+	connect(timerPb[1], &QTimer::timeout,
+			this,		&W_Event::timerPb1);
 	timerPb[2] = new QTimer(this);
-	connect(timerPb[2], SIGNAL(timeout()), this, SLOT(timerPb2()));
+	connect(timerPb[2], &QTimer::timeout,
+			this,		&W_Event::timerPb2);
 	timerPb[3] = new QTimer(this);
-	connect(timerPb[3], SIGNAL(timeout()), this, SLOT(timerPb3()));
+	connect(timerPb[3], &QTimer::timeout,
+			this,		&W_Event::timerPb3);
 
 	//Flags:
 	flag[0] = 0;
@@ -189,6 +199,7 @@ void W_Event::pushButtonEvent(int pb)
 	flagText = buildList();
 	flagCode = buildCode();
 	qDebug() << "pbEvent:" << flagText << "'" << flagCode;
+	emit buttonClick(pb);
 }
 
 void W_Event::timeoutEvent(int pb)
