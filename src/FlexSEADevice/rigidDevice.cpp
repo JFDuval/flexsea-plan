@@ -475,22 +475,22 @@ struct std_variable RigidDevice::getSerializedVar(int headerIndex, int index)
 			var.decodedPtr = nullptr;
 			break;
 		case 28: //"Analog 0"
-			var.format = FORMAT_32S;
+			var.format = FORMAT_16U;
 			var.rawGenPtr = &riList[index]->mn.analog[0];
 			var.decodedPtr = nullptr;
 			break;
 		case 29: //"Analog 1"
-			var.format = FORMAT_32S;
+			var.format = FORMAT_16U;
 			var.rawGenPtr = &riList[index]->mn.analog[1];
 			var.decodedPtr = nullptr;
 			break;
 		case 30: //"Analog 2"
-			var.format = FORMAT_32S;
+			var.format = FORMAT_16U;
 			var.rawGenPtr = &riList[index]->mn.analog[2];
 			var.decodedPtr = nullptr;
 			break;
 		case 31: //"Analog 3"
-			var.format = FORMAT_32S;
+			var.format = FORMAT_16U;
 			var.rawGenPtr = &riList[index]->mn.analog[3];
 			var.decodedPtr = nullptr;
 			break;

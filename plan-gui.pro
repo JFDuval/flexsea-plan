@@ -96,7 +96,8 @@ SOURCES += src/main.cpp \
 				src/MDIWinObjects/w_rigid.cpp \
 				flexsea-projects/Rigid/src/cmd-Rigid.c \
 				src/dynamicuserdatamanager.cpp \
-				flexsea-projects/src/dynamic_user_structs_common.c
+				flexsea-projects/src/dynamic_user_structs_common.c \
+				src/MDIWinObjects/w_status.cpp
 
 HEADERS += inc/main.h \
 				inc/mainwindow.h \
@@ -168,7 +169,8 @@ HEADERS += inc/main.h \
 				flexsea-system/inc/flexsea_dataformats.h \
 				inc/dynamicuserdatamanager.h \
 				flexsea-projects/ActPack/inc/cmd-ActPack.h \
-				flexsea-system/test/flexsea-system_test-all.h
+				flexsea-system/test/flexsea-system_test-all.h \
+				inc/MDIWinObjects/w_status.h
 
 FORMS += ui/mainwindow.ui \
 				ui/w_execute.ui \
@@ -189,7 +191,8 @@ FORMS += ui/mainwindow.ui \
 				ui/w_commtest.ui \
 				ui/w_incontrol.ui \
 				ui/w_rigid.ui \
-				ui/w_event.ui
+				ui/w_event.ui \
+				ui/w_status.ui
 
 RESOURCES += \
 	misc/icons.qrc

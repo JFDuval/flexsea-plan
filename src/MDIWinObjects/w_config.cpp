@@ -40,6 +40,8 @@
 #include <QDebug>
 #include <QTimer>
 #include <QThread>
+#include <QInputDialog>
+#include <QDir>
 
 //****************************************************************************
 // Constructor & Destructor:
@@ -67,8 +69,12 @@ W_Config::W_Config(QWidget *parent, QStringList *initFavoritePort) :
 
 	//Timer for sequential configuration, BT module:
 	btConfigTimer = new QTimer(this);
-	connect(btConfigTimer,	&QTimer::timeout,
-			this,			&W_Config::btConfig);
+	btConfigField = 0;
+
+	//By default we link the timer to the GUI config
+	connect(btConfigTimer, &QTimer::timeout,
+				this, &W_Config::btConfig);
+	timerConnectedTo = TCT_GUI;
 
 	openProgressTimer = new QTimer(this);
 	connect(openProgressTimer,	&QTimer::timeout,
@@ -273,39 +279,120 @@ QString W_Config::getCOMnickname(const QSerialPortInfo *c)
 	return o;
 }
 
+//Main BT config: GUI
 void W_Config::btConfig()
 {
-	//Settings:
-	//---------
+	//Settings - GUI:
+	//---------------
 	//Name = FlexSEA-ADDR
 	//Baudrate = 230k
 	//TX Power = max
 	//Inquiry window = 0012
 	//Page Window = 0012
 	//CfgTimer = 15s
+	//Clear any remote address
+	//Slave mode
+	//Optimize for throughput
 
-	static uint8_t config[BT_FIELDS][20] = {{"S-,FlexSEA\r"}, \
+	static uint8_t config[BT_FIELDS1][20] = {{"S-,FlexSEA\r"}, \
 											{"SU,230K\r"}, \
 											{"SY,0010\r"}, \
 											{"SI,0012\r"}, \
 											{"SJ,0012\r"}, \
-											{"ST,15\r"}};
+											{"ST,15\r"}, \
+											{"SR,Z\r"}, \
+											{"SM,0\r"}, \
+											{"SQ,0\r"}};
 
-	static uint8_t len[BT_FIELDS] = {11,8,8,8,8,6};
+	static uint8_t len[BT_FIELDS1] = {11,8,8,8,8,6,5,5,5};
 
-	if(btConfigField >= BT_FIELDS)
+	if(btConfigField >= BT_FIELDS1)
 	{
 		btConfigTimer->stop();
+		qDebug() << "Done with the BT GUI config (" << btConfigField << "/" << \
+					BT_FIELDS1 << ").";
 		return;
 	}
 
 	//Send:
 	emit write(len[btConfigField], &config[btConfigField][0]);
+	qDebug() << "Sent BT config GUI #" << btConfigField;
 	btConfigField++;
-	//qDebug() << "Sent one BT config";
 	emit flush();
 	btConfigTimer->start(BT_CONF_DELAY);
-	ui->btProgressBar->setValue(100*btConfigField/BT_FIELDS);
+	ui->btProgressBar->setValue(100*btConfigField/BT_FIELDS1);
+}
+
+//Other BT config: Bilateral
+void W_Config::btConfig2()
+{
+	//Settings - Bilateral:
+	//---------------------
+	//Name = FlexSEA-BWC-ADDR
+	//Baudrate = 460k
+	//TX Power = max
+	//Inquiry window = 0012
+	//Page Window = 0012
+	//CfgTimer = 15s
+	//Pair mode
+	//Authentification
+	//Buddy's address
+	//Latency optimization SQ,16
+
+	bool ok;
+
+	static uint8_t config[BT_FIELDS2][20] = {{"S-,FlexSEA-BWC\r"}, \
+											{"SU,460K\r"}, \
+											{"SY,0010\r"}, \
+											{"SI,0012\r"}, \
+											{"SJ,0012\r"}, \
+											{"ST,15\r"}, \
+											{"SM,6\r"}, \
+											{"SA,4\r"}, \
+											{"SR,000000000000\r"},
+											{"SQ,16\r"}};
+
+	static uint8_t len[BT_FIELDS2] = {15,8,8,8,8,6,5,5,16,6};
+
+	if(btConfigField == 0)
+	{
+		QString text = QInputDialog::getText(this, tr("Buddy's address"),
+											 tr("Hex Address (12 alphanumerical):"), QLineEdit::Normal,
+											 "000666", &ok);
+		if (ok && !text.isEmpty() && text.length()==12)
+		{
+			qDebug() << "Received: " << text;
+			for(int i = 0; i < 12; i++)
+			{
+				config[BT_FIELDS2-1][i+3] = (uint8_t)text.toLocal8Bit()[i];
+			}
+
+			//for(int i = 0; i < 16; i++){qDebug() << config[8][i];}
+		}
+		else
+		{
+			qDebug() << "Invalid - abort.";
+			btConfigTimer->stop();
+			ui->btProgressBar->setValue(0);
+			return;
+		}
+	}
+
+	if(btConfigField >= BT_FIELDS2)
+	{
+		btConfigTimer->stop();
+		qDebug() << "Done with the BT BWC config (" << btConfigField << "/" << \
+					BT_FIELDS2 << ").";
+		return;
+	}
+
+	//Send:
+	emit write(len[btConfigField], &config[btConfigField][0]);
+	qDebug() << "Sent BT config BWC #" << btConfigField;
+	btConfigField++;
+	emit flush();
+	btConfigTimer->start(BT_CONF_DELAY);
+	ui->btProgressBar->setValue(100*btConfigField/BT_FIELDS2);
 }
 
 void W_Config::toggleBtDataMode(bool forceDataMode)
@@ -444,11 +531,42 @@ void W_Config::on_pbBTmode_clicked()
 	toggleBtDataMode();
 }
 
-void W_Config::on_pbBTdefault_clicked()
+//Config for GUI:
+void W_Config::on_pbBTgui_clicked()
 {
+	qDebug() << "Config GUI.";
+
 	btConfigField = 0;
 	btConfigTimer->setSingleShot(true);
-	btConfigTimer->start(0);
+
+	if(timerConnectedTo != TCT_GUI)
+	{
+		btConfigTimer->disconnect();
+		connect(btConfigTimer, &QTimer::timeout,
+						this, &W_Config::btConfig);
+		qDebug() << "Timer connected to btConfig (GUI).";
+	}
+
+	btConfigTimer->start(50);
+}
+
+//Config for Bilateral:
+void W_Config::on_pbBTbwc_clicked()
+{
+	qDebug() << "Config BWC.";
+
+	btConfigField = 0;
+	btConfigTimer->setSingleShot(true);
+
+	if(timerConnectedTo != TCT_BWC)
+	{
+		btConfigTimer->disconnect();
+		connect(btConfigTimer, &QTimer::timeout,
+						this, &W_Config::btConfig2);
+		qDebug() << "Timer connected to btConfig2 (BWC).";
+	}
+
+	btConfigTimer->start(50);
 }
 
 void W_Config::on_pbBTfactory_clicked()
@@ -470,7 +588,8 @@ void W_Config::on_pbBTreset_clicked()
 void W_Config::enableBluetoothCommandButtons(void)
 {
 	ui->pbBTfactory->setEnabled(true);
-	ui->pbBTdefault->setEnabled(true);
+	ui->pbBTgui->setEnabled(true);
+	ui->pbBTbwc->setEnabled(true);
 	ui->pbBTreset->setEnabled(true);
 	ui->pbBTfast->setEnabled(true);
 }
@@ -478,7 +597,8 @@ void W_Config::enableBluetoothCommandButtons(void)
 void W_Config::disableBluetoothCommandButtons(void)
 {
 	ui->pbBTfactory->setEnabled(false);
-	ui->pbBTdefault->setEnabled(false);
+	ui->pbBTgui->setEnabled(false);
+	ui->pbBTbwc->setEnabled(false);
 	ui->pbBTreset->setEnabled(false);
 	ui->pbBTfast->setEnabled(false);
 }
@@ -523,7 +643,7 @@ void W_Config::progressUpdate()
 	static int prog;
 	if(progressCnt <= COM_BAR_RES)
 	{
-		qDebug() << "bar update" << progressCnt << "  " << progressTries;
+		//qDebug() << "bar update" << progressCnt << "  " << progressTries;
 		prog = (((float)progressCnt / COM_BAR_RES)*(1.0/(COM_OPEN_TRIES)) + ((float)progressTries/(COM_OPEN_TRIES)))*100;
 		ui->comProgressBar->setValue(prog);
 		ui->comProgressBar->update();

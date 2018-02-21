@@ -96,6 +96,7 @@ MainWindow::MainWindow(QWidget *parent) :
 	W_InControl::setMaxWindow(INCONTROL_WINDOWS_MAX);
 	W_Event::setMaxWindow(EVENT_WINDOWS_MAX);
 	W_Rigid::setMaxWindow(RIGID_WINDOWS_MAX);
+	W_Status::setMaxWindow(STATUS_WINDOWS_MAX);
 
 	W_Execute::setDescription("Execute");
 	W_Manage::setDescription("Manage - Barebone");
@@ -116,6 +117,7 @@ MainWindow::MainWindow(QWidget *parent) :
 	W_InControl::setDescription("Controller Tuning");
 	W_Event::setDescription("Event Flag");
 	W_Rigid::setDescription("FlexSEA-Rigid");
+	W_Status::setDescription("Status");
 
 	initFlexSeaDeviceObject();
 	comManager = new ComManager();
@@ -197,6 +199,7 @@ void MainWindow::initMenus(void)
 	ui->menuView->addAction("Strain", this, &MainWindow::createViewStrain);
 	ui->menuView->addSeparator();
 	ui->menuView->addAction("2D Plot", this, &MainWindow::createView2DPlot);
+	ui->menuView->addAction("Status", this, &MainWindow::createStatus);
 
 	//Add Control:
 	ui->menuControl->addAction("Control Loop", this, &MainWindow::createControlControl);
@@ -304,6 +307,12 @@ void MainWindow::initFlexSeaDeviceObject(void)
 	flexseaPtrlist.append(&rigidDevList.last());
 	rigidFlexList.append(&rigidDevList.last());
 
+	rigidDevList.append(RigidDevice(&rigid2));
+	rigidDevList.last().slaveName = "Rigid 2";
+	rigidDevList.last().slaveID = FLEXSEA_VIRTUAL_PROJECT;
+	flexseaPtrlist.append(&rigidDevList.last());
+	rigidFlexList.append(&rigidDevList.last());
+
 	init_rigid();
 
 	return;
@@ -327,7 +336,7 @@ void MainWindow::initSerialComm(void)
 			myDataLogger,	&DataLogger::openRecordingFile);
 
 	connect(comManager,		&ComManager::writeToLogFile, \
-			myDataLogger,	&DataLogger::writeToFile);
+			myDataLogger,	&DataLogger::writeToFile, Qt::DirectConnection);
 
 	connect(comManager,		&ComManager::closeRecordingFile, \
 			myDataLogger,	&DataLogger::closeRecordingFile);
@@ -365,7 +374,8 @@ void MainWindow::initializeCreateWindowFctPtr(void)
 	mdiCreateWinPtr[GOSSIP_WINDOWS_ID] = &MainWindow::createViewGossip;
 	mdiCreateWinPtr[STRAIN_WINDOWS_ID] = &MainWindow::createViewStrain;
 	mdiCreateWinPtr[RICNU_VIEW_WINDOWS_ID] = &MainWindow::createViewRicnu;
-	mdiCreateWinPtr[RIGID_WINDOWS_ID] = &MainWindow::createViewRigid;}
+	mdiCreateWinPtr[RIGID_WINDOWS_ID] = &MainWindow::createViewRigid;
+	mdiCreateWinPtr[STATUS_WINDOWS_ID] = &MainWindow::createStatus;
 
 /*
 void MainWindow::initializeCloseWindowFctPtr(void)
@@ -396,6 +406,7 @@ void MainWindow::initializeCloseWindowFctPtr(void)
 	mdiCloseWinPtr[RICNU_VIEW_WINDOWS_ID] = &MainWindow::closeViewRicnu;
 	mdiCloseWinPtr[RIGID_WINDOWS_ID] = &MainWindow::closeViewRigid;}
 */
+}
 
 void MainWindow::emptyWinFct(void)
 {
@@ -486,6 +497,53 @@ void MainWindow::manageLogKeyPad(DataSource status, FlexseaDevice *devPtr)
 	}
 }
 
+//Creates a new GaitsStats window
+void MainWindow::createStatus(void)
+{
+	int objectCount = W_Status::howManyInstance();
+
+	//Limited number of windows:
+	if(objectCount < W_Status::getMaxWindow())
+	{
+		W_Status* status = new W_Status(this, userDataManager);
+		myStatus[objectCount] = status;
+		mdiState[STATUS_WINDOWS_ID][objectCount].winPtr = ui->mdiArea->addSubWindow(myStatus[objectCount]);
+		mdiState[STATUS_WINDOWS_ID][objectCount].open = true;
+		myStatus[objectCount]->show();
+
+		sendWindowCreatedMsg(W_Status::getDescription(), objectCount,
+							 W_Status::getMaxWindow() - 1);
+
+		//Link to MainWindow for the close signal:
+		connect(myStatus[objectCount],	&W_Status::windowClosed, \
+				this,					&MainWindow::closeStatus);
+
+		//Link to SlaveComm to send commands:
+		connect(myStatus[objectCount],	&W_Status::writeCommand,
+				comManager,				&ComManager::enqueueCommand);
+
+		connect(userDataManager,	&DynamicUserDataManager::writeCommand,
+				comManager,			&ComManager::enqueueCommand);
+
+		connect(comManager,				&ComManager::openStatus,
+				myStatus[objectCount],	&W_Status::comStatusChanged);
+
+		//Link to Rigid for status updates:
+
+	}
+
+	else
+	{
+		sendWindowCreatedFailedMsg(W_Status::getDescription(),
+								   W_Status::getMaxWindow());
+	}
+}
+
+void MainWindow::closeStatus(void)
+{
+	sendCloseWindowMsg(W_Status::getDescription());
+	mdiState[STATUS_WINDOWS_ID][0].open = false;	//ToDo this is wrong!
+}
 //Creates a new View Execute window
 void MainWindow::createViewExecute(void)
 {
@@ -1117,13 +1175,15 @@ void MainWindow::createViewRigid(void)
 		sendWindowCreatedMsg(W_Rigid::getDescription(), objectCount,
 							 W_Rigid::getMaxWindow() - 1);
 
+		//if(W_Status::howManyInstance() <= objectCount){createStatus();}
+
 		//Link ComManager and Rigid:
 		connect(comManager,				&ComManager::newDataReady, \
 				myViewRigid[objectCount],	&W_Rigid::refreshDisplay);
 
 		//Link to MainWindow for the close signal:
 		connect(myViewRigid[objectCount],	&W_Rigid::windowClosed, \
-				this,						&MainWindow::closeViewGossip);
+				this,						&MainWindow::closeViewRigid);
 
 		// Link to the slider of logKeyPad. Intermediate signal (connector) to
 		// allow opening of window asynchroniously
@@ -1132,6 +1192,9 @@ void MainWindow::createViewRigid(void)
 
 		connect(this,						&MainWindow::connectorUpdateDisplayMode, \
 				myViewRigid[objectCount],	&W_Rigid::updateDisplayMode);
+
+		/*connect(myViewRigid[objectCount],	&W_Rigid::statusChanged, \
+				myStatus[objectCount],		&W_Status::externalErrorFlag);*/
 	}
 
 	else

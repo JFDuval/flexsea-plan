@@ -52,7 +52,7 @@ void ComManager::init()
 	connect(mySerialDriver,	&SerialDriver::setStatusBarMessage, \
 			this,			&ComManager::setStatusBarMessage);
 	connect(mySerialDriver,	&SerialDriver::writeToLogFile, \
-			this,			&ComManager::writeToLogFile);
+			this,			&ComManager::writeToLogFile, Qt::DirectConnection);
 	connect(mySerialDriver,	&SerialDriver::aboutToClose, \
 			this,			&ComManager::aboutToClose);
 }

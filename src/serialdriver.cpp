@@ -316,11 +316,19 @@ void SerialDriver::handleReadyRead()
 
 	// Notify user in GUI: ... TODO: support 4 channels
 	if(numMessagesReceived >= numMessagesExpected)
+	{
 		emit dataStatus(0, DATAIN_STATUS_GREEN);
+	}
 	else if(numMessagesReceived == 0)
+	{
 		emit dataStatus(0, DATAIN_STATUS_RED);
+		qDebug() << "DATAIN_STATUS_RED : Packet received but no message decoded.";
+	}
 	else
+	{
 		emit dataStatus(0, DATAIN_STATUS_YELLOW);
+		qDebug() << "DATAIN_STATUS_YELLOW : Packet received but less messages decoded than expected";
+	}
 
 	if(numMessagesReceived)
 		emit newDataTimeout(true); //Reset counter

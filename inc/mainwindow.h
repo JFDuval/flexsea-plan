@@ -54,6 +54,7 @@
 #include "w_incontrol.h"
 #include "w_event.h"
 
+#include "w_status.h"
 #include "w_rigid.h"
 #include "flexseaDevice.h"
 
@@ -90,8 +91,8 @@ class MainWindow;
 #define GOSSIP_WINDOWS_ID			15
 #define STRAIN_WINDOWS_ID			16
 #define RICNU_VIEW_WINDOWS_ID		17
-#define TESTBENCH_WINDOWS_ID		18
-#define RIGID_WINDOWS_ID			19
+#define RIGID_WINDOWS_ID			18
+#define STATUS_WINDOWS_ID			19
 #define WINDOWS_TYPES				20 //(has to match the list above)
 #define WINDOWS_MAX_INSTANCES		5
 
@@ -102,7 +103,7 @@ class MainWindow;
 #define SLAVECOMM_WINDOWS_MAX		1
 #define ANYCOMMAND_WINDOWS_MAX		1
 #define CONVERTER_WINDOWS_MAX		1
-#define CONTROL_WINDOWS_MAX			1
+#define CONTROL_WINDOWS_MAX			2
 #define PLOT2D_WINDOWS_MAX			2
 #define RICNU_VIEW_WINDOWS_MAX		1
 #define CALIB_WINDOWS_MAX			1
@@ -115,7 +116,8 @@ class MainWindow;
 #define COMMTEST_WINDOWS_MAX		1
 #define INCONTROL_WINDOWS_MAX		1
 #define EVENT_WINDOWS_MAX			1
-#define RIGID_WINDOWS_MAX				1
+#define RIGID_WINDOWS_MAX			2
+#define STATUS_WINDOWS_MAX			2
 
 //Window information:
 typedef struct {
@@ -206,6 +208,7 @@ private:
 	W_InControl *myViewInControl[INCONTROL_WINDOWS_MAX];
 	W_Event *myEvent[EVENT_WINDOWS_MAX];
 	W_Rigid *myViewRigid[RIGID_WINDOWS_MAX];
+	W_Status *myStatus[STATUS_WINDOWS_MAX];
 	//MDI state:
 	mdiState_s mdiState[WINDOWS_TYPES][WINDOWS_MAX_INSTANCES];
 	void (MainWindow::*mdiCreateWinPtr[WINDOWS_TYPES])(void);
@@ -262,6 +265,7 @@ public slots:
 	void createInControl(void);
 	void createToolEvent(void);
 	void createViewRigid(void);
+	void createStatus(void);
 
 	//MDI Windows (closed):
 	void closeViewExecute(void);
@@ -283,6 +287,7 @@ public slots:
 	void closeToolEvent(void);
 	void closeInControl(void);
 	void closeViewRigid(void);
+	void closeStatus(void);
 	void saveConfig(void);
 	void loadConfig(void);
 	void defaultConfig(void);
