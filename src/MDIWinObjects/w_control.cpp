@@ -736,7 +736,7 @@ void W_Control::on_comboBox_ctrl_list_currentIndexChanged(int index)
 			ui->control_g0->setEnabled(1);
 			ui->control_g1->setEnabled(1);
 			ui->control_g2->setEnabled(1);
-			ui->control_g3->setDisabled(1);
+			ui->control_g3->setEnabled(1);
 			ui->control_g4->setDisabled(1);
 			ui->control_g5->setDisabled(1);
 			break;

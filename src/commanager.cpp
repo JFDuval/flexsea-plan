@@ -8,7 +8,6 @@
 #include <cmd-RICNU_Knee_v1.h>
 #include <cmd-Rigid.h>
 #include <dynamic_user_structs.h>
-#include <flexsea_cmd_angle_torque_profile.h>
 
 ComManager::ComManager(QObject *parent) :
 	QObject(parent)
