@@ -781,7 +781,7 @@ void W_SlaveComm::managePushButton(int row, bool forceOff)
 		}
 
 		#ifndef DEMO_1DOF
-		//setRowDisabled(row, false);
+		setRowDisabled(row, false);
 		#else
 		setRowDisabled(row, true);
 		#endif
