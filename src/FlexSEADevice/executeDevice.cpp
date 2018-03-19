@@ -501,9 +501,9 @@ void ExecuteDevice::decode(struct execute_s *exPtr)
 	exPtr->decoded.accel.z = (1000*exPtr->accel.z)/8192;
 
 	//Gyro in degrees/s
-	exPtr->decoded.gyro.x = (100*exPtr->gyro.x)/164;
-	exPtr->decoded.gyro.y = (100*exPtr->gyro.y)/164;
-	exPtr->decoded.gyro.z = (100*exPtr->gyro.z)/164;
+	exPtr->decoded.gyro.x = (10*exPtr->gyro.x)/328;
+	exPtr->decoded.gyro.y = (10*exPtr->gyro.y)/328;
+	exPtr->decoded.gyro.z = (10*exPtr->gyro.z)/328;
 
 	exPtr->decoded.strain = 0;
 

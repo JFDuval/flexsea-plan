@@ -76,10 +76,11 @@ class W_Config : public QWidget, public Counter<W_Config>
 
 public:
 	//Constructor & Destructor:
-	explicit W_Config(QWidget *parent = 0, QStringList *initFavoritePort = 0);
+	explicit W_Config(QWidget *parent = 0, QStringList *initFavoritePort = 0, int instanceNumInit = -1);
 	~W_Config();
 
 	DataSource getDataSourceStatus(void) {return dataSourceState;}
+	int getInstanceNumber() {return instanceNum;}
 
 private slots:
 	void refreshComList(bool forceRefresh = false, \
@@ -99,6 +100,8 @@ private slots:
 	void on_pbBTfast_clicked();
 	void on_checkBoxFavoritePort_clicked();
 
+	void on_cancelComButton_clicked();
+
 public slots:
 	void on_openStatusUpdate(SerialPortStatus status, int nbTries);
 	void refreshComTimeout();
@@ -117,6 +120,8 @@ private:
 	QStringList *favoritePort;
 	int progressTries, progressCnt;
 	int timerConnectedTo;
+	int instanceNum = 0;
+	int refreshDivide = 0;
 
 	QTimer *comPortRefreshTimer, *btConfigTimer, *openProgressTimer;
 
@@ -132,11 +137,12 @@ private:
 signals:
 	void openCom(QString name, int tries, int delay, bool *success);
 	void closeCom(void);
+	void openCancelRequest(void);
 	void openReadingFile(bool *, FlexseaDevice **);
 	void createLogKeypad(DataSource, FlexseaDevice *);
 	void closeReadingFile(void);
 	void updateDataSourceStatus(DataSource , FlexseaDevice *);
-	void windowClosed(void);
+	void windowClosed(int instanceNum);
 	//void writeSerial(uint8_t bytes_to_send, uint8_t *serial_tx_data);
 	void writeCommand(uint8_t numb, uint8_t *tx_data, uint8_t r_w);
 	void write(uint8_t bytes_to_send, uint8_t *serial_tx_data);

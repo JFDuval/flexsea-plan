@@ -610,9 +610,9 @@ void RigidDevice::decode(struct rigid_s *riPtr)
 	riPtr->mn.decoded.accel.z = (1000*riPtr->mn.accel.z)/8192;
 
 	//Gyro in degrees/s
-	riPtr->mn.decoded.gyro.x = (100*riPtr->mn.gyro.x)/164;
-	riPtr->mn.decoded.gyro.y = (100*riPtr->mn.gyro.y)/164;
-	riPtr->mn.decoded.gyro.z = (100*riPtr->mn.gyro.z)/164;
+	riPtr->mn.decoded.gyro.x = (10*riPtr->mn.gyro.x)/328;
+	riPtr->mn.decoded.gyro.y = (10*riPtr->mn.gyro.y)/328;
+	riPtr->mn.decoded.gyro.z = (10*riPtr->mn.gyro.z)/328;
 
 	//Magneto in uT (0.15uT/LSB)
 	riPtr->mn.decoded.magneto.x = (15*riPtr->mn.magneto.x)/100;

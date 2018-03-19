@@ -80,9 +80,7 @@ private slots:
 	void on_control_slider_max_textEdited(const QString &arg1);
 	void on_control_slider_max_editingFinished();
 	void on_control_slider_min_editingFinished();
-
 	void on_comboBoxCmdStyle_currentIndexChanged(int index);
-
 	void on_comboBoxFSM2_currentIndexChanged(int index);
 
 private:
@@ -100,7 +98,7 @@ private:
 	QTimer *timerCtrl, *timerDisplay;
 	uint8_t transferBuf[48];
 	static int setp;
-	struct ActPack_s ActPack;
+	struct ActPack_s ActPack[2];
 
 	//Function(s):
 	void initControl(void);

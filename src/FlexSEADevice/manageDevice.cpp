@@ -343,9 +343,9 @@ void ManageDevice::decode(struct manage_s *mnPtr)
 	mnPtr->decoded.accel.z = (1000*mnPtr->accel.z)/8192;
 
 	//Gyro in degrees/s
-	mnPtr->decoded.gyro.x = (100*mnPtr->gyro.x)/164;
-	mnPtr->decoded.gyro.y = (100*mnPtr->gyro.y)/164;
-	mnPtr->decoded.gyro.z = (100*mnPtr->gyro.z)/164;
+	mnPtr->decoded.gyro.x = (10*mnPtr->gyro.x)/328;
+	mnPtr->decoded.gyro.y = (10*mnPtr->gyro.y)/328;
+	mnPtr->decoded.gyro.z = (10*mnPtr->gyro.z)/328;
 
 	mnPtr->decoded.analog[0] = (int32_t)1000*((float)mnPtr->analog[0]/ \
 						STM32_ADC_MAX)*STM32_ADC_SUPPLY;

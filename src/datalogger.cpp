@@ -53,8 +53,6 @@
 // Constructor & Destructor:
 //****************************************************************************
 
-bool DataLogger::sessionDirectoryCreated = false;
-
 DataLogger::DataLogger(QWidget *parent,
 					   ExecuteDevice *executeInitPtr,
 					   ManageDevice *manageInitPtr,
@@ -63,7 +61,9 @@ DataLogger::DataLogger(QWidget *parent,
 					   StrainDevice *strainInitPtr,
 					   RicnuProject *ricnuInitPtr,
 					   Ankle2DofProject *ankle2DofInitPtr,
-					   RigidDevice *rigidInitPtr) :
+					   RigidDevice *rigidInitPtr,
+					   PocketDevice *pocketInitPtr,
+					   QString appPath) :
 	QWidget(parent)
 {
 	executeDevPtr = executeInitPtr;
@@ -74,8 +74,9 @@ DataLogger::DataLogger(QWidget *parent,
 	ricnuDevPtr = ricnuInitPtr;
 	ankle2DofDevPtr = ankle2DofInitPtr;
 	rigidDevPtr = rigidInitPtr;
+	pocketDevPtr = pocketInitPtr;
 
-	planGUIRootPath = QDir::currentPath();
+	planGUIRootPath = appPath;
 
 	init();
 }
@@ -258,6 +259,7 @@ void DataLogger::openReadingFile(bool * isOpen, FlexseaDevice **devPtr)
 	else if(slavetype == ricnuDevPtr->slaveTypeName)	{flexSEAPtr = ricnuDevPtr;}
 	else if(slavetype == ankle2DofDevPtr->slaveTypeName)	{flexSEAPtr = ankle2DofDevPtr;}
 	else if(slavetype == rigidDevPtr->slaveTypeName)	{flexSEAPtr = rigidDevPtr;}
+	else if(slavetype == pocketDevPtr->slaveTypeName)	{flexSEAPtr = pocketDevPtr;}
 	else
 	{
 		setStatus("Error : Loaded file Slave Type is not supported.");
@@ -398,6 +400,7 @@ void DataLogger::initLogDirectory()
 	sessionFolder.replace(":", "-");
 
 	//Do we already have a "Plan-GUI-Logs" directory?
+	QDir().setCurrent(planGUIRootPath);
 	if(!QDir().exists(logFolder))
 	{
 		//No, create it:

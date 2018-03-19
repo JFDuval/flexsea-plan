@@ -56,6 +56,7 @@
 
 #include "w_status.h"
 #include "w_rigid.h"
+#include "w_pocket.h"
 #include "flexseaDevice.h"
 
 #include "w_commtest.h"
@@ -93,13 +94,14 @@ class MainWindow;
 #define RICNU_VIEW_WINDOWS_ID		17
 #define RIGID_WINDOWS_ID			18
 #define STATUS_WINDOWS_ID			19
-#define WINDOWS_TYPES				20 //(has to match the list above)
+#define POCKET_WINDOWS_ID			20
+#define WINDOWS_TYPES				21 //(has to match the list above)
 #define WINDOWS_MAX_INSTANCES		5
 
 //MDI Objects: set maximums # of child
 #define EX_VIEW_WINDOWS_MAX			5
 #define MN_VIEW_WINDOWS_MAX			2
-#define CONFIG_WINDOWS_MAX			1
+#define CONFIG_WINDOWS_MAX			2
 #define SLAVECOMM_WINDOWS_MAX		1
 #define ANYCOMMAND_WINDOWS_MAX		1
 #define CONVERTER_WINDOWS_MAX		1
@@ -112,12 +114,12 @@ class MainWindow;
 #define GOSSIP_WINDOWS_MAX			2
 #define STRAIN_WINDOWS_MAX			2
 #define USERRW_WINDOWS_MAX			1
-
 #define COMMTEST_WINDOWS_MAX		1
 #define INCONTROL_WINDOWS_MAX		1
 #define EVENT_WINDOWS_MAX			1
 #define RIGID_WINDOWS_MAX			2
 #define STATUS_WINDOWS_MAX			2
+#define POCKET_WINDOWS_MAX			1
 
 //Window information:
 typedef struct {
@@ -151,6 +153,7 @@ private:
 	QList<ExecuteDevice>	executeDevList;
 	QList<ManageDevice>		manageDevList;
 	QList<RigidDevice>		rigidDevList;
+	QList<PocketDevice>		pocketDevList;
 	QList<GossipDevice>		gossipDevList;
 	QList<BatteryDevice>	batteryDevList;
 	QList<StrainDevice>		strainDevList;
@@ -161,6 +164,7 @@ private:
 	QList<FlexseaDevice*>	executeFlexList;
 	QList<FlexseaDevice*>	manageFlexList;
 	QList<FlexseaDevice*>	rigidFlexList;
+	QList<FlexseaDevice*>	pocketFlexList;
 	QList<FlexseaDevice*>	gossipFlexList;
 	QList<FlexseaDevice*>	batteryFlexList;
 	QList<FlexseaDevice*>	strainFlexList;
@@ -178,6 +182,7 @@ private:
 	ManageDevice manageLog = ManageDevice();
 	GossipDevice gossipLog = GossipDevice();
 	RigidDevice rigidLog = RigidDevice();
+	PocketDevice pocketLog = PocketDevice();
 	BatteryDevice batteryLog = BatteryDevice();
 	StrainDevice strainLog = StrainDevice();
 	RicnuProject ricnuLog = RicnuProject();
@@ -189,26 +194,28 @@ private:
 	QString activeSlaveNameStreaming;
 
 	// Sub-Windows
-	W_Execute *myViewExecute[EX_VIEW_WINDOWS_MAX];
-	W_Manage *myViewManage[MN_VIEW_WINDOWS_MAX];
-	W_Config *myViewConfig[CONFIG_WINDOWS_MAX];
-	W_SlaveComm *myViewSlaveComm[SLAVECOMM_WINDOWS_MAX];
-	W_AnyCommand *myViewAnyCommand[ANYCOMMAND_WINDOWS_MAX];
-	W_Converter *my_w_converter[CONVERTER_WINDOWS_MAX];
-	W_Calibration *myViewCalibration[CALIB_WINDOWS_MAX];
-	W_Control *myViewControl[CONTROL_WINDOWS_MAX];
-	W_2DPlot *myView2DPlot[PLOT2D_WINDOWS_MAX];
-	W_Ricnu *myViewRicnu[RICNU_VIEW_WINDOWS_MAX];
-	W_Battery *myViewBatt[BATT_WINDOWS_MAX];
-	W_LogKeyPad *myViewLogKeyPad[LOGKEYPAD_WINDOWS_MAX];
-	W_Gossip *myViewGossip[GOSSIP_WINDOWS_MAX];
-	W_Strain *myViewStrain[STRAIN_WINDOWS_MAX];
-	W_UserRW *myUserRW[USERRW_WINDOWS_MAX];
-	W_CommTest *myViewCommTest[COMMTEST_WINDOWS_MAX];
-	W_InControl *myViewInControl[INCONTROL_WINDOWS_MAX];
-	W_Event *myEvent[EVENT_WINDOWS_MAX];
-	W_Rigid *myViewRigid[RIGID_WINDOWS_MAX];
-	W_Status *myStatus[STATUS_WINDOWS_MAX];
+	W_Execute *myViewExecute[EX_VIEW_WINDOWS_MAX] = {NULL};
+	W_Manage *myViewManage[MN_VIEW_WINDOWS_MAX] = {NULL};
+	W_Config *myViewConfig[CONFIG_WINDOWS_MAX] = {NULL};
+	W_SlaveComm *myViewSlaveComm[SLAVECOMM_WINDOWS_MAX] = {NULL};
+	W_AnyCommand *myViewAnyCommand[ANYCOMMAND_WINDOWS_MAX] = {NULL};
+	W_Converter *my_w_converter[CONVERTER_WINDOWS_MAX] = {NULL};
+	W_Calibration *myViewCalibration[CALIB_WINDOWS_MAX] = {NULL};
+	W_Control *myViewControl[CONTROL_WINDOWS_MAX] = {NULL};
+	W_2DPlot *myView2DPlot[PLOT2D_WINDOWS_MAX] = {NULL};
+	W_Ricnu *myViewRicnu[RICNU_VIEW_WINDOWS_MAX] = {NULL};
+	W_Battery *myViewBatt[BATT_WINDOWS_MAX] = {NULL};
+	W_LogKeyPad *myViewLogKeyPad[LOGKEYPAD_WINDOWS_MAX] = {NULL};
+	W_Gossip *myViewGossip[GOSSIP_WINDOWS_MAX] = {NULL};
+	W_Strain *myViewStrain[STRAIN_WINDOWS_MAX] = {NULL};
+	W_UserRW *myUserRW[USERRW_WINDOWS_MAX] = {NULL};
+	W_CommTest *myViewCommTest[COMMTEST_WINDOWS_MAX] = {NULL};
+	W_InControl *myViewInControl[INCONTROL_WINDOWS_MAX] = {NULL};
+	W_Event *myEvent[EVENT_WINDOWS_MAX] = {NULL};
+	W_Rigid *myViewRigid[RIGID_WINDOWS_MAX] = {NULL};
+	W_Pocket *myViewPocket[POCKET_WINDOWS_MAX] = {NULL};
+	W_Status *myStatus[STATUS_WINDOWS_MAX] = {NULL};
+
 	//MDI state:
 	mdiState_s mdiState[WINDOWS_TYPES][WINDOWS_MAX_INSTANCES];
 	void (MainWindow::*mdiCreateWinPtr[WINDOWS_TYPES])(void);
@@ -219,13 +226,15 @@ private:
 
 	// Objects
 	//ChartController *chartController;
-	QThread* comManagerThread;
+	QList<QThread*> comManagerThread;
 
-	DataLogger *myDataLogger;
-	ComManager* comManager;
+	QList<DataLogger*> myDataLogger;
+	QList<ComManager*> comManager;
 	DynamicUserDataManager* userDataManager;
 
-	QList<int> comRefreshRate;
+	QTimer *tabsStateTimer;
+	QToolButton *restorebutton;
+	QToolButton *closebutton;
 
 	void writeSettings();
 	void readSettings();
@@ -265,6 +274,7 @@ public slots:
 	void createInControl(void);
 	void createToolEvent(void);
 	void createViewRigid(void);
+	void createViewPocket(void);
 	void createStatus(void);
 
 	//MDI Windows (closed):
@@ -272,7 +282,7 @@ public slots:
 	void closeViewManage(void);
 	void closeView2DPlot(void);
 	void closeControlControl(void);
-	void closeConfig(void);
+	void closeConfig(int instanceNum);
 	void closeCalib(void);
 	void closeSlaveComm(void);
 	void closeAnyCommand(void);
@@ -287,6 +297,7 @@ public slots:
 	void closeToolEvent(void);
 	void closeInControl(void);
 	void closeViewRigid(void);
+	void closeViewPocket(void);
 	void closeStatus(void);
 	void saveConfig(void);
 	void loadConfig(void);
@@ -316,6 +327,9 @@ public slots:
 	void loadCSVconfigFile(void);
 	void saveCSVconfigFile(void);
 	void applyLoadedConfig(void);
+	void tabsStateUpdate(void);
+	void closeButtonClicked(void);
+	void restoreButtonClicked(void);
 };
 
 #endif // MAINWINDOW_H

@@ -58,6 +58,7 @@ public slots:
 	void onComPortClosing();
 
 	void open(QString name, int tries, int delay, bool* success);
+	void openCancelRequest(void);
 	void close(void);
 	void tryReadWrite(uint8_t bytes_to_send, uint8_t *serial_tx_data, int timeout);
 	int write(uint8_t bytes_to_send, uint8_t *serial_tx_data);
@@ -114,7 +115,7 @@ private:
 	QTimer* clockTimer;
 	float clockPeriod;
 
-	QList<int> ricnuOffsets, rigidOffsets;
+	QList<int> ricnuOffsets, rigidOffsets, pocketOffsets;
 	int minOffs = 0, maxOffs = 0;
 
 	void sendCommands(int index);
@@ -126,5 +127,6 @@ private:
 	void sendCommandDynamic(uint8_t slaveId);
 	void sendCommandAngleTorqueProfile(uint8_t slaveId);
 	void sendCommandRigid(uint8_t slaveId);
+	void sendCommandPocket(uint8_t slaveId);
 };
 #endif // STREAMMANAGER_H

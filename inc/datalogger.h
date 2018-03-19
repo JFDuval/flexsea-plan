@@ -50,6 +50,7 @@
 #include "batteryDevice.h"
 #include "strainDevice.h"
 #include "ricnuProject.h"
+#include "pocketDevice.h"
 #include <QHash>
 #include "ankle2DofProject.h"
 #include "rigidDevice.h"
@@ -79,7 +80,9 @@ public:
 						StrainDevice *strainInitPtr = nullptr,
 						RicnuProject *ricnuInitPtr = nullptr,
 						Ankle2DofProject *ankle2DofInitPtr = nullptr,
-						RigidDevice *rigidInitPtr = nullptr);
+						RigidDevice *rigidInitPtr = nullptr,
+						PocketDevice *pocketInitPtr = nullptr,
+						QString appPath = "");
 
 public slots:
 	void openRecordingFile(FlexseaDevice *devicePtr);
@@ -104,7 +107,7 @@ private:
 	typedef QHash<FlexseaDevice*, FileRecord>::iterator deviceRecordIterator;
 
 	QFile logReadingFile;
-	static bool sessionDirectoryCreated;
+	bool sessionDirectoryCreated = false;
 
 	ExecuteDevice *executeDevPtr;
 	ManageDevice *manageDevPtr;
@@ -114,6 +117,7 @@ private:
 	RicnuProject *ricnuDevPtr;
 	Ankle2DofProject *ankle2DofDevPtr;
 	RigidDevice *rigidDevPtr;
+	PocketDevice *pocketDevPtr;
 
 	QString planGUIRootPath;
 	QString logFolder;

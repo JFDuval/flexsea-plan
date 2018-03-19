@@ -56,6 +56,8 @@ SerialDriver::SerialDriver(QObject *parent) : QObject(parent)
 
 	USBSerialPort = new QSerialPort(this);
 
+	openCancelRequestFlag = false;
+
 	// Used to register the custom type for the signal/slot function using it.
 	qRegisterMetaType<SerialPortStatus>();
 }
@@ -93,8 +95,9 @@ void SerialDriver::open(QString name, int tries, int delay, bool *success)
 
 	//Start timer:
 	timerCount = 0;
+	openCancelRequestFlag = false;
 
-	while(isPortOpen == false && cnt < tries)
+	while(isPortOpen == false && cnt < tries && openCancelRequestFlag == false)
 	{
 		isPortOpen = USBSerialPort->open(QIODevice::ReadWrite);  //returns true if successful
 		cnt++;
@@ -106,8 +109,6 @@ void SerialDriver::open(QString name, int tries, int delay, bool *success)
 						USBSerialPort->errorString() << ".\n";
 			emit openStatus(WhileOpening, cnt);
 		}
-
-		usleep(delay);
 	}
 
 	if (!isPortOpen)
@@ -152,6 +153,11 @@ void SerialDriver::close(void)
 	USBSerialPort->close();
 }
 
+void SerialDriver::openCancelRequest(void)
+{
+	openCancelRequestFlag = true;
+}
+
 int SerialDriver::write(uint8_t bytes_to_send, uint8_t *serial_tx_data)
 {
 	qint64 write_ret = 0;
@@ -166,6 +172,7 @@ int SerialDriver::write(uint8_t bytes_to_send, uint8_t *serial_tx_data)
 			qDebug() << "Write failed";
 			USBSerialPort->clear();
 		}
+		//else{qDebug() << ">>>SerialDriver wrote a packet.";}	//Debugging only
 	}
 	else
 	{
@@ -192,7 +199,9 @@ FlexseaDevice* SerialDriver::getDeviceByIdCmd(uint8_t slaveId, int cmd)
 	for(unsigned int i = 0; i < devices.size(); i++)
 	{
 		if(devices.at(i)->slaveID == slaveId && devices.at(i)->experimentIndex == cmd)
+		{
 			return devices.at(i);
+		}
 	}
 	return nullptr;
 }
@@ -219,6 +228,7 @@ void SerialDriver::signalSuccessfulParse()
 			emit writeToLogFile(device);
 		}
 	}
+
 	emit newDataReady();
 }
 
@@ -340,7 +350,11 @@ void SerialDriver::handleReadyRead()
 
 void SerialDriver::addDevice(FlexseaDevice* device)
 {
-	if(!device) return;
+	if(!device)
+	{
+		//qDebug() << "SerialDriver::addDevice Not a device (or empty)";
+		return;
+	}
 
 	bool alreadyContainDevice = false;
 	for(unsigned int i = 0; i < devices.size(); i++)
@@ -354,6 +368,10 @@ void SerialDriver::addDevice(FlexseaDevice* device)
 	if(!alreadyContainDevice)
 	{
 		devices.push_back(device);
+	}
+	else
+	{
+		//qDebug() << "SerialDriver::addDevice Device already included";
 	}
 }
 

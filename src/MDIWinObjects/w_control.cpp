@@ -201,14 +201,17 @@ void W_Control::init_ctrl_gains(void)
 //Initialize ActPack
 void W_Control::initActPack(void)
 {
-	ActPack.controller = CTRL_NONE;
-	ActPack.setpoint = 0;
-	ActPack.setGains = KEEP;
-	ActPack.g0 = 0;
-	ActPack.g1 = 0;
-	ActPack.g2 = 0;
-	ActPack.g3 = 0;
-	ActPack.system = 0;
+	for(uint8_t ch = 0; ch < 2; ch++)
+	{
+		ActPack[ch].controller = CTRL_NONE;
+		ActPack[ch].setpoint = 0;
+		ActPack[ch].setGains = KEEP;
+		ActPack[ch].g0 = 0;
+		ActPack[ch].g1 = 0;
+		ActPack[ch].g2 = 0;
+		ActPack[ch].g3 = 0;
+		ActPack[ch].system = 0;
+	}
 }
 
 //Send the ActPack command. It will use the ActPack structure values.
@@ -216,28 +219,29 @@ void W_Control::sendActPack(void)
 {
 	uint8_t info[2] = {PORT_USB, PORT_USB};
 	uint16_t numb = 0;
-	uint8_t offset = 0;
+	uint8_t ch = 0;
+	ch = ui->spinBoxChannel->value();
 
-	/*//Debugging only:
-	qDebug() << "[ActPack]";
-	qDebug() << "Controller: " << ActPack.controller;
-	qDebug() << "Setpoint: " << ActPack.setpoint;
-	qDebug() << "Set Gains: " << ActPack.setGains;
-	qDebug() << "g0: " << ActPack.g0;
-	qDebug() << "g1: " << ActPack.g1;
-	qDebug() << "g2: " << ActPack.g2;
-	qDebug() << "g3: " << ActPack.g3;*/
+	//Debugging only:
+	qDebug() << "[ActPack ch#]" << ch;
+	qDebug() << "Controller: " << ActPack[ch].controller;
+	qDebug() << "Setpoint: " << ActPack[ch].setpoint;
+	qDebug() << "Set Gains: " << ActPack[ch].setGains;
+	qDebug() << "g0: " << ActPack[ch].g0;
+	qDebug() << "g1: " << ActPack[ch].g1;
+	qDebug() << "g2: " << ActPack[ch].g2;
+	qDebug() << "g3: " << ActPack[ch].g3;
 
 	//Send command:
-	tx_cmd_actpack_rw(TX_N_DEFAULT, offset, ActPack.controller, ActPack.setpoint, \
-					  ActPack.setGains, ActPack.g0, ActPack.g1, ActPack.g2, \
-					  ActPack.g3, ActPack.system);
+	tx_cmd_actpack_rw(TX_N_DEFAULT, ch, ActPack[ch].controller, ActPack[ch].setpoint, \
+					  ActPack[ch].setGains, ActPack[ch].g0, ActPack[ch].g1, ActPack[ch].g2, \
+					  ActPack[ch].g3, ActPack[ch].system);
 	pack(P_AND_S_DEFAULT, active_slave, info, &numb, comm_str_usb);
 	emit writeCommand(numb, comm_str_usb, WRITE);
 
-	if(ActPack.setGains == CHANGE)
+	if(ActPack[ch].setGains == CHANGE)
 	{
-		ActPack.setGains = KEEP;
+		ActPack[ch].setGains = KEEP;
 	}
 }
 
@@ -295,7 +299,8 @@ void W_Control::controller_setpoint(int val)
 
 	if(valid)
 	{
-		ActPack.setpoint = val;
+		uint8_t ch = ui->spinBoxChannel->value();
+		ActPack[ch].setpoint = val;
 
 		if(!ui->comboBoxCmdStyle->currentIndex())
 		{
@@ -446,7 +451,8 @@ void W_Control::setController(uint8_t ctrl)
 	}
 	else
 	{
-		ActPack.controller = ctrl;
+		uint8_t ch = ui->spinBoxChannel->value();
+		ActPack[ch].controller = ctrl;
 		sendActPack();
 	}
 }
@@ -638,11 +644,12 @@ void W_Control::on_pushButton_SetGains_clicked()
 	if(valid)
 	{
 		qDebug() << "Valid controller.";
-		ActPack.setGains = CHANGE;
-		ActPack.g0 = gains[0];
-		ActPack.g1 = gains[1];
-		ActPack.g2 = gains[2];
-		ActPack.g3 = gains[3];
+		uint8_t ch = ui->spinBoxChannel->value();
+		ActPack[ch].setGains = CHANGE;
+		ActPack[ch].g0 = gains[0];
+		ActPack[ch].g1 = gains[1];
+		ActPack[ch].g2 = gains[2];
+		ActPack[ch].g3 = gains[3];
 
 		if(!ui->comboBoxCmdStyle->currentIndex())
 		{
@@ -736,7 +743,7 @@ void W_Control::on_comboBox_ctrl_list_currentIndexChanged(int index)
 			ui->control_g0->setEnabled(1);
 			ui->control_g1->setEnabled(1);
 			ui->control_g2->setEnabled(1);
-			ui->control_g3->setEnabled(1);
+			ui->control_g3->setDisabled(1);
 			ui->control_g4->setDisabled(1);
 			ui->control_g5->setDisabled(1);
 			break;
@@ -835,8 +842,9 @@ void W_Control::on_comboBoxCmdStyle_currentIndexChanged(int index)
 
 void W_Control::on_comboBoxFSM2_currentIndexChanged(int index)
 {
-	if(index == 0){ActPack.system = SYS_NORMAL;}
-	else {ActPack.system = SYS_DISABLE_FSM2;}
+	uint8_t ch = ui->spinBoxChannel->value();
+	if(index == 0){ActPack[ch].system = SYS_NORMAL;}
+	else {ActPack[ch].system = SYS_DISABLE_FSM2;}
 
 	sendActPack();
 }

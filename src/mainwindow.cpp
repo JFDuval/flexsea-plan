@@ -42,6 +42,7 @@
 #include <QTextStream>
 #include <flexsea_system.h>
 #include "cmd-Rigid.h"
+#include "cmd-Pocket.h"
 #include <unistd.h>
 
 //****************************************************************************
@@ -117,25 +118,32 @@ MainWindow::MainWindow(QWidget *parent) :
 	W_InControl::setDescription("Controller Tuning");
 	W_Event::setDescription("Event Flag");
 	W_Rigid::setDescription("FlexSEA-Rigid");
+	W_Pocket::setDescription("FlexSEA-Pocket");
 	W_Status::setDescription("Status");
 
 	initFlexSeaDeviceObject();
-	comManager = new ComManager();
-	//Datalogger:
-	myDataLogger = new DataLogger(this,
-								  &executeLog,
-								  &manageLog,
-								  &gossipLog,
-								  &batteryLog,
-								  &strainLog,
-								  &ricnuLog,
-								  &ankle2DofLog,
-								  &rigidLog);
+	for(int i = 0; i < CONFIG_WINDOWS_MAX; i++)
+	{
+		comManager.append(new ComManager());
+		//Datalogger:
+		myDataLogger.append(new DataLogger(this,
+									  &executeLog,
+									  &manageLog,
+									  &gossipLog,
+									  &batteryLog,
+									  &strainLog,
+									  &ricnuLog,
+									  &ankle2DofLog,
+									  &rigidLog,
+									  &pocketLog,
+									  appPath));
 
-	initSerialComm();
+		initSerialComm();
+	}
 	userDataManager = new DynamicUserDataManager(this);
 
-	connect(comManager, &ComManager::newDataReady,
+	//todo: using fix dataloger
+	connect(comManager[0], &ComManager::newDataReady,
 			userDataManager, &DynamicUserDataManager::handleNewMessage);
 
 	//Create default objects:
@@ -146,7 +154,8 @@ MainWindow::MainWindow(QWidget *parent) :
 	initMenus();
 
 	//Log and MainWindow
-	connect(myDataLogger, &DataLogger::setStatusBarMessage, \
+	//todo: using fix dataloger
+	connect(myDataLogger[0], &DataLogger::setStatusBarMessage, \
 			this, &MainWindow::setStatusBar);
 
 	comPortStatus = PortClosed;
@@ -163,14 +172,16 @@ MainWindow::MainWindow(QWidget *parent) :
 	initializeCreateWindowFctPtr();
 	loadCSVconfigFile();	//By default we load the last saved settings
 	applyLoadedConfig();
-
 }
 
 MainWindow::~MainWindow()
 {
 	delete ui;
 
-	delete comManager;
+	for(int i=0; i<CONFIG_WINDOWS_MAX; i++)
+	{
+		delete comManager[i];
+	}
 
 	int num2d = W_2DPlot::howManyInstance();
 	for(int i = 0; i < num2d; i++)
@@ -196,6 +207,7 @@ void MainWindow::initMenus(void)
 	ui->menuView->addAction("Gossip", this, &MainWindow::createViewGossip);
 	ui->menuView->addAction("Manage", this, &MainWindow::createViewManage);
 	ui->menuView->addAction("Rigid", this, &MainWindow::createViewRigid);
+	ui->menuView->addAction("Pocket", this, &MainWindow::createViewPocket);
 	ui->menuView->addAction("Strain", this, &MainWindow::createViewStrain);
 	ui->menuView->addSeparator();
 	ui->menuView->addAction("2D Plot", this, &MainWindow::createView2DPlot);
@@ -217,11 +229,52 @@ void MainWindow::initMenus(void)
 	ui->menuTools->addAction("Communication Test", this, &MainWindow::createViewCommTest);
 	ui->menuTools->addAction("Converter", this, &MainWindow::createConverter);
 
+	//Window
+	ui->menuWindow->addAction("Tile", ui->mdiArea, &QMdiArea::tileSubWindows);
+	ui->menuWindow->addAction("Cascade", ui->mdiArea, &QMdiArea::cascadeSubWindows);
 
 	//Help:
 	ui->menuHelp->addAction("Documentation", this, &MainWindow::displayDocumentation);
 	ui->menuHelp->addAction("License", this, &MainWindow::displayLicense);
 	ui->menuHelp->addAction("About", this, &MainWindow::displayAbout);
+
+	restorebutton = new QToolButton();
+	QPixmap restorePixmap(":icons/restore.png");
+	QIcon restoreIcon(restorePixmap);
+	restorebutton->setIcon(restoreIcon);
+	restorebutton->setIconSize(restorePixmap.rect().size());
+	connect(restorebutton, &QToolButton::clicked ,
+			this, &MainWindow::restoreButtonClicked);
+	restorebutton->setVisible(false);
+
+	closebutton = new QToolButton();
+	QPixmap closePixmap(":icons/close.png");
+	QIcon closeIcon(closePixmap);
+	closebutton->setIcon(closeIcon);
+	closebutton->setIconSize(closePixmap.rect().size());
+	connect(closebutton, &QToolButton::clicked ,
+			this, &MainWindow::closeButtonClicked);
+	closebutton->setVisible(false);
+
+	QWidget* menuWidget = new QWidget(this);
+
+	QGridLayout* menuWidgetLayout = new QGridLayout(menuWidget);
+	menuWidget->setLayout(menuWidgetLayout);
+
+	// Add the menu bar and all tool buttons to the widget
+	menuWidgetLayout->addWidget(menuBar(), 0, 0, 1,1);
+	menuWidgetLayout->addWidget(restorebutton, 0, 1, 1, 1);
+	menuWidgetLayout->addWidget(closebutton, 0, 2, 1, 1);
+
+	// set the custom widget as the main window's menu widget
+	setMenuWidget(menuWidget);
+
+	tabsStateTimer = new QTimer(this);
+	tabsStateTimer->setTimerType(Qt::CoarseTimer);
+	tabsStateTimer->setSingleShot(false);
+	tabsStateTimer->setInterval(200);
+	connect(tabsStateTimer, &QTimer::timeout, this, &MainWindow::tabsStateUpdate);
+	tabsStateTimer->start();
 }
 
 void MainWindow::initFlexSeaDeviceObject(void)
@@ -313,38 +366,42 @@ void MainWindow::initFlexSeaDeviceObject(void)
 	flexseaPtrlist.append(&rigidDevList.last());
 	rigidFlexList.append(&rigidDevList.last());
 
+	pocketDevList.append(PocketDevice(&pocket1));
+	pocketDevList.last().slaveName = "Pocket 1";
+	pocketDevList.last().slaveID = FLEXSEA_VIRTUAL_PROJECT;
+	flexseaPtrlist.append(&pocketDevList.last());
+	pocketFlexList.append(&pocketDevList.last());
+
 	init_rigid();
+	init_pocket();
 
 	return;
 }
 
 void MainWindow::initSerialComm(void)
 {
-	comManagerThread = new QThread();
-	connect(comManagerThread, &QThread::started,
-			comManager, &ComManager::init);
-	connect(comManagerThread, &QThread::finished,
-			comManagerThread, &QThread::deleteLater);
-	comManager->moveToThread(comManagerThread);
-	comManagerThread->start(QThread::HighestPriority);
-
-	sleep(1);
-	comRefreshRate = comManager->getRefreshRates();
+	comManagerThread.append(new QThread());
+	connect(comManagerThread.last(), &QThread::started,
+			comManager.last(), &ComManager::init);
+	connect(comManagerThread.last(), &QThread::finished,
+			comManagerThread.last(), &QThread::deleteLater);
+	comManager.last()->moveToThread(comManagerThread.last());
+	comManagerThread.last()->start(QThread::HighestPriority);
 
 	//Link ComManager and DataLogger
-	connect(comManager,		&ComManager::openRecordingFile, \
-			myDataLogger,	&DataLogger::openRecordingFile);
+	connect(comManager.last(),		&ComManager::openRecordingFile, \
+			myDataLogger.last(),	&DataLogger::openRecordingFile);
 
-	connect(comManager,		&ComManager::writeToLogFile, \
-			myDataLogger,	&DataLogger::writeToFile, Qt::DirectConnection);
+	connect(comManager.last(),		&ComManager::writeToLogFile, \
+			myDataLogger.last(),	&DataLogger::writeToFile, Qt::DirectConnection);
 
-	connect(comManager,		&ComManager::closeRecordingFile, \
-			myDataLogger,	&DataLogger::closeRecordingFile);
+	connect(comManager.last(),		&ComManager::closeRecordingFile, \
+			myDataLogger.last(),	&DataLogger::closeRecordingFile);
 
 	//ComManager and MainWindow
-	connect(comManager, &ComManager::setStatusBarMessage, \
+	connect(comManager.last(), &ComManager::setStatusBarMessage, \
 			this,		&MainWindow::setStatusBar);
-	connect(comManager, &ComManager::openStatus, \
+	connect(comManager.last(), &ComManager::openStatus, \
 			this,		&MainWindow::saveComPortStatus);
 }
 
@@ -375,7 +432,9 @@ void MainWindow::initializeCreateWindowFctPtr(void)
 	mdiCreateWinPtr[STRAIN_WINDOWS_ID] = &MainWindow::createViewStrain;
 	mdiCreateWinPtr[RICNU_VIEW_WINDOWS_ID] = &MainWindow::createViewRicnu;
 	mdiCreateWinPtr[RIGID_WINDOWS_ID] = &MainWindow::createViewRigid;
+	mdiCreateWinPtr[POCKET_WINDOWS_ID] = &MainWindow::createViewPocket;
 	mdiCreateWinPtr[STATUS_WINDOWS_ID] = &MainWindow::createStatus;
+}
 
 /*
 void MainWindow::initializeCloseWindowFctPtr(void)
@@ -404,9 +463,9 @@ void MainWindow::initializeCloseWindowFctPtr(void)
 	mdiCloseWinPtr[GOSSIP_WINDOWS_ID] = &MainWindow::closeViewGossip;
 	mdiCloseWinPtr[STRAIN_WINDOWS_ID] = &MainWindow::closeViewStrain;
 	mdiCloseWinPtr[RICNU_VIEW_WINDOWS_ID] = &MainWindow::closeViewRicnu;
-	mdiCloseWinPtr[RIGID_WINDOWS_ID] = &MainWindow::closeViewRigid;}
-*/
+	mdiCloseWinPtr[RIGID_WINDOWS_ID] = &MainWindow::closeViewRigid;
 }
+*/
 
 void MainWindow::emptyWinFct(void)
 {
@@ -505,7 +564,7 @@ void MainWindow::createStatus(void)
 	//Limited number of windows:
 	if(objectCount < W_Status::getMaxWindow())
 	{
-		W_Status* status = new W_Status(this, userDataManager);
+		W_Status* status = new W_Status(this, userDataManager, &rigidDevList);
 		myStatus[objectCount] = status;
 		mdiState[STATUS_WINDOWS_ID][objectCount].winPtr = ui->mdiArea->addSubWindow(myStatus[objectCount]);
 		mdiState[STATUS_WINDOWS_ID][objectCount].open = true;
@@ -520,16 +579,13 @@ void MainWindow::createStatus(void)
 
 		//Link to SlaveComm to send commands:
 		connect(myStatus[objectCount],	&W_Status::writeCommand,
-				comManager,				&ComManager::enqueueCommand);
+				comManager[0],				&ComManager::enqueueCommand);
 
 		connect(userDataManager,	&DynamicUserDataManager::writeCommand,
-				comManager,			&ComManager::enqueueCommand);
+				comManager[0],			&ComManager::enqueueCommand);
 
-		connect(comManager,				&ComManager::openStatus,
+		connect(comManager[0],				&ComManager::openStatus,
 				myStatus[objectCount],	&W_Status::comStatusChanged);
-
-		//Link to Rigid for status updates:
-
 	}
 
 	else
@@ -544,6 +600,7 @@ void MainWindow::closeStatus(void)
 	sendCloseWindowMsg(W_Status::getDescription());
 	mdiState[STATUS_WINDOWS_ID][0].open = false;	//ToDo this is wrong!
 }
+
 //Creates a new View Execute window
 void MainWindow::createViewExecute(void)
 {
@@ -568,7 +625,10 @@ void MainWindow::createViewExecute(void)
 							 W_Execute::getMaxWindow() - 1);
 
 		//Link ComManager and Execute:
-		connect(comManager, &ComManager::newDataReady, \
+		connect(comManager[0], &ComManager::newDataReady, \
+				myViewExecute[objectCount], &W_Execute::refreshDisplay);
+
+		connect(comManager[1], &ComManager::newDataReady, \
 				myViewExecute[objectCount], &W_Execute::refreshDisplay);
 
 		//Link to MainWindow for the close signal:
@@ -615,7 +675,7 @@ void MainWindow::createViewManage(void)
 							 W_Manage::getMaxWindow() - 1);
 
 		//Link ComManager and Manage:
-		connect(comManager, &ComManager::newDataReady, \
+		connect(comManager[0], &ComManager::newDataReady, \
 				myViewManage[objectCount], &W_Manage::refreshDisplay);
 
 		//Link to MainWindow for the close signal:
@@ -650,54 +710,75 @@ void MainWindow::createConfig(void)
 	int objectCount = W_Config::howManyInstance();
 
 	//Limited number of windows:
-	if(objectCount < (CONFIG_WINDOWS_MAX))
+	if(objectCount < CONFIG_WINDOWS_MAX)
 	{
-		myViewConfig[objectCount] = new W_Config(this, &favoritePort);
-		mdiState[CONFIG_WINDOWS_ID][objectCount].winPtr = ui->mdiArea->addSubWindow(myViewConfig[objectCount]);
-		mdiState[CONFIG_WINDOWS_ID][objectCount].open = true;
-		myViewConfig[objectCount]->show();
+		int i = 0;
 
-		sendWindowCreatedMsg(W_Config::getDescription(), objectCount,
+		for(i = 0; i < CONFIG_WINDOWS_MAX; i++)
+		{
+			if(myViewConfig[i] == NULL)
+			{
+				break;
+			}
+		}
+
+		myViewConfig[i] = new W_Config(this, &favoritePort, i);
+		mdiState[CONFIG_WINDOWS_ID][i].winPtr = ui->mdiArea->addSubWindow(myViewConfig[i]);
+		mdiState[CONFIG_WINDOWS_ID][i].open = true;
+		myViewConfig[i]->show();
+
+		sendWindowCreatedMsg(W_Config::getDescription(), i,
 							 W_Config::getMaxWindow() - 1);
 
 		//Link to MainWindow for the close signal:
-		connect(myViewConfig[objectCount],	&W_Config::windowClosed, \
+		connect(myViewConfig[i],	&W_Config::windowClosed, \
 				this,						&MainWindow::closeConfig);
 
 		connect(this,						&MainWindow::connectorRefresh, \
-				myViewConfig[objectCount],	&W_Config::refresh);
+				myViewConfig[i],	&W_Config::refresh);
 
 		//Link to DataLogger
-		connect(myViewConfig[0],	&W_Config::openReadingFile, \
-				myDataLogger,		&DataLogger::openReadingFile);
+		connect(myViewConfig[i],	&W_Config::openReadingFile, \
+				myDataLogger[i],	&DataLogger::openReadingFile);
 
-		connect(myViewConfig[0],	&W_Config::closeReadingFile, \
-				myDataLogger,		&DataLogger::closeReadingFile);
+		connect(myViewConfig[i],	&W_Config::closeReadingFile, \
+				myDataLogger[i],	&DataLogger::closeReadingFile);
 
 		// Link to ComManager
-		connect(myViewConfig[0],&W_Config::openCom, \
-				comManager, &ComManager::open);
+		connect(myViewConfig[i],&W_Config::openCom, \
+				comManager[i], &ComManager::open);
 
-		connect(comManager, &ComManager::openStatus, \
-				myViewConfig[0],&W_Config::on_openStatusUpdate);
+		connect(comManager[i], &ComManager::openStatus, \
+				myViewConfig[i],&W_Config::on_openStatusUpdate);
 
-		connect(myViewConfig[0],&W_Config::closeCom, \
-				comManager, &ComManager::close);
+		connect(myViewConfig[i], &W_Config::openCancelRequest,
+				comManager[i], &ComManager::openCancelRequest, Qt::DirectConnection);
 
-		connect(myViewConfig[0],&W_Config::write,
-				comManager, &ComManager::write);
+		connect(myViewConfig[i],&W_Config::closeCom, \
+				comManager[i], &ComManager::close);
 
-		connect(myViewConfig[0],&W_Config::flush,
-				comManager, &ComManager::flush);
+		connect(myViewConfig[i],&W_Config::write,
+				comManager[i], &ComManager::write);
 
-		connect(myViewConfig[0],&W_Config::updateDataSourceStatus,
+		connect(myViewConfig[i],&W_Config::flush,
+				comManager[i], &ComManager::flush);
+
+		connect(myViewConfig[i],&W_Config::updateDataSourceStatus,
 				this,			&MainWindow::translatorUpdateDataSourceStatus);
 
-		connect(myViewConfig[0],&W_Config::createLogKeypad,
+		connect(myViewConfig[i],&W_Config::createLogKeypad,
 				this,			&MainWindow::manageLogKeyPad);
 
-		connect(comManager,  &ComManager::aboutToClose, \
-				myViewConfig[0], &W_Config::serialAboutToClose);
+		connect(comManager[i],  &ComManager::aboutToClose, \
+				myViewConfig[i], &W_Config::serialAboutToClose);
+
+		if(myViewSlaveComm[0] != NULL)
+		{
+			myViewSlaveComm[0]->setRowDisabled(i, false); //ToDo wrong, shouldn't be 0!
+		}
+
+		//MDI window size constraints:
+		//mdiState[CONFIG_WINDOWS_ID][i].winPtr->setMaximumWidth(400);
 	}
 
 	else
@@ -707,15 +788,21 @@ void MainWindow::createConfig(void)
 	}
 }
 
-void MainWindow::closeConfig(void)
+void MainWindow::closeConfig(int instanceNum)
 {
 	sendCloseWindowMsg(W_Config::getDescription());
-	mdiState[CONFIG_WINDOWS_ID][0].open = false;	//ToDo shouldn't be 0
+	mdiState[CONFIG_WINDOWS_ID][instanceNum].open = false;
+
+	if(myViewSlaveComm[0] != NULL)
+	{
+		myViewSlaveComm[0]->setRowDisabled(instanceNum, true); //ToDo wrong, shouldn't be 0!
+	}
+	myViewConfig[instanceNum] = NULL;
 
 	if(W_LogKeyPad::howManyInstance() > 0)
 	{
 		myViewLogKeyPad[0]->parentWidget()->close();
-		mdiState[LOGKEYPAD_WINDOWS_ID][0].open = false;	//ToDo wrong, shouldn't be 0!
+		mdiState[LOGKEYPAD_WINDOWS_ID][instanceNum].open = false;
 	}
 }
 
@@ -741,7 +828,7 @@ void MainWindow::createControlControl(void)
 
 		//Link to SlaveComm to send commands:
 		connect(myViewControl[objectCount], &W_Control::writeCommand, \
-				comManager,					&ComManager::enqueueCommand);
+				comManager[0],				&ComManager::enqueueCommand);
 	}
 	else
 	{
@@ -777,7 +864,7 @@ void MainWindow::createView2DPlot(void)
 		sendWindowCreatedMsg(W_2DPlot::getDescription(), objectCount,
 							 W_2DPlot::getMaxWindow() - 1);
 
-		connect(comManager,				&ComManager::newDataReady, \
+		connect(comManager[0],				&ComManager::newDataReady, \
 				myView2DPlot[objectCount],	&W_2DPlot::receiveNewData);
 
 		//Link to MainWindow for the close signal:
@@ -826,7 +913,8 @@ void MainWindow::createSlaveComm(void)
 													   &ankle2DofFlexList,
 													   &dynamicDeviceList,
 													   &rigidFlexList,
-													   &comRefreshRate);
+													   &pocketFlexList,
+													   &comManager);
 
 		mdiState[SLAVECOMM_WINDOWS_ID][objectCount].winPtr = ui->mdiArea->addSubWindow(myViewSlaveComm[objectCount]);
 		mdiState[SLAVECOMM_WINDOWS_ID][objectCount].open = true;
@@ -841,27 +929,13 @@ void MainWindow::createSlaveComm(void)
 		connect(myViewSlaveComm[objectCount],	&W_SlaveComm::activeSlaveStreaming, \
 				this,							&MainWindow::translatorActiveSlaveStreaming);
 
-		connect(myViewSlaveComm[objectCount],	&W_SlaveComm::setOffsetParameter, \
-				comManager,						&ComManager::setOffsetParameter);
-
-		connect(myViewSlaveComm[objectCount],	&W_SlaveComm::startStreaming, \
-				comManager,						&ComManager::startStreaming);
-
-		connect(myViewSlaveComm[objectCount],	SIGNAL(startAutoStreaming(bool,FlexseaDevice*)), \
-				comManager,						SLOT(startAutoStreaming(bool, FlexseaDevice*)));
-
-		connect(myViewSlaveComm[objectCount],	SIGNAL(stopStreaming(FlexseaDevice*)), \
-				comManager,						SLOT(stopStreaming(FlexseaDevice*)));
-
-
-		connect(comManager,		&ComManager::openStatus, \
-				myViewSlaveComm[0], &W_SlaveComm::receiveComPortStatus);
-
-		connect(comManager,		&ComManager::dataStatus, \
-				myViewSlaveComm[0], &W_SlaveComm::displayDataReceived);
-
-		connect(comManager,		&ComManager::newDataTimeout, \
-				myViewSlaveComm[0], &W_SlaveComm::updateIndicatorTimeout);
+		for(int i = 0; i < CONFIG_WINDOWS_MAX; ++i)
+		{
+			if(myViewConfig[i] != NULL)
+			{
+				myViewSlaveComm[0]->setRowDisabled(i, false);
+			}
+		}
 	}
 	else
 	{
@@ -929,7 +1003,7 @@ void MainWindow::createInControl(void)
 		sendWindowCreatedMsg(W_InControl::getDescription(), objectCount,
 		W_InControl::getMaxWindow() - 1);
 
-		connect(comManager,					&ComManager::newDataReady, \
+		connect(comManager[0],					&ComManager::newDataReady, \
 				myViewInControl[objectCount],	&W_InControl::updateUIData);
 	}
 	else
@@ -963,7 +1037,7 @@ void MainWindow::createViewRicnu(void)
 							 W_Ricnu::getMaxWindow() - 1);
 
 		//Link ComManager and RIC/NU:
-		connect(comManager,				&ComManager::newDataReady, \
+		connect(comManager[0],				&ComManager::newDataReady, \
 				myViewRicnu[objectCount],	&W_Ricnu::refreshDisplay);
 
 		//Link to MainWindow for the close signal:
@@ -1048,7 +1122,7 @@ void MainWindow::createCalib(void)
 
 		//Link to SlaveComm to send commands:
 		connect(myViewCalibration[objectCount], &W_Calibration::writeCommand, \
-				comManager,						&ComManager::enqueueCommand);
+				comManager[0],						&ComManager::enqueueCommand);
 	}
 	else
 	{
@@ -1086,13 +1160,13 @@ void MainWindow::createUserRW(void)
 
 		//Link to SlaveComm to send commands:
 		connect(myUserRW[objectCount],	&W_UserRW::writeCommand,
-				comManager,				&ComManager::enqueueCommand);
+				comManager[0],				&ComManager::enqueueCommand);
 
 		connect(userDataManager,	&DynamicUserDataManager::writeCommand,
-				comManager,			&ComManager::enqueueCommand);
+				comManager[0],			&ComManager::enqueueCommand);
 
-		connect(comManager,		&ComManager::openStatus,
-				userRW,				&W_UserRW::comStatusChanged);
+		connect(comManager[0],				&ComManager::openStatus,
+				myUserRW[objectCount],	&W_UserRW::comStatusChanged);
 	}
 
 	else
@@ -1126,7 +1200,7 @@ void MainWindow::createViewGossip(void)
 							 W_Gossip::getMaxWindow() - 1);
 
 		//Link ComManager and Gossip:
-		connect(comManager,				&ComManager::newDataReady, \
+		connect(comManager[0],				&ComManager::newDataReady, \
 				myViewGossip[objectCount],	&W_Gossip::refreshDisplay);
 
 		//Link to MainWindow for the close signal:
@@ -1175,10 +1249,18 @@ void MainWindow::createViewRigid(void)
 		sendWindowCreatedMsg(W_Rigid::getDescription(), objectCount,
 							 W_Rigid::getMaxWindow() - 1);
 
-		//if(W_Status::howManyInstance() <= objectCount){createStatus();}
+		if(W_Status::howManyInstance() <= objectCount){createStatus();}
 
 		//Link ComManager and Rigid:
-		connect(comManager,				&ComManager::newDataReady, \
+		connect(comManager[0],				&ComManager::newDataReady, \
+				myViewRigid[objectCount],	&W_Rigid::refreshDisplay);
+
+		//Link ComManager and Rigid:
+		connect(comManager[0],				&ComManager::newDataReady, \
+				myViewRigid[objectCount],	&W_Rigid::refreshDisplay);
+
+		//Link ComManager and Rigid:
+		connect(comManager[1],				&ComManager::newDataReady, \
 				myViewRigid[objectCount],	&W_Rigid::refreshDisplay);
 
 		//Link to MainWindow for the close signal:
@@ -1193,8 +1275,8 @@ void MainWindow::createViewRigid(void)
 		connect(this,						&MainWindow::connectorUpdateDisplayMode, \
 				myViewRigid[objectCount],	&W_Rigid::updateDisplayMode);
 
-		/*connect(myViewRigid[objectCount],	&W_Rigid::statusChanged, \
-				myStatus[objectCount],		&W_Status::externalErrorFlag);*/
+		connect(myViewRigid[objectCount],	&W_Rigid::statusChanged, \
+				myStatus[objectCount],		&W_Status::externalErrorFlag);
 	}
 
 	else
@@ -1208,6 +1290,69 @@ void MainWindow::closeViewRigid(void)
 {
 	sendCloseWindowMsg(W_Rigid::getDescription());
 	mdiState[RIGID_WINDOWS_ID][0].open = false;	//ToDo wrong, shouldn't be 0!
+}
+
+//Creates a new View Pocket window
+void MainWindow::createViewPocket(void)
+{
+	int objectCount = W_Pocket::howManyInstance();
+
+	//Limited number of windows:
+	if(objectCount < (POCKET_WINDOWS_MAX))
+	{
+		myViewPocket[objectCount] = new W_Pocket(this,
+											   currentFlexLog,
+											   &pocketLog,
+											   getDisplayMode(),
+											   &pocketDevList);
+		mdiState[POCKET_WINDOWS_ID][objectCount].winPtr = ui->mdiArea->addSubWindow(myViewPocket[objectCount]);
+		mdiState[POCKET_WINDOWS_ID][objectCount].open = true;
+		myViewPocket[objectCount]->show();
+
+		sendWindowCreatedMsg(W_Pocket::getDescription(), objectCount,
+							 W_Pocket::getMaxWindow() - 1);
+
+		if(W_Status::howManyInstance() <= objectCount){createStatus();}
+
+		//Link ComManager and Pocket:
+		connect(comManager[0],				&ComManager::newDataReady, \
+				myViewPocket[objectCount],	&W_Pocket::refreshDisplay);
+
+		//Link ComManager and Pocket:
+		connect(comManager[0],				&ComManager::newDataReady, \
+				myViewPocket[objectCount],	&W_Pocket::refreshDisplay);
+
+		//Link ComManager and Pocket:
+		connect(comManager[1],				&ComManager::newDataReady, \
+				myViewPocket[objectCount],	&W_Pocket::refreshDisplay);
+
+		//Link to MainWindow for the close signal:
+		connect(myViewPocket[objectCount],	&W_Pocket::windowClosed, \
+				this,						&MainWindow::closeViewPocket);
+
+		// Link to the slider of logKeyPad. Intermediate signal (connector) to
+		// allow opening of window asynchroniously
+		connect(this,						&MainWindow::connectorRefreshLogTimeSlider, \
+				myViewPocket[objectCount],	&W_Pocket::refreshDisplayLog);
+
+		connect(this,						&MainWindow::connectorUpdateDisplayMode, \
+				myViewPocket[objectCount],	&W_Pocket::updateDisplayMode);
+
+		connect(myViewPocket[objectCount],	&W_Pocket::statusChanged, \
+				myStatus[objectCount],		&W_Status::externalErrorFlag);
+	}
+
+	else
+	{
+		sendWindowCreatedFailedMsg(W_Pocket::getDescription(),
+								   W_Pocket::getMaxWindow());
+	}
+}
+
+void MainWindow::closeViewPocket(void)
+{
+	sendCloseWindowMsg(W_Pocket::getDescription());
+	mdiState[POCKET_WINDOWS_ID][0].open = false;	//ToDo wrong, shouldn't be 0!
 }
 
 //Creates a new View Strain window
@@ -1228,7 +1373,7 @@ void MainWindow::createViewStrain(void)
 							 W_Strain::getMaxWindow() - 1);
 
 		//Link ComManager and Strain:
-		connect(comManager,				&ComManager::newDataReady, \
+		connect(comManager[0],				&ComManager::newDataReady, \
 				myViewStrain[objectCount],	&W_Strain::refreshDisplay);
 
 		//Link to MainWindow for the close signal:
@@ -1278,7 +1423,7 @@ void MainWindow::createViewBattery(void)
 							 W_Battery::getMaxWindow() - 1);
 
 		//Link ComManager and Battery:
-		connect(comManager,				&ComManager::newDataReady, \
+		connect(comManager[0],				&ComManager::newDataReady, \
 				myViewBatt[objectCount],	&W_Battery::refreshDisplay);
 
 		//Link to MainWindow for the close signal:
@@ -1383,21 +1528,21 @@ void MainWindow::createViewCommTest(void)
 				this,							&MainWindow::closeViewCommTest);
 
 		//Link to SerialDriver to know when we receive data:
-		connect(comManager,					&ComManager::openStatus, \
+		connect(comManager[0],					&ComManager::openStatus, \
 				myViewCommTest[objectCount],&W_CommTest::receiveComPortStatus);
 
-		connect(comManager,					&ComManager::newDataReady, \
+		connect(comManager[0],					&ComManager::newDataReady, \
 				myViewCommTest[objectCount],&W_CommTest::receivedData);
 
 		connect(myViewCommTest[objectCount],&W_CommTest::tryReadWrite, \
-				comManager,					&ComManager::tryReadWrite);
+				comManager[0],					&ComManager::tryReadWrite);
 
 		connect(myViewCommTest[objectCount],&W_CommTest::write, \
-				comManager,					&ComManager::write);
+				comManager[0],					&ComManager::write);
 
 		//Link to SlaveComm to send commands:
 		connect(myViewCommTest[objectCount],	&W_CommTest::writeCommand,
-				comManager,						&ComManager::enqueueCommand);
+				comManager[0],						&ComManager::enqueueCommand);
 	}
 
 	else
@@ -1542,7 +1687,10 @@ void MainWindow::closeEvent(QCloseEvent *event)
 {
 	qDebug() << "Closing, see you soon!";
 	//writeSettings();
-	comManagerThread->quit();
+	for(int i=0; i<CONFIG_WINDOWS_MAX; i++)
+	{
+		comManagerThread[i]->quit();
+	}
 	event->accept();
 }
 
@@ -1614,11 +1762,11 @@ void MainWindow::applyLoadedConfig(void)
 
 		if(on == 1)
 		{
-			if(id != CONFIG_WINDOWS_ID && id != SLAVECOMM_WINDOWS_ID)
+			if(!mdiState[id][obj].open)
 			{
-				//Create any extra windows:
 				(this->*mdiCreateWinPtr[id])();	//Create window
 			}
+
 			setWinGeo(id, obj, x, y, w, h);	//Position it
 		}
 	}
@@ -1699,5 +1847,53 @@ void MainWindow::initMdiState(void)
 		{
 			mdiState[i][j].open = false;
 		}
+	}
+}
+
+void MainWindow::tabsStateUpdate(void)
+{
+	static bool lastIsWindowMax = false;
+	static bool isWindowMax = false;
+	QList<QMdiSubWindow *> subWindowList = ui->mdiArea->subWindowList();
+
+	isWindowMax = false;
+	for(int i=0; i<ui->mdiArea->subWindowList().length(); ++i)
+	{
+		if(ui->mdiArea->subWindowList().at(i)->isMaximized())
+		{
+			isWindowMax = true;
+			break;
+		}
+	}
+
+	if(isWindowMax == true && lastIsWindowMax == false)
+	{
+		ui->mdiArea->setViewMode(QMdiArea::TabbedView);
+		restorebutton->setVisible(true);
+		closebutton->setVisible(true);
+	}
+	else if(isWindowMax == false && lastIsWindowMax == true)
+	{
+		ui->mdiArea->setViewMode(QMdiArea::SubWindowView);
+		restorebutton->setVisible(false);
+		closebutton->setVisible(false);
+	}
+
+	lastIsWindowMax = isWindowMax;
+}
+
+void MainWindow::closeButtonClicked()
+{
+	if(ui->mdiArea->activeSubWindow() != 0)
+	{
+		ui->mdiArea->activeSubWindow()->close();
+	}
+}
+
+void MainWindow::restoreButtonClicked()
+{
+	for(int i=0; i<ui->mdiArea->subWindowList().length(); ++i)
+	{
+		ui->mdiArea->subWindowList().at(i)->showNormal();
 	}
 }

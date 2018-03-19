@@ -91,6 +91,7 @@ QStringList FlexSEA_Generic::var_list_exp = QStringList()
 											<< "Dynamic User"
 											<< "Angle Torque Profile"
 											<< "Rigid"
+											<< "Pocket"
 											<< "[Your project]";
 
 //****************************************************************************

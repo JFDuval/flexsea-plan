@@ -42,18 +42,25 @@
 #include <QThread>
 #include <QInputDialog>
 #include <QDir>
+#include <unistd.h>
 
 //****************************************************************************
 // Constructor & Destructor:
 //****************************************************************************
 
-W_Config::W_Config(QWidget *parent, QStringList *initFavoritePort) :
+W_Config::W_Config(QWidget *parent, QStringList *initFavoritePort, int instanceNumInit) :
 	QWidget(parent),
 	ui(new Ui::W_Config)
 {
 	ui->setupUi(this);
 
-	setWindowTitle(this->getDescription());
+	if(instanceNumInit < 0)
+	{
+		qDebug() << "Config window instance number is invalid";
+	}
+
+	instanceNum = instanceNumInit;
+	setWindowTitle(this->getDescription() + " " + QString::number(instanceNum));
 	setWindowIcon(QIcon(":icons/d_logo_small.png"));
 
 	//Init code:
@@ -79,6 +86,11 @@ W_Config::W_Config(QWidget *parent, QStringList *initFavoritePort) :
 	openProgressTimer = new QTimer(this);
 	connect(openProgressTimer,	&QTimer::timeout,
 			this,				&W_Config::progressUpdate);
+
+	#ifdef DEMO_1DOF
+	ui->layoutBluetooth->hide();
+	ui->layoutLog->hide();
+	#endif
 }
 
 W_Config::~W_Config()
@@ -87,7 +99,8 @@ W_Config::~W_Config()
 	{
 		emit closeCom();
 	}
-	emit windowClosed();
+
+	emit windowClosed(instanceNum);
 	delete ui;
 }
 
@@ -115,11 +128,12 @@ void W_Config::on_openStatusUpdate(SerialPortStatus status, int nbTries)
 		dataSourceState = LiveCOM;
 		emit updateDataSourceStatus(dataSourceState, nullptr);
 
-		ui->openComButton->setDisabled(true);
-		ui->closeComButton->setDisabled(false);
-		ui->comPortComboBox->setDisabled(true);
+		ui->openComButton->setEnabled(false);
+		ui->closeComButton->setEnabled(true);
+		ui->comPortComboBox->setEnabled(false);
+		ui->cancelComButton->setEnabled(false);
 
-		ui->pbLoadLogFile->setDisabled(true);
+		ui->pbLoadLogFile->setEnabled(false);
 
 		//Enable Bluetooth button:
 		ui->pbBTmode->setEnabled(true);
@@ -128,9 +142,15 @@ void W_Config::on_openStatusUpdate(SerialPortStatus status, int nbTries)
 			PortClosed)
 	{
 		openProgressTimer->stop();
+
+		ui->openComButton->setEnabled(true);
+		ui->closeComButton->setEnabled(false);
+		ui->comPortComboBox->setEnabled(true);
+		ui->cancelComButton->setEnabled(false);
+
 		ui->comProgressBar->setValue(0);
 		dataSourceState = None;
-		ui->pbLoadLogFile->setDisabled(false);
+		ui->pbLoadLogFile->setEnabled(true);
 	}
 	else
 	{
@@ -166,6 +186,7 @@ void W_Config::initCom(void)
 	ui->btProgressBar->setValue(0);
 	ui->btProgressBar->setDisabled(true);
 	ui->openComButton->setDisabled(false);
+	ui->cancelComButton->setDisabled(true);
 	ui->closeComButton->setDisabled(true);
 	ui->pbLoadLogFile->setDisabled(false);
 	ui->pbCloseLogFile->setDisabled(true);
@@ -176,7 +197,6 @@ void W_Config::initCom(void)
 //This gets called by a timer
 void W_Config::refreshComList(bool forceRefresh, bool keepCurrentSelection)
 {
-	static int refreshDivide = 0;
 	int ComPortCounts = 0;
 	QString nn;
 
@@ -197,7 +217,7 @@ void W_Config::refreshComList(bool forceRefresh, bool keepCurrentSelection)
 			QString currentPort = currentPortAll.section(" ", 0, 0, \
 														 QString::SectionSkipEmpty);
 
-			qDebug() << "COM Port list changed.";
+			qDebug() << "COM Port list changed (Instance" << instanceNum << ").";
 
 			ui->comPortComboBox->clear();
 
@@ -455,6 +475,10 @@ void W_Config::on_openComButton_clicked()
 		// Disable the log button during the port opening
 		ui->pbLoadLogFile->setDisabled(true);
 		openProgressTimer->start((int)((BT_DELAY_MS/COM_BAR_RES)));
+
+		ui->openComButton->setEnabled(false);
+		ui->cancelComButton->setEnabled(true);
+		ui->comPortComboBox->setEnabled(false);
 	}
 }
 
@@ -649,4 +673,9 @@ void W_Config::progressUpdate()
 		ui->comProgressBar->update();
 		progressCnt++;
 	}
+}
+
+void W_Config::on_cancelComButton_clicked()
+{
+	emit openCancelRequest();
 }

@@ -97,7 +97,12 @@ SOURCES += src/main.cpp \
 				flexsea-projects/Rigid/src/cmd-Rigid.c \
 				src/dynamicuserdatamanager.cpp \
 				flexsea-projects/src/dynamic_user_structs_common.c \
-				src/MDIWinObjects/w_status.cpp
+				src/MDIWinObjects/w_status.cpp \
+				src/FlexSEADevice/pocketDevice.cpp \
+				src/MDIWinObjects/w_pocket.cpp \
+				src/betterchartview.cpp \
+				src/betterchart.cpp \
+				flexsea-projects/Rigid/src/cmd-Pocket.c
 
 HEADERS += inc/main.h \
 				inc/mainwindow.h \
@@ -144,6 +149,7 @@ HEADERS += inc/main.h \
 				flexsea-projects/MIT_2DoF_Ankle_v1/inc/cmd-MIT_2DoF_Ankle_v1.h \
 				flexsea-projects/RICNU_Knee_v1/inc/cmd-RICNU_Knee_v1.h \
 				flexsea-projects/inc/flexsea_user_structs.h \
+				flexsea-projects/inc/user-plan.h \
 				flexsea-projects/inc/dynamic_user_structs.h \
 				flexsea-comm/inc/flexsea.h \
 				flexsea-comm/inc/flexsea_comm_def.h \
@@ -170,7 +176,12 @@ HEADERS += inc/main.h \
 				inc/dynamicuserdatamanager.h \
 				flexsea-projects/ActPack/inc/cmd-ActPack.h \
 				flexsea-system/test/flexsea-system_test-all.h \
-				inc/MDIWinObjects/w_status.h
+				inc/MDIWinObjects/w_status.h \
+				inc/MDIWinObjects/w_pocket.h \
+				inc/FlexSEADevice/pocketDevice.h \
+				inc/betterchartview.h \
+				inc/betterchart.h \
+				flexsea-projects/Rigid/inc/cmd-Pocket.h
 
 FORMS += ui/mainwindow.ui \
 				ui/w_execute.ui \
@@ -192,7 +203,8 @@ FORMS += ui/mainwindow.ui \
 				ui/w_incontrol.ui \
 				ui/w_rigid.ui \
 				ui/w_event.ui \
-				ui/w_status.ui
+				ui/w_status.ui \
+				ui/w_pocket.ui
 
 RESOURCES += \
 	misc/icons.qrc

@@ -40,7 +40,8 @@
 #include "counter.h"
 #include <QTimer>
 #include <QtCharts>
-#include <QtCharts/QChartView>
+#include <betterchart.h>
+#include <betterchartview.h>
 #include "flexsea_generic.h"
 #include "flexseaDevice.h"
 #include <QtCharts/QXYSeries>
@@ -178,6 +179,15 @@ private slots:
 	void on_lineEditB5_textEdited(const QString &arg1);
 	void on_lineEditB6_textEdited(const QString &arg1);
 
+	void on_pbWaveSelector_1_clicked();
+	void on_pbWaveSelector_2_clicked();
+	void on_pbWaveSelector_3_clicked();
+	void on_pbWaveSelector_4_clicked();
+	void on_pbWaveSelector_5_clicked();
+	void on_pbWaveSelector_6_clicked();
+
+	void on_pbCursorMode_clicked();
+
 signals:
 
 	void windowClosed(void);
@@ -188,7 +198,7 @@ private:
 	DisplayMode displayMode, lastDisplayMode;
 
 	// GUI Pointer table
-	QLabel **lbT[VAR_NUM];
+	QToolButton **pbWS[VAR_NUM];
 	QComboBox **cbVar[VAR_NUM];
 	QComboBox **cbVarSlave[VAR_NUM];
 	QCheckBox **ckbDecode[VAR_NUM];
@@ -210,8 +220,8 @@ private:
 	FlexseaDevice* selectedDevList[VAR_NUM];
 
 	Ui::W_2DPlot *ui;
-	QChart *chart;
-	QChartView *chartView;
+	BetterChart *chart;
+	BetterChartView *chartView;
 	QLineSeries *qlsChart[VAR_NUM];
 	QVector<QPointF> vDataBuffer[VAR_NUM];
 	QDateTime *timerRefreshDisplay, *timerRefreshData;
@@ -237,7 +247,7 @@ private:
 
 	void saveScreenshot(void);
 	void initChart(void);
-	void initUserInput(void);
+	void initUserInput(bool resetOnly = false);
 	void saveNewPoint(int row, int data);
 	void saveNewPointsLog(int index);
 	void computeStats(void);

@@ -43,17 +43,22 @@
 #include <QTimer>
 #include <QDebug>
 #include <flexsea_board.h>
+#include <flexsea_user_structs.h>
 
 //****************************************************************************
 // Constructor & Destructor:
 //****************************************************************************
 
-W_Status::W_Status(QWidget *parent, DynamicUserDataManager* userDataManager) :
+W_Status::W_Status(QWidget *parent,
+				   DynamicUserDataManager* userDataManager,
+				   QList<RigidDevice> *deviceListPtr) :
 	QWidget(parent),
 	ui(new Ui::W_Status),
 	userDataMan(userDataManager)
 {
 	ui->setupUi(this);
+
+	deviceList = deviceListPtr;
 
 	setWindowTitle(this->getDescription());
 	setWindowIcon(QIcon(":icons/d_logo_small.png"));
@@ -78,7 +83,6 @@ W_Status::~W_Status()
 
 void W_Status::receiveNewData()
 {
-
 }
 
 void W_Status::comStatusChanged(SerialPortStatus status,int nbTries)
@@ -86,12 +90,20 @@ void W_Status::comStatusChanged(SerialPortStatus status,int nbTries)
 	(void)nbTries;	// Not use by this slot.
 
 	if(status == PortOpeningSucceed)
+	{
 		userDataMan->requestMetaData(active_slave);
+		isComOpen = true;
+	}
+	else
+	{
+		isComOpen = false;
+	}
 }
 
 void W_Status::externalErrorFlag()
 {
-	qDebug() << "W_Status: Received a signal";
+	//When a flag is received we update instantly
+	refreshDisplay();
 }
 
 //****************************************************************************
@@ -100,6 +112,14 @@ void W_Status::externalErrorFlag()
 
 void W_Status::init(void)
 {
+	//Populates Slave list:
+	ui->comboBox_slave->clear();
+
+	for(int i = 0; i < (*deviceList).length(); i++)
+	{
+		ui->comboBox_slave->addItem((*deviceList)[i].slaveName);
+	}
+
 	lab_name_ptr[0] = ui->lab_name_0;
 	lab_name_ptr[1] = ui->lab_name_1;
 	lab_name_ptr[2] = ui->lab_name_2;
@@ -146,32 +166,43 @@ void W_Status::init(void)
 
 	initLabelText();
 
+	initTimers();
+
+	/*
 	//Populates Slave list:
-//	FlexSEA_Generic::populateSlaveComboBox(ui->comboBox_slave, SL_BASE_ALL, \
-//											SL_LEN_ALL);
-//	ui->comboBox_slave->setCurrentIndex(0);	//Execute 1 by default
-
-//	//Variables:
-//	active_slave_index = ui->comboBox_slave->currentIndex();
-//	active_slave = FlexSEA_Generic::getSlaveID(SL_BASE_ALL, active_slave_index);
-
+	FlexSEA_Generic::populateSlaveComboBox(ui->comboBox_slave, SL_BASE_ALL, \
+											SL_LEN_ALL);
+	ui->comboBox_slave->setCurrentIndex(0);	//Execute 1 by default
+	//Variables:
+	active_slave_index = ui->comboBox_slave->currentIndex();
+	active_slave = FlexSEA_Generic::getSlaveID(SL_BASE_ALL, active_slave_index);
 
 
-//	//Timer used to refresh the received data:
-//	refreshDelayTimer = new QTimer(this);
-//	connect(refreshDelayTimer,	&QTimer::timeout,
-//			this,				&W_UserRW::refreshDisplay);
 
+	//Timer used to refresh the received data:
+	refreshDelayTimer = new QTimer(this);
+	connect(refreshDelayTimer,	&QTimer::timeout,
+			this,				&W_UserRW::refreshDisplay);
+	*/
+}
+
+void W_Status::initTimers(void)
+{
+	timerDisplay = new QTimer(this);
+	connect(timerDisplay,	&QTimer::timeout,
+			this,			&W_Status::refreshDisplay);
+	timerDisplay->start(1000);
 }
 
 void W_Status::initLabelText(void)
 {
 	uint8_t idx = 0;
-	lab_name_ptr[idx++]->setText("Supply Voltage");
+	lab_name_ptr[idx++]->setText("Battery Voltage");
+	lab_name_ptr[idx++]->setText("Other Voltages");
 	lab_name_ptr[idx++]->setText("Temperature");
+	lab_name_ptr[idx++]->setText("FSM timing");
 	lab_name_ptr[idx++]->setText("I2t Battery");
 	lab_name_ptr[idx++]->setText("I2t Motor");
-	lab_name_ptr[idx++]->setText("BWC Link");
 	lab_name_ptr[idx++]->setText("Ex Comm");
 	lab_name_ptr[idx++]->setText("Re Comm");
 	lab_name_ptr[idx++]->setText("Button");
@@ -183,26 +214,22 @@ void W_Status::initLabelText(void)
 //Send a Write command:
 void W_Status::writeUserData(uint8_t index)
 {
+	/*
 	uint8_t info[2] = {PORT_USB, PORT_USB};
 	uint16_t numb = 0;
-
-//	//Refresh variable:
-//	user_data_1.w[0] = (int16_t)ui->w0->text().toInt();
-//	user_data_1.w[1] = (int16_t)ui->w1->text().toInt();
-//	user_data_1.w[2] = (int16_t)ui->w2->text().toInt();
-//	user_data_1.w[3] = (int16_t)ui->w3->text().toInt();
-
-	//qDebug() << "Write user data" << index << ":" << user_data_1.w[index];
 
 	//Prepare and send command:
 	tx_cmd_data_user_w(TX_N_DEFAULT, index);
 	pack(P_AND_S_DEFAULT, active_slave, info, &numb, comm_str_usb);
-	emit writeCommand(numb, comm_str_usb, WRITE);
+	emit writeCommand(numb, comm_str_usb, WRITE);	//ToDo config[x]
+	*/
+	(void)index;
 }
 
 //Send a Read command:
 void W_Status::readUserData(void)
 {
+	/*
 	uint8_t info[2] = {PORT_USB, PORT_USB};
 	uint16_t numb = 0;
 
@@ -213,6 +240,7 @@ void W_Status::readUserData(void)
 
 	//Display will be refreshed in 75ms:
 	refreshDelayTimer->start(75);
+	*/
 }
 
 void W_Status::setStatus(int row, int status)
@@ -244,7 +272,7 @@ void W_Status::setStatus(int row, int status)
 
 void W_Status::statusReset(int row)
 {
-
+	(void)row;
 }
 
 //****************************************************************************
@@ -261,3 +289,34 @@ void W_Status::on_pb_clear_6_clicked(){statusReset(6);}
 void W_Status::on_pb_clear_7_clicked(){statusReset(7);}
 void W_Status::on_pb_clear_8_clicked(){statusReset(8);}
 void W_Status::on_pb_clear_9_clicked(){statusReset(9);}
+
+void W_Status::refreshDisplay(void)
+{
+	struct rigid_s *ri = &rigid1;
+
+	if(ui->comboBox_slave->currentIndex() == 1){ri = &rigid2;}
+
+	uint8_t s = ri->re.status;
+
+	if(!isComOpen)
+	{
+		for(int i = 0; i < NB_STATUS; i++){setStatus(i, STATUS_GREY);}
+		return;
+	}
+
+	if(s & STATUS_TEMPERATURE){setStatus(2, STATUS_RED);}
+	else
+	{
+		if(ri->re.temp > TEMP_WARNING){setStatus(2, STATUS_YELLOW);}
+		else {setStatus(2, STATUS_GREEN);}
+	}
+
+	if(s & STATUS_VB){setStatus(0, STATUS_RED);}
+	else{setStatus(0, STATUS_GREEN);}
+
+	if(s & STATUS_OTHER_VOLT){setStatus(1, STATUS_RED);}
+	else{setStatus(1, STATUS_GREEN);}
+
+	if(s & STATUS_BUTTON){setStatus(8, STATUS_RED);}
+	else{setStatus(8, STATUS_GREEN);}
+}

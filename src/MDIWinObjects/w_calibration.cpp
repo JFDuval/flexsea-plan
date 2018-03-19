@@ -44,6 +44,7 @@
 #include <flexsea_board.h>
 #include <QDebug>
 #include "cmd-ActPack.h"
+#include <QValidator>
 
 //****************************************************************************
 // Constructor & Destructor:
@@ -78,6 +79,20 @@ W_Calibration::~W_Calibration()
 
 void W_Calibration::on_pbFindPoles_clicked()
 {
+	findPoleTimeout = ui->lineEdit_fpDelay->text().toInt();
+	if(ui->lineEdit_fpDelay->text().isEmpty())
+	{
+		//Default value:
+		findPoleTimeout = FP_DELAY_DEFAULT;
+		ui->lineEdit_fpDelay->setText(QString::number(findPoleTimeout));
+	}
+	else
+	{
+		if(findPoleTimeout < FP_DELAY_MIN){findPoleTimeout = FP_DELAY_MIN;}
+		if(findPoleTimeout > FP_DELAY_MAX){findPoleTimeout = FP_DELAY_MAX;}
+		ui->lineEdit_fpDelay->setText(QString::number(findPoleTimeout));
+	}
+
 	active_slave_index = ui->comboBox_slave->currentIndex();
 	active_slave = FlexSEA_Generic::getSlaveID(SL_BASE_ALL, active_slave_index);
 
@@ -88,7 +103,47 @@ void W_Calibration::on_pbFindPoles_clicked()
 	tx_cmd_calibration_mode_rw(TX_N_DEFAULT, CALIBRATION_FIND_POLES);
 	pack(P_AND_S_DEFAULT, active_slave, info, &numBytes, comm_str_usb);
 	emit writeCommand(numBytes, comm_str_usb, WRITE);
+
+	// Set interface
+	ui->lineEdit_fpDelay->setEnabled(0);
+	ui->progressBarPoles->setEnabled(1);
+	ui->pbFindPoles->setEnabled(0);
+	ui->pbSavePoles->setEnabled(0);
+	ui->pbCancelPoles->setEnabled(1);
+
+	findPoleTimePassed = 0;
+	findPoleTimer->start(findPoleTimeout);
 }
+
+void W_Calibration::on_pbSavePoles_clicked()
+{
+	ui->lineEdit_fpDelay->setEnabled(1);
+	ui->progressBarPoles->setEnabled(0);
+	ui->progressBarPoles->setValue(0);
+	ui->pbFindPoles->setEnabled(1);
+	ui->pbSavePoles->setEnabled(1);
+	ui->pbCancelPoles->setEnabled(0);
+
+	findPoleTimer->stop();
+}
+
+void W_Calibration::on_pbCancelPoles_clicked()
+{
+	ui->lineEdit_fpDelay->setEnabled(1);
+	ui->progressBarPoles->setEnabled(0);
+	ui->progressBarPoles->setValue(0);
+	ui->pbFindPoles->setEnabled(1);
+	ui->pbSavePoles->setEnabled(0);
+	ui->pbCancelPoles->setEnabled(0);
+
+	findPoleTimer->stop();
+}
+
+void W_Calibration::on_pbCalibrateBelt_clicked()
+{
+
+}
+
 //****************************************************************************
 // Private function(s):
 //****************************************************************************
@@ -119,6 +174,53 @@ void W_Calibration::init(void)
 
 	//Indicate the end of the calibration:
 	calibration = 0;
+
+	ui->lineEdit_fpDelay->setEnabled(1);
+	ui->progressBarPoles->setEnabled(0);
+	ui->progressBarPoles->setValue(0);
+	ui->pbFindPoles->setEnabled(1);
+	ui->pbSavePoles->setEnabled(0);
+	ui->pbCancelPoles->setEnabled(0);
+
+	QIntValidator *validator = new QIntValidator(1, 100000, this);
+	ui->lineEdit_fpDelay->setValidator(validator);
+
+	findPoleTimer = (new QTimer(this));
+	connect(findPoleTimer,	&QTimer::timeout,
+			this,			&W_Calibration::findPoleTimerUpdate);
+
+	QFont font( "Arial", 12, QFont::Bold);
+	ui->lab_indicatorBelt->setText("      " + QString(QChar(0x29BF)) + "      ");
+	ui->lab_indicatorBelt->setAlignment(Qt::AlignCenter);
+	ui->lab_indicatorBelt->setFont(font);
+	setBeltStatus(BELT_STATUS_GREY);
+}
+
+void W_Calibration::setBeltStatus(int status)
+{
+	switch(status)
+	{
+		case BELT_STATUS_GREY:
+			ui->lab_indicatorBelt->setStyleSheet("QLabel { background-color: \
+										rgb(127,127,127); color: black;}");
+			break;
+		case BELT_STATUS_GREEN:
+			ui->lab_indicatorBelt->setStyleSheet("QLabel { background-color: \
+										rgb(0,255,0); color: black;}");
+			break;
+		case BELT_STATUS_YELLOW:
+			ui->lab_indicatorBelt->setStyleSheet("QLabel { background-color: \
+										rgb(255,255,0); color: black;}");
+			break;
+		case BELT_STATUS_RED:
+			ui->lab_indicatorBelt->setStyleSheet("QLabel { background-color: \
+										rgb(255,0,0); color: black;}");
+			break;
+		default:
+			ui->lab_indicatorBelt->setStyleSheet("QLabel { background-color: \
+										black; color: white;}");
+			break;
+	}
 }
 
 //****************************************************************************
@@ -201,5 +303,25 @@ void W_Calibration::sendActPack(void)
 	if(ActPack.setGains == CHANGE)
 	{
 		ActPack.setGains = KEEP;
+	}
+}
+
+void W_Calibration::findPoleTimerUpdate()
+{
+	findPoleTimePassed++;
+	if(findPoleTimePassed < FP_POLES)
+	{
+		ui->progressBarPoles->setValue((int)(((float)findPoleTimePassed / FP_POLES) * 100));
+		ui->progressBarPoles->update();
+	}
+	else
+	{
+		findPoleTimer->stop();
+		ui->lineEdit_fpDelay->setEnabled(1);
+		ui->progressBarPoles->setEnabled(0);
+		ui->progressBarPoles->setValue(100);	//Keeps it orange
+		ui->pbFindPoles->setEnabled(1);
+		ui->pbSavePoles->setEnabled(1);
+		ui->pbCancelPoles->setEnabled(0);
 	}
 }

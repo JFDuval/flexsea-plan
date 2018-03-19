@@ -331,9 +331,9 @@ void GossipDevice::decode(struct gossip_s *goPtr)
 	goPtr->decoded.accel.z = (1000*goPtr->accel.z)/8192;
 
 	//Gyro in degrees/s
-	goPtr->decoded.gyro.x = (100*goPtr->gyro.x)/164;
-	goPtr->decoded.gyro.y = (100*goPtr->gyro.y)/164;
-	goPtr->decoded.gyro.z = (100*goPtr->gyro.z)/164;
+	goPtr->decoded.gyro.x = (10*goPtr->gyro.x)/328;
+	goPtr->decoded.gyro.y = (10*goPtr->gyro.y)/328;
+	goPtr->decoded.gyro.z = (10*goPtr->gyro.z)/328;
 
 	//Magneto in uT (0.15uT/LSB)
 	goPtr->decoded.magneto.x = (15*goPtr->magneto.x)/100;

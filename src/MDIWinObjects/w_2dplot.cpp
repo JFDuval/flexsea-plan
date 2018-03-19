@@ -256,6 +256,9 @@ void W_2DPlot::updateDisplayMode(DisplayMode mode, FlexseaDevice* devPtr)
 void W_2DPlot::activeSlaveStreaming(QString slaveName)
 {
 	selectSlave(slaveName);
+	#ifdef DEMO_1DOF
+	emit on_pbIMU_clicked();
+	#endif
 }
 
 //****************************************************************************
@@ -280,12 +283,12 @@ void W_2DPlot::saveScreenshot(void)
 
 void W_2DPlot::initPtr(void)
 {
-	lbT[0] = &ui->label_t1;
-	lbT[1] = &ui->label_t2;
-	lbT[2] = &ui->label_t3;
-	lbT[3] = &ui->label_t4;
-	lbT[4] = &ui->label_t5;
-	lbT[5] = &ui->label_t6;
+	pbWS[0] = &ui->pbWaveSelector_1;
+	pbWS[1] = &ui->pbWaveSelector_2;
+	pbWS[2] = &ui->pbWaveSelector_3;
+	pbWS[3] = &ui->pbWaveSelector_4;
+	pbWS[4] = &ui->pbWaveSelector_5;
+	pbWS[5] = &ui->pbWaveSelector_6;
 
 	cbVar[0] = &ui->cBoxvar1;
 	cbVar[1] = &ui->cBoxvar2;
@@ -349,12 +352,14 @@ void W_2DPlot::initChart(void)
 	initData();
 
 	//Chart:
-	chart = new QChart();
+	chart = new BetterChart();
 	chart->legend()->hide();
+	chartView = new BetterChartView(chart);
 
 	for(int i = 0; i < VAR_NUM; ++i)
 	{
 		chart->addSeries(qlsChart[i]);
+		chartView->addViewSeries(qlsChart[i]);
 	}
 
 	const QValidator *validator = new QIntValidator(-10000000, 10000000, this);
@@ -371,7 +376,7 @@ void W_2DPlot::initChart(void)
 	chart->setTheme(QChart::ChartThemeDark);
 	qlsChart[5]->setColor(Qt::red);  //Color[5] was ~= [0], too similar, now red
 
-	//Update labels based on theme colors:
+	//Update wave selector pb based on theme colors:
 	QString msg;
 	for(int u = 0; u < VAR_NUM; u++)
 	{
@@ -379,14 +384,13 @@ void W_2DPlot::initChart(void)
 		r = qlsChart[u]->color().red();
 		g = qlsChart[u]->color().green();
 		b = qlsChart[u]->color().blue();
-		msg = "QLabel { background-color: black; color: rgb(" + \
+		msg = "QToolButton {color: rgb(" + \
 				QString::number(r) + ',' + QString::number(g) + ','+ \
 				QString::number(b) + ");}";
-		(*lbT[u])->setStyleSheet(msg);
+		(*pbWS[u])->setStyleSheet(msg);
 	}
 
 	//Chart view:
-	chartView = new QChartView(chart);
 	ui->gridLayout_test->addWidget(chartView, 0,0);
 	chartView->setRenderHint(QPainter::Antialiasing);
 	chartView->setBaseSize(600,300);
@@ -411,7 +415,7 @@ void W_2DPlot::initChart(void)
 }
 
 //Fills the fields and combo boxes:
-void W_2DPlot::initUserInput(void)
+void W_2DPlot::initUserInput(bool resetOnly)
 {
 
 	for(int i = 0; i < VAR_NUM; i++)
@@ -481,15 +485,17 @@ void W_2DPlot::initUserInput(void)
 	//Slave combo box:
 	for(int i = 0; i < VAR_NUM; i++)
 	{
-		(*cbVarSlave[i])->blockSignals(true);
-		(*cbVarSlave[i])->clear();
-
-
-		for(int j = 0; j < currentDevList->length(); ++j)
+		if(resetOnly == false)
 		{
-			(*cbVarSlave[i])->addItem((*currentDevList)[j]->slaveName);
+			(*cbVarSlave[i])->blockSignals(true);
+			(*cbVarSlave[i])->clear();
+
+			for(int j = 0; j < currentDevList->length(); ++j)
+			{
+				(*cbVarSlave[i])->addItem((*currentDevList)[j]->slaveName);
+			}
+			(*cbVarSlave[i])->blockSignals(false);
 		}
-		(*cbVarSlave[i])->blockSignals(false);
 
 		//Variable comboBoxes:
 		saveCurrentSettings(i);  //Needed for the 1st var_list
@@ -1502,7 +1508,7 @@ void W_2DPlot::on_pushButtonClear_clicked()
 //Reset the 2D plot to default setting
 void W_2DPlot::on_pbReset_clicked()
 {
-	initUserInput();
+	initUserInput(true);
 	initStats();
 }
 
@@ -1513,11 +1519,15 @@ void W_2DPlot::on_pbIMU_clicked()
 
 	for(int item = 0; item < VAR_NUM; item++)
 	{
-		//Special case for Rigid:
-		if((*cbVarSlave[item])->count()-1 == (*cbVarSlave[item])->currentIndex())
+		//Special case for Rigid & Pocket:
+		if((*cbVarSlave[item])->currentIndex() >= (*cbVarSlave[item])->count()-3)
+		{
 			(*cbVar[item])->setCurrentIndex(item + 4);
+		}
 		else
+		{
 			(*cbVar[item])->setCurrentIndex(item + 2);
+		}
 	}
 }
 
@@ -1725,4 +1735,50 @@ void W_2DPlot::on_lineEditB5_textEdited(const QString &arg1)
 void W_2DPlot::on_lineEditB6_textEdited(const QString &arg1)
 {
 	updateScalingFactors(5, 1, arg1);
+}
+
+void W_2DPlot::on_pbWaveSelector_1_clicked()
+{
+	chartView->setLineSeriesIndex(0);
+}
+
+void W_2DPlot::on_pbWaveSelector_2_clicked()
+{
+	chartView->setLineSeriesIndex(1);
+}
+
+void W_2DPlot::on_pbWaveSelector_3_clicked()
+{
+	chartView->setLineSeriesIndex(2);
+}
+
+void W_2DPlot::on_pbWaveSelector_4_clicked()
+{
+	chartView->setLineSeriesIndex(3);
+}
+
+void W_2DPlot::on_pbWaveSelector_5_clicked()
+{
+	chartView->setLineSeriesIndex(4);
+}
+
+void W_2DPlot::on_pbWaveSelector_6_clicked()
+{
+	chartView->setLineSeriesIndex(5);
+}
+
+void W_2DPlot::on_pbCursorMode_clicked()
+{
+	if(chartView->getCursorMode() == BetterChartView::NoCursor)
+	{
+		chartView->setCursorMode(BetterChartView::CursorUnlinked);
+	}
+	else if(chartView->getCursorMode() == BetterChartView::CursorUnlinked)
+	{
+		chartView->setCursorMode(BetterChartView::CursorLinked);
+	}
+	else if(chartView->getCursorMode() == BetterChartView::CursorLinked)
+	{
+		chartView->setCursorMode(BetterChartView::NoCursor);
+	}
 }

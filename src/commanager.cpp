@@ -7,6 +7,7 @@
 #include <cmd-MIT_2DoF_Ankle_v1.h>
 #include <cmd-RICNU_Knee_v1.h>
 #include <cmd-Rigid.h>
+#include <cmd-Pocket.h>
 #include <dynamic_user_structs.h>
 
 ComManager::ComManager(QObject *parent) :
@@ -137,7 +138,7 @@ void ComManager::startAutoStreaming(bool shouldLog, \
 
 		CmdSlaveRecord record(cmd, slave, shouldLog, device);
 		autoStreamLists[indexOfFreq].push_back(record);
-		qDebug() << "Started streaming cmd: " << cmd << ", for slave id: " << slave << "at frequency: " << freq;
+		qDebug() << "Started autostreaming cmd: " << cmd << ", for slave id: " << slave << "at frequency: " << freq;
 		qDebug() << "Covering indexes" << firstIndex << "to" << lastIndex << ".";
 		emit streamingFrequency(freq);
 	}
@@ -200,7 +201,7 @@ void ComManager::onComPortClosing()
 			CmdSlaveRecord record = autoStreamLists[i].at(j);
 			packAndSendStopStreaming(record.cmdType, record.device->slaveID);
 			record.device->isCurrentlyLogging = false;
-			qDebug() << "Stopped streaming cmd: " << record.cmdType << ", for slave id: " << record.device->slaveID << "at frequency: " << timerFrequencies[i];
+			qDebug() << "Stopped autostreaming cmd: " << record.cmdType << ", for slave id: " << record.device->slaveID << "at frequency: " << timerFrequencies[i];
 			if(record.shouldLog)
 				emit closeRecordingFile(record.device);
 		}
@@ -227,6 +228,11 @@ void ComManager::onComPortClosing()
 void ComManager::open(QString name, int tries, int delay, bool* success)
 {
 	mySerialDriver->open(name, tries, delay, success);
+}
+
+void ComManager::openCancelRequest(void)
+{
+	mySerialDriver->openCancelRequest();
 }
 
 void ComManager::close(void)
@@ -277,6 +283,10 @@ void ComManager::tryPackAndSend(int cmd, uint8_t slaveId)
 	{
 		mySerialDriver->write(numb, comm_str_usb);
 		emit sentRead(cmd, slaveId);
+	}
+	else
+	{
+		qDebug() << "SerialDriver isn't open";
 	}
 }
 
@@ -381,6 +391,9 @@ void ComManager::sendCommands(int index)
 			case CMD_READ_ALL_RIGID:
 				sendCommandRigid(record.slaveIndex);
 				break;
+			case CMD_READ_ALL_POCKET:
+				sendCommandPocket(record.slaveIndex);
+				break;
 			default:
 				qDebug() << "Unsupported command was given: " << record.cmdType;
 				stopStreaming(record.cmdType, record.slaveIndex, timerFrequencies[index]);
@@ -448,9 +461,19 @@ void ComManager::sendCommandRigid(uint8_t slaveId)
 	if(rigidOffsets.size() < 1) return;
 	static int index = 0;
 
-	tx_cmd_rigid_r(TX_N_DEFAULT, (uint8_t)(ricnuOffsets.at(index)));
+	tx_cmd_rigid_r(TX_N_DEFAULT, (uint8_t)(rigidOffsets.at(index)));
 	index++;
 	index %= rigidOffsets.size();
 	tryPackAndSend(CMD_READ_ALL_RIGID, slaveId);
 }
 
+void ComManager::sendCommandPocket(uint8_t slaveId)
+{
+	if(rigidOffsets.size() < 1) return;
+	static int index = 0;
+
+	tx_cmd_pocket_r(TX_N_DEFAULT, (uint8_t)(rigidOffsets.at(index)));
+	index++;
+	index %= rigidOffsets.size();
+	tryPackAndSend(CMD_READ_ALL_POCKET, slaveId);
+}

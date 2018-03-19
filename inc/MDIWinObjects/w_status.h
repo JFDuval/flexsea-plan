@@ -43,7 +43,8 @@
 #include <qlabel.h>
 #include <qpushbutton.h>
 #include <QListWidgetItem>
-
+#include <QTimer>
+#include "rigidDevice.h"
 
 //****************************************************************************
 // Definition(s):
@@ -57,6 +58,16 @@
 #define STATUS_YELLOW	2
 #define STATUS_RED		3
 
+//Status byte flags (copied from Re):
+#define STATUS_TEMPERATURE		1
+#define STATUS_VB				2
+#define STATUS_OTHER_VOLT		4
+#define STATUS_CURRENT_WARN		8
+#define STATUS_CURRENT_LIM		16
+//...
+#define STATUS_BUTTON			128
+
+#define TEMP_WARNING		60	//Celsius
 
 //****************************************************************************
 // Namespace & Class Definition:
@@ -72,7 +83,9 @@ class W_Status : public QWidget, public Counter<W_Status>
 
 public:
 	//Constructor & Destructor:
-	explicit W_Status(QWidget *parent = 0, DynamicUserDataManager* userDataManager = nullptr);
+	explicit W_Status(QWidget *parent = 0,
+					  DynamicUserDataManager* userDataManager = nullptr,
+					  QList<RigidDevice> *deviceListPtr = nullptr);
 	~W_Status();
 
 public slots:
@@ -102,10 +115,13 @@ private:
 	QLabel *lab_name_ptr[NB_STATUS];
 	QLabel *lab_indicator_ptr[NB_STATUS];
 	QPushButton *pb_clear_ptr[NB_STATUS];
+	bool isComOpen = false;
 
 	int active_slave, active_slave_index;
 	QTimer *refreshDelayTimer;
 	DynamicUserDataManager* userDataMan;
+	QTimer *timerDisplay;
+	QList<RigidDevice> *deviceList;
 
 	//Function(s):
 	void init(void);
@@ -114,6 +130,8 @@ private:
 	void setStatus(int row, int status);
 	void statusReset(int row);
 	void initLabelText(void);
+	void refreshDisplay(void);
+	void initTimers();
 };
 
 //****************************************************************************

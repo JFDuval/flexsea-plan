@@ -6,12 +6,6 @@ echo
 echo [This script will pull the latest version of the 4 typical submodules]
 echo 
 
-echo flexsea-user...
-cd flexsea-user
-git pull
-cd ..
-echo 
-
 echo flexsea-comm...
 cd flexsea-comm
 git pull
@@ -26,6 +20,12 @@ echo
 
 echo flexsea-shared...
 cd flexsea-shared
+git pull
+cd ..
+echo 
+
+echo flexsea-projects...
+cd flexsea-projects
 git pull
 cd ..
 echo 
